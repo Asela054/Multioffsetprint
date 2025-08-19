@@ -426,22 +426,22 @@ include "include/topnavbar.php";
 												</div>
 												<div class="col">
 													<div class="custom-control custom-radio">
-														<input type="radio" id="coatingglossmatt1" name="coatingglossmatt" class="custom-control-input">
-														<label class="custom-control-label small" value="Gloss" for="coatingglossmatt1">Gloss</label>
+														<input type="radio" id="coatingsubtype1" name="coatingsubtype" class="custom-control-input" value="Gloss">
+														<label class="custom-control-label small" for="coatingsubtype1">Gloss</label>
 													</div>
 													<div class="custom-control custom-radio">
-														<input type="radio" id="coatingglossmatt2" name="coatingglossmatt" class="custom-control-input">
-														<label class="custom-control-label small" value="Matt" for="coatingglossmatt2">Matt</label>
+														<input type="radio" id="coatingsubtype2" name="coatingsubtype" class="custom-control-input" value="Matt">
+														<label class="custom-control-label small" for="coatingsubtype2">Matt</label>
 													</div>
 												</div>
 												<div class="col">
 													<div class="custom-control custom-radio">
-														<input type="radio" id="coatingfullspot1" name="coatingfullspot" class="custom-control-input">
-														<label class="custom-control-label small" value="Full" for="coatingfullspot1">Full</label>
+														<input type="radio" id="coatingsubtype3" name="coatingsubtype" class="custom-control-input" value="Full">
+														<label class="custom-control-label small" for="coatingsubtype3">Full</label>
 													</div>
 													<div class="custom-control custom-radio">
-														<input type="radio" id="coatingfullspot2" name="coatingfullspot" class="custom-control-input">
-														<label class="custom-control-label small" value="Spot" for="coatingfullspot2">Spot</label>
+														<input type="radio" id="coatingsubtype4" name="coatingsubtype" class="custom-control-input" value="Spot">
+														<label class="custom-control-label small" for="coatingsubtype4">Spot</label>
 													</div>
 												</div>
 											</div>
@@ -478,9 +478,9 @@ include "include/topnavbar.php";
 													<th>Material</th>
 													<th class="d-none">VarnishTypeID</th>
 													<th>Varnish Type</th>
+													<th class="d-none">VarnishSubType</th>
 													<th>Qty(KG)</th>
 													<th>Remark</th>
-													<th class="d-none"></th>
 												</tr>
 											</thead>
 											<tbody></tbody>
@@ -758,11 +758,11 @@ include "include/topnavbar.php";
 												</div>
 												<div class="col">
 													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input" id="diechannel">
+														<input type="checkbox" class="custom-control-input" id="diechannel" value="Channel">
 														<label class="custom-control-label small" for="diechannel">Channel</label>
 													</div>
 													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input" id="dieboard">
+														<input type="checkbox" class="custom-control-input" id="dieboard" value="Board">
 														<label class="custom-control-label small" for="dieboard">Board</label>
 													</div>
 												</div>
@@ -876,6 +876,7 @@ include "include/topnavbar.php";
 													<th>Material</th>
 													<th class="d-none">RimmingTypeID</th>
 													<th>Rimming Type</th>
+													<th>Side</th>
 													<th>Qty</th>
 													<th>Remark</th>
 													<th class="d-none"></th>
@@ -940,14 +941,14 @@ include "include/topnavbar.php";
 							</div>
 							<!-- Other Info Section -->
 							<div class="card shadow-none border m-0">
-								<div class="card-header p-1" id="headingSeven">
+								<div class="card-header p-1" id="headingOtherinfo">
 									<h2 class="mb-0">
-										<button class="btn btn-link btn-block text-left collapsed p-0 btn-sm text-decoration-none text-dark" type="button" data-toggle="collapse" data-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+										<button class="btn btn-link btn-block text-left collapsed p-0 btn-sm text-decoration-none text-dark" type="button" data-toggle="collapse" data-target="#collapseOtherinfo" aria-expanded="false" aria-controls="collapseOtherinfo">
 											Other Information
 										</button>
 									</h2>
 								</div>
-								<div id="collapseSeven" class="collapse" aria-labelledby="headingSeven" data-parent="#accordionExample">
+								<div id="collapseOtherinfo" class="collapse" aria-labelledby="headingOtherinfo" data-parent="#accordionExample">
 									<div class="card-body p-2">
 										<form method="post" autocomplete="off" id="OtherForm">
 											<div class="form-row mb-1">
@@ -1580,7 +1581,7 @@ include "include/topnavbar.php";
 						rimmingObj.push(item);
 					});
 				}
-				// console.log(materialObj);
+				// console.log(rimmingObj);
 
 				var diechannel = '';
 				var dieboard = '';
@@ -1630,7 +1631,10 @@ include "include/topnavbar.php";
 								bomtitle: bomtitle,
 								recordOption: recordbomOption,
 								recordID: recordbomID,
-
+								prepressArtworkby: prepressArtworkby,
+								prepressFormat: prepressFormat,
+								prepressPlateby: prepressPlateby,
+								
 								materialTable: materialObj,
 								colorTable: colorgObj,
 								varnishTable: varnishObj,
@@ -1638,7 +1642,7 @@ include "include/topnavbar.php";
 								laminationTable: laminationObj,
 								pastingTable: pastingObj,
 								rimmingTable: rimmingObj,
-								
+
 								diecutby: diecutby,
 								diechannel: diechannel,
 								dieboard: dieboard,
@@ -1756,8 +1760,7 @@ include "include/topnavbar.php";
 			} else {
 				var coatingvarnish = $('#coatingvarnish').val();
 				var coatingvarnishText = $("#coatingvarnish option:selected").text();
-				var glossmatt = $('input[name="coatingglossmatt"]:checked').val();
-				var fullspot = $('input[name="coatingfullspot"]:checked').val();
+				var coatingsubtype = $('input[name="coatingsubtype"]:checked').val();
 
 				var materialId = $('#coatingmaterial').val();
 				var materialtext = $("#coatingmaterial option:selected").text();
@@ -1767,7 +1770,7 @@ include "include/topnavbar.php";
 				var coatingQty = $('#coatingQty').val();
 				var coatingmark = $('#coatingmark').val();
 
-				$('#tblCoatingDetails > tbody:last').append('<tr class="btnDeleteVarnish"><td class="d-none">' + materialId + '</td><td>' + materialcode + '</td><td>' + materialtext + '</td><td class="d-none">' + coatingvarnish + '</td><td>' + coatingvarnishText + '</td><td>' + coatingQty + '</td><td>' + coatingmark + '</td></tr>'
+				$('#tblCoatingDetails > tbody:last').append('<tr class="btnDeleteVarnish"><td class="d-none">' + materialId + '</td><td>' + materialcode + '</td><td>' + materialtext + '</td><td class="d-none">' + coatingvarnish + '</td><td>' + coatingvarnishText + ' - ' + coatingsubtype + '</td><td class="d-none">' + coatingsubtype + '</td><td>' + coatingQty + '</td><td>' + coatingmark + '</td></tr>'
 				);
 
 				$('#varnishmaterial').val('').trigger('change');
@@ -1865,7 +1868,7 @@ include "include/topnavbar.php";
 				var rimmingqty = $('#rimmingqty').val();
 				var rimmingRemark = $('#rimmingRemark').val();
 
-				$('#tblRimmingDetails > tbody:last').append('<tr class="btnDeleteRimming"><td>' + rimmingMaterialby + '</td><td class="d-none">' + materialId + '</td><td>' + materialcode + '</td><td>' + materialtext + '</td><td class="d-none">' + rimming + '</td><td>' + rimmingtext + '</td><td>' + rimmingqty + '</td><td>' + rimmingRemark + '</td></tr>'
+				$('#tblRimmingDetails > tbody:last').append('<tr class="btnDeleteRimming"><td>' + rimmingMaterialby + '</td><td class="d-none">' + materialId + '</td><td>' + materialcode + '</td><td>' + materialtext + '</td><td class="d-none">' + rimming + '</td><td>' + rimmingtext + '</td><td>' + rimmingside + '</td><td>' + rimmingqty + '</td><td>' + rimmingRemark + '</td></tr>'
 				);
 
 				$('#rimmingmaterial').val('').trigger('change');
