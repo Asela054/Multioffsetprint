@@ -1,0 +1,376 @@
+<?php
+class IssueMaterialsinfo extends CI_Model{
+
+    public function Fetchinsertedmaterials(){
+        $inquiryId=$this->input->post('inquiryId');
+      
+        $this->db->select('`tbl_inquiry_allocated_materials`.`issued_status`, `tbl_inquiry_allocated_materials.idtbl_inquiry_allocated_materials`, `tbl_inquiry_allocated_materials.qty`, `tbl_inquiry_allocated_materials.unitprice`, `tbl_print_material_info.materialname`, `tbl_print_material_info.idtbl_print_material_info`, `tbl_inquiry_allocated_materials.tbl_material_type_idtbl_material_type`, `tbl_inquiry_allocated_materials.tbl_categorygauge_idtbl_categorygauge`');
+        $this->db->from('tbl_inquiry_allocated_materials');
+		$this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_inquiry_allocated_materials.tbl_print_material_info_idtbl_print_material_info', 'left');
+        $this->db->join('tbl_jobquatation', 'tbl_jobquatation.idtbl_jobquatation = tbl_inquiry_allocated_materials.tbl_jobquatation_idtbl_jobquatation', 'left');
+        $this->db->where('tbl_inquiry_allocated_materials.status', 1);
+        $this->db->where('tbl_inquiry_allocated_materials.tbl_jobquatation_idtbl_jobquatation', $inquiryId);
+        $respond=$this->db->get();
+
+        echo json_encode($respond->result());
+    }    
+
+    public function UpdateStockForMaterialIssue(){
+        $inquiryId=$this->input->post('inquiryId');
+		$tableData = $this->input->post('tableData');
+		$tableData2 = $this->input->post('tableData');
+
+        
+        foreach($tableData as $rowtabledata){
+            $qty = $rowtabledata['col_2'];
+            $materialId = $rowtabledata['col_5'];
+            $issuedStatus = $rowtabledata['col_10'];
+
+            if($issuedStatus == 0){
+                $this->db->select_sum('qty');
+                $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialId);
+                $query = $this->db->get('tbl_print_stock');
+    
+                if ($query->num_rows() > 0) {
+                    $availabletotqty = $query->row()->qty; 
+                    if($availabletotqty < $qty){
+                        $actionObj=new stdClass();
+                        $actionObj->icon='fas fa-save';
+                        $actionObj->title='';
+                        $actionObj->message='Not Enough Stock Available';
+                        $actionObj->url='';
+                        $actionObj->target='_blank';
+                        $actionObj->type='danger';
+
+                        $actionJSON=json_encode($actionObj);
+                    
+                        $obj=new stdClass();
+                        $obj->status=1;          
+                        $obj->action=$actionJSON;  
+                            
+                        echo json_encode($obj);
+                        return;
+                    }
+                } else {
+                    $actionObj=new stdClass();
+                    $actionObj->icon='fas fa-save';
+                    $actionObj->title='';
+                    $actionObj->message='Not Enough Stock Available';
+                    $actionObj->url='';
+                    $actionObj->target='_blank';
+                    $actionObj->type='danger';
+                        
+                    $actionJSON=json_encode($actionObj);
+                    
+                    $obj=new stdClass();
+                    $obj->status=1;          
+                    $obj->action=$actionJSON;  
+                        
+                    echo json_encode($obj);
+                    return;
+                }
+            }
+            
+        }
+
+        foreach($tableData2 as $rowtabledata2){
+            $qty = $rowtabledata2['col_2'];
+            $remainingqty = $qty;
+            $count = 0;
+
+            $materialId = $rowtabledata2['col_5'];
+            $inquiryallocmaterialId = $rowtabledata2['col_9'];
+            $issuedStatus = $rowtabledata2['col_10'];
+
+            $this->db->select('*');
+            $this->db->from('tbl_print_stock');
+            $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialId);
+            $this->db->order_by('idtbl_print_stock', 'asc');
+            $query = $this->db->get();
+
+            if($issuedStatus == 0){
+                foreach ($query->result() as $row) {
+                    $stockqty = $row->qty;
+                    $stockId = $row->idtbl_print_stock;
+
+                    if($remainingqty <= $stockqty){
+                        $updatestockdata = array(
+                            'qty'=> $stockqty - $remainingqty,
+                        );
+
+                        $this->db->where('idtbl_print_stock', $stockId);
+                        $this->db->update('tbl_print_stock', $updatestockdata);
+
+                        break;
+
+                    }else{
+                        $remainingqty = $remainingqty - $stockqty;
+
+                        $updatestockdata = array(
+                            'qty'=> 0,
+                        );
+
+                        $this->db->where('idtbl_print_stock', $stockId);
+                        $this->db->update('tbl_print_stock', $updatestockdata);
+                    }
+                }
+                $statusupdate = array(
+                    'issued_status'=> 1,
+                );
+
+                $this->db->where('idtbl_inquiry_allocated_materials', $inquiryallocmaterialId);
+                $this->db->update('tbl_inquiry_allocated_materials', $statusupdate);
+            }
+        }
+
+        
+        $actionObj=new stdClass();
+		$actionObj->icon='fas fa-save';
+		$actionObj->title='';
+		$actionObj->message='Stock Updated Successfully';
+		$actionObj->url='';
+		$actionObj->target='_blank';
+		$actionObj->type='success';
+
+		$actionJSON=json_encode($actionObj);
+	
+		$obj=new stdClass();
+		$obj->status=1;          
+		$obj->action=$actionJSON;  
+			
+		echo json_encode($obj);
+        return;
+    }    
+
+    public function ApproveMaterialIssue($x){
+        $this->db->trans_begin();
+
+        $userID=$_SESSION['userid'];
+        $company=$_SESSION['company_id'];
+        $branch=$_SESSION['branch_id'];
+        $recordID=$x;
+        $updatedatetime=date('Y-m-d H:i:s');
+        $z = 4;
+
+        $data = array(
+            'is_materialissue_approved' => '1',
+            'tbl_user_idtbl_user'=> $userID, 
+            'updatedatetime'=> $updatedatetime
+        );
+
+        $this->db->where('idtbl_customerinquiry_detail', $recordID);
+        $this->db->update('tbl_customerinquiry_detail', $data);
+
+
+
+
+        
+
+
+            $this->db->select('tbl_inquiry_allocated_materials.insertdatetime,tbl_inquiry_allocated_materials.tbl_jobquatation_idtbl_jobquatation,tbl_inquiry_allocated_materials.totalprice');
+			$this->db->from('tbl_inquiry_allocated_materials');
+            $this->db->join('tbl_jobquatation', 'tbl_inquiry_allocated_materials.tbl_jobquatation_idtbl_jobquatation = tbl_jobquatation.idtbl_jobquatation', 'left');
+            //$this->db->join('tbl_print_grn', 'tbl_grn_vouchar_import_cost.tbl_print_grn_idtbl_print_grn = tbl_print_grn.idtbl_print_grn', 'left');
+			//$this->db->where('tbl_print_grn.status', 1);
+			$this->db->where('tbl_inquiry_allocated_materials.idtbl_inquiry_allocated_materials', $recordID);
+
+			$respond=$this->db->get();
+
+			if ($respond->num_rows() > 0) {
+				foreach ($respond->result() as $row) {
+					// $grnid=$row->idtbl_print_grn;
+					$totalamount=$row->totalprice;
+					// $supplier=$row->tbl_supplier_idtbl_supplier;
+					$date=$row->insertdatetime;
+                    // $vat_amount = $row->vatamount;
+                    // $grnnum=$row->grn_no;
+                    // $grossamount=$row->grntotal;
+                    // $orderType=$row->grntype;
+                  
+				}
+			}
+    
+            // if ($vat_amount == 0) {
+            //     $segregation_data = [
+            //         [
+            //             "amount" => $totalamount, 
+            //             "narration" => $grnnum . ' - ' . $grndate,
+            //             "chartaccount" => "133",
+            //             "detailaccount" => ""
+            //         ],
+            //         [
+            //             "amount" => $grossamount, 
+            //             "narration" => $grnnum . ' - ' . $grndate,
+            //             "chartaccount" => "115",
+            //             "detailaccount" => ""
+            //         ]
+            //     ];
+            // } else {
+            //     $segregation_data = [
+            //         [
+            //             "amount" => $vat_amount, 
+            //             "narration" => $grnnum . ' - ' . $grndate,
+            //             "chartaccount" => "141",
+            //             "detailaccount" => ""
+            //         ],
+            //         [
+            //             "amount" => $totalamount, 
+            //             "narration" => $grnnum . ' - ' . $grndate,
+            //             "chartaccount" => "133",
+            //             "detailaccount" => ""
+            //         ],
+            //         [
+            //             "amount" => $grossamount, 
+            //             "narration" => $grnnum . ' - ' . $grndate,
+            //             "chartaccount" => "115",
+            //             "detailaccount" => ""
+            //         ]
+            //     ];
+            // }
+            
+            $data = [
+                "userid" => $userID,
+                "company" => $company,
+                "branch" => $branch,
+                "tradate" => $date,
+                "traamount" => $totalamount,
+                "accountcrno" => "115",
+                "narrationcr" => "Test1",
+                "accountdrno" => "114",
+                "narrationdr" => "Test2",
+                "updatedatetime" => $date,
+            ];
+            
+            $postfields = http_build_query($data);
+    
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "https://aws.erav.lk/multioffsetaccount/Api/Issuematerialprocess");
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $server_output = curl_exec($ch);
+            $err = curl_error($ch);
+            curl_close($ch);
+    
+            $curl_errno=1;
+            $curl_errmsg='';
+            if ($err) {
+                $curl_errno=0;
+                $curl_errmsg="Response not OK: " . $server_output;
+            } else 
+            {
+                $responseArray = json_decode($server_output, true);
+                $responseCode = $responseArray['status'];
+                
+                if ($responseCode != 200) {
+                    $curl_errno=0;
+                    $curl_errmsg="Response not OK: " . $server_output;
+                } 
+            }
+          
+            if ($curl_errno == 0) {
+                $this->db->trans_rollback();
+    
+                $actionObj = new stdClass();
+                $actionObj->icon = 'fas fa-exclamation-triangle';
+                $actionObj->title = '';
+                $actionObj->message = 'API Request Error: ' . $curl_errmsg;
+                $actionObj->url = '';
+                $actionObj->target = '_blank';
+                $actionObj->type = 'danger';
+    
+                $actionJSON = json_encode($actionObj);
+    
+                $obj = new stdClass();
+                $obj->status = 0;
+                $obj->action = $actionJSON;
+    
+                echo json_encode($obj);
+            } else {
+                $this->db->trans_complete();
+    
+                if ($this->db->trans_status() === TRUE) {
+                    $this->db->trans_commit();
+    
+                    $actionObj = new stdClass();
+                    $actionObj->icon = 'fas fa-save';
+                    $actionObj->title = '';
+                    $actionObj->message = 'Material Issued Successfully';
+                    $actionObj->url = '';
+                    $actionObj->target = '_blank';
+                    $actionObj->type = 'success';
+    
+                    $actionJSON = json_encode($actionObj);
+
+                    $this->session->set_flashdata('msg', $actionJSON);
+                    redirect('IssueMaterials');
+    
+                    // $obj = new stdClass();
+                    // $obj->status = 1;
+                    // $obj->action = $actionJSON;
+    
+                    // echo json_encode($obj);
+                } else {
+                    $this->db->trans_rollback();
+    
+                    $actionObj = new stdClass();
+                    $actionObj->icon = 'fas fa-exclamation-triangle';
+                    $actionObj->title = '';
+                    $actionObj->message = 'Record Error';
+                    $actionObj->url = '';
+                    $actionObj->target = '_blank';
+                    $actionObj->type = 'danger';
+    
+                    $actionJSON = json_encode($actionObj);
+    
+                    $obj = new stdClass();
+                    $obj->status = 0;
+                    $obj->action = $actionJSON;
+    
+                    echo json_encode($obj);
+                }
+            }
+
+
+
+
+
+
+
+            
+
+        // $this->db->trans_complete();
+
+        // if ($this->db->trans_status() === TRUE) {
+        //     $this->db->trans_commit();
+            
+        //     $actionObj=new stdClass();
+        //     $actionObj->icon='fas fa-check';
+        //     $actionObj->title='';
+        //     $actionObj->message='Record Updated Successfully';
+        //     $actionObj->url='';
+        //     $actionObj->target='_blank';
+        //     $actionObj->type='success';
+
+        //     $actionJSON=json_encode($actionObj);
+            
+        //     $this->session->set_flashdata('msg', $actionJSON);
+        //     redirect('IssueMaterials');                 
+        // } else {
+        //     $this->db->trans_rollback();
+
+        //     $actionObj=new stdClass();
+        //     $actionObj->icon='fas fa-warning';
+        //     $actionObj->title='';
+        //     $actionObj->message='Record Error';
+        //     $actionObj->url='';
+        //     $actionObj->target='_blank';
+        //     $actionObj->type='danger';
+
+        //     $actionJSON=json_encode($actionObj);
+            
+        //     $this->session->set_flashdata('msg', $actionJSON);
+        //     redirect('IssueMaterials'); 
+        // }
+    }
+}
