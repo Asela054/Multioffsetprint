@@ -361,6 +361,11 @@ class Newcustomerjobsinfo extends CI_Model{
 
         $jobid=$this->input->post('jobid');
 		$bomtitle=$this->input->post('bomtitle');
+
+		$prepressArtworkby=$this->input->post('prepressArtworkby');
+		$prepressFormat=$this->input->post('prepressFormat');
+		$prepressPlateby=$this->input->post('prepressPlateby');
+
         $recordOption=$this->input->post('recordOption');
         if(!empty($this->input->post('recordID'))){$recordID=$this->input->post('recordID');}
         
@@ -378,6 +383,7 @@ class Newcustomerjobsinfo extends CI_Model{
         $diesize=$this->input->post('diesize');
         $dieqty=$this->input->post('dieqty');
         $diecutembrossby=$this->input->post('diecutembrossby');
+
         $otherPerforating=$this->input->post('otherPerforating');
         $otherGattering=$this->input->post('otherGattering');
         $otherRimming=$this->input->post('otherRimming');
@@ -386,6 +392,7 @@ class Newcustomerjobsinfo extends CI_Model{
         $otherPadding=$this->input->post('otherPadding');
         $otherCreasing=$this->input->post('otherCreasing');
         $otherThreading=$this->input->post('otherThreading');
+        
         $delivery=$this->input->post('delivery');
 
         $updatedatetime=date('Y-m-d H:i:s');
@@ -393,6 +400,10 @@ class Newcustomerjobsinfo extends CI_Model{
         if($recordOption==1){
             $data = array(
                 'jobbomname'=> $bomtitle, 
+                'artworkby'=> $prepressArtworkby, 
+                'format'=> $prepressFormat, 
+                'plateby'=> $prepressPlateby, 
+                'deliveryby'=> $delivery, 
                 'status'=> '1', 
                 'insertdatetime'=> $updatedatetime,
                 'tbl_user_idtbl_user'=> $userID,
@@ -401,39 +412,67 @@ class Newcustomerjobsinfo extends CI_Model{
             $this->db->insert('tbl_jobcard_bom', $data);
             $jobbomID = $this->db->insert_id(); // Get the inserted ID
 
+            // Material Section
             if(!empty($materialTable)){
                 foreach($materialTable as $materialData){
-                    $printingformatId=$materialData['col_1'];
-                    $cutMaterialId=$materialData['col_2'];
+                    $materialby=$materialData['col_1'];
+                    $materialID=$materialData['col_2'];
                     $cutSize=$materialData['col_5'];
-                    $sheetQty=$materialData['col_6'];
-                    $wastage=$materialData['col_7'];
-                    $stockId=$materialData['col_8'];
+                    $cutups=$materialData['col_6'];
+                    $upspersheet=$materialData['col_7'];
+                    $wastage=$materialData['col_8'];
 
                     $materialListData = array(
+                        'materialby'=> $materialby, 
                         'cutsize'=> $cutSize, 
-                        'sheetqty'=> $sheetQty, 
+                        'cutups'=> $cutups, 
+                        'upspersheet'=> $cutups, 
                         'wastage'=> $wastage, 
                         'status'=> '1', 
                         'insertdatetime'=> $updatedatetime, 
                         'tbl_user_idtbl_user'=> $userID,
-                        'tbl_printing_format_idtbl_printing_format'=> $printingformatId,
-                        'tbl_print_material_info_idtbl_print_material_info'=> $cutMaterialId,
+                        'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
                         'tbl_jobcard_bom_idtbl_jobcard_bom'=> $jobbomID,
                     );
                     $this->db->insert('tbl_jobcard_bom_material', $materialListData);
                 }
             }
+            // Printing Section
+            if(!empty($colorTable)){
+                foreach($colorTable as $colorData){
+                    $printmaterialby=$colorData['col_1'];
+                    $printmaterialID=$colorData['col_2'];
+                    $colortype=$colorData['col_3'];
+                    $colorqty=$colorData['col_6'];
+                    $remark=$colorData['col_7'];
 
+                    $datacolor = array(
+                        'colormaterialby'=> $printmaterialby, 
+                        'colortype'=> $colortype, 
+                        'remark'=> $remark, 
+                        'qty'=> $colorqty, 
+                        'status'=> '1', 
+                        'insertdatetime'=> $updatedatetime, 
+                        'tbl_user_idtbl_user'=> $userID,
+                        'tbl_jobcard_bom_idtbl_jobcard_bom'=> $jobbomID,
+                        'tbl_print_material_info_idtbl_print_material_info'=> $printmaterialID
+                    );
+                    $this->db->insert('tbl_jobcard_bom_color', $datacolor);
+                }
+            }
+            // Varnish Section
             if(!empty($varnishTable)){
                 foreach($varnishTable as $varnishData){
-                    $varnishId=$varnishData['col_1'];
-                    $varnishMaterialId=$varnishData['col_2'];
-                    $varnishSheetQty=$varnishData['col_5'];
-                    $stockId=$varnishData['col_6'];
+                    $varnishMaterialId=$varnishData['col_1'];
+                    $varnishId=$varnishData['col_4'];
+                    $coattype=$varnishData['col_6'];
+                    $varnishSheetQty=$varnishData['col_7'];
+                    $remark=$varnishData['col_8'];
 
                     $varnishListData = array(
+                        'coattype'=> $coattype, 
                         'varnishQty'=> $varnishSheetQty, 
+                        'remark'=> $remark, 
                         'status'=> '1', 
                         'insertdatetime'=> $updatedatetime, 
                         'tbl_user_idtbl_user'=> $userID,
@@ -444,22 +483,44 @@ class Newcustomerjobsinfo extends CI_Model{
                     $this->db->insert('tbl_jobcard_bom_varnish', $varnishListData);
                 }
             }
-        
+            // Foiling Section
+            if(!empty($foilTable)){
+                foreach($foilTable as $foilData){
+                    $foilingby=$foilData['col_1'];
+                    $foimaterialID=$foilData['col_2'];
+                    $foiltype=$foilData['col_5'];
+                    $foilqty=$foilData['col_7'];
+                    $remark=$foilData['col_8'];
+
+                    $foilListData = array(
+                        'foilmaterialby'=> $foilingby, 
+                        'qty'=> $foilqty, 
+                        'remark'=> $remark, 
+                        'status'=> '1', 
+                        'insertdatetime'=> $updatedatetime, 
+                        'tbl_user_idtbl_user'=> $userID,
+                        'tbl_foiling_idtbl_foiling'=> $foiltype,
+                        'tbl_print_material_info_idtbl_print_material_info'=> $foimaterialID,
+                        'tbl_jobcard_bom_idtbl_jobcard_bom'=> $jobbomID
+                    );
+                    $this->db->insert('tbl_jobcard_bom_foil', $foilListData);
+                }
+            }
+            // Lamination Section
             if(!empty($laminationTable)){
                 foreach($laminationTable as $laminationData){
-                    $laminationId=$laminationData['col_1'];
-                    $laminationMaterialId=$laminationData['col_2'];
-                    $laminationPrintSides=$laminationData['col_3'];
+                    $laminationMaterialId=$laminationData['col_1'];
+                    $laminationId=$laminationData['col_4'];
                     $filmSize=$laminationData['col_6'];
-                    $micron=$laminationData['col_7'];
-                    $laminationsheet_qty=$laminationData['col_9'];
-                    $stockId=$laminationData['col_10'];
+                    $laminationPrintSides=$laminationData['col_7'];
+                    $laminationqty=$laminationData['col_8'];
+                    $laminationwastage=$laminationData['col_9'];
 
                     $laminationListData = array(
                         'sides'=> $laminationPrintSides, 
                         'filmsize'=> $filmSize, 
-                        'micron'=> $micron, 
-                        'lamination_qty'=> $laminationsheet_qty, 
+                        'lamination_qty'=> $laminationqty, 
+                        'wastage'=> $laminationwastage, 
                         'status'=> '1', 
                         'insertdatetime'=> $updatedatetime, 
                         'tbl_user_idtbl_user'=> $userID,
@@ -470,20 +531,58 @@ class Newcustomerjobsinfo extends CI_Model{
                     $this->db->insert('tbl_jobcard_bom_lamination', $laminationListData);
                 }
             }
-        
+            // Pasting Section
+            if(!empty($pastingTable)){
+                foreach($pastingTable as $pastingData){
+                    $pastematerialID=$pastingData['col_1'];
+                    $machineID=$pastingData['col_4'];
+                    $pastetype=$pastingData['col_6'];
+                    $pasteqty=$pastingData['col_7'];
+                    $pasteremark=$pastingData['col_8'];
+
+                    $pastingListData = array(
+                        'pastetype'=> $pastetype, 
+                        'pasteqty'=> $pasteqty, 
+                        'remark'=> $pasteremark, 
+                        'status'=> '1', 
+                        'insertdatetime'=> $updatedatetime, 
+                        'tbl_user_idtbl_user'=> $userID,
+                        'tbl_machine_idtbl_machine'=> $machineID,
+                        'tbl_print_material_info_idtbl_print_material_info'=> $pastematerialID,
+                        'tbl_jobcard_bom_idtbl_jobcard_bom'=> $jobbomID
+                    );
+                    $this->db->insert('tbl_jobcard_bom_pasting', $pastingListData);
+                }
+            }
+            // Die Cutting Section
+            $dieCuttingListData = array(
+                'channel'=> $diechannel, 
+                'board'=> $dieboard, 
+                'size'=> $diesize, 
+                'qty'=> $dieqty, 
+                'diecutby'=> $diecutby, 
+                'embossby'=> $diecutembrossby, 
+                'status'=> '1', 
+                'insertdatetime'=> $updatedatetime, 
+                'tbl_user_idtbl_user'=> $userID,
+                'tbl_jobcard_bom_idtbl_jobcard_bom'=> $jobbomID
+            );
+            $this->db->insert('tbl_jobcard_bom_diecutting', $dieCuttingListData);
+            // Rimming Section
             if(!empty($rimmingTable)){
                 foreach($rimmingTable as $rimmingData){
-                    $rimmingId=$rimmingData['col_1'];
+                    $rimmingby=$rimmingData['col_1'];
                     $rimmingMaterialId=$rimmingData['col_2'];
-                    $printedSides=$rimmingData['col_3'];
-                    $length=$rimmingData['col_6'];
+                    $rimmingId=$rimmingData['col_5'];
+                    $printedSides=$rimmingData['col_7'];
                     $rimmingQty=$rimmingData['col_8'];
-                    $stockId=$rimmingData['col_9'];
+                    $rimmingremark=$rimmingData['col_9'];
 
                     $rimmingListData = array(
+                        'rimmingby'=> $rimmingby, 
                         'sides'=> $printedSides, 
-                        'length'=> $length, 
                         'qty'=> $rimmingQty, 
+                        'remark'=> $rimmingremark, 
                         'status'=> '1', 
                         'insertdatetime'=> $updatedatetime, 
                         'tbl_user_idtbl_user'=> $userID,
@@ -494,71 +593,22 @@ class Newcustomerjobsinfo extends CI_Model{
                     $this->db->insert('tbl_jobcard_bom_rimming', $rimmingListData);
                 }
             }
-            
-            if(!empty($diecuttingTable)){
-                foreach($diecuttingTable as $dieCuttingData){
-                    $peraforation=$dieCuttingData['col_1'];
-                    $halfCutting=$dieCuttingData['col_2'];
-                    $fullCutting=$dieCuttingData['col_3'];
-                    $qty=$dieCuttingData['col_4'];
-
-                    $dieCuttingListData = array(
-                        'peraforation'=> $peraforation, 
-                        'halfCutting'=> $halfCutting, 
-                        'fullCutting'=> $fullCutting, 
-                        'qty'=> $qty, 
-                        'status'=> '1', 
-                        'insertdatetime'=> $updatedatetime, 
-                        'tbl_user_idtbl_user'=> $userID,
-                        'tbl_jobcard_bom_idtbl_jobcard_bom'=> $jobbomID
-                    );
-                    $this->db->insert('tbl_jobcard_bom_diecutting', $dieCuttingListData);
-                }
-            }
-
-            if(!empty($colorTable)){
-                foreach($colorTable as $colorData){
-                    $cmyk=$colorData['col_1'];
-                    $metlic=$colorData['col_2'];
-                    $anyother=$colorData['col_3'];
-                    $colormaterialID=$colorData['col_4'];
-                    $colorqty=$colorData['col_7'];
-                    $remark=$colorData['col_8'];
-
-                    $datacolor = array(
-                        'cmyk'=> $cmyk, 
-                        'metlic'=> $metlic, 
-                        'anyother'=> $anyother, 
-                        'remark'=> $remark, 
-                        'qty'=> $colorqty, 
-                        'status'=> '1', 
-                        'insertdatetime'=> $updatedatetime, 
-                        'tbl_user_idtbl_user'=> $userID,
-                        'tbl_jobcard_bom_idtbl_jobcard_bom'=> $jobbomID,
-                        'tbl_print_material_info_idtbl_print_material_info'=> $colormaterialID
-                    );
-                    $this->db->insert('tbl_jobcard_bom_color', $datacolor);
-                }
-            }
-
-            if(!empty($otherTable)){
-                foreach($otherTable as $otherData){
-                    $othermaterialID=$otherData['col_1'];
-                    $otherqty=$otherData['col_3'];
-
-                    $dataOther = array(
-                        'qty'=> $otherqty, 
-                        'status'=> '1', 
-                        'insertdatetime'=> $updatedatetime, 
-                        'tbl_user_idtbl_user'=> $userID,
-                        'tbl_jobcard_bom_idtbl_jobcard_bom'=> $jobbomID,
-                        'tbl_print_material_info_idtbl_print_material_info'=> $othermaterialID
-                    );
-                    $this->db->insert('tbl_jobcard_bom_other', $dataOther);
-                }
-            }
-
-            
+            // Other Section
+            $dataOther = array(
+                'perfoating'=> $otherPerforating, 
+                'gattering'=> $otherGattering, 
+                'rimming'=> $otherRimming, 
+                'binding'=> $otherBinding, 
+                'stapling'=> $otherStapling, 
+                'padding'=> $otherPadding, 
+                'creasing'=> $otherCreasing, 
+                'threading'=> $otherThreading, 
+                'status'=> '1', 
+                'insertdatetime'=> $updatedatetime, 
+                'tbl_user_idtbl_user'=> $userID,
+                'tbl_jobcard_bom_idtbl_jobcard_bom'=> $jobbomID
+            );
+            $this->db->insert('tbl_jobcard_bom_other', $dataOther);
         
             $this->db->trans_complete();
 
