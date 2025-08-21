@@ -294,75 +294,76 @@ class PdfviewDirectInvoiceinfo extends CI_Model {
 							'.$tblcharges.'
 							</tbody>';
 
-														if ($query->row()->subtotal != 0) {
-								$invoiceLabel = '';
-								$border = 'border-bottom: 2px double black;'; 
-								$vat_html = ''; // Initialize VAT HTML
-								
-								if ($vat_customer == 0) {
-									$fulltotal = number_format($query->row()->net_total, 2, '.', ''); 
-									$invoiceLabel = 'Total Invoice Value';
-									$border = 'border-bottom: 2px double black;'; 
-								} elseif ($vat_customer == 1) {
-									$fulltotal = number_format($query->row()->subtotal, 2, '.', '');
-									$invoiceLabel = 'Gross Invoice Value';
-									$border = 'border-bottom: none;';
-								} elseif ($vat_customer == 2) {
-									$fulltotal = number_format($query->row()->subtotal, 2, '.', '');
-									$invoiceLabel = 'Total Invoice Value'; 
-									$border = 'border-bottom: 2px double black;';
-								}
-								
-									$html .= '
-									<tbody class="foot">
-										<tr>
-											<td colspan="5" style="text-align:right; border: none;">
-												<strong style="font-size: 14px; padding-right: 15px;">' . $invoiceLabel . '</strong>
-											</td>
-											<td width="20%" style="'.$border.' text-align:right; border-right: none; border-left: none; border-top: 1px solid black; padding: 10px;">
-												<strong style="font-size: 14px;">' . number_format($fulltotal, 2, '.', ',') . '</strong>
-											</td>
-										</tr>';
+							if ($query->row()->subtotal != 0) {
+                    $invoiceLabel = '';
+                    $border = 'border-bottom: 2px double black;'; 
+                    $vat_html = ''; // Initialize VAT HTML
+                    
+                    if ($vat_customer == 0) {
+                        $fulltotal = number_format($query->row()->net_total, 2, '.', ''); 
+                        $invoiceLabel = 'Total Invoice Value';
+                        $border = 'border-bottom: 2px double black;'; 
+                    } elseif ($vat_customer == 1) {
+                        $fulltotal = number_format($query->row()->subtotal, 2, '.', '');
+                        $invoiceLabel = 'Gross Invoice Value';
+                        $border = 'border-bottom: none;';
+                    } elseif ($vat_customer == 2) {
+                        $fulltotal = number_format($query->row()->subtotal, 2, '.', '');
+                        $invoiceLabel = 'Total Invoice Value'; 
+                        $border = 'border-bottom: 2px double black;';
+                    }
+                    
+                    $html .= '
+                    <tbody class="foot">
+                        <tr>
+                            <td colspan="5" style="text-align:right; border: none;">
+                                <strong style="font-size: 14px; padding-right: 15px;">' . $invoiceLabel . '</strong>
+                            </td>
+                            <td width="20%" style="'.$border.' text-align:right; border-right: none; border-left: none; border-top: 1px solid black; padding: 10px;">
+                                <strong style="font-size: 14px;">' . number_format($fulltotal, 2, '.', ',') . '</strong>
+                            </td>
+                        </tr>
+                    </tbody>';
 
-									// Show VAT for standard VAT customers (status 1) or suspended customers (status 2)
-									if ($vat_customer == 1 || $vat_customer == 2) {
-										$vat_amount = ($query->row()->subtotal * $query->row()->vatpercent) / 100;
-										
-										if ($vat_customer == 2) {
-											// Suspended VAT - Left aligned with colon and proper spacing
-											$html .= '
-											<tr>
-												<td colspan="6" style="text-align:left; border: none; padding-left: 15px;">
-													<strong style="font-size: 13px;">SUSPENDED VAT AMOUNT (' . $query->row()->vatpercent . '%) : ' . number_format($vat_amount, 2, '.', ',') . '</strong>
-												</td>
-											</tr>';
-										} else {
-											// Regular VAT - Right aligned (original format)
-											$html .= '
-											<tr>
-												<td colspan="5" style="text-align:right; border: none; padding-right: 15px;">
-													<strong style="font-size: 13px;">VAT AMOUNT (' . $query->row()->vatpercent . '%)</strong>
-												</td>
-												<td width="20%" style="text-align:right; border-right: none; border-left: none; padding: 5px 10px;">
-													<strong style="font-size: 14px;">' . number_format($vat_amount, 2, '.', ',') . '</strong>
-												</td>
-											</tr>';
-										}
-									}
-
-									$html .= '</tbody>';
-								
-								// Additional total for non-VAT-exempt and non-suspended customers
-								if ($vat_customer == 1) {
-									$html .= '
-									<tbody>
-										<tr>
-											<td colspan="5" width="25%" style="text-align:right; border: 0px solid black; border-left: 0px solid black; padding: 10px; font-size: 14px;"><strong>Total Invoice Value</strong></td>
-											<td width="20%" style="text-align:right; border-bottom: 2px double black; border-right: none; border-left: none; border-top: 1px solid black; padding: 10px;"><strong style="font-size: 14px;">'. number_format($query->row()->net_total, 2, '.', ',') .'</strong></td>
-										</tr>
-									</tbody>';
-								}
-							}
+                    // Show VAT for standard VAT customers (status 1) or suspended customers (status 2)
+                    if ($vat_customer == 1 || $vat_customer == 2) {
+                        $vat_label = ($vat_customer == 2) ? 'SUSPENDED VAT AMOUNT (' : 'VAT AMOUNT (';
+                        $vat_label .= $query->row()->vatpercent . '%) : ';
+                        $vat_amount = ($query->row()->subtotal * $query->row()->vatpercent) / 100;
+                        
+                        $vat_html = '
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <tr>
+                                <td style="text-align: left; border: none; width: 40%;">
+                                    <strong style="font-size: 13px;">' . $vat_label . '</strong>
+                                </td>
+                                <td style="text-align: left; border: none; width: 60%; font-size: 13px;">
+                                    ' . number_format($vat_amount, 2, '.', ',') . '
+                                </td>
+                            </tr>
+                        </table>';
+                    }
+                    
+                    // Additional total for non-VAT-exempt and non-suspended customers
+                    if ($vat_customer != 0 && $vat_customer != 2) {
+                        $html .= '
+                        <tbody>
+                            <tr>
+                                <td colspan="5" width="25%" style="text-align:right; border: 0px solid black; border-left: 0px solid black; padding: 10px; font-size: 14px;"><strong>Total Invoice Value</strong></td>
+                                <td width="20%" style="text-align:right; border-bottom: 2px double black; border-right: none; border-left: none; border-top: 1px solid black; padding: 10px;"><strong style="font-size: 14px;">'. number_format($query->row()->net_total, 2, '.', ',') .'</strong></td>
+                            </tr>
+                        </tbody>';
+                    }
+                    
+                    // Append VAT HTML if it exists
+                    $html .= $vat_html;
+                    
+                    $html .= '
+                        </table>
+                    </td>
+                </tr>
+                </table>';
+                }
 
                     $html .= '
 						<table class="footertable" width="100%">

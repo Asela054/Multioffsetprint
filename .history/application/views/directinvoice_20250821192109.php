@@ -677,10 +677,6 @@ $(document).ready(function() {
 						$('#btncheck').addClass('d-none').prop('disabled', true);
 					}
 				}
-                if(checkstatus>0){
-                    $('#btncheck').addClass('d-none').prop('disabled', true);
-                    if(checkstatus==1){$('#checkalertdiv').html('<div class="alert alert-secondary" role="alert"><i class="fas fa-check-circle mr-2"></i> Invoice checked</div>');}
-                }
             }
         });
 

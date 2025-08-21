@@ -463,21 +463,11 @@ $(document).ready(function () {
 			success: function (result) {
 				$('#porderviewmodal').modal('show');
 				$('#viewhtml').html(result);
-				if (approvestatus > 0) {
-					$('#btnapprovereject').addClass('d-none').prop('disabled', true);
-					if (approvestatus == 1) {
-						$('#alertdiv').html('<div class="alert alert-success" role="alert"><i class="fas fa-check-circle mr-2"></i> Dispatch Note approved</div>');
-					} else if (approvestatus == 2) {
-						$('#alertdiv').html('<div class="alert alert-danger" role="alert"><i class="fas fa-times-circle mr-2"></i> Dispatch Note rejected</div>');
-					}
-				} else {
-					if (checkstatus == 0) {
-						$('#btnapprovereject').addClass('d-none').prop('disabled', true);
-					} else {
-						$('#btnapprovereject').removeClass('d-none').prop('disabled', false);
-						$('#btncheck').addClass('d-none').prop('disabled', true);
-					}
-				}
+				if(approvestatus>0){
+                    $('#btnapprovereject').addClass('d-none').prop('disabled', true);
+                    if(approvestatus==1){$('#alertdiv').html('<div class="alert alert-success" role="alert"><i class="fas fa-check-circle mr-2"></i> Dispatch Note approved</div>');}
+                    else if(approvestatus==2){$('#alertdiv').html('<div class="alert alert-danger" role="alert"><i class="fas fa-times-circle mr-2"></i> Dispatch Note rejected</div>');}
+                }
 				if(checkstatus>0){
                     $('#btncheck').addClass('d-none').prop('disabled', true);
                     if(checkstatus==1){$('#checkalertdiv').html('<div class="alert alert-secondary" role="alert"><i class="fas fa-check-circle mr-2"></i> Dispatch Note checked</div>');}
