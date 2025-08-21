@@ -721,7 +721,7 @@ class Invoiceinfo extends CI_Model{
 
                 $segregationdataencode = json_encode($APIstatus);
                 $customer = $respond->row(0)->tbl_customer_idtbl_customer;
-                $invoice = $respond->row(0)->idtbl_print_invoice;
+                $invoice = $respond->row(0)->inv_no;
                 $invoiceamount = $respond->row(0)->total;
     
                 // Make API call
