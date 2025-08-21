@@ -1120,14 +1120,14 @@ function checkprivilege($arraymenu, $menuID, $type){
             </div>
 
             <!-- Vehicle Management Menu New Added -->
-            <?php } if(menucheck($menuprivilegearray, 15)==1 | menucheck($menuprivilegearray, 16)==1 | menucheck($menuprivilegearray, 17)==1 | menucheck($menuprivilegearray, 18)==1 | menucheck($menuprivilegearray, 20)==1){ ?>
+            <?php } if(menucheck($menuprivilegearray, 15)==1 | menucheck($menuprivilegearray, 16)==1 | menucheck($menuprivilegearray, 17)==1 | menucheck($menuprivilegearray, 18)==1 | menucheck($menuprivilegearray, 20)==1 | menucheck($menuprivilegearray, 21)==1 | menucheck($menuprivilegearray, 47)==1 | menucheck($menuprivilegearray, 48)==1){ ?>
             <a class="nav-link p-0 px-3 py-2 collapsed text-dark" href="javascript:void(0);" data-toggle="collapse"
                 data-target="#collapseVehicle" aria-expanded="false" aria-controls="collapseVehicle">
                 <div class="nav-link-icon"><i class="fas fa-car"></i></div>
                 Vehicle Management
                 <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
             </a>
-            <div class="collapse <?php if($functionmenu=="Vehicle" | $functionmenu=="Vehicletype" | $functionmenu=="Vehiclebrand"| $functionmenu=="Vehiclemodel" |$functionmenu=="Renewtype"){echo 'show';} ?>"
+            <div class="collapse <?php if($functionmenu=="Vehicle" | $functionmenu=="Vehicletype" | $functionmenu=="Vehiclebrand"| $functionmenu=="Vehiclemodel" |$functionmenu=="Renewtype" | $functionmenu=="Service" | $functionmenu=="Serviceorder" | $functionmenu=="Approveserviceorder"){echo 'show';} ?>"
                 id="collapseVehicle" data-parent="#accordionSidenav">
                 <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
                     <?php if(menucheck($menuprivilegearray, 16)==1){ ?>
@@ -1141,40 +1141,41 @@ function checkprivilege($arraymenu, $menuID, $type){
                     <?php } if(menucheck($menuprivilegearray, 20)==1){ ?>
                     <a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Renewtype'; ?>">Renew Type</a>
                     <?php } ?>
-                </nav>
-            </div>        
-
-			<!-- Others Menu New Added -->
-			<?php } if(menucheck($menuprivilegearray, 21)==1 ){?>
-            <a class="nav-link p-0 px-3 py-2 collapsed text-dark" href="javascript:void(0);" data-toggle="collapse"
-                data-target="#collapseother" aria-expanded="false" aria-controls="collapseother">
-                <div class="nav-link-icon"><i class="fas fa-car-alt"></i></div>
-                Service Info
-                <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-            </a>
-            <div class="collapse <?php if($functionmenu=="Service" | $functionmenu=="Serviceorder" |  $functionmenu=="Approveserviceorder"){echo 'show';} ?>" id="collapseother" data-parent="#accordionSidenav">
-                <nav class="sidenav-menu-nested nav accordion">
-                    <?php if(menucheck($menuprivilegearray, 21)==1){ ?>
-                    <a class="nav-link p-0 px-3 py-1 text-dark"  href="<?php echo base_url().'Service'; ?>">Service Details</a>
-                    <?php } if(menucheck($menuprivilegearray, 47)==1 | menucheck($menuprivilegearray, 48)==1){ ?>   
+                    
+                    <!-- Service Info Section -->
+                    <?php if(menucheck($menuprivilegearray, 21)==1 | menucheck($menuprivilegearray, 47)==1 | menucheck($menuprivilegearray, 48)==1){ ?>   
                     <a class="nav-link p-0 px-3 py-2 collapsed text-dark" href="javascript:void(0);"
-                        data-toggle="collapse" data-target="#serviceinquary" aria-expanded="false"
-                        aria-controls="serviceinquary">
-                        Service Order Inquiry
+                        data-toggle="collapse" data-target="#serviceinfo" aria-expanded="false"
+                        aria-controls="serviceinfo">
+                        Service Info
                         <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                     </a>
-                    <div class="collapse <?php if($functionmenu=="Serviceorder"  | $functionmenu=="Approveserviceorder"){echo 'show';} ?>" id="serviceinquary" data-parent="#collapseother">
+                    <div class="collapse <?php if($functionmenu=="Service" | $functionmenu=="Serviceorder" | $functionmenu=="Approveserviceorder"){echo 'show';} ?>" id="serviceinfo">
                         <nav class="sidenav-menu-nested nav accordion">
-                            <?php if(menucheck($menuprivilegearray, 47)==1){ ?>
-                            <a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Serviceorder'; ?>">Inquiry for Approve</a>
-                            <?php } if(menucheck($menuprivilegearray, 48)==1){ ?>
-                            <a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Approveserviceorder'; ?>">Approved Inquiry</a>
+                            <?php if(menucheck($menuprivilegearray, 21)==1){ ?>
+                            <a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Service'; ?>">Service Details</a>
+                            <?php } if(menucheck($menuprivilegearray, 47)==1 | menucheck($menuprivilegearray, 48)==1){ ?>   
+                            <a class="nav-link p-0 px-3 py-2 collapsed text-dark" href="javascript:void(0);"
+                                data-toggle="collapse" data-target="#serviceinquary" aria-expanded="false"
+                                aria-controls="serviceinquary">
+                                Service Order Inquiry
+                                <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse <?php if($functionmenu=="Serviceorder" | $functionmenu=="Approveserviceorder"){echo 'show';} ?>" id="serviceinquary">
+                                <nav class="sidenav-menu-nested nav accordion">
+                                    <?php if(menucheck($menuprivilegearray, 47)==1){ ?>
+                                    <a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Serviceorder'; ?>">Inquiry for Approve</a>
+                                    <?php } if(menucheck($menuprivilegearray, 48)==1){ ?>
+                                    <a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Approveserviceorder'; ?>">Approved Inquiry</a>
+                                    <?php } ?>
+                                </nav>
+                            </div>
                             <?php } ?>
                         </nav>
                     </div>
                     <?php } ?>
                 </nav>
-            </div>
+            </div>        
 
             <!-- Report Menu New Added -->
             <?php } if(menucheck($menuprivilegearray, 153)==1 | menucheck($menuprivilegearray, 32)==1 | menucheck($menuprivilegearray, 33)==1 | menucheck($menuprivilegearray, 66)==1  | menucheck($menuprivilegearray, 85)==1  | menucheck($menuprivilegearray, 107)==1 | menucheck($menuprivilegearray, 127)==1 | menucheck($menuprivilegearray, 128)==1 | menucheck($menuprivilegearray, 132)==1 | menucheck($menuprivilegearray, 143)==1 | menucheck($menuprivilegearray, 146)==1 | menucheck($menuprivilegearray, 147)==1 | menucheck($menuprivilegearray, 148)==1 | menucheck($menuprivilegearray, 167)==1) {?>

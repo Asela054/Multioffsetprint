@@ -161,13 +161,25 @@ class Pdfviewinfo extends CI_Model {
 						</thead>
 						<tbody>';
 						foreach ($section as $row) {
-							$html .= '<tr>
-								<td style="width: 10%;font-size: 13px;border: 1px thin solid;padding-left: 10px;">' . htmlspecialchars($row['job']) . '</td>
-								<td style="width: 15%;text-align:center;font-size: 13px;border: 1px thin solid;">' . htmlspecialchars($row['job_no']) . '</td>
-								<td style="width: 15%;text-align:center;font-size: 13px;border: 1px thin solid;">' . htmlspecialchars($row['qty']) . '</td>
-								<td style="width: 15%;text-align:center;font-size: 13px;border: 1px thin solid;">' . htmlspecialchars($row['measure_type']) . '</td>
-								<td style="width: 25%;text-align:center;font-size: 13px;border: 1px thin solid;">' . htmlspecialchars($row['comment']) . '</td>
-							</tr>';
+                        $job_text = $row['job'];
+                        $job_no = $row['job_no'];
+
+                        if (strpos($job_text, '-') !== false) {
+                            $job_parts = explode('-', $job_text);
+                            $last_part = trim(end($job_parts));
+
+                            if ($last_part == $job_no) {
+                                $job_text = trim(substr($job_text, 0, strrpos($job_text, '-')));
+                            }
+                        }
+
+                        $html .= '<tr>
+                            <td style="width: 10%;font-size: 13px;border: 1px thin solid;padding-left: 10px;">' . htmlspecialchars($job_text) . '</td>
+                            <td style="width: 15%;text-align:center;font-size: 13px;border: 1px thin solid;">' . htmlspecialchars($job_no) . '</td>
+                            <td style="width: 15%;text-align:center;font-size: 13px;border: 1px thin solid;">' . htmlspecialchars($row['qty']) . '</td>
+                            <td style="width: 15%;text-align:center;font-size: 13px;border: 1px thin solid;">' . htmlspecialchars($row['measure_type']) . '</td>
+                            <td style="width: 25%;text-align:center;font-size: 13px;border: 1px thin solid;">' . htmlspecialchars($row['comment']) . '</td>
+                        </tr>';
 						}
 						$html.='</tbody>
 					</table>';
