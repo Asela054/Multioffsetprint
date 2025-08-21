@@ -169,8 +169,7 @@ class Apiinfo extends CI_Model{
         $dataexpence = array(
             'saletype'=> '1', 
             'salecode'=> 'INV', 
-            'invno'=> $respond->row(0)->idtbl_print_invoice, 
-            'manual_invno'=> $respond->row(0)->inv_no, 
+            'invno'=> $respond->row(0)->inv_no,  
             'invdate'=> $respond->row(0)->date,
             'sub_total'=> $respond->row(0)->subtotal, 
             'vat'=> $respond->row(0)->vat_amount, 
@@ -219,19 +218,19 @@ class Apiinfo extends CI_Model{
                 if($respond->row(0)->vat_customer==1 && $rowdetailaccount->special_cate_sub==2):
                     $obj = new stdClass();
                     $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
-                    $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->idtbl_print_invoice;
+                    $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
                     $obj->detailaccount = $rowdetailaccount->idtbl_account_detail;
                     $obj->chartaccount = '0';
-                    $obj->crder = 'D';
+                    $obj->crder = 'C';
                     $segregationdata[] = $obj;
                     break;
                 else:
                     $obj = new stdClass();
                     $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
-                    $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->idtbl_print_invoice;
+                    $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
                     $obj->detailaccount = $rowdetailaccount->idtbl_account_detail;
                     $obj->chartaccount = '0';
-                    $obj->crder = 'D';
+                    $obj->crder = 'C';
                     $segregationdata[] = $obj;
                     break;
                 endif;
@@ -241,10 +240,10 @@ class Apiinfo extends CI_Model{
                 if($rowrchartaccount->specialcate==18):
                     $obj = new stdClass();
                     $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
-                    $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->idtbl_print_invoice;
+                    $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
                     $obj->detailaccount = '0';
                     $obj->chartaccount = $rowrchartaccount->idtbl_account;
-                    $obj->crder = 'D';
+                    $obj->crder = 'C';
                     $segregationdata[] = $obj;
                 endif;
             endforeach;            
@@ -254,7 +253,7 @@ class Apiinfo extends CI_Model{
             if($rowrchartaccount->specialcate==13 && $respond->row(0)->vat_amount>0):
                 $obj = new stdClass();
                 $obj->amount = str_replace(",", "", $respond->row(0)->vat_amount);
-                $obj->narration = 'VAT Costing for INVOICE ID: ' . $respond->row(0)->idtbl_print_invoice;
+                $obj->narration = 'VAT Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
                 $obj->detailaccount = '0';
                 $obj->chartaccount = $rowrchartaccount->idtbl_account;
                 $obj->crder = 'D';
@@ -262,10 +261,10 @@ class Apiinfo extends CI_Model{
             elseif($rowrchartaccount->specialcate==35):
                 $obj = new stdClass();
                 $obj->amount = str_replace(",", "", $respond->row(0)->total);
-                $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->idtbl_print_invoice;
+                $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
                 $obj->detailaccount = '0';
                 $obj->chartaccount = $rowrchartaccount->idtbl_account;
-                $obj->crder = 'C';
+                $obj->crder = 'D';
                 $segregationdata[] = $obj;
             endif;
         endforeach; 
