@@ -139,7 +139,7 @@ include "include/topnavbar.php";
 														<thead>
 															<tr>
 																<th>Request No.</th>
-																<th>Employee</th>
+																<th>Department</th>
 																<th>Order Type</th>
 																<th>Approve Status</th>
 																<th class="text-right">Actions</th>

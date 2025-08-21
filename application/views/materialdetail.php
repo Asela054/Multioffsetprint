@@ -393,54 +393,64 @@ $(document).ready(function() {
         }
     });
     $('#dataTable tbody').on('click', '.btnview', function () {
-    	var id = $(this).attr('id');
-    	$('#hiddenmaterialID').val(id);
+        var id = $(this).attr('id');
+        $('#hiddenmaterialID').val(id);
 
-    	$.ajax({
-    		url: '<?php echo base_url() ?>Materialdetail/Getadduomqty',
-    		type: 'POST',
-    		data: {
-    			id: id
-    		},
-    		dataType: 'json',
-    		success: function (response) {
-    			console.log('AJAX Response:', response);
-
-    			if (response.status === 'success') {
-    				$('#uomCheckboxes').empty();
-    				response.uom_conversions.forEach(function (uom) {
-    					var checkbox = `
-                        <div class="form-check p-2 border rounded bg-light mb-2 shadow-sm">
-                            <input 
-                                class="form-check-input" 
-                                type="checkbox" 
-                                name="uom_options[]" 
-                                value="${uom.idtbl_uom_conversions}" 
-                                id="uomCheckbox_${uom.idtbl_uom_conversions}"
-                                style="transform: scale(1.2); margin-right: 10px;">
-                            <label 
-                                class="form-check-label text-dark font-weight-bold" 
-                                for="uomCheckbox_${uom.idtbl_uom_conversions}" 
-                                style="cursor: pointer;">1
-                                ${uom.main_uom} <span class="text-muted">to</span> ${uom.convert_uom}
-                                <span class="badge badge-danger ml-2">${uom.qty}</span>
-                            </label>
-                        </div>
+        $.ajax({
+            url: '<?php echo base_url() ?>Materialdetail/Getadduomqty',
+            type: 'POST',
+            data: {
+                id: id
+            },
+            dataType: 'json',
+            success: function (response) {
+                if (response.status === 'success') {
+                    $('#uomCheckboxes').empty();
+                    
+                    // Use a Set to track unique conversion IDs
+                    const uniqueUoms = new Set();
+                    
+                    response.uom_conversions.forEach(function (uom) {
+                        // Skip duplicates
+                        if (uniqueUoms.has(uom.idtbl_uom_conversions)) {
+                            return;
+                        }
+                        uniqueUoms.add(uom.idtbl_uom_conversions);
+                        
+                        var checkedAttr = uom.is_checked == 1 ? 'checked' : '';
+                        var checkbox = `
+                            <div class="form-check p-2 border rounded bg-light mb-2 shadow-sm">
+                                <input 
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    name="uom_options[]" 
+                                    value="${uom.idtbl_uom_conversions}" 
+                                    id="uomCheckbox_${uom.idtbl_uom_conversions}"
+                                    ${checkedAttr}
+                                    style="transform: scale(1.2); margin-right: 10px;">
+                                <label 
+                                    class="form-check-label text-dark font-weight-bold" 
+                                    for="uomCheckbox_${uom.idtbl_uom_conversions}" 
+                                    style="cursor: pointer;">
+                                    1 ${uom.main_uom} <span class="text-muted">to</span> ${uom.convert_uom}
+                                    <span class="badge badge-danger ml-2">${uom.qty}</span>
+                                </label>
+                            </div>
                         `;
-    					$('#uomCheckboxes').append(checkbox);
-    				});
+                        $('#uomCheckboxes').append(checkbox);
+                    });
 
-    				$('#materialinfomodal').modal('show');
-    			} else {
-    				alert(response.message);
-    			}
-    		},
-    		error: function (xhr, status, error) {
-    			console.error('AJAX Error:', error);
-    			console.error('XHR Object:', xhr);
-    			alert('Failed to retrieve data.');
-    		}
-    	});
+                    $('#materialinfomodal').modal('show');
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('AJAX Error:', error);
+                console.error('XHR Object:', xhr);
+                alert('Failed to retrieve data.');
+            }
+        });
     });
 
 });
