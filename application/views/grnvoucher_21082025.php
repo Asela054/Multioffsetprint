@@ -75,14 +75,8 @@ include "include/topnavbar.php";
                             <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
                                 <h6 class="title-style small"><span>Other Cost Information</span></h6>
                                 <form id="expensesform" autocomplete="off">
-                                    <div class="form-row">
-                                        <div class="col">
-                                            <label class="small font-weight-bold text-dark">Supplier</label>
-                                            <select class="form-control form-control-sm" name="costsupplier" id="costsupplier" required>
-                                                <option value="">Select</option>
-                                            </select>
-                                        </div>
-                                        <div class="col">
+                                    <div class="row">
+                                        <div class="col-4">
                                             <label class="small font-weight-bold text-dark">Cost Type</label>
                                             <select class="form-control form-control-sm" name="costtype" id="costtype" required>
                                                 <option value="">Select Cost Type</option>
@@ -93,30 +87,23 @@ include "include/topnavbar.php";
                                                 <?php } ?>
                                             </select>
                                         </div>
-                                        <div class="col">
+                                        <div class="col-4">
                                             <label class="small font-weight-bold text-dark">Amount</label>
                                             <input type="number" step="any" name="costamount" class="form-control form-control-sm" id="costamount" required>
                                         </div>
-                                    </div>
-                                    <?php if($addcheck==1){ ?>
-                                    <div class="form-row mt-3">
-                                        <div class="col text-right">
-                                            <button type="button" id="secondformsubmit" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i>&nbsp;Add Costing</button>
+                                        <div class="col-4">
+                                            <button style="position: absolute;bottom:0" type="button" id="secondformsubmit" class="btn btn-secondary btn-sm px-6" <?php if($addcheck==0){echo 'disabled';} ?>><i class="fas fa-plus"></i>&nbsp;Add Costing</button>
                                             <input name="chargesubmitBtn" type="submit" value="Save" id="chargesubmitBtn" class="d-none">
                                         </div>
                                     </div>
-                                    <?php } ?>
                                 </form>
                                 <hr class="border-dark">
                                 <div id="materialmachinetblpart">
                                     <table class="table table-striped table-bordered table-sm small" id="chargetableorder">
                                         <thead>
                                             <tr>
-                                                <th>Supplier</th>
                                                 <th>Cost Type</th>
                                                 <th class="text-right">Amount</th>
-                                                <th class="d-none">CostTypeID</th>
-                                                <th class="d-none">SupplierID</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -273,27 +260,6 @@ $(document).ready(function() {
     var statuscheck = '<?php echo $statuscheck; ?>';
     var deletecheck = '<?php echo $deletecheck; ?>';
 
-    $("#costsupplier").select2({
-        width: '100%',
-        ajax: {
-            url: "<?php echo base_url() ?>GRNVoucher/Getsupplierlist",
-            type: "post",
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    searchTerm: params.term 
-                };
-            },
-            processResults: function (response) {
-                return {
-                    results: response
-                };
-            },
-            cache: true
-        }
-    });
-
     $('#dataTable').DataTable({
         "destroy": true,
         "processing": true,
@@ -396,7 +362,7 @@ $(document).ready(function() {
                 "data": null,
                 "render": function(data, type, full) {
                     var button = '';
-                    button += '<button class="btn btn-dark btn-sm btnview mr-1" id="' + full['idtbl_grn_vouchar_import_cost'] + '" data-toggle="tooltip" title="View & Approve" data-approvestatus="'+full['approvestatus']+'" data-checkby="'+full['checkby']+'"><i class="fas fa-eye"></i></button>';
+                    button += '<button class="btn btn-dark btn-sm btnview mr-1" id="' + full['idtbl_grn_vouchar_import_cost'] + '" data-toggle="tooltip" title="View & Approve" data-approvestatus="'+full['approvestatus']+'"><i class="fas fa-eye"></i></button>';
                     if (full['approvestatus'] == 1) {
                         button += '<a href="<?php echo base_url() ?>GRNVoucher/VoucherPdf/' + full['idtbl_grn_vouchar_import_cost'] + '" data-toggle="tooltip" title="GRN Voucher" target="_blank" class="btn btn-secondary btn-sm mr-1"><i class="fas fa-file-pdf"></i></a>';
                     } 
@@ -422,7 +388,6 @@ $(document).ready(function() {
         var id = $(this).attr('id');
         $('#grnvoucherid').val(id);
         var approvestatus = $(this).attr('data-approvestatus');
-        var checkby = $(this).attr('data-checkby');
 
         Swal.fire({
             title: '',
@@ -456,15 +421,6 @@ $(document).ready(function() {
 							if(approvestatus==1){$('#alertdiv').html('<div class="alert alert-success" role="alert"><i class="fas fa-check-circle mr-2"></i> Good receive voucher approved</div>');}
 							else if(approvestatus==2){$('#alertdiv').html('<div class="alert alert-danger" role="alert"><i class="fas fa-times-circle mr-2"></i> Good receive voucher rejected</div>');}
 						}
-                        else{
-                            if(checkby==0){
-                                $('#btnapprovereject').addClass('d-none').prop('disabled', true);
-                            }
-                            else{
-                                $('#btnapprovereject').removeClass('d-none').prop('disabled', false);
-                                $('#btncheck').addClass('d-none').prop('disabled', true);
-                            }
-                        }
                     },
                     error: function(error) {
                         // Close the SweetAlert on error
@@ -634,13 +590,11 @@ $(document).ready(function() {
         if (!$("#expensesform")[0].checkValidity()) {
             $("#chargesubmitBtn").click();
         } else {
-            var supplierID = $('#costsupplier').val();
-            var supplier = $("#costsupplier option:selected").text();
             var chargetypeID = $('#costtype').val();
             var chargeamount = parseFloat($('#costamount').val());
             var chargetype = $("#costtype option:selected").text();
 
-            $('#chargetableorder > tbody:last').append('<tr class="pointer"><td>'+supplier+'</td><td name="chargetype">' + chargetype + '</td><td name="chargeamount" class="text-right othercostamount">' + chargeamount.toFixed(2) + '</td><td name="chargetypeid" class="d-none">' + chargetypeID + '</td><td name="supplierid" class="d-none">' + supplierID + '</td></tr>'
+            $('#chargetableorder > tbody:last').append('<tr class="pointer"><td name="chargetype">' + chargetype + '</td><td name="chargeamount" class="text-right othercostamount">' + chargeamount.toFixed(2) + '</td><td name="chargetypeid" class="d-none">' + chargetypeID + '</td></tr>'
             );
 
             let othernettotal = 0;
@@ -655,7 +609,6 @@ $(document).ready(function() {
             $('#hidechargestotal').val(othernettotal.toFixed(2));
 
             $('#costtype').val('');
-            $('#costsupplier').val('').trigger('change');
             $('#costamount').val('');
 
             // OtherCostSetQty(chargeamount, '1');
@@ -713,8 +666,7 @@ $(document).ready(function() {
             var costDetail = {
                 chargetype: row.find('td[name="chargetype"]').text(),
                 chargeamount: parseFloat(row.find('td[name="chargeamount"]').text()),
-                chargetypeid: row.find('td[name="chargetypeid"]').text(),
-                supplierid: row.find('td[name="supplierid"]').text()
+                chargetypeid: row.find('td[name="chargetypeid"]').text()
             };
             costDetails.push(costDetail);
         });
