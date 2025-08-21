@@ -6,11 +6,12 @@ class Apiinfo extends CI_Model{
         $branchID = $_SESSION['branch_id'];
         $updatedatetime = date('Y-m-d H:i:s');
         $segregationdata = array();
+        $grnno='';
 
         //Insert GRN expense details
-        $sql="SELECT `total` AS `amount`, `totalcost` AS `invamount`, `tbl_supplier_idtbl_supplier` AS `supplierid`, `grndate` AS `expdate`, `idtbl_print_grn` AS `grnid`, CASE WHEN `grntype` = 1 THEN 'SPR' WHEN `grntype` = 4 THEN 'MAC' ELSE 'GRN' END AS `expcode`, '1' AS `exptype` FROM `tbl_print_grn` WHERE `idtbl_print_grn`=? AND `tbl_company_idtbl_company`=? AND `tbl_company_branch_idtbl_company_branch`=?
+        $sql="SELECT `total` AS `amount`, `totalcost` AS `invamount`, `tbl_supplier_idtbl_supplier` AS `supplierid`, `grndate` AS `expdate`, `idtbl_print_grn` AS `grnid`, CASE WHEN `grntype` = 1 THEN 'SPR' WHEN `grntype` = 4 THEN 'MAC' ELSE 'GRN' END AS `expcode`, '1' AS `exptype`, `tbl_print_grn`.`grn_no` FROM `tbl_print_grn` WHERE `idtbl_print_grn`=? AND `tbl_company_idtbl_company`=? AND `tbl_company_branch_idtbl_company_branch`=?
         UNION ALL
-        SELECT `tbl_grn_vouchar_import_cost_detail`.`cost_amount` AS `amount`, `tbl_grn_vouchar_import_cost_detail`.`cost_amount` AS `invamount`, `tbl_grn_vouchar_import_cost_detail`.`tbl_supplier_idtbl_supplier` AS `supplierid`, `tbl_grn_vouchar_import_cost`.`date` AS `expdate`, `tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn` AS `grnid`, 'OTH' AS `expcode`, '4' AS `exptype` FROM `tbl_grn_vouchar_import_cost_detail` LEFT JOIN `tbl_grn_vouchar_import_cost` ON `tbl_grn_vouchar_import_cost`.`idtbl_grn_vouchar_import_cost`=`tbl_grn_vouchar_import_cost_detail`.`tbl_grn_vouchar_import_cost_idtbl_grn_vouchar_import_cost` WHERE `tbl_grn_vouchar_import_cost_detail`.`status`=? AND `tbl_grn_vouchar_import_cost`.`tbl_company_idtbl_company`=? AND `tbl_grn_vouchar_import_cost`.`tbl_company_branch_idtbl_company_branch`=? AND `tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn`=?";
+        SELECT `tbl_grn_vouchar_import_cost_detail`.`cost_amount` AS `amount`, `tbl_grn_vouchar_import_cost_detail`.`cost_amount` AS `invamount`, `tbl_grn_vouchar_import_cost_detail`.`tbl_supplier_idtbl_supplier` AS `supplierid`, `tbl_grn_vouchar_import_cost`.`date` AS `expdate`, `tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn` AS `grnid`, 'OTH' AS `expcode`, '4' AS `exptype`, `tbl_print_grn`.`grn_no` FROM `tbl_grn_vouchar_import_cost_detail` LEFT JOIN `tbl_grn_vouchar_import_cost` ON `tbl_grn_vouchar_import_cost`.`idtbl_grn_vouchar_import_cost`=`tbl_grn_vouchar_import_cost_detail`.`tbl_grn_vouchar_import_cost_idtbl_grn_vouchar_import_cost` LEFT JOIN `tbl_print_grn` ON `tbl_print_grn`.`idtbl_print_grn`=`tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn` WHERE `tbl_grn_vouchar_import_cost_detail`.`status`=? AND `tbl_grn_vouchar_import_cost`.`tbl_company_idtbl_company`=? AND `tbl_grn_vouchar_import_cost`.`tbl_company_branch_idtbl_company_branch`=? AND `tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn`=?";
         $respond=$this->db->query($sql, array($grnID, $companyID, $branchID, 1, $companyID, $branchID, $grnID));
 
         if ($respond->num_rows() > 0) {
@@ -18,7 +19,7 @@ class Apiinfo extends CI_Model{
                 $dataexpence = array(
                     'exptype' => $row->exptype,
                     'expcode' => $row->expcode,
-                    'grnno' => $row->grnid,
+                    'grnno' => $row->grn_no,
                     'grndate' => $row->expdate,
                     'amount' => str_replace(",", "", $row->amount),
                     'invamount' => str_replace(",", "", $row->invamount),
@@ -30,6 +31,7 @@ class Apiinfo extends CI_Model{
                     'tbl_company_branch_idtbl_company_branch' => $branchID
                 );
                 $this->db->insert('tbl_expence_info', $dataexpence);
+                $grnno=$row->grn_no;
             }
         }
 
@@ -45,7 +47,7 @@ class Apiinfo extends CI_Model{
                 if(!empty($rowmaterial->idtbl_account_detail)){
                     $obj = new stdClass();
                     $obj->amount = str_replace(",", "", $rowmaterial->costtotal);
-                    $obj->narration = 'Material Costing for ' . $rowmaterial->materialname;
+                    $obj->narration = 'Material Costing for ' . $rowmaterial->materialname . ' ' . $grnno;
                     $obj->detailaccount = $rowmaterial->idtbl_account_detail;
                     $obj->chartaccount = 0;
                     $obj->crder = 'D';
@@ -87,7 +89,7 @@ class Apiinfo extends CI_Model{
                 if(!empty($rowothercost->idtbl_account_detail)){
                     $obj = new stdClass();
                     $obj->amount = str_replace(",", "", $rowothercost->amount);
-                    $obj->narration = 'Other Costing for GRN ID: ' . $grnID;
+                    $obj->narration = 'Other Costing for GRN No: ' . $grnno;
                     $obj->detailaccount = $rowothercost->idtbl_account_detail;
                     $obj->chartaccount = 0;
                     $obj->crder = 'C';
@@ -113,7 +115,7 @@ class Apiinfo extends CI_Model{
         if ($creditortotalvalue > 0) {
             $obj = new stdClass();
             $obj->amount = str_replace(",", "", $creditortotalvalue);
-            $obj->narration = 'Costing for GRN ID: ' . $grnID;
+            $obj->narration = 'Costing for GRN No: ' . $grnno;
             $obj->detailaccount = 0;
             $obj->chartaccount = $respondcreditor->row()->idtbl_account;
             $obj->crder = 'C';
@@ -123,7 +125,7 @@ class Apiinfo extends CI_Model{
         if ($materiltotalvalue > 0) {
             $obj = new stdClass();
             $obj->amount = str_replace(",", "", $materiltotalvalue);
-            $obj->narration = 'Material Costing for GRN ID: ' . $grnID;
+            $obj->narration = 'Material Costing for GRN No: ' . $grnno;
             $obj->detailaccount = 0;
             $obj->chartaccount = $respondmaterialaccount->row()->idtbl_account;
             $obj->crder = 'D';
@@ -137,7 +139,7 @@ class Apiinfo extends CI_Model{
             if ($vatamount > 0) {
                 $obj = new stdClass();
                 $obj->amount = str_replace(",", "", $vatamount);
-                $obj->narration = 'VAT Costing for GRN ID: ' . $grnID;
+                $obj->narration = 'VAT Costing for GRN No: ' . $grnno;
                 $obj->detailaccount = 0;
                 $obj->chartaccount = $respondvataccount->row()->idtbl_account;
                 $obj->crder = 'D';
