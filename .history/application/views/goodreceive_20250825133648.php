@@ -512,57 +512,58 @@ $(document).ready(function() {
         }
     });
 
-    $('#dataTable tbody').on('click', '.btnview', function () {
-    	var id = $(this).attr('id');
-    	var grnno = $(this).attr('grn_no');
-    	$('#grncode').html(grnno);
-    	$('#grnid').val(id);
+    $('#dataTable tbody').on('click', '.btnview', function() {
+    var id = $(this).attr('id');
+    var grnno = $(this).attr('grn_no');
+    $('#grncode').html(grnno);
+    $('#grnid').val(id);
 
-    	var approvestatus = $(this).attr('aproval_id');
-    	var checkstatus = $(this).attr('check_status');
+    var approvestatus = $(this).attr('aproval_id');
+    var checkstatus = $(this).attr('check_status');
 
-    	$.ajax({
-    		type: "POST",
-    		data: {
-    			recordID: id
-    		},
-    		url: '<?php echo base_url() ?>Goodreceive/Goodreceiveview',
-    		success: function (result) { //alert(result);
-    			$('#viewmodal').modal('show');
-    			$('#viewhtml').html(result.html);
-    			$('#viewcompanyname').text(result.details.companyname);
-    			$('#viewbranchname').text(result.details.branchname);
-    			if (approvestatus > 0) {
-    				$('#btnapprovereject').addClass('d-none').prop('disabled', true);
-    				if (approvestatus == 1) {
-    					$('#alertdiv').html('<div class="alert alert-success" role="alert"><i class="fas fa-check-circle mr-2"></i> GRN approved</div>');
-    				} else if (approvestatus == 2) {
-    					$('#alertdiv').html('<div class="alert alert-danger" role="alert"><i class="fas fa-times-circle mr-2"></i> GRN rejected</div>');
-    				}
-    			} else {
-    				if (checkstatus == 0) {
-    					$('#btnapprovereject').addClass('d-none').prop('disabled', true);
-    				} else {
-    					$('#btnapprovereject').removeClass('d-none').prop('disabled', false);
-    					$('#btncheck').addClass('d-none').prop('disabled', true);
-    				}
-    			}
+    $.ajax({
+    type: "POST",
+    data: {
+    recordID: id
+    },
+    url: '<?php echo base_url() ?>Goodreceive/Goodreceiveview',
+    success: function(result) { //alert(result);
+    $('#viewmodal').modal('show');
+    $('#viewhtml').html(result.html);
+    $('#viewcompanyname').text(result.details.companyname);
+    $('#viewbranchname').text(result.details.branchname);
+    if (approvestatus > 0) {
+    $('#btnapprovereject').addClass('d-none').prop('disabled', true);
+    if (approvestatus == 1) {
+    $('#alertdiv').html('<div class="alert alert-success" role="alert"><i class="fas fa-check-circle mr-2"></i> GRN
+    	approved</div>');
+    } else if (approvestatus == 2) {
+    $('#alertdiv').html('<div class="alert alert-danger" role="alert"><i class="fas fa-times-circle mr-2"></i> GRN
+    	rejected</div>');
+    }
+    } else {
+    if (checkstatus == 0) {
+    $('#btnapprovereject').addClass('d-none').prop('disabled', true);
+    } else {
+    $('#btnapprovereject').removeClass('d-none').prop('disabled', false);
+    $('#btncheck').addClass('d-none').prop('disabled', true);
+    }
+    }
 
-    			if (checkstatus > 0) {
-    				$('#btncheck').addClass('d-none').prop('disabled', true);
-    				if (checkstatus == 1) {
-    					$('#checkalertdiv').html('<div class="alert alert-secondary" role="alert"><i class="fas fa-check-circle mr-2"></i> GRN checked</div>');
-    				}
-    			}
-    		}
-    	});
+    if(checkstatus>0){
+    $('#btncheck').addClass('d-none').prop('disabled', true);
+    if(checkstatus==1){$('#checkalertdiv').html('<div class="alert alert-secondary" role="alert"><i
+    		class="fas fa-check-circle mr-2"></i> GRN checked</div>');}
+    }
+    }
+    });
 
-    	$('#viewmodal').on('hidden.bs.modal', function (event) {
-    		$('#alertdiv').html('');
-    		$('#checkalertdiv').html('');
-    		$('#btnapprovereject').removeClass('d-none').prop('disabled', false);
-    		$('#btncheck').removeClass('d-none').prop('disabled', false);
-    	});
+    $('#viewmodal').on('hidden.bs.modal', function (event) {
+    $('#alertdiv').html('');
+    $('#checkalertdiv').html('');
+    $('#btnapprovereject').removeClass('d-none').prop('disabled', false);
+    $('#btncheck').removeClass('d-none').prop('disabled', false);
+    });
     });
 
     $('#btnapprovereject').click(function(){

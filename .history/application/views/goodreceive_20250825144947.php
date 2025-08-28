@@ -527,7 +527,7 @@ $(document).ready(function() {
     			recordID: id
     		},
     		url: '<?php echo base_url() ?>Goodreceive/Goodreceiveview',
-    		success: function (result) { //alert(result);
+    		success: function (result) { alert(result);
     			$('#viewmodal').modal('show');
     			$('#viewhtml').html(result.html);
     			$('#viewcompanyname').text(result.details.companyname);
