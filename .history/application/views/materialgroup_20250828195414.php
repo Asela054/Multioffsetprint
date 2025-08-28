@@ -11,9 +11,9 @@ include "include/topnavbar.php";
             <div class="page-header page-header-light bg-white shadow">
                 <div class="container-fluid">
                     <div class="page-header-content py-3">
-                        <h1 class="page-header-title ">
-                            <div class="page-header-icon"><i class="fas fa-shopping-basket"></i></div>
-                            <span>Material Details</span>
+                        <h1 class="page-header-title">
+                            <div class="page-header-icon"><i class="fas fa-list"></i></div>
+                            <span>Group Category</span>
                         </h1>
                     </div>
                 </div>
@@ -22,143 +22,29 @@ include "include/topnavbar.php";
                 <div class="card">
                     <div class="card-body p-0 p-2">
                         <div class="row">
-                            <div class="col-4">
-                                <form action="<?php echo base_url() ?>Materialdetail/Materialdetailinsertupdate"
-                                    method="post" autocomplete="off">
-                                    <div class="form-row mb-1">
-                                        <div class="col">
-                                            <label class="small font-weight-bold text-dark">Company*</label>
-                                            <input type="text" id="f_company_name" name="f_company_name"
-                                                class="form-control form-control-sm" required readonly>
-                                        </div>
-                                        <div class="col">
-                                            <label class="small font-weight-bold text-dark">Company
-                                                Branch*</label>
-                                            <input type="text" id="f_branch_name" name="f_branch_name"
-                                                class="form-control form-control-sm" required readonly>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="f_company_id" id="f_company_id">
-                                    <input type="hidden" name="f_branch_id" id="f_branch_id">
-                                    <div class="form-row mb-1">
-                                        <div class="col">
-                                            <label class="small font-weight-bold">Material Group*</label>
-                                            <select class="form-control form-control-sm" name="materialgroup"
-                                                id="materialgroup" required>
-                                                <option value="">Select</option>
-                                                <?php foreach($materialgroup->result() as $rowmaterialgroup){ ?>
-                                                <option value="<?php echo $rowmaterialgroup->idtbl_material_group ?>">
-                                                    <?php echo $rowmaterialgroup->group ?>
-                                                </option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <label class="small font-weight-bold">Material Category*</label>
-                                            <select class="form-control form-control-sm" name="materialcategory"
-                                                id="materialcategory" required>
-                                                <option value="">Select</option>
-                                                <?php foreach($materialcategory->result() as $rowmaterialcategory){ ?>
-                                                <option value="<?php echo $rowmaterialcategory->idtbl_material_type ?>">
-                                                    <?php echo $rowmaterialcategory->paper ?>
-                                                </option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="form-row mb-1">
-                                        <div class="col">
-                                            <label class="small font-weight-bold">Material Color*</label>
-                                            <select class="form-control form-control-sm" name="material_color"
-                                                id="material_color">
-                                                <option value="">Select</option>
-                                                <?php foreach($materialcolor->result() as $rowmaterialcolor){ ?>
-                                                <option value="<?php echo $rowmaterialcolor->idtbl_color ?>">
-                                                    <?php echo $rowmaterialcolor->color ?>
-                                                </option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <label class="small font-weight-bold">Material Category Gauge*</label>
-                                            <select class="form-control form-control-sm" name="material_categorygauge"
-                                                id="material_categorygauge">
-                                                <option value="">Select</option>
-                                                <?php foreach($materialcategorygauge->result() as $rowmaterialcategorygauge){ ?>
-                                                <option
-                                                    value="<?php echo $rowmaterialcategorygauge->idtbl_categorygauge ?>">
-                                                    <?php echo $rowmaterialcategorygauge->categorygauge_type ?>
-                                                </option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="form-group mb-1">
-                                            <label class="small font-weight-bold">Material Name*</label>
-                                            <input type="text" class="form-control form-control-sm" name="materialname"
-                                                id="materialname">
-                                    </div>
-                                    <div class="form-row mb-1">
-                                        <div class="col">
-                                            <label class="small font-weight-bold">Supplier*</label>
-                                            <select class="form-control form-control-sm" name="supplier" id="supplier"
-                                                required>
-                                                <option value="">Select</option>
-                                                <?php foreach($supplierlist->result() as $rowsupplierlist){ ?>
-                                                <option value="<?php echo $rowsupplierlist->idtbl_supplier ?>">
-                                                    <?php echo $rowsupplierlist->suppliername ?></option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <label class="small font-weight-bold">Unit Price*</label>
-                                            <input type="text" class="form-control form-control-sm" name="unitprice"
-                                                id="unitprice">
-                                        </div>
-                                    </div>
-                                    <div class="form-row mb-1">
-                                        <div class="col">
-                                            <label class="small font-weight-bold">Material Code*</label>
-                                            <input type="text" class="form-control form-control-sm" name="materialcode"
-                                                id="materialcode">
-                                        </div>
-                                        <div class="col">
-                                            <label class="small font-weight-bold">Re-order Level*</label>
-                                            <input type="text" class="form-control form-control-sm" name="reorder"
-                                                id="reorder">
-                                        </div>
-                                    </div>
+                            <div class="col-3">
+                                <form action="process/groupcategoryprocess.php" method="post" autocomplete="off">
                                     <div class="form-group">
-                                        <label class="small font-weight-bold">Comment</label>
-                                        <textarea class="form-control form-control-sm" name="comment"
-                                            id="comment"></textarea>
+                                        <label class="small font-weight-bold text-dark">Group Category*</label>
+                                        <input type="text" class="form-control form-control-sm" name="category" id="category" required>
                                     </div>
-                                    <div class="form-group mt-2 text-right">
-                                        <button type="submit" id="submitBtn" class="btn btn-primary btn-sm px-4"
-                                            <?php if($addcheck==0){echo 'disabled';} ?>><i
-                                                class="far fa-save"></i>&nbsp;Add</button>
+                                    <div class="form-group mt-2">
+                                        <button type="submit" id="submitBtn" class="btn btn-outline-primary btn-sm w-50 fa-pull-right" <?php if($addcheck==0){echo 'disabled';} ?>><i class="far fa-save"></i>&nbsp;Add</button>
                                     </div>
                                     <input type="hidden" name="recordOption" id="recordOption" value="1">
                                     <input type="hidden" name="recordID" id="recordID" value="">
                                 </form>
                             </div>
-                            <div class="col-8">
-                                <div class="scrollbar pb-3" id="style-2">
-                                    <table class="table table-bordered table-striped table-sm nowrap" id="dataTable">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Material Name</th>
-                                                <th>Material Group</th>
-                                                <th>Code</th>
-                                                <th>Category</th>
-                                                <th>Unit Price</th>
-                                                <th>Re Order</th>
-                                                <th class="text-right">Actions</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
-                                </div>
+                            <div class="col-9">
+                                <table class="table table-bordered table-striped table-sm nowrap" id="dataTable">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Group Category</th>
+                                            <th class="text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -309,9 +195,6 @@ $(document).ready(function() {
                 "data": "materialname"
             },
             {
-                "data": "group"
-            },
-            {
                 "data": "materialinfocode"
             },
             {
@@ -402,7 +285,6 @@ $(document).ready(function() {
                     $('#reorder').val(obj.reorderlevel);
                     $('#comment').val(obj.comment);
                     $('#supplier').val(obj.supplier);
-                    $('#materialgroup').val(obj.materialgroup);
                     $('#recordOption').val('2');
                     $('#submitBtn').html('<i class="far fa-save"></i>&nbsp;Update');
                 }

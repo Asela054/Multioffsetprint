@@ -60,7 +60,7 @@ $companyID = $_POST['company_id'];
 
 $joinQuery = "FROM `tbl_print_material_info` AS `u`
 LEFT JOIN `tbl_material_type` AS `ub` ON (`ub`.`idtbl_material_type` = `u`.`tbl_material_type_idtbl_material_type`)
-LEFT JOIN `tbl_material_group` AS `uc` ON (`uc`.`idtbl_material_group` = `u`.`tbl_material_group_idtbl_material_group`)";
+LEFT JOIN `tbl_material_type` AS `ub` ON (`ub`.`idtbl_material_type` = `u`.`tbl_material_type_idtbl_material_type`)";
 
 $extraWhere = "`u`.`status` IN (1, 2) AND `u`.`tbl_company_idtbl_company`='$companyID'";
 

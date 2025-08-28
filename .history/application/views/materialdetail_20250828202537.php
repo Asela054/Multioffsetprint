@@ -149,7 +149,7 @@ include "include/topnavbar.php";
                                             <tr>
                                                 <th>#</th>
                                                 <th>Material Name</th>
-                                                <th>Material Group</th>
+                                                <th>Material gROUP</th>
                                                 <th>Code</th>
                                                 <th>Category</th>
                                                 <th>Unit Price</th>
@@ -307,9 +307,6 @@ $(document).ready(function() {
                 },
             {
                 "data": "materialname"
-            },
-            {
-                "data": "group"
             },
             {
                 "data": "materialinfocode"

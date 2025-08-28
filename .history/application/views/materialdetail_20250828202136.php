@@ -79,6 +79,8 @@ include "include/topnavbar.php";
                                                 <?php } ?>
                                             </select>
                                         </div>
+                                    </div>
+                                    <div class="form-row mb-1">
                                         <div class="col">
                                             <label class="small font-weight-bold">Material Category Gauge*</label>
                                             <select class="form-control form-control-sm" name="material_categorygauge"
@@ -92,11 +94,11 @@ include "include/topnavbar.php";
                                                 <?php } ?>
                                             </select>
                                         </div>
-                                    </div>
-                                    <div class="form-group mb-1">
+                                        <div class="col">
                                             <label class="small font-weight-bold">Material Name*</label>
                                             <input type="text" class="form-control form-control-sm" name="materialname"
                                                 id="materialname">
+                                        </div>
                                     </div>
                                     <div class="form-row mb-1">
                                         <div class="col">
@@ -149,7 +151,6 @@ include "include/topnavbar.php";
                                             <tr>
                                                 <th>#</th>
                                                 <th>Material Name</th>
-                                                <th>Material Group</th>
                                                 <th>Code</th>
                                                 <th>Category</th>
                                                 <th>Unit Price</th>
@@ -309,9 +310,6 @@ $(document).ready(function() {
                 "data": "materialname"
             },
             {
-                "data": "group"
-            },
-            {
                 "data": "materialinfocode"
             },
             {
@@ -402,7 +400,6 @@ $(document).ready(function() {
                     $('#reorder').val(obj.reorderlevel);
                     $('#comment').val(obj.comment);
                     $('#supplier').val(obj.supplier);
-                    $('#materialgroup').val(obj.materialgroup);
                     $('#recordOption').val('2');
                     $('#submitBtn').html('<i class="far fa-save"></i>&nbsp;Update');
                 }

@@ -19,25 +19,19 @@
  */
 
 // DB table to use
-$table = 'tbl_print_material_info';
+$table = 'tbl_material_group';
 
 // Table's primary key
-$primaryKey = 'idtbl_print_material_info';
+$primaryKey = 'idtbl_material_group';
 
 // Array of database columns which should be read and sent back to DataTables.
 // The `db` parameter represents the column name in the database, while the `dt`
 // parameter represents the DataTables column identifier. In this case simple
 // indexes
 $columns = array(
-	array( 'db' => '`u`.`idtbl_print_material_info`', 'dt' => 'idtbl_print_material_info', 'field' => 'idtbl_print_material_info' ),
-	array( 'db' => '`u`.`materialname`', 'dt' => 'materialname', 'field' => 'materialname' ),
-	array( 'db' => '`u`.`materialinfocode`', 'dt' => 'materialinfocode', 'field' => 'materialinfocode' ),
-	array( 'db' => '`u`.`reorderlevel`', 'dt' => 'reorderlevel', 'field' => 'reorderlevel' ),
-	array( 'db' => '`u`.`comment`', 'dt' => 'comment', 'field' => 'comment' ),
-	array( 'db' => '`u`.`unitprice`', 'dt' => 'unitprice', 'field' => 'unitprice' ),
-	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' ),
-	array( 'db' => '`ub`.`paper`', 'dt' => 'paper', 'field' => 'paper' ),
-	array( 'db' => '`uc`.`group`', 'dt' => 'group', 'field' => 'group' )
+	array( 'db' => '`u`.`idtbl_material_group`', 'dt' => 'idtbl_material_group', 'field' => 'idtbl_material_group' ),
+	array( 'db' => '`u`.`group`', 'dt' => 'group', 'field' => 'group' ),
+	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' )
 );
 
 // SQL server connection information
@@ -58,11 +52,9 @@ $sql_details = array(
 require('ssp.customized.class.php' );
 $companyID = $_POST['company_id'];
 
-$joinQuery = "FROM `tbl_print_material_info` AS `u`
-LEFT JOIN `tbl_material_type` AS `ub` ON (`ub`.`idtbl_material_type` = `u`.`tbl_material_type_idtbl_material_type`)
-LEFT JOIN `tbl_material_group` AS `uc` ON (`uc`.`idtbl_material_group` = `u`.`tbl_material_group_idtbl_material_group`)";
+$joinQuery = "FROM `tbl_material_group` AS `u`";
 
-$extraWhere = "`u`.`status` IN (1, 2) AND `u`.`tbl_company_idtbl_company`='$companyID'";
+$extraWhere = "`u`.`status` IN (1, 2)";
 
 
 echo json_encode(

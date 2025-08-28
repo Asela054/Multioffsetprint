@@ -40,19 +40,19 @@ include "include/topnavbar.php";
                                     </div>
                                     <input type="hidden" name="f_company_id" id="f_company_id">
                                     <input type="hidden" name="f_branch_id" id="f_branch_id">
-                                    <div class="form-row mb-1">
-                                        <div class="col">
+                                    <div class="form-group mb-1">
                                             <label class="small font-weight-bold">Material Group*</label>
                                             <select class="form-control form-control-sm" name="materialgroup"
                                                 id="materialgroup" required>
                                                 <option value="">Select</option>
                                                 <?php foreach($materialgroup->result() as $rowmaterialgroup){ ?>
-                                                <option value="<?php echo $rowmaterialgroup->idtbl_material_group ?>">
-                                                    <?php echo $rowmaterialgroup->group ?>
+                                                <option value="<?php echo $rowmaterialgroup->idtbl_material_type ?>">
+                                                    <?php echo $rowmaterialgroup->paper ?>
                                                 </option>
                                                 <?php } ?>
                                             </select>
-                                        </div>
+                                    </div>
+                                    <div class="form-row mb-1">
                                         <div class="col">
                                             <label class="small font-weight-bold">Material Category*</label>
                                             <select class="form-control form-control-sm" name="materialcategory"
@@ -65,8 +65,6 @@ include "include/topnavbar.php";
                                                 <?php } ?>
                                             </select>
                                         </div>
-                                    </div>
-                                    <div class="form-row mb-1">
                                         <div class="col">
                                             <label class="small font-weight-bold">Material Color*</label>
                                             <select class="form-control form-control-sm" name="material_color"
@@ -79,6 +77,8 @@ include "include/topnavbar.php";
                                                 <?php } ?>
                                             </select>
                                         </div>
+                                    </div>
+                                    <div class="form-row mb-1">
                                         <div class="col">
                                             <label class="small font-weight-bold">Material Category Gauge*</label>
                                             <select class="form-control form-control-sm" name="material_categorygauge"
@@ -92,11 +92,11 @@ include "include/topnavbar.php";
                                                 <?php } ?>
                                             </select>
                                         </div>
-                                    </div>
-                                    <div class="form-group mb-1">
+                                        <div class="col">
                                             <label class="small font-weight-bold">Material Name*</label>
                                             <input type="text" class="form-control form-control-sm" name="materialname"
                                                 id="materialname">
+                                        </div>
                                     </div>
                                     <div class="form-row mb-1">
                                         <div class="col">
@@ -149,7 +149,6 @@ include "include/topnavbar.php";
                                             <tr>
                                                 <th>#</th>
                                                 <th>Material Name</th>
-                                                <th>Material Group</th>
                                                 <th>Code</th>
                                                 <th>Category</th>
                                                 <th>Unit Price</th>
@@ -309,9 +308,6 @@ $(document).ready(function() {
                 "data": "materialname"
             },
             {
-                "data": "group"
-            },
-            {
                 "data": "materialinfocode"
             },
             {
@@ -402,7 +398,6 @@ $(document).ready(function() {
                     $('#reorder').val(obj.reorderlevel);
                     $('#comment').val(obj.comment);
                     $('#supplier').val(obj.supplier);
-                    $('#materialgroup').val(obj.materialgroup);
                     $('#recordOption').val('2');
                     $('#submitBtn').html('<i class="far fa-save"></i>&nbsp;Update');
                 }

@@ -11,7 +11,7 @@ class Materialdetail extends CI_Controller {
         $result['measurement']=$this->Materialdetailinfo->Getmeasurement();
         $result['materialcategory']=$this->Materialdetailinfo->Getmaterialcategory();
 		$result['materialcolor']=$this->Materialdetailinfo->Getmaterialcolor();
-		$result['materialgroup']=$this->Materialdetailinfo->Getmaterialgroup();
+				$result['materialcolor']=$this->Materialdetailinfo->Getmaterialcolor();
 		$result['materialcategorygauge']=$this->Materialdetailinfo->Getmaterialcategorygauge();
 		$result['supplierlist']=$this->Materialdetailinfo->Getsupplier();
 		$this->load->view('materialdetail', $result);

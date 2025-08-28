@@ -935,17 +935,17 @@ function checkprivilege($arraymenu, $menuID, $type){
             </div>
 
             <!-- Material Menu New Added -->
-            <?php } if(menucheck($menuprivilegearray, 59)==1 | menucheck($menuprivilegearray, 13)==1 | menucheck($menuprivilegearray, 101)==1 | menucheck($menuprivilegearray, 25)==1 | menucheck($menuprivilegearray, 9)==1 | menucheck($menuprivilegearray, 10)==1 | menucheck($menuprivilegearray, 11)==1 | menucheck($menuprivilegearray, 12)==1 | menucheck($menuprivilegearray, 14)==1 | menucheck($menuprivilegearray, 176)==1){ ?>
+            <?php } if(menucheck($menuprivilegearray, 59)==1 | menucheck($menuprivilegearray, 13)==1 | menucheck($menuprivilegearray, 101)==1 | menucheck($menuprivilegearray, 25)==1 | menucheck($menuprivilegearray, 9)==1 | menucheck($menuprivilegearray, 10)==1 | menucheck($menuprivilegearray, 11)==1 | menucheck($menuprivilegearray, 12)==1 | menucheck($menuprivilegearray, 14)==1){ ?>
             <a class="nav-link p-0 px-3 py-2 collapsed text-dark" href="javascript:void(0);" data-toggle="collapse" data-target="#collapsematerials" aria-expanded="false" aria-controls="collapsematerials">
                 <div class="nav-link-icon"><i class="fas fa-users"></i></div>
                 Material Info
                 <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
             </a>
-            <div class="collapse <?php if($functionmenu=="Foiling" | $functionmenu=="Lamination" | $functionmenu=="Rimming" | $functionmenu=="Varnish" | $functionmenu=="Materialtype" | $functionmenu=="Plates" | $functionmenu=="Color" | $functionmenu=="Materialdetail" | $functionmenu=="CategoryGauge" | $functionmenu=="Materialgroup"){echo 'show';} ?>" id="collapsematerials" data-parent="#accordionSidenav">
+            <div class="collapse <?php if($functionmenu=="Foiling" | $functionmenu=="Lamination" | $functionmenu=="Rimming" | $functionmenu=="Varnish" | $functionmenu=="Materialtype" | $functionmenu=="Plates" | $functionmenu=="Color" | $functionmenu=="Materialdetail" |$functionmenu=="CategoryGauge"){echo 'show';} ?>" id="collapsematerials" data-parent="#accordionSidenav">
                 <nav class="sidenav-menu-nested nav accordion">
-                    <?php  if(menucheck($menuprivilegearray, 176)==1){ ?> 
-                    <a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Materialgroup'; ?>">Material Group</a>
-                    <?php } if(menucheck($menuprivilegearray, 59)==1){ ?> 
+                                        <?php  if(menucheck($menuprivilegearray, 59)==1){ ?> 
+                    <a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Materialdetail'; ?>">Material Details</a>
+                    <?php  if(menucheck($menuprivilegearray, 59)==1){ ?> 
                     <a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Materialdetail'; ?>">Material Details</a>
                     <?php } if(menucheck($menuprivilegearray, 13)==1){ ?> 
                     <a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Materialtype'; ?>">Material Type</a>

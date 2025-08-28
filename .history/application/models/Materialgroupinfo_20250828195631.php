@@ -1,5 +1,5 @@
 <?php
-class Materialdetailinfo extends CI_Model{
+class Materialinfo extends CI_Model{
     public function Getmaterialcategory(){
         $this->db->select('`idtbl_material_type`, `paper`');
         $this->db->from('tbl_material_type');
@@ -10,14 +10,6 @@ class Materialdetailinfo extends CI_Model{
     public function Getmaterialname(){
         $this->db->select('`idtbl_material_code`, `materialname`, `materialcode`');
         $this->db->from('tbl_material_code');
-        $this->db->where('status', 1);
-
-        return $respond=$this->db->get();
-    }
-
-    public function Getmaterialgroup(){
-        $this->db->select('`idtbl_material_group`, `group`');
-        $this->db->from('tbl_material_group');
         $this->db->where('status', 1);
 
         return $respond=$this->db->get();
@@ -71,7 +63,6 @@ class Materialdetailinfo extends CI_Model{
 
         $materialcode=$this->input->post('materialcode');
         $materialcategory=$this->input->post('materialcategory');
-        $materialgroup=$this->input->post('materialgroup');
         $supplier=$this->input->post('supplier');
         $reorder=$this->input->post('reorder');
         $comment=$this->input->post('comment');  
@@ -109,8 +100,7 @@ class Materialdetailinfo extends CI_Model{
                 'tbl_material_type_idtbl_material_type'=> $materialcategory,
                 'tbl_color_idtbl_color'=> $material_color,
                 'tbl_categorygauge_idtbl_categorygauge'=> $material_categorygauge,
-                'tbl_supplier_idtbl_supplier'=> $supplier,
-                'tbl_material_group_idtbl_material_group'=> $materialgroup
+                'tbl_supplier_idtbl_supplier'=> $supplier
             );
 
             $this->db->insert('tbl_print_material_info', $data);
@@ -163,8 +153,7 @@ class Materialdetailinfo extends CI_Model{
                 'tbl_material_type_idtbl_material_type'=> $materialcategory,
                 'tbl_color_idtbl_color'=> $material_color,
                 'tbl_categorygauge_idtbl_categorygauge'=> $material_categorygauge,
-                'tbl_supplier_idtbl_supplier'=> $supplier,
-                'tbl_material_group_idtbl_material_group'=> $materialgroup
+                'tbl_supplier_idtbl_supplier'=> $supplier
             );
 
             $this->db->where('idtbl_print_material_info', $recordID);
@@ -494,7 +483,6 @@ public function Getadduomqty()
         $obj->materialcolor=$respond->row(0)->tbl_color_idtbl_color;
         $obj->materialcategorygauge=$respond->row(0)->tbl_categorygauge_idtbl_categorygauge;
         $obj->supplier=$respond->row(0)->tbl_supplier_idtbl_supplier;
-        $obj->materialgroup=$respond->row(0)->tbl_material_group_idtbl_material_group;  
 
         echo json_encode($obj);
     }

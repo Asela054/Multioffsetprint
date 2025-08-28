@@ -309,9 +309,6 @@ $(document).ready(function() {
                 "data": "materialname"
             },
             {
-                "data": "group"
-            },
-            {
                 "data": "materialinfocode"
             },
             {

@@ -493,8 +493,8 @@ public function Getadduomqty()
         $obj->materialcategory=$respond->row(0)->tbl_material_type_idtbl_material_type;
         $obj->materialcolor=$respond->row(0)->tbl_color_idtbl_color;
         $obj->materialcategorygauge=$respond->row(0)->tbl_categorygauge_idtbl_categorygauge;
-        $obj->supplier=$respond->row(0)->tbl_supplier_idtbl_supplier;
-        $obj->materialgroup=$respond->row(0)->tbl_material_group_idtbl_material_group;  
+        $obj->supplier=$respond->row(0)->tbl_supplier_idtbl_supplier;                'tbl_material_group_idtbl_material_group'=> $materialgroup
+                $obj->supplier=$respond->row(0)->tbl_supplier_idtbl_supplier;  
 
         echo json_encode($obj);
     }

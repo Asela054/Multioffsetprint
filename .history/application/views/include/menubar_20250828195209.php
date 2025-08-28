@@ -941,10 +941,10 @@ function checkprivilege($arraymenu, $menuID, $type){
                 Material Info
                 <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
             </a>
-            <div class="collapse <?php if($functionmenu=="Foiling" | $functionmenu=="Lamination" | $functionmenu=="Rimming" | $functionmenu=="Varnish" | $functionmenu=="Materialtype" | $functionmenu=="Plates" | $functionmenu=="Color" | $functionmenu=="Materialdetail" | $functionmenu=="CategoryGauge" | $functionmenu=="Materialgroup"){echo 'show';} ?>" id="collapsematerials" data-parent="#accordionSidenav">
+            <div class="collapse <?php if($functionmenu=="Foiling" | $functionmenu=="Lamination" | $functionmenu=="Rimming" | $functionmenu=="Varnish" | $functionmenu=="Materialtype" | $functionmenu=="Plates" | $functionmenu=="Color" | $functionmenu=="Materialdetail" |$functionmenu=="CategoryGauge"){echo 'show';} ?>" id="collapsematerials" data-parent="#accordionSidenav">
                 <nav class="sidenav-menu-nested nav accordion">
-                    <?php  if(menucheck($menuprivilegearray, 176)==1){ ?> 
-                    <a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Materialgroup'; ?>">Material Group</a>
+                    <?php  if(menucheck($menuprivilegearray, 59)==1){ ?> 
+                    <a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Materialdetail'; ?>">Material Details</a>
                     <?php } if(menucheck($menuprivilegearray, 59)==1){ ?> 
                     <a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Materialdetail'; ?>">Material Details</a>
                     <?php } if(menucheck($menuprivilegearray, 13)==1){ ?> 
