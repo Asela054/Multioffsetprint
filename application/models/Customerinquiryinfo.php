@@ -1223,6 +1223,39 @@ class Customerinquiryinfo extends CI_Model{
                     right: 0px;
                     height: 210px;
                 }
+
+                /* Page break control for tables */
+                table {
+                    page-break-inside: auto;
+                }
+                
+                tr {
+                    page-break-inside: avoid;
+                    page-break-after: auto;
+                }
+                
+                thead {
+                    display: table-header-group;
+                }
+                
+                tfoot {
+                    display: table-footer-group;
+                }
+                
+                /* Prevent sections from breaking in the middle */
+                .section {
+                    page-break-inside: avoid;
+                }
+                
+                /* Force page break when needed */
+                .page-break {
+                    page-break-before: always;
+                }
+                
+                /* Ensure content doesn`t break awkwardly */
+                .no-break {
+                    page-break-inside: avoid;
+                }
             </style>
         </head>
         <body>
@@ -1257,6 +1290,7 @@ class Customerinquiryinfo extends CI_Model{
                 </div>
             </header>
             <main>
+                <div class="section">
                 <table style="width:100%;border-collapse: collapse;">
                     <tr>
                         <td style="font-size: 13px;"><u>Material Inforamtion</u></td>
@@ -1293,245 +1327,278 @@ class Customerinquiryinfo extends CI_Model{
                             </table>
                         </td>
                     </tr>
-                    <tr>
-                        <td style="font-size: 13px;"><u>Printing Inforamtion</u></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table style="width:100%;border-collapse: collapse;font-size: 13px;margin-top:20px;margin-bottom:20px;">
-                                <thead>
-                                    <tr>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Info Code</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Name</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material By</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Color Type</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Remark</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">BOM Qty</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">Issue Qty</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
-                                foreach($respondbomcolor->result() as $rowlist){
-                                    $html.='<tr>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialinfocode.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialname.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->colormaterialby.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->colortype.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->remark.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->qty.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->issueqty.'</td>
-                                    </tr>';
-                                }
-                                $html.='</tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="font-size: 13px;"><u>Coating Inforamtion</u></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table style="width:100%;border-collapse: collapse;font-size: 13px;margin-top:20px;margin-bottom:20px;">
-                                <thead>
-                                    <tr>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Info Code</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Name</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Varnish Name</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Gloss / Matt</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Full / Spot</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Remark</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">BOM Qty</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">Issue Qty</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
-                                foreach($respondbomvarnish->result() as $rowlist){
-                                    $html.='<tr>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialinfocode.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialname.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->varnish.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->glossmatt.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->fullspot.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->remark.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->varnishQty.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->issueqty.'</td>
-                                    </tr>';
-                                }
-                                $html.='</tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="font-size: 13px;"><u>Foil Inforamtion</u></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table style="width:100%;border-collapse: collapse;font-size: 13px;margin-top:20px;margin-bottom:20px;">
-                                <thead>
-                                    <tr>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Info Code</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Name</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material By</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Remark</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">BOM Qty</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">Issue Qty</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
-                                foreach($respondbomfoil->result() as $rowlist){
-                                    $html.='<tr>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialinfocode.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialname.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->foilmaterialby.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->remark.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->qty.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->issueqty.'</td>
-                                    </tr>';
-                                }
-                                $html.='</tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="font-size: 13px;"><u>Lamination Inforamtion</u></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table style="width:100%;border-collapse: collapse;font-size: 13px;margin-top:20px;margin-bottom:20px;">
-                                <thead>
-                                    <tr>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Info Code</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Name</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Lamination Name</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Sides</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Film Size</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">BOM Qty</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">Issue Qty</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
-                                foreach($respondbomlamination->result() as $rowlist){
-                                    $html.='<tr>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialinfocode.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialname.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->lamination.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->sides.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->filmsize.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->lamination_qty.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->issueqty.'</td>
-                                    </tr>';
-                                }
-                                $html.='</tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="font-size: 13px;"><u>Pasting Inforamtion</u></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table style="width:100%;border-collapse: collapse;font-size: 13px;margin-top:20px;margin-bottom:20px;">
-                                <thead>
-                                    <tr>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Info Code</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Name</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Machine Name</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Paste Type</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Remark</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">BOM Qty</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">Issue Qty</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
-                                foreach($respondbompasting->result() as $rowlist){
-                                    $html.='<tr>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialinfocode.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialname.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->machine.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->pastetype.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->remark.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->pasteqty.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->issueqty.'</td>
-                                    </tr>';
-                                }
-                                $html.='</tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="font-size: 13px;"><u>Die Cutting Inforamtion</u></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table style="width:100%;border-collapse: collapse;margin-top:20px;margin-bottom:20px;">
-                                <td width="50%" style="vertical-align: top;">
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Channel: </span>'.$responddiecut->row(0)->channel.'</p>
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Board: </span>'.$responddiecut->row(0)->board.'</p>
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Size: </span>'.$responddiecut->row(0)->size.'</p>
-                                </td>
-                                <td style="vertical-align: top;">
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Qty: </span>'.$responddiecut->row(0)->qty.'</p>
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Die Cut By: </span>'.$responddiecut->row(0)->diecutby.'</p>
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Emboss By: </span>'.$responddiecut->row(0)->embossby.'</p>
-                                </td>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="font-size: 13px;"><u>Rimming Inforamtion</u></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table style="width:100%;border-collapse: collapse;font-size: 13px;margin-top:20px;margin-bottom:20px;">
-                                <thead>
-                                    <tr>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Info Code</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Name</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Material By</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Sides</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;">Remark</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">BOM Qty</th>
-                                        <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">Issue Qty</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
-                                foreach($respondbomrimming->result() as $rowlist){
-                                    $html.='<tr>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialinfocode.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialname.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->rimmingby.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->sides.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->remark.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->qty.'</td>
-                                        <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->issueqty.'</td>
-                                    </tr>';
-                                }
-                                $html.='</tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="font-size: 13px;"><u>Other Inforamtion</u></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table style="width:100%;border-collapse: collapse;margin-top:20px;margin-bottom:20px;">
-                                <td width="50%" style="vertical-align: top;">
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Perfoating: </span>'.$respondother->row(0)->perfoating.'</p>
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Rimming: </span>'.$respondother->row(0)->rimming.'</p>
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Stapling: </span>'.$respondother->row(0)->stapling.'</p>
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Creasing: </span>'.$respondother->row(0)->creasing.'</p>
-                                </td>
-                                <td style="vertical-align: top;">
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Gattering: </span>'.$respondother->row(0)->gattering.'</p>
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Binding: </span>'.$respondother->row(0)->binding.'</p>
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Padding: </span>'.$respondother->row(0)->padding.'</p>
-                                    <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Threading: </span>'.$respondother->row(0)->threading.'</p>
-                                </td>
-                            </table>
-                        </td>
-                    </tr>
                 </table>
+                </div>
+                <div class="section">
+                    <table style="width:100%;border-collapse: collapse;">
+                        <tr>
+                            <td style="font-size: 13px;"><u>Printing Inforamtion</u></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:100%;border-collapse: collapse;font-size: 13px;margin-top:20px;margin-bottom:20px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Info Code</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Name</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material By</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Color Type</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Remark</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">BOM Qty</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">Issue Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>';
+                                    foreach($respondbomcolor->result() as $rowlist){
+                                        $html.='<tr>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialinfocode.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialname.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->colormaterialby.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->colortype.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->remark.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->qty.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->issueqty.'</td>
+                                        </tr>';
+                                    }
+                                    $html.='</tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="section">
+                    <table style="width:100%;border-collapse: collapse;">
+                        <tr>
+                            <td style="font-size: 13px;"><u>Coating Inforamtion</u></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:100%;border-collapse: collapse;font-size: 13px;margin-top:20px;margin-bottom:20px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Info Code</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Name</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Varnish Name</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Gloss / Matt</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Full / Spot</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Remark</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">BOM Qty</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">Issue Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>';
+                                    foreach($respondbomvarnish->result() as $rowlist){
+                                        $html.='<tr>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialinfocode.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialname.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->varnish.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->glossmatt.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->fullspot.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->remark.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->varnishQty.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->issueqty.'</td>
+                                        </tr>';
+                                    }
+                                    $html.='</tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="section">
+                    <table style="width:100%;border-collapse: collapse;">
+                        <tr>
+                            <td style="font-size: 13px;"><u>Foil Inforamtion</u></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:100%;border-collapse: collapse;font-size: 13px;margin-top:20px;margin-bottom:20px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Info Code</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Name</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material By</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Remark</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">BOM Qty</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">Issue Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>';
+                                    foreach($respondbomfoil->result() as $rowlist){
+                                        $html.='<tr>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialinfocode.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialname.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->foilmaterialby.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->remark.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->qty.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->issueqty.'</td>
+                                        </tr>';
+                                    }
+                                    $html.='</tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="section">
+                    <table style="width:100%;border-collapse: collapse;">
+                        <tr>
+                            <td style="font-size: 13px;"><u>Lamination Inforamtion</u></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:100%;border-collapse: collapse;font-size: 13px;margin-top:20px;margin-bottom:20px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Info Code</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Name</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Lamination Name</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Sides</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Film Size</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">BOM Qty</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">Issue Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>';
+                                    foreach($respondbomlamination->result() as $rowlist){
+                                        $html.='<tr>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialinfocode.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialname.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->lamination.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->sides.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->filmsize.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->lamination_qty.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->issueqty.'</td>
+                                        </tr>';
+                                    }
+                                    $html.='</tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="section">
+                    <table style="width:100%;border-collapse: collapse;">
+                        <tr>
+                            <td style="font-size: 13px;"><u>Pasting Inforamtion</u></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:100%;border-collapse: collapse;font-size: 13px;margin-top:20px;margin-bottom:20px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Info Code</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Name</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Machine Name</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Paste Type</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Remark</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">BOM Qty</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">Issue Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>';
+                                    foreach($respondbompasting->result() as $rowlist){
+                                        $html.='<tr>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialinfocode.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialname.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->machine.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->pastetype.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->remark.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->pasteqty.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->issueqty.'</td>
+                                        </tr>';
+                                    }
+                                    $html.='</tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="section">
+                    <table style="width:100%;border-collapse: collapse;">
+                        <tr>
+                            <td style="font-size: 13px;"><u>Die Cutting Inforamtion</u></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:100%;border-collapse: collapse;margin-top:20px;margin-bottom:20px;">
+                                    <td width="50%" style="vertical-align: top;">
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Channel: </span>'.$responddiecut->row(0)->channel.'</p>
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Board: </span>'.$responddiecut->row(0)->board.'</p>
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Size: </span>'.$responddiecut->row(0)->size.'</p>
+                                    </td>
+                                    <td style="vertical-align: top;">
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Qty: </span>'.$responddiecut->row(0)->qty.'</p>
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Die Cut By: </span>'.$responddiecut->row(0)->diecutby.'</p>
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Emboss By: </span>'.$responddiecut->row(0)->embossby.'</p>
+                                    </td>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="section">
+                    <table style="width:100%;border-collapse: collapse;">
+                        <tr>
+                            <td style="font-size: 13px;"><u>Rimming Inforamtion</u></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:100%;border-collapse: collapse;font-size: 13px;margin-top:20px;margin-bottom:20px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Info Code</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material Name</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Material By</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Sides</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;">Remark</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">BOM Qty</th>
+                                            <th style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">Issue Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>';
+                                    foreach($respondbomrimming->result() as $rowlist){
+                                        $html.='<tr>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialinfocode.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->materialname.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->rimmingby.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->sides.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;">'.$rowlist->remark.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->qty.'</td>
+                                            <td style="border-bottom: 1px thin solid;vertical-align: top;text-align:center;">'.$rowlist->issueqty.'</td>
+                                        </tr>';
+                                    }
+                                    $html.='</tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="section">
+                    <table style="width:100%;border-collapse: collapse;">
+                        <tr>
+                            <td style="font-size: 13px;"><u>Other Inforamtion</u></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:100%;border-collapse: collapse;margin-top:20px;margin-bottom:20px;">
+                                    <td width="50%" style="vertical-align: top;">
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Perfoating: </span>'.$respondother->row(0)->perfoating.'</p>
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Rimming: </span>'.$respondother->row(0)->rimming.'</p>
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Stapling: </span>'.$respondother->row(0)->stapling.'</p>
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Creasing: </span>'.$respondother->row(0)->creasing.'</p>
+                                    </td>
+                                    <td style="vertical-align: top;">
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Gattering: </span>'.$respondother->row(0)->gattering.'</p>
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Binding: </span>'.$respondother->row(0)->binding.'</p>
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Padding: </span>'.$respondother->row(0)->padding.'</p>
+                                        <p style="margin:0px;font-size: 13px;"><span style="font-weight: bold;">Threading: </span>'.$respondother->row(0)->threading.'</p>
+                                    </td>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </main>
         </body>
         </html>
