@@ -159,7 +159,7 @@ include "include/topnavbar.php";
 </div>
 <!-- Modal BOM Info -->
 <div class="modal fade" id="modalBomInfo" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header p-2">
 				<h6 class="modal-title">Job BOM Information</h6>
@@ -275,7 +275,7 @@ include "include/topnavbar.php";
 												</div>
 												<div class="col">
 													<lable class="font-weight-bold small">Cutting Size (Inch)*</lable>
-													<input type="number" step="any" name="materialcutsize" id="materialcutsize" class="form-control form-control-sm" required>
+													<input type="text" name="materialcutsize" id="materialcutsize" class="form-control form-control-sm" required>
 												</div>
 											</div>
 											<div class="form-row mb-1">
@@ -347,17 +347,17 @@ include "include/topnavbar.php";
 											</div>
 											<div class="form-row mb-1">
 												<div class="col">
-													<div class="custom-control custom-checkbox custom-control-inline mb-0">
-														<input type="checkbox" class="custom-control-input" id="printingcmyk" value="CMYK" name="printingcmyk">
-														<label class="custom-control-label small" for="printingcmyk">CMYK</label>
+													<div class="custom-control custom-radio custom-control-inline mb-0">
+														<input type="radio" class="custom-control-input" id="printingcolortype1" value="CMYK" name="printingcolortype" required>
+														<label class="custom-control-label small" for="printingcolortype1">CMYK</label>
 													</div>
-													<div class="custom-control custom-checkbox custom-control-inline mb-0">
-														<input type="checkbox" class="custom-control-input" id="printingmetlic" value="Metlic Color" name="printingmetlic">
-														<label class="custom-control-label small" for="printingmetlic">Metlic Color</label>
+													<div class="custom-control custom-radio custom-control-inline mb-0">
+														<input type="radio" class="custom-control-input" id="printingcolortype2" value="Metlic Color" name="printingcolortype">
+														<label class="custom-control-label small" for="printingcolortype2">Metlic Color</label>
 													</div>
-													<div class="custom-control custom-checkbox custom-control-inline mb-0">
-														<input type="checkbox" class="custom-control-input" id="printinganyother" value="Any Other" name="printinganyother">
-														<label class="custom-control-label small" for="printinganyother">Any Other</label>
+													<div class="custom-control custom-radio custom-control-inline mb-0">
+														<input type="radio" class="custom-control-input" id="printingcolortype3" value="Any Other" name="printingcolortype">
+														<label class="custom-control-label small" for="printingcolortype3">Any Other</label>
 													</div>
 												</div>
 											</div>
@@ -426,22 +426,22 @@ include "include/topnavbar.php";
 												</div>
 												<div class="col">
 													<div class="custom-control custom-radio">
-														<input type="radio" id="coatingsubtype1" name="coatingsubtype" class="custom-control-input" value="Gloss">
-														<label class="custom-control-label small" for="coatingsubtype1">Gloss</label>
+														<input type="radio" id="glossmatt1" name="glossmatt" class="custom-control-input" value="Gloss">
+														<label class="custom-control-label small" for="glossmatt1">Gloss</label>
 													</div>
 													<div class="custom-control custom-radio">
-														<input type="radio" id="coatingsubtype2" name="coatingsubtype" class="custom-control-input" value="Matt">
-														<label class="custom-control-label small" for="coatingsubtype2">Matt</label>
+														<input type="radio" id="glossmatt2" name="glossmatt" class="custom-control-input" value="Matt">
+														<label class="custom-control-label small" for="glossmatt2">Matt</label>
 													</div>
 												</div>
 												<div class="col">
 													<div class="custom-control custom-radio">
-														<input type="radio" id="coatingsubtype3" name="coatingsubtype" class="custom-control-input" value="Full">
-														<label class="custom-control-label small" for="coatingsubtype3">Full</label>
+														<input type="radio" id="fullspot3" name="fullspot" class="custom-control-input" value="Full">
+														<label class="custom-control-label small" for="fullspot3">Full</label>
 													</div>
 													<div class="custom-control custom-radio">
-														<input type="radio" id="coatingsubtype4" name="coatingsubtype" class="custom-control-input" value="Spot">
-														<label class="custom-control-label small" for="coatingsubtype4">Spot</label>
+														<input type="radio" id="fullspot4" name="fullspot" class="custom-control-input" value="Spot">
+														<label class="custom-control-label small" for="fullspot4">Spot</label>
 													</div>
 												</div>
 											</div>
@@ -478,7 +478,8 @@ include "include/topnavbar.php";
 													<th>Material</th>
 													<th class="d-none">VarnishTypeID</th>
 													<th>Varnish Type</th>
-													<th class="d-none">VarnishSubType</th>
+													<th class="d-none">Glossmatt</th>
+													<th class="d-none">Fullspot</th>
 													<th>Qty(KG)</th>
 													<th>Remark</th>
 												</tr>
@@ -676,17 +677,17 @@ include "include/topnavbar.php";
 											</div>
 											<div class="form-row mb-1">
 												<div class="col">
-													<div class="custom-control custom-checkbox custom-control-inline">
-														<input type="checkbox" class="custom-control-input" id="pasteStraight" value="Straight Line">
-														<label class="custom-control-label small" for="pasteStraight">Straight Line</label>
+													<div class="custom-control custom-radio custom-control-inline">
+														<input type="radio" class="custom-control-input" id="pasteType1" name="pasteType" value="Straight Line" required>
+														<label class="custom-control-label small" for="pasteType1">Straight Line</label>
 													</div>
-													<div class="custom-control custom-checkbox custom-control-inline">
-														<input type="checkbox" class="custom-control-input" id="pasteCrash" value="Crash Box">
-														<label class="custom-control-label small" for="pasteCrash">Crash Box</label>
+													<div class="custom-control custom-radio custom-control-inline">
+														<input type="radio" class="custom-control-input" id="pasteType2" name="pasteType" value="Crash Box">
+														<label class="custom-control-label small" for="pasteType2">Crash Box</label>
 													</div>
-													<div class="custom-control custom-checkbox custom-control-inline">
-														<input type="checkbox" class="custom-control-input" id="pasteManual" value="Manual">
-														<label class="custom-control-label small" for="pasteManual">Manual</label>
+													<div class="custom-control custom-radio custom-control-inline">
+														<input type="radio" class="custom-control-input" id="pasteType3" name="pasteType" value="Manual">
+														<label class="custom-control-label small" for="pasteType3">Manual</label>
 													</div>
 												</div>
 											</div>
@@ -940,7 +941,7 @@ include "include/topnavbar.php";
 								</div>
 							</div>
 							<!-- Other Info Section -->
-							<div class="card shadow-none border m-0">
+							<!-- <div class="card shadow-none border m-0">
 								<div class="card-header p-1" id="headingOtherinfo">
 									<h2 class="mb-0">
 										<button class="btn btn-link btn-block text-left collapsed p-0 btn-sm text-decoration-none text-dark" type="button" data-toggle="collapse" data-target="#collapseOtherinfo" aria-expanded="false" aria-controls="collapseOtherinfo">
@@ -967,7 +968,7 @@ include "include/topnavbar.php";
 										</form>
 									</div>
 								</div>
-							</div>
+							</div> -->
 						</div>
 						<div class="form-row">
 							<div class="col text-right">
@@ -1581,7 +1582,7 @@ include "include/topnavbar.php";
 						rimmingObj.push(item);
 					});
 				}
-				// console.log(rimmingObj);
+				// console.log(varnishObj);
 
 				var diechannel = '';
 				var dieboard = '';
@@ -1609,7 +1610,7 @@ include "include/topnavbar.php";
 				if ($('#otherCreasing').is(':checked')) {otherCreasing=$('#otherCreasing').val();}
 				if ($('#otherThreading').is(':checked')) {otherThreading=$('#otherThreading').val();}
 
-				var delivery = $('input[name="delivery"]:checked').val();
+				// var delivery = $('input[name="delivery"]:checked').val();
 
 				Swal.fire({
 					title: '',
@@ -1656,8 +1657,7 @@ include "include/topnavbar.php";
 								otherStapling: otherStapling,
 								otherPadding: otherPadding,
 								otherCreasing: otherCreasing,
-								otherThreading: otherThreading,
-								delivery: delivery
+								otherThreading: otherThreading
 							},
 							url: '<?php echo base_url(); ?>Newcustomerjobs/Newcustomerjobbominsertupdate',
 							success: function (result) {
@@ -1729,9 +1729,10 @@ include "include/topnavbar.php";
 			} else {
 				var colortype = '';
 				var printingMaterialby = $('input[name="printingMaterialby"]:checked').val();
-				if ($('#printingcmyk').is(':checked')) {colortype=$('#printingcmyk').val();}
-				if ($('#printingmetlic').is(':checked')) {colortype=$('#printingmetlic').val();}
-				if ($('#printinganyother').is(':checked')) {colortype=$('#printinganyother').val();}
+				var colortype = $('input[name="printingcolortype"]:checked').val();
+				// if ($('#printingcmyk').is(':checked')) {colortype=$('#printingcmyk').val();}
+				// if ($('#printingmetlic').is(':checked')) {colortype=$('#printingmetlic').val();}
+				// if ($('#printinganyother').is(':checked')) {colortype=$('#printinganyother').val();}
 				var materialId = $('#printingmaterial').val();
 				var materialtext = $("#printingmaterial option:selected").text();
 				var selectedData = $('#printingmaterial').select2('data')[0];
@@ -1760,7 +1761,8 @@ include "include/topnavbar.php";
 			} else {
 				var coatingvarnish = $('#coatingvarnish').val();
 				var coatingvarnishText = $("#coatingvarnish option:selected").text();
-				var coatingsubtype = $('input[name="coatingsubtype"]:checked').val();
+				var glossmatt = $('input[name="glossmatt"]:checked').val();
+				var fullspot = $('input[name="fullspot"]:checked').val();
 
 				var materialId = $('#coatingmaterial').val();
 				var materialtext = $("#coatingmaterial option:selected").text();
@@ -1770,7 +1772,7 @@ include "include/topnavbar.php";
 				var coatingQty = $('#coatingQty').val();
 				var coatingmark = $('#coatingmark').val();
 
-				$('#tblCoatingDetails > tbody:last').append('<tr class="btnDeleteVarnish"><td class="d-none">' + materialId + '</td><td>' + materialcode + '</td><td>' + materialtext + '</td><td class="d-none">' + coatingvarnish + '</td><td>' + coatingvarnishText + ' - ' + coatingsubtype + '</td><td class="d-none">' + coatingsubtype + '</td><td>' + coatingQty + '</td><td>' + coatingmark + '</td></tr>'
+				$('#tblCoatingDetails > tbody:last').append('<tr class="btnDeleteVarnish"><td class="d-none">' + materialId + '</td><td>' + materialcode + '</td><td>' + materialtext + '</td><td class="d-none">' + coatingvarnish + '</td><td>' + coatingvarnishText + ' - ' + glossmatt + ' - ' + fullspot + '</td><td class="d-none">' + glossmatt + '</td><td class="d-none">' + fullspot + '</td><td>' + coatingQty + '</td><td>' + coatingmark + '</td></tr>'
 				);
 
 				$('#varnishmaterial').val('').trigger('change');
@@ -1831,10 +1833,11 @@ include "include/topnavbar.php";
 				var pastetype = '';
 				var pasteMachine = $('#pasteMachine').val();
 				var pasteMachineText = $("#pasteMachine option:selected").text();
+				var pastetype = $('input[name="pasteType"]:checked').val();
 
-				if ($('#pasteStraight').is(':checked')) {pastetype=$('#pasteStraight').val();}
-				if ($('#pasteCrash').is(':checked')) {pastetype=$('#pasteCrash').val();}
-				if ($('#pasteManual').is(':checked')) {pastetype=$('#pasteManual').val();}
+				// if ($('#pasteStraight').is(':checked')) {pastetype=$('#pasteStraight').val();}
+				// if ($('#pasteCrash').is(':checked')) {pastetype=$('#pasteCrash').val();}
+				// if ($('#pasteManual').is(':checked')) {pastetype=$('#pasteManual').val();}
 				
 				var materialId = $('#pasteMaterial').val();
 				var materialtext = $("#pasteMaterial option:selected").text();
@@ -1908,6 +1911,12 @@ include "include/topnavbar.php";
 			}
 		});
 		$('#tblColorDetails tbody').on('click', '.btnDeleteColor', async function () {
+			var r = await Otherconfirmation("You want to remove this ? ");
+			if (r == true) {
+				$(this).closest('tr').remove();
+			}
+		});
+		$('#tblpasteDetails tbody').on('click', '.btnDeletePasting', async function () {
 			var r = await Otherconfirmation("You want to remove this ? ");
 			if (r == true) {
 				$(this).closest('tr').remove();

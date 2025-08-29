@@ -37,9 +37,6 @@ class Customerinquiry extends CI_Controller {
         $result=$this->Customerinquiryinfo->Getcustomejobs();
 	}
 	
-
-	
-	
 	public function GetAllCustomerInquiries(){
 		$this->load->model('Customerinquiryinfo');
         $result=$this->Customerinquiryinfo->GetAllCustomerInquiries();
@@ -58,7 +55,6 @@ class Customerinquiry extends CI_Controller {
         $result=$this->Customerinquiryinfo->Customerinquiryjoblistedit();
 	}
 	
-	
 	public function Customerinquiryviewjoblist(){
 		$this->load->model('Customerinquiryinfo');
         $result=$this->Customerinquiryinfo->Customerinquiryviewjoblist();
@@ -68,4 +64,18 @@ class Customerinquiry extends CI_Controller {
         $result=$this->Customerinquiryinfo->Getcompanybranch();
 	}
 	
+	public function Getjobbominfo(){
+		$this->load->model('Customerinquiryinfo');
+		$result=$this->Customerinquiryinfo->Getjobbominfo();
+	}
+
+	public function Customerinquiryviewjobcard(){
+		$this->load->model('Customerinquiryinfo');
+		$result=$this->Customerinquiryinfo->Customerinquiryviewjobcard();
+	}
+
+	public function Customerinquiryexportpdf($id){
+		$this->load->model('Customerinquiryinfo');
+		$result=$this->Customerinquiryinfo->Customerinquiryexportpdf($id);
+	}
 }
