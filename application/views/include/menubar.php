@@ -983,9 +983,9 @@ function checkprivilege($arraymenu, $menuID, $type){
                     <?php } if(menucheck($menuprivilegearray, 26)==1){ ?>
                     <a class="nav-link p-0 px-3 py-1 text-dark"  href="<?php echo base_url().'Customerinquiry'; ?>">Customer Inquiry</a>
                     <?php } if(menucheck($menuprivilegearray, 151)==1){ ?>
-                    <a class="nav-link p-0 px-3 py-1 text-dark"  href="<?php echo base_url().'MaterialAllocation'; ?>">Job Card Create</a>
+                    <a class="nav-link p-0 px-3 py-1 text-dark"  href="<?php echo base_url().'MaterialAllocation'; ?>">Allocate Material</a>
                     <?php } if(menucheck($menuprivilegearray, 168)==1){ ?>
-                    <a class="nav-link p-0 px-3 py-1 text-dark"  href="<?php echo base_url().'Jobcardissuematerial'; ?>">Job Card Issue Material</a>
+                    <a class="nav-link p-0 px-3 py-1 text-dark"  href="<?php echo base_url().'Jobcardissuematerial'; ?>">Issue Material</a>
                     <?php }?>
                 </nav>
             </div>
