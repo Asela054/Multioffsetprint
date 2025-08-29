@@ -50,24 +50,47 @@ include "include/topnavbar.php";
                                                 <option value="">Select</option>
                                             </select>
                                         </div>
-                                        <div class="col">
-                                            <label class="small font-weight-bold text-dark">Job :</label>
+                                        <div class="col-3">
+                                            <label class="small font-weight-bold text-dark">Job</label>
                                             <select class="form-control form-control-sm  selecter2 px-0" name="job" id="job" required>
                                                 <option value="">Select</option>
                                             </select>
                                         </div>
                                         <div class="col-2">
-                                            <label class="small font-weight-bold text-dark">QTY :</label>
+                                            <label class="small font-weight-bold text-dark">QTY</label>
                                             <input type="number" step="any" name="qty" class="form-control form-control-sm" id="qty" required>
                                         </div>
                                         <div class="col-2">
-                                            <label class="small font-weight-bold text-dark">UOM :</label>
+                                            <label class="small font-weight-bold text-dark">UOM</label>
                                             <input type="text" name="uom" class="form-control form-control-sm" id="uom" required readonly>
                                             <input type="hidden" name="uom_id" class="form-control form-control-sm" id="uom_id">
                                         </div>
                                         <div class="col-2">
                                             <label class="small font-weight-bold text-dark">Unit Price</label>
                                             <input type="number" id="unitprice" name="unitprice" class="form-control form-control-sm" value="0" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="form-row mb-1">
+                                        <div class="col-2">
+                                            <label class="small font-weight-bold text-dark">Delivery Date</label>
+                                            <input type="date" name="deliverydate" id="deliverydate" class="form-control form-control-sm">
+                                        </div>
+                                        <div class="col-3">
+                                            <lable class="font-weight-bold small">Delivery by</lable><br>
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="deliveryby1" name="deliveryby" value="By Customer" class="custom-control-input">
+                                                <label class="custom-control-label small" for="deliveryby1">By Customer</label>
+                                            </div>
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="deliveryby2" name="deliveryby" value="By Us" class="custom-control-input" checked>
+                                                <label class="custom-control-label small" for="deliveryby2">By Us</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-7">
+                                            <label class="small font-weight-bold text-dark">Job BOM Infomation</label>
+                                            <select class="form-control form-control-sm  selecter2 px-0" name="jobbom" id="jobbom" required>
+                                                <option value="">Select</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="form-group mb-1">
@@ -144,6 +167,28 @@ include "include/topnavbar.php";
         </div>
     </div>
 </div>
+<!-- view job card model -->
+<div class="modal fade" id="viewJobCard" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header p-2">
+                <h6 class="modal-title">Job Card Information</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-2">
+                <div id="showjobcard"></div>
+                <div class="row">
+                    <div class="col-12 text-right">
+                        <button type="button" class="btn btn-danger btn-sm px-3" id="exporttopdf"><i class="fas fa-file-pdf mr-2"></i>Export PDF</button>
+                    </div>
+                </div>
+                <input type="hidden" name="jobcardinqueryid" id="jobcardinqueryid">
+            </div>
+        </div>
+    </div>
+</div>
 <?php include "include/footerscripts.php"; ?>
 <script>
 $(document).ready(function() {
@@ -197,19 +242,39 @@ $(document).ready(function() {
     });
     $('#job').change(function() {
         var jobID = $(this).val();
-        $.ajax({
-            type: "POST",
-            data: {
-                recordID: jobID
-            },
-            url: '<?php echo base_url() ?>Customerinquiry/Getjobuom',
-            success: function(result) {
-                var obj = JSON.parse(result);
-                $('#uom').val(obj.measure_type);
-                $('#uom_id').val(obj.measure_type_id);
-                $('#unitprice').val(obj.unitprice);
-            }
-        });
+        if(jobID!=''){
+            $.ajax({
+                type: "POST",
+                data: {
+                    recordID: jobID
+                },
+                url: '<?php echo base_url() ?>Customerinquiry/Getjobuom',
+                success: function(result) {
+                    var obj = JSON.parse(result);
+                    $('#uom').val(obj.measure_type);
+                    $('#uom_id').val(obj.measure_type_id);
+                    $('#unitprice').val(obj.unitprice);
+                }
+            });
+            $.ajax({
+                type: "POST",
+                data: {
+                    recordID: jobID
+                },
+                url: '<?php echo base_url() ?>Customerinquiry/Getjobbominfo',
+                success: function(result) {
+                    var obj = JSON.parse(result);
+                    var html1 = '';
+                    html1 += '<option value="">Select</option>';
+                    $.each(obj, function(i, item) {
+                        html1 += '<option value="' + obj[i].idtbl_jobcard_bom + '">';
+                        html1 += obj[i].jobbomname;
+                        html1 += '</option>';
+                    });
+                    $('#jobbom').empty().append(html1).trigger('change');
+                }
+            });
+        }
     });
     //Add List
     // $('#BtnAdd').click(function() {
@@ -262,6 +327,9 @@ $(document).ready(function() {
             var date = $('#date').val();
             var ponumber = $('#ponumber').val();
             var customer = $('#customer').val();
+            var jobbom = $('#jobbom').val();
+            var deliveryby = $('input[name="deliveryby"]:checked').val();
+            var deliverydate = $('#deliverydate').val();
             var recordOption = $('#recordOption').val();
             var recordID = $('#recordID').val();
 
@@ -301,6 +369,9 @@ $(document).ready(function() {
                             uomID: uomID,
                             unitprice: unitprice,
                             comment: comment,
+                            jobbom: jobbom,
+                            deliveryby: deliveryby,
+                            deliverydate: deliverydate,
                             recordOption: recordOption,
                             recordID: recordID
                         },
@@ -446,6 +517,7 @@ $(document).ready(function() {
                         }
                     }
                     else{
+                        button += '<button class="btn btn-primary btn-sm btnJobCard mr-1" id="' + full['idtbl_customerinquiry'] + '" data-toggle="tooltip" title="Job Card"><i class="fas fa-file"></i></button>';
                         button += '<button class="btn btn-dark btn-sm btnView mr-1" id="' + full['idtbl_customerinquiry'] + '" data-toggle="tooltip" title="View" data-approvestatus="'+full['approvestatus']+'"><i class="fas fa-eye"></i></button>';
                         if(editcheck==1 && full['approvestatus']==1 && full['job_finish_status']==0){
                             button+='<button type="button" class="btn btn-orange btn-sm btnEdit mr-1" id="'+full['idtbl_customerinquiry']+'" data-toggle="tooltip" title="Edit Some" data-approvestatus="'+full['approvestatus']+'"><i class="fas fa-pencil-alt"></i></button>';
@@ -487,11 +559,17 @@ $(document).ready(function() {
                     var newOptionjob = new Option(obj.job_name, obj.job_id, true, true);
                     $('#job').append(newOptionjob);
 
+                    var newOptionjobbom = new Option(obj.jobbomname, obj.jobbomid, true, true);
+                    $('#jobbom').append(newOptionjobbom);
+
                     $('#qty').val(obj.qty);
                     $('#uom').val(obj.uom);
                     $('#uom_id').val(obj.uom_id);
                     $('#unitprice').val(obj.unitprice);
                     $('#comment').val(obj.comments);
+
+                    $('input[name="deliveryby"][value="' + obj.deliveryby + '"]').prop('checked', true);
+                    $('#deliverydate').val(obj.deliverydate);
 
                     if(approvestatus==1){
                         $('#date').prop('readonly', true);
@@ -533,6 +611,52 @@ $(document).ready(function() {
     $('#viewModel').on('hidden.bs.modal', function (event) {
         $('#alertdiv').html('');
         $('#btnapprovereject').removeClass('d-none').prop('disabled', false);
+    });
+    $('#datatable tbody').on('click', '.btnJobCard', function() {
+        var id = $(this).attr('id');
+        $('#jobcardinqueryid').val(id);
+
+        Swal.fire({
+            title: '',
+            html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+            allowOutsideClick: false,
+            showConfirmButton: false, // Hide the OK button
+            backdrop: `
+                rgba(255, 255, 255, 0.5) 
+            `,
+            customClass: {
+                popup: 'fullscreen-swal'
+            },
+            didOpen: () => {
+                document.body.style.overflow = 'hidden';
+
+                $.ajax({
+                    type: "POST",
+                    data: {
+                        recordID: id
+                    },
+                    url: '<?php echo base_url() ?>Customerinquiry/Customerinquiryviewjobcard',
+                    success: function(result) { //alert(result);
+                        Swal.close();
+                        document.body.style.overflow = 'auto';
+                        $('#showjobcard').html(result);
+                        $('#viewJobCard').modal('show');
+                    },
+                    error: function(error) {
+                        // Close the SweetAlert on error
+                        Swal.close();
+                        document.body.style.overflow = 'auto';
+                        
+                        // Show an error alert
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Something went wrong. Please try again later.'
+                        });
+                    }
+                });
+            }
+        }); 
     });
 
     $('#btnapprovereject').click(function(){
@@ -628,6 +752,12 @@ $(document).ready(function() {
             $('#BtnAdd').show();
             resetfeild();
         }
+    });
+
+    $('#exporttopdf').click(function(){
+        var id = $('#jobcardinqueryid').val();
+        var url = '<?php echo base_url() ?>Customerinquiry/Customerinquiryexportpdf/'+id;
+        window.open(url, '_blank');
     });
 });
 

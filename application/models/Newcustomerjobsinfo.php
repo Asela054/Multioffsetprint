@@ -392,8 +392,6 @@ class Newcustomerjobsinfo extends CI_Model{
         $otherPadding=$this->input->post('otherPadding');
         $otherCreasing=$this->input->post('otherCreasing');
         $otherThreading=$this->input->post('otherThreading');
-        
-        $delivery=$this->input->post('delivery');
 
         $updatedatetime=date('Y-m-d H:i:s');
 
@@ -403,7 +401,6 @@ class Newcustomerjobsinfo extends CI_Model{
                 'artworkby'=> $prepressArtworkby, 
                 'format'=> $prepressFormat, 
                 'plateby'=> $prepressPlateby, 
-                'deliveryby'=> $delivery, 
                 'status'=> '1', 
                 'insertdatetime'=> $updatedatetime,
                 'tbl_user_idtbl_user'=> $userID,
@@ -465,12 +462,14 @@ class Newcustomerjobsinfo extends CI_Model{
                 foreach($varnishTable as $varnishData){
                     $varnishMaterialId=$varnishData['col_1'];
                     $varnishId=$varnishData['col_4'];
-                    $coattype=$varnishData['col_6'];
-                    $varnishSheetQty=$varnishData['col_7'];
-                    $remark=$varnishData['col_8'];
+                    $glossmatt=$varnishData['col_6'];
+                    $fullspot=$varnishData['col_7'];
+                    $varnishSheetQty=$varnishData['col_8'];
+                    $remark=$varnishData['col_9'];
 
                     $varnishListData = array(
-                        'coattype'=> $coattype, 
+                        'glossmatt'=> $glossmatt, 
+                        'fullspot'=> $fullspot, 
                         'varnishQty'=> $varnishSheetQty, 
                         'remark'=> $remark, 
                         'status'=> '1', 
@@ -878,33 +877,27 @@ class Newcustomerjobsinfo extends CI_Model{
     public function viewBomInfo(){
         $recordID=$this->input->post('recordID');
 
-		$this->db->select('tbl_jobcard_bom_material.cutsize, tbl_jobcard_bom_material.sheetqty, tbl_jobcard_bom_material.wastage, tbl_printing_format.format_name, tbl_print_material_info.materialname');
+        $this->db->select('`jobbomname`, `artworkby`, `format`, `plateby`');
+        $this->db->from('tbl_jobcard_bom');
+        $this->db->where('idtbl_jobcard_bom', $recordID);
+        $this->db->where('status', 1);
+        $respond=$this->db->get();
+
+		$this->db->select('tbl_jobcard_bom_material.materialby, tbl_jobcard_bom_material.cutsize, tbl_jobcard_bom_material.cutups, tbl_jobcard_bom_material.upspersheet, tbl_jobcard_bom_material.wastage, tbl_print_material_info.materialname, tbl_print_material_info.materialinfocode');
 		$this->db->from('tbl_jobcard_bom_material');
-        $this->db->join('tbl_printing_format', 'tbl_printing_format.idtbl_printing_format = tbl_jobcard_bom_material.tbl_printing_format_idtbl_printing_format', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_material.tbl_print_material_info_idtbl_print_material_info', 'left');
 		$this->db->where('tbl_jobcard_bom_material.tbl_jobcard_bom_idtbl_jobcard_bom', $recordID);
 		$this->db->where('tbl_jobcard_bom_material.status', 1);
 
 		$respondmaterial=$this->db->get();
 
-        $this->db->select('tbl_jobcard_bom_varnish.varnishQty, tbl_varnish.varnish, tbl_print_material_info.materialname');
-		$this->db->from('tbl_jobcard_bom_varnish');
-        $this->db->join('tbl_varnish', 'tbl_varnish.idtbl_varnish = tbl_jobcard_bom_varnish.tbl_varnish_idtbl_varnish', 'left');
-        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_varnish.tbl_print_material_info_idtbl_print_material_info', 'left');
-		$this->db->where('tbl_jobcard_bom_varnish.tbl_jobcard_bom_idtbl_jobcard_bom', $recordID);
-		$this->db->where('tbl_jobcard_bom_varnish.status', 1);
-
-		$respondvarnish=$this->db->get();
-
         $this->db->select([
-            'TRIM(BOTH ", " FROM CONCAT(
-                IF(tbl_jobcard_bom_color.cmyk = 1, "CMYK, ", ""),
-                IF(tbl_jobcard_bom_color.metlic = 1, "Metlic Color, ", ""),
-                IF(tbl_jobcard_bom_color.anyother = 1, "Any Other, ", "")
-            )) AS color_types',
+            'tbl_jobcard_bom_color.colormaterialby',
+            'tbl_jobcard_bom_color.colortype',
             'tbl_jobcard_bom_color.remark',
             'tbl_jobcard_bom_color.qty',
-            'tbl_print_material_info.materialname'
+            'tbl_print_material_info.materialname',
+            'tbl_print_material_info.materialinfocode'
         ]);
 		$this->db->from('tbl_jobcard_bom_color');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_color.tbl_print_material_info_idtbl_print_material_info', 'left');
@@ -913,7 +906,25 @@ class Newcustomerjobsinfo extends CI_Model{
 
 		$respondcolor=$this->db->get();
 
-        $this->db->select(['IF(tbl_jobcard_bom_lamination.sides = 1, "One Side", "Both Side") AS sides', 'tbl_jobcard_bom_lamination.filmsize', 'tbl_jobcard_bom_lamination.micron', 'tbl_jobcard_bom_lamination.lamination_qty', 'tbl_lamination.lamination', 'tbl_print_material_info.materialname']);
+        $this->db->select('tbl_jobcard_bom_varnish.glossmatt, tbl_jobcard_bom_varnish.fullspot, tbl_jobcard_bom_varnish.varnishQty, tbl_jobcard_bom_varnish.remark, tbl_varnish.varnish, tbl_print_material_info.materialname, tbl_print_material_info.materialinfocode');
+		$this->db->from('tbl_jobcard_bom_varnish');
+        $this->db->join('tbl_varnish', 'tbl_varnish.idtbl_varnish = tbl_jobcard_bom_varnish.tbl_varnish_idtbl_varnish', 'left');
+        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_varnish.tbl_print_material_info_idtbl_print_material_info', 'left');
+		$this->db->where('tbl_jobcard_bom_varnish.tbl_jobcard_bom_idtbl_jobcard_bom', $recordID);
+		$this->db->where('tbl_jobcard_bom_varnish.status', 1);
+
+		$respondvarnish=$this->db->get();
+
+        $this->db->select('tbl_jobcard_bom_foil.foilmaterialby, tbl_jobcard_bom_foil.qty, tbl_jobcard_bom_foil.remark, tbl_foiling.foiling, tbl_print_material_info.materialname, tbl_print_material_info.materialinfocode');
+		$this->db->from('tbl_jobcard_bom_foil');
+        $this->db->join('tbl_foiling', 'tbl_foiling.idtbl_foiling = tbl_jobcard_bom_foil.tbl_foiling_idtbl_foiling', 'left');
+        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_foil.tbl_print_material_info_idtbl_print_material_info', 'left');
+		$this->db->where('tbl_jobcard_bom_foil.tbl_jobcard_bom_idtbl_jobcard_bom', $recordID);
+		$this->db->where('tbl_jobcard_bom_foil.status', 1);
+
+		$respondfoil=$this->db->get();
+
+        $this->db->select(['tbl_jobcard_bom_lamination.sides', 'tbl_jobcard_bom_lamination.filmsize', 'tbl_jobcard_bom_lamination.lamination_qty', 'tbl_jobcard_bom_lamination.wastage', 'tbl_lamination.lamination', 'tbl_print_material_info.materialname', 'tbl_print_material_info.materialinfocode']);
 		$this->db->from('tbl_jobcard_bom_lamination');
         $this->db->join('tbl_lamination', 'tbl_lamination.idtbl_lamination = tbl_jobcard_bom_lamination.tbl_lamination_idtbl_lamination', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_lamination.tbl_print_material_info_idtbl_print_material_info', 'left');
@@ -922,7 +933,16 @@ class Newcustomerjobsinfo extends CI_Model{
 
 		$respondlamination=$this->db->get();
 
-        $this->db->select(['IF(tbl_jobcard_bom_rimming.sides = 1, "One Side", "Both Side") AS sides', 'tbl_jobcard_bom_rimming.length', 'tbl_jobcard_bom_rimming.qty', 'tbl_rimming.rimming', 'tbl_print_material_info.materialname']);
+        $this->db->select('tbl_jobcard_bom_pasting.pastetype, tbl_jobcard_bom_pasting.pasteqty, tbl_jobcard_bom_pasting.remark, tbl_machine.machine, tbl_print_material_info.materialname, tbl_print_material_info.materialinfocode');
+		$this->db->from('tbl_jobcard_bom_pasting');
+        $this->db->join('tbl_machine', 'tbl_machine.idtbl_machine = tbl_jobcard_bom_pasting.tbl_machine_idtbl_machine', 'left');
+        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_pasting.tbl_print_material_info_idtbl_print_material_info', 'left');
+		$this->db->where('tbl_jobcard_bom_pasting.tbl_jobcard_bom_idtbl_jobcard_bom', $recordID);
+		$this->db->where('tbl_jobcard_bom_pasting.status', 1);
+
+		$respondpasting=$this->db->get();
+
+        $this->db->select(['tbl_jobcard_bom_rimming.rimmingby', 'tbl_jobcard_bom_rimming.sides', 'tbl_jobcard_bom_rimming.qty', 'tbl_jobcard_bom_rimming.remark', 'tbl_rimming.rimming', 'tbl_print_material_info.materialname', 'tbl_print_material_info.materialinfocode']);
 		$this->db->from('tbl_jobcard_bom_rimming');
         $this->db->join('tbl_rimming', 'tbl_rimming.idtbl_rimming = tbl_jobcard_bom_rimming.tbl_rimming_idtbl_rimming', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_rimming.tbl_print_material_info_idtbl_print_material_info', 'left');
@@ -931,44 +951,85 @@ class Newcustomerjobsinfo extends CI_Model{
 
 		$respondrimming=$this->db->get();
 
-        $this->db->select(['IF(tbl_jobcard_bom_diecutting.peraforation = 1, "Yes", "No") AS peraforation', 'IF(tbl_jobcard_bom_diecutting.halfCutting = 1, "Yes", "No") AS halfCutting', 'IF(tbl_jobcard_bom_diecutting.fullCutting = 1, "Yes", "No") AS fullCutting', 'tbl_jobcard_bom_diecutting.qty']);
+        $this->db->select('`channel`, `board`, `size`, `qty`, `diecutby`, `embossby`');
 		$this->db->from('tbl_jobcard_bom_diecutting');
 		$this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $recordID);
 		$this->db->where('status', 1);
 
 		$responddiecut=$this->db->get();
 
-        $this->db->select('tbl_jobcard_bom_other.qty, tbl_print_material_info.materialname');
+        $this->db->select('`perfoating`, `gattering`, `rimming`, `binding`, `stapling`, `padding`, `creasing`, `threading`');
 		$this->db->from('tbl_jobcard_bom_other');
-        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_other.tbl_print_material_info_idtbl_print_material_info', 'left');
-		$this->db->where('tbl_jobcard_bom_other.tbl_jobcard_bom_idtbl_jobcard_bom', $recordID);
-		$this->db->where('tbl_jobcard_bom_other.status', 1);
+		$this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $recordID);
+		$this->db->where('status', 1);
 
 		$respondother=$this->db->get();
 
         $html='';
 
         $html.='
+        <h6 class="small title-style"><span>Other Section</span></h6>
+        <div class="card shadow-none border">
+            <div class="card-body p-2 small">
+                <div class="row">
+                    <div class="col-md-6 mb-1"><strong>BOM Name :</strong> '.$respond->row(0)->jobbomname.'</div>
+                    <div class="col-md-6 mb-1"><strong>Artwork By :</strong> '.$respond->row(0)->artworkby.'</div>
+                    <div class="col-md-6 mb-1"><strong>Format :</strong> '.$respond->row(0)->format.'</div>
+                    <div class="col-md-6 mb-1"><strong>Plate By :</strong> '.$respond->row(0)->plateby.'</div>
+                </div>
+            </div>
+        </div>
         <h6 class="small title-style"><span>Material Section</span></h6>
         <table class="table table-striped table-bordered table-sm small w-100 nowrap">
             <thead>
                 <tr>
-                    <th>Format</th>
+                    <th>By</th>
+                    <th>Code</th>
                     <th>Material</th>
-                    <th>Cut Size</th>
-                    <th>Sheet Size</th>
-                    <th>Wastage</th>
+                    <th>Cut Size (Inch)</th>
+                    <th class="text-center">Material Cut UPs</th>
+                    <th class="text-center">UPs per Sheet</th>
+                    <th class="text-center">Wastage</th>
                 </tr>
             </thead>';
             foreach($respondmaterial->result() as $rowmaterialdata){
             $html.='
             <tbody>
                 <tr>
-                    <td>'.$rowmaterialdata->format_name.'</td>
+                    <td>'.$rowmaterialdata->materialby.'</td>
+                    <td>'.$rowmaterialdata->materialinfocode.'</td>
                     <td>'.$rowmaterialdata->materialname.'</td>
                     <td>'.$rowmaterialdata->cutsize.'</td>
-                    <td>'.$rowmaterialdata->sheetqty.'</td>
-                    <td>'.$rowmaterialdata->wastage.'</td>
+                    <td class="text-center">'.$rowmaterialdata->cutups.'</td>
+                    <td class="text-center">'.$rowmaterialdata->upspersheet.'</td>
+                    <td class="text-center">'.$rowmaterialdata->wastage.'</td>
+                </tr>
+            </tbody>
+            ';
+            }
+        $html.='</table>
+        <h6 class="small title-style"><span>Printing Section</span></h6>
+        <table class="table table-striped table-bordered table-sm small w-100 nowrap">
+            <thead>
+                <tr>
+                    <th>By</th>
+                    <th>Material Code</th>
+                    <th>Material</th>
+                    <th>Color Type</th>
+                    <th class="text-center">Qty</th>
+                    <th>Remark</th>
+                </tr>
+            </thead>';
+            foreach($respondcolor->result() as $rowrespondcolordata){
+            $html.='
+            <tbody>
+                <tr>
+                    <td>'.$rowrespondcolordata->colormaterialby.'</td>
+                    <td>'.$rowrespondcolordata->materialinfocode.'</td>
+                    <td>'.$rowrespondcolordata->materialname.'</td>
+                    <td>'.$rowrespondcolordata->colortype.'</td>
+                    <td class="text-center">'.$rowrespondcolordata->qty.'</td>
+                    <td>'.$rowrespondcolordata->remark.'</td>
                 </tr>
             </tbody>
             ';
@@ -978,41 +1039,49 @@ class Newcustomerjobsinfo extends CI_Model{
         <table class="table table-striped table-bordered table-sm small w-100 nowrap">
             <thead>
                 <tr>
-                    <th>Varnish</th>
+                    <th>Material Code</th>
                     <th>Material</th>
-                    <th>Sheets</th>
+                    <th>Varnish Type</th>
+                    <th class="text-center">Qty</th>
+                    <th>Remark</th>
                 </tr>
             </thead>';
             foreach($respondvarnish->result() as $rowvarnishdata){
             $html.='
             <tbody>
                 <tr>
-                    <td>'.$rowvarnishdata->varnish.'</td>
+                    <td>'.$rowvarnishdata->materialinfocode.'</td>
                     <td>'.$rowvarnishdata->materialname.'</td>
-                    <td>'.$rowvarnishdata->varnishQty.'</td>
+                    <td>'.$rowvarnishdata->varnish.' - '.$rowvarnishdata->glossmatt.' - '.$rowvarnishdata->fullspot.'</td>
+                    <td class="text-center">'.$rowvarnishdata->varnishQty.'</td>
+                    <td>'.$rowvarnishdata->remark.'</td>
                 </tr>
             </tbody>
             ';
             }
         $html.='</table>
-        <h6 class="small title-style"><span>Color Section</span></h6>
+        <h6 class="small title-style"><span>Foiling Section</span></h6>
         <table class="table table-striped table-bordered table-sm small w-100 nowrap">
             <thead>
                 <tr>
-                    <th>Color Type</th>
+                    <th>By</th>
+                    <th>Material Code</th>
                     <th>Material</th>
-                    <th>Qty</th>
+                    <th>Foil Type</th>
+                    <th class="text-center">Qty(Inch)</th>
                     <th>Remark</th>
                 </tr>
             </thead>';
-            foreach($respondcolor->result() as $rowrespondcolordata){
+            foreach($respondfoil->result() as $rowfoildata){
             $html.='
             <tbody>
                 <tr>
-                    <td>'.$rowrespondcolordata->color_types.'</td>
-                    <td>'.$rowrespondcolordata->materialname.'</td>
-                    <td>'.$rowrespondcolordata->qty.'</td>
-                    <td>'.$rowrespondcolordata->remark.'</td>
+                    <td>'.$rowfoildata->foilmaterialby.'</td>
+                    <td>'.$rowfoildata->materialinfocode.'</td>
+                    <td>'.$rowfoildata->materialname.'</td>
+                    <td>'.$rowfoildata->foiling.'</td>
+                    <td class="text-center">'.$rowfoildata->qty.'</td>
+                    <td>'.$rowfoildata->remark.'</td>
                 </tr>
             </tbody>
             ';
@@ -1022,96 +1091,115 @@ class Newcustomerjobsinfo extends CI_Model{
         <table class="table table-striped table-bordered table-sm small w-100 nowrap">
             <thead>
                 <tr>
-                    <th>Lamination</th>
+                    <th>Material Code</th>
                     <th>Material</th>
+                    <th>Lamination</th>
                     <th>Film Size</th>
-                    <th>Microne</th>
                     <th>Sides</th>
-                    <th>Sheets</th>
+                    <th class="text-center">Qty(KG)</th>
+                    <th class="text-center">Wastage(%)</th>
                 </tr>
             </thead>';
             foreach($respondlamination->result() as $rowrespondlaminationdata){
             $html.='
             <tbody>
                 <tr>
-                    <td>'.$rowrespondlaminationdata->lamination.'</td>
+                    <td>'.$rowrespondlaminationdata->materialinfocode.'</td>
                     <td>'.$rowrespondlaminationdata->materialname.'</td>
+                    <td>'.$rowrespondlaminationdata->lamination.'</td>
                     <td>'.$rowrespondlaminationdata->filmsize.'</td>
-                    <td>'.$rowrespondlaminationdata->micron.'</td>
                     <td>'.$rowrespondlaminationdata->sides.'</td>
-                    <td>'.$rowrespondlaminationdata->lamination_qty.'</td>
+                    <td class="text-center">'.$rowrespondlaminationdata->lamination_qty.'</td>
+                    <td class="text-center">'.$rowrespondlaminationdata->wastage.'</td>
                 </tr>
             </tbody>
             ';
             }
         $html.='</table>
-        <h6 class="small title-style"><span>Rimming Section</span></h6>
+        <h6 class="small title-style"><span>Pasting Section</span></h6>
         <table class="table table-striped table-bordered table-sm small w-100 nowrap">
             <thead>
                 <tr>
-                    <th>Rimming Type</th>
+                    <th>Material Code</th>
                     <th>Material</th>
-                    <th>Length</th>
-                    <th>Sides</th>
-                    <th>Sheets</th>
+                    <th>Machine</th>
+                    <th>Paste Type</th>
+                    <th class="text-center">Qty(KG)</th>
+                    <th>Remark</th>
                 </tr>
             </thead>';
-            foreach($respondrimming->result() as $rowrespondrimmingdata){
+            foreach($respondpasting->result() as $rowpastingdata){
             $html.='
             <tbody>
                 <tr>
-                    <td>'.$rowrespondrimmingdata->rimming.'</td>
-                    <td>'.$rowrespondrimmingdata->materialname.'</td>
-                    <td>'.$rowrespondrimmingdata->length.'</td>
-                    <td>'.$rowrespondrimmingdata->sides.'</td>
-                    <td>'.$rowrespondrimmingdata->qty.'</td>
+                    <td>'.$rowpastingdata->materialinfocode.'</td>
+                    <td>'.$rowpastingdata->materialname.'</td>
+                    <td>'.$rowpastingdata->machine.'</td>
+                    <td>'.$rowpastingdata->pastetype.'</td>
+                    <td class="text-center">'.$rowpastingdata->pasteqty.'</td>
+                    <td>'.$rowpastingdata->remark.'</td>
                 </tr>
             </tbody>
             ';
             }
         $html.='</table>
         <h6 class="small title-style"><span>Die Cutting Section</span></h6>
+        <div class="card shadow-none border">
+            <div class="card-body p-2 small">
+                <div class="row">
+                    <div class="col-6"><strong>Channel :</strong> '.$responddiecut->row(0)->channel.'</div>
+                    <div class="col-6"><strong>Board :</strong> '.$responddiecut->row(0)->board.'</div>
+                    <div class="col-6"><strong>Size :</strong> '.$responddiecut->row(0)->size.'</div>
+                    <div class="col-6"><strong>Qty :</strong> '.$responddiecut->row(0)->qty.'</div>
+                    <div class="col-6"><strong>Die Cut By :</strong> '.$responddiecut->row(0)->diecutby.'</div>
+                    <div class="col-6"><strong>Emboss By :</strong> '.$responddiecut->row(0)->embossby.'</div>
+                </div>
+            </div>
+        </div>
+        <h6 class="small title-style"><span>Rimming Section</span></h6>
         <table class="table table-striped table-bordered table-sm small w-100 nowrap">
             <thead>
                 <tr>
-                    <th>Qty</th>
-                    <th>Perforaction</th>
-                    <th>Half Cutting</th>
-                    <th>Full Cutting</th>
+                    <th>By</th>
+                    <th>Material Code</th>
+                    <th>Material</th>
+                    <th>Rimming Type</th>
+                    <th>Sides</th>
+                    <th class="text-center">Qty</th>
+                    <th>Remark</th>
                 </tr>
             </thead>';
-            foreach($responddiecut->result() as $rowresponddiecutdata){
+            foreach($respondrimming->result() as $rowrespondrimmingdata){
             $html.='
             <tbody>
                 <tr>
-                    <td>'.$rowresponddiecutdata->qty.'</td>
-                    <td>'.$rowresponddiecutdata->peraforation.'</td>
-                    <td>'.$rowresponddiecutdata->halfCutting.'</td>
-                    <td>'.$rowresponddiecutdata->fullCutting.'</td>
+                    <td>'.$rowrespondrimmingdata->rimmingby.'</td>
+                    <td>'.$rowrespondrimmingdata->materialinfocode.'</td>
+                    <td>'.$rowrespondrimmingdata->materialname.'</td>
+                    <td>'.$rowrespondrimmingdata->rimming.'</td>
+                    <td>'.$rowrespondrimmingdata->sides.'</td>
+                    <td class="text-center">'.$rowrespondrimmingdata->qty.'</td>
+                    <td>'.$rowrespondrimmingdata->remark.'</td>
                 </tr>
             </tbody>
             ';
             }
         $html.='</table>
         <h6 class="small title-style"><span>Other Section</span></h6>
-        <table class="table table-striped table-bordered table-sm small w-100 nowrap">
-            <thead>
-                <tr>
-                    <th>Material</th>
-                    <th>Qty</th>
-                </tr>
-            </thead>';
-            foreach($respondother->result() as $rowotherdata){
-            $html.='
-            <tbody>
-                <tr>
-                    <td>'.$rowotherdata->materialname.'</td>
-                    <td>'.$rowotherdata->qty.'</td>
-                </tr>
-            </tbody>
-            ';
-            }
-        $html.='</table>
+        <div class="card shadow-none border">
+            <div class="card-body p-2 small">
+                <div class="row">
+                    <div class="col-6"><strong>Perfoating :</strong> '.$respondother->row(0)->perfoating.'</div>
+                    <div class="col-6"><strong>Gattering :</strong> '.$respondother->row(0)->gattering.'</div>
+                    <div class="col-6"><strong>Rimming :</strong> '.$respondother->row(0)->rimming.'</div>
+                    <div class="col-6"><strong>Binding :</strong> '.$respondother->row(0)->binding.'</div>
+                    <div class="col-6"><strong>Stapling :</strong> '.$respondother->row(0)->stapling.'</div>
+                    <div class="col-6"><strong>Padding :</strong> '.$respondother->row(0)->padding.'</div>
+                    <div class="col-6"><strong>Creasing :</strong> '.$respondother->row(0)->creasing.'</div>
+                    <div class="col-6"><strong>Threading :</strong> '.$respondother->row(0)->threading.'</div>
+                </div>
+            </div>
+        </div>
         ';
 
         echo $html;
