@@ -13,7 +13,7 @@ include "include/topnavbar.php";
 					<div class="page-header-content py-3">
 						<h1 class="page-header-title">
 							<div class="page-header-icon"><i class="fas fa-archive"></i></div>
-							<span>Job card Issue Material</span>
+							<span>Issue Material</span>
 						</h1>
 					</div>
 				</div>
@@ -33,7 +33,7 @@ include "include/topnavbar.php";
                                                 <th>Company</th>
                                                 <th>Branch</th>
                                                 <th>Customer</th>
-                                                <th>Job Card No</th>
+                                                <th>Allocate No</th>
                                                 <th>Job Desc</th>
                                                 <!-- <th>Issue Qty</th> -->
                                                 <!-- <th>Status</th> -->
@@ -56,7 +56,7 @@ include "include/topnavbar.php";
 	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="viewJobCardLabel">Job Card Information</h5>
+				<h5 class="modal-title" id="viewJobCardLabel">Issue Material Information</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>

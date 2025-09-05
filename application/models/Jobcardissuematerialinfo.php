@@ -15,91 +15,86 @@ class Jobcardissuematerialinfo extends CI_Model {
 		$this->db->where('tbl_jobcard.idtbl_jobcard', $recordID);
 		$respond=$this->db->get();
 
-        $this->db->select('tbl_jobcard_material.cutsize, tbl_jobcard_material.sheetqty, tbl_jobcard_issue_meterial.batchno, tbl_jobcard_issue_meterial.issueqty, tbl_printing_format.format_name, tbl_print_material_info.materialname');
+        $this->db->select('tbl_jobcard_material.materialby, tbl_jobcard_material.cutsize, tbl_jobcard_material.cutups, tbl_jobcard_material.upspersheet, tbl_jobcard_material.wastage, tbl_jobcard_material.batchno, tbl_jobcard_material.issueqty, tbl_print_material_info.materialname');
 		$this->db->from('tbl_jobcard_material');
-        $this->db->join('tbl_printing_format', 'tbl_printing_format.idtbl_printing_format = tbl_jobcard_material.tbl_printing_format_idtbl_printing_format', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_material.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.jobcard_other_id = tbl_jobcard_material.idtbl_jobcard_material AND tbl_jobcard_issue_meterial.sectiontype = 1', 'left');
-        $this->db->join('tbl_issue_note_detail', 'tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial = tbl_jobcard_issue_meterial.idtbl_jobcard_issue_meterial', 'left');
 		$this->db->where('tbl_jobcard_material.tbl_jobcard_idtbl_jobcard', $recordID);
 		$this->db->where('tbl_jobcard_material.status', 1);
-        $this->db->where('tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial IS NULL', null, false);
 
 		$respondmaterial=$this->db->get();
 
-        $this->db->select('tbl_jobcard_varnish.varnishQty, tbl_jobcard_issue_meterial.batchno, tbl_jobcard_issue_meterial.issueqty, tbl_varnish.varnish, tbl_print_material_info.materialname');
-		$this->db->from('tbl_jobcard_varnish');
-        $this->db->join('tbl_varnish', 'tbl_varnish.idtbl_varnish = tbl_jobcard_varnish.tbl_varnish_idtbl_varnish', 'left');
-        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_varnish.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.jobcard_other_id = tbl_jobcard_varnish.idtbl_jobcard_varnish AND tbl_jobcard_issue_meterial.sectiontype = 2', 'left');
-        $this->db->join('tbl_issue_note_detail', 'tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial = tbl_jobcard_issue_meterial.idtbl_jobcard_issue_meterial', 'left');
-		$this->db->where('tbl_jobcard_varnish.tbl_jobcard_idtbl_jobcard', $recordID);
-		$this->db->where('tbl_jobcard_varnish.status', 1);
-        $this->db->where('tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial IS NULL', null, false);
-
-		$respondvarnish=$this->db->get();
-
         $this->db->select([
-            'TRIM(BOTH ", " FROM CONCAT(
-                IF(tbl_jobcard_color.cmyk = 1, "CMYK, ", ""),
-                IF(tbl_jobcard_color.metlic = 1, "Metlic Color, ", ""),
-                IF(tbl_jobcard_color.another = 1, "Any Other, ", "")
-            )) AS color_types',
+            'tbl_jobcard_color.colormaterialby',
+            'tbl_jobcard_color.colortype',
             'tbl_jobcard_color.remark',
             'tbl_jobcard_color.qty',
-            'tbl_jobcard_issue_meterial.issueqty',
-            'tbl_jobcard_issue_meterial.batchno',
+            'tbl_jobcard_color.issueqty',
+            'tbl_jobcard_color.batchno',
             'tbl_print_material_info.materialname'
         ]);
 		$this->db->from('tbl_jobcard_color');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_color.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.jobcard_other_id = tbl_jobcard_color.idtbl_jobcard_color AND tbl_jobcard_issue_meterial.sectiontype = 3', 'left');
-        $this->db->join('tbl_issue_note_detail', 'tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial = tbl_jobcard_issue_meterial.idtbl_jobcard_issue_meterial', 'left');
 		$this->db->where('tbl_jobcard_color.tbl_jobcard_idtbl_jobcard', $recordID);
 		$this->db->where('tbl_jobcard_color.status', 1);
-        $this->db->where('tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial IS NULL', null, false);
 
 		$respondcolor=$this->db->get();
 
-        $this->db->select(['IF(tbl_jobcard_lamination.sides = 1, "One Side", "Both Side") AS sides', 'tbl_jobcard_lamination.filmsize', 'tbl_jobcard_lamination.micron', 'tbl_jobcard_lamination.lamination_qty', 'tbl_jobcard_issue_meterial.batchno', 'tbl_jobcard_issue_meterial.issueqty', 'tbl_lamination.lamination', 'tbl_print_material_info.materialname']);
+        $this->db->select('tbl_jobcard_varnish.glossmatt, tbl_jobcard_varnish.fullspot, tbl_jobcard_varnish.varnishQty, tbl_jobcard_varnish.batchno, tbl_jobcard_varnish.issueqty, tbl_varnish.varnish, tbl_print_material_info.materialname');
+		$this->db->from('tbl_jobcard_varnish');
+        $this->db->join('tbl_varnish', 'tbl_varnish.idtbl_varnish = tbl_jobcard_varnish.tbl_varnish_idtbl_varnish', 'left');
+        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_varnish.tbl_print_material_info_idtbl_print_material_info', 'left');
+		$this->db->where('tbl_jobcard_varnish.tbl_jobcard_idtbl_jobcard', $recordID);
+		$this->db->where('tbl_jobcard_varnish.status', 1);
+
+		$respondvarnish=$this->db->get();  
+        
+        $this->db->select('tbl_jobcard_foil.foilmaterialby, tbl_jobcard_foil.qty, tbl_jobcard_foil.remark, tbl_jobcard_foil.batchno, tbl_jobcard_foil.issueqty, tbl_foiling.foiling, tbl_print_material_info.materialname');
+		$this->db->from('tbl_jobcard_foil');
+        $this->db->join('tbl_foiling', 'tbl_foiling.idtbl_foiling = tbl_jobcard_foil.tbl_foiling_idtbl_foiling', 'left');
+        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_foil.tbl_print_material_info_idtbl_print_material_info', 'left');
+		$this->db->where('tbl_jobcard_foil.tbl_jobcard_idtbl_jobcard', $recordID);
+		$this->db->where('tbl_jobcard_foil.status', 1);
+
+		$respondfoiling=$this->db->get();  
+
+        $this->db->select(['tbl_jobcard_lamination.sides', 'tbl_jobcard_lamination.filmsize', 'tbl_jobcard_lamination.lamination_qty', 'tbl_jobcard_lamination.wastage', 'tbl_jobcard_lamination.batchno', 'tbl_jobcard_lamination.issueqty', 'tbl_lamination.lamination', 'tbl_print_material_info.materialname']);
 		$this->db->from('tbl_jobcard_lamination');
         $this->db->join('tbl_lamination', 'tbl_lamination.idtbl_lamination = tbl_jobcard_lamination.tbl_lamination_idtbl_lamination', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_lamination.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.jobcard_other_id = tbl_jobcard_lamination.idtbl_jobcard_lamination AND tbl_jobcard_issue_meterial.sectiontype = 4', 'left');
-        $this->db->join('tbl_issue_note_detail', 'tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial = tbl_jobcard_issue_meterial.idtbl_jobcard_issue_meterial', 'left');
 		$this->db->where('tbl_jobcard_lamination.tbl_jobcard_idtbl_jobcard', $recordID);
 		$this->db->where('tbl_jobcard_lamination.status', 1);
-        $this->db->where('tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial IS NULL', null, false);
 
 		$respondlamination=$this->db->get();
 
-        $this->db->select(['IF(tbl_jobcard_rimming.sides = 1, "One Side", "Both Side") AS sides', 'tbl_jobcard_rimming.length', 'tbl_jobcard_rimming.qty', 'tbl_jobcard_issue_meterial.batchno', 'tbl_jobcard_issue_meterial.issueqty', 'tbl_rimming.rimming', 'tbl_print_material_info.materialname']);
-		$this->db->from('tbl_jobcard_rimming');
-        $this->db->join('tbl_rimming', 'tbl_rimming.idtbl_rimming = tbl_jobcard_rimming.tbl_rimming_idtbl_rimming', 'left');
-        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_rimming.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.jobcard_other_id = tbl_jobcard_rimming.idtbl_jobcard_rimming AND tbl_jobcard_issue_meterial.sectiontype = 5', 'left');
-        $this->db->join('tbl_issue_note_detail', 'tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial = tbl_jobcard_issue_meterial.idtbl_jobcard_issue_meterial', 'left');
-		$this->db->where('tbl_jobcard_rimming.tbl_jobcard_idtbl_jobcard', $recordID);
-		$this->db->where('tbl_jobcard_rimming.status', 1);
-        $this->db->where('tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial IS NULL', null, false);
+        $this->db->select('tbl_jobcard_pasting.pastetype, tbl_jobcard_pasting.pasteqty, tbl_jobcard_pasting.remark, tbl_jobcard_pasting.batchno, tbl_jobcard_pasting.issueqty, tbl_machine.machine, tbl_print_material_info.materialname');
+		$this->db->from('tbl_jobcard_pasting');
+        $this->db->join('tbl_machine', 'tbl_machine.idtbl_machine = tbl_jobcard_pasting.tbl_machine_idtbl_machine', 'left');
+        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_pasting.tbl_print_material_info_idtbl_print_material_info', 'left');
+		$this->db->where('tbl_jobcard_pasting.tbl_jobcard_idtbl_jobcard', $recordID);
+		$this->db->where('tbl_jobcard_pasting.status', 1);
 
-		$respondrimming=$this->db->get();
+		$respondpasting=$this->db->get();  
 
-        $this->db->select(['IF(tbl_jobcard_diecutting.peraforation = 1, "Yes", "No") AS peraforation', 'IF(tbl_jobcard_diecutting.halfCutting = 1, "Yes", "No") AS halfCutting', 'IF(tbl_jobcard_diecutting.fullCutting = 1, "Yes", "No") AS fullCutting', 'tbl_jobcard_diecutting.qty']);
+        $this->db->select(['tbl_jobcard_diecutting.channel', 'tbl_jobcard_diecutting.board', 'tbl_jobcard_diecutting.size', 'tbl_jobcard_diecutting.qty', 'tbl_jobcard_diecutting.diecutby', 'tbl_jobcard_diecutting.embossby']);
 		$this->db->from('tbl_jobcard_diecutting');
 		$this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
 		$this->db->where('status', 1);
 
 		$responddiecut=$this->db->get();
 
-        $this->db->select('tbl_jobcard_other.qty, tbl_jobcard_issue_meterial.batchno, tbl_jobcard_issue_meterial.issueqty, tbl_print_material_info.materialname');
+        $this->db->select(['tbl_jobcard_rimming.rimmingby', 'tbl_jobcard_rimming.sides', 'tbl_jobcard_rimming.qty', 'tbl_jobcard_rimming.remark', 'tbl_jobcard_rimming.batchno', 'tbl_jobcard_rimming.issueqty', 'tbl_rimming.rimming', 'tbl_print_material_info.materialname']);
+		$this->db->from('tbl_jobcard_rimming');
+        $this->db->join('tbl_rimming', 'tbl_rimming.idtbl_rimming = tbl_jobcard_rimming.tbl_rimming_idtbl_rimming', 'left');
+        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_rimming.tbl_print_material_info_idtbl_print_material_info', 'left');
+		$this->db->where('tbl_jobcard_rimming.tbl_jobcard_idtbl_jobcard', $recordID);
+		$this->db->where('tbl_jobcard_rimming.status', 1);
+
+		$respondrimming=$this->db->get();
+
+        $this->db->select('`perfoating`, `gattering`, `rimming`, `binding`, `stapling`, `padding`, `creasing`, `threading`');
 		$this->db->from('tbl_jobcard_other');
-        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_other.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.jobcard_other_id = tbl_jobcard_other.idtbl_jobcard_other AND tbl_jobcard_issue_meterial.sectiontype = 7', 'left');
-        $this->db->join('tbl_issue_note_detail', 'tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial = tbl_jobcard_issue_meterial.idtbl_jobcard_issue_meterial', 'left');
-		$this->db->where('tbl_jobcard_other.tbl_jobcard_idtbl_jobcard', $recordID);
-		$this->db->where('tbl_jobcard_other.status', 1);
-        $this->db->where('tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial IS NULL', null, false);
+		$this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
+		$this->db->where('status', 1);
 
 		$respondother=$this->db->get();
 
@@ -116,10 +111,11 @@ class Jobcardissuematerialinfo extends CI_Model {
         <table class="table table-striped table-bordered table-sm small w-100 nowrap">
             <thead>
                 <tr>
-                    <th>Format</th>
+                    <th>By</th>
                     <th>Material</th>
                     <th>Cut Size</th>
-                    <th>Sheet Size</th>
+                    <th>Cut Up`s</th>
+                    <th>Up Sheets</th>
                     <th>Batch No</th>
                     <th>Issue Qty</th>
                 </tr>
@@ -128,12 +124,45 @@ class Jobcardissuematerialinfo extends CI_Model {
             $html.='
             <tbody>
                 <tr>
-                    <td>'.$rowmaterialdata->format_name.'</td>
+                    <td>'.$rowmaterialdata->materialby.'</td>
                     <td>'.$rowmaterialdata->materialname.'</td>
                     <td>'.$rowmaterialdata->cutsize.'</td>
-                    <td>'.$rowmaterialdata->sheetqty.'</td>
+                    <td>'.$rowmaterialdata->cutups.'</td>
+                    <td>'.$rowmaterialdata->upspersheet.'</td>
                     <td>'.$rowmaterialdata->batchno.'</td>
                     <td>'.$rowmaterialdata->issueqty.'</td>
+                </tr>
+            </tbody>
+            ';
+            }
+        $html.='</table>';
+        } 
+        if(!empty($respondcolor->result())){
+        $html.='
+        <h6 class="small title-style"><span>Printing Section</span></h6>
+        <table class="table table-striped table-bordered table-sm small w-100 nowrap">
+            <thead>
+                <tr>
+                    <th>By</th>
+                    <th>Color Type</th>
+                    <th>Meterial</th>
+                    <th>Qty</th>
+                    <th>Remark</th>
+                    <th>Batch No</th>
+                    <th>Issue Qty</th>
+                </tr>
+            </thead>';
+            foreach($respondcolor->result() as $rowrespondcolordata){
+            $html.='
+            <tbody>
+                <tr>
+                    <td>'.$rowrespondcolordata->colormaterialby.'</td>
+                    <td>'.$rowrespondcolordata->colortype.'</td>
+                    <td>'.$rowrespondcolordata->materialname.'</td>
+                    <td>'.$rowrespondcolordata->qty.'</td>
+                    <td>'.$rowrespondcolordata->remark.'</td>
+                    <td>'.$rowrespondcolordata->batchno.'</td>
+                    <td>'.$rowrespondcolordata->issueqty.'</td>
                 </tr>
             </tbody>
             ';
@@ -147,10 +176,12 @@ class Jobcardissuematerialinfo extends CI_Model {
             <thead>
                 <tr>
                     <th>Varnish</th>
+                    <th>Gloss | Matt</th>
+                    <th>Full | Spot</th>
                     <th>Material</th>
-                    <th>Sheets</th>
+                    <th>Qty(KG)</th>
                     <th>Batch No</th>
-                    <th>Issue Qty</th>
+                    <th>Issue Qty(KG)</th>
                 </tr>
             </thead>';
             foreach($respondvarnish->result() as $rowvarnishdata){
@@ -158,6 +189,8 @@ class Jobcardissuematerialinfo extends CI_Model {
             <tbody>
                 <tr>
                     <td>'.$rowvarnishdata->varnish.'</td>
+                    <td>'.$rowvarnishdata->glossmatt.'</td>
+                    <td>'.$rowvarnishdata->fullspot.'</td>
                     <td>'.$rowvarnishdata->materialname.'</td>
                     <td>'.$rowvarnishdata->varnishQty.'</td>
                     <td>'.$rowvarnishdata->batchno.'</td>
@@ -168,36 +201,38 @@ class Jobcardissuematerialinfo extends CI_Model {
             }
         $html.='</table>';
         } 
-        if(!empty($respondcolor->result())){
+        if(!empty($respondfoiling->result())){
         $html.='
-        <h6 class="small title-style"><span>Color Section</span></h6>
+        <h6 class="small title-style"><span>Foiling Section</span></h6>
         <table class="table table-striped table-bordered table-sm small w-100 nowrap">
             <thead>
                 <tr>
-                    <th>Color Type</th>
-                    <th>Meterial</th>
-                    <th>Qty</th>
+                    <th>By</th>
+                    <th>Material</th>
+                    <th>Foil Type</th>
                     <th>Remark</th>
+                    <th>Qty(Inch)</th>
                     <th>Batch No</th>
                     <th>Issue Qty</th>
                 </tr>
             </thead>';
-            foreach($respondcolor->result() as $rowrespondcolordata){
+            foreach($respondfoiling->result() as $rowfoilingdata){
             $html.='
             <tbody>
                 <tr>
-                    <td>'.$rowrespondcolordata->color_types.'</td>
-                    <td>'.$rowrespondcolordata->materialname.'</td>
-                    <td>'.$rowrespondcolordata->qty.'</td>
-                    <td>'.$rowrespondcolordata->remark.'</td>
-                    <td>'.$rowrespondcolordata->batchno.'</td>
-                    <td>'.$rowrespondcolordata->issueqty.'</td>
+                    <td>'.$rowfoilingdata->foilmaterialby.'</td>
+                    <td>'.$rowfoilingdata->materialname.'</td>
+                    <td>'.$rowfoilingdata->foiling.'</td>
+                    <td>'.$rowfoilingdata->remark.'</td>
+                    <td>'.$rowfoilingdata->qty.'</td>
+                    <td>'.$rowfoilingdata->batchno.'</td>
+                    <td>'.$rowfoilingdata->issueqty.'</td>
                 </tr>
             </tbody>
             ';
             }
         $html.='</table>';
-        } 
+        }
         if(!empty($respondlamination->result())){
         $html.='
         <h6 class="small title-style"><span>Lamination Section</span></h6>
@@ -207,9 +242,8 @@ class Jobcardissuematerialinfo extends CI_Model {
                     <th>Lamination</th>
                     <th>Material</th>
                     <th>Film Size</th>
-                    <th>Microne</th>
                     <th>Sides</th>
-                    <th>Sheets</th>
+                    <th>Qty(KG)</th>
                     <th>Batch No</th>
                     <th>Issue Qty</th>
                 </tr>
@@ -221,11 +255,72 @@ class Jobcardissuematerialinfo extends CI_Model {
                     <td>'.$rowrespondlaminationdata->lamination.'</td>
                     <td>'.$rowrespondlaminationdata->materialname.'</td>
                     <td>'.$rowrespondlaminationdata->filmsize.'</td>
-                    <td>'.$rowrespondlaminationdata->micron.'</td>
                     <td>'.$rowrespondlaminationdata->sides.'</td>
                     <td>'.$rowrespondlaminationdata->lamination_qty.'</td>
                     <td>'.$rowrespondlaminationdata->batchno.'</td>
                     <td>'.$rowrespondlaminationdata->issueqty.'</td>
+                </tr>
+            </tbody>
+            ';
+            }
+        $html.='</table>';
+        }
+        if(!empty($respondpasting->result())){
+        $html.='
+        <h6 class="small title-style"><span>Pasting Section</span></h6>
+        <table class="table table-striped table-bordered table-sm small w-100 nowrap">
+            <thead>
+                <tr>
+                    <th>Material</th>
+                    <th>Machine</th>
+                    <th>Paste Type</th>
+                    <th>Remark</th>
+                    <th>Qty(KG)</th>
+                    <th>Batch No</th>
+                    <th>Issue Qty</th>
+                </tr>
+            </thead>';
+            foreach($respondpasting->result() as $rowpastingdata){
+            $html.='
+            <tbody>
+                <tr>
+                    <td>'.$rowpastingdata->materialname.'</td>
+                    <td>'.$rowpastingdata->machine.'</td>
+                    <td>'.$rowpastingdata->pastetype.'</td>
+                    <td>'.$rowpastingdata->remark.'</td>
+                    <td>'.$rowpastingdata->pasteqty.'</td>
+                    <td>'.$rowpastingdata->batchno.'</td>
+                    <td>'.$rowpastingdata->issueqty.'</td>
+                </tr>
+            </tbody>
+            ';
+            }
+        $html.='</table>';
+        }
+        if(!empty($responddiecut->result())){
+        $html.='
+        <h6 class="small title-style"><span>Die Cutting Section</span></h6>
+        <table class="table table-striped table-bordered table-sm small w-100 nowrap">
+            <thead>
+                <tr>
+                    <th>Channel</th>
+                    <th>Board</th>
+                    <th>Size</th>
+                    <th>Qty(m)</th>
+                    <th>Die cutting By</th>
+                    <th>Embossing</th>
+                </tr>
+            </thead>';
+            foreach($responddiecut->result() as $rowresponddiecutdata){
+            $html.='
+            <tbody>
+                <tr>
+                    <td>'.$rowresponddiecutdata->channel.'</td>
+                    <td>'.$rowresponddiecutdata->board.'</td>
+                    <td>'.$rowresponddiecutdata->size.'</td>
+                    <td>'.$rowresponddiecutdata->qty.'</td>
+                    <td>'.$rowresponddiecutdata->diecutby.'</td>
+                    <td>'.$rowresponddiecutdata->embossby.'</td>
                 </tr>
             </tbody>
             ';
@@ -238,11 +333,12 @@ class Jobcardissuematerialinfo extends CI_Model {
         <table class="table table-striped table-bordered table-sm small w-100 nowrap">
             <thead>
                 <tr>
+                    <th>By</th>
                     <th>Rimming Type</th>
                     <th>Material</th>
-                    <th>Length</th>
-                    <th>Sides</th>
-                    <th>Sheets</th>
+                    <th>Remark</th>
+                    <th>Side</th>
+                    <th>Qty</th>
                     <th>Batch No</th>
                     <th>Issue Qty</th>
                 </tr>
@@ -251,9 +347,10 @@ class Jobcardissuematerialinfo extends CI_Model {
             $html.='
             <tbody>
                 <tr>
+                    <td>'.$rowrespondrimmingdata->rimmingby.'</td>
                     <td>'.$rowrespondrimmingdata->rimming.'</td>
                     <td>'.$rowrespondrimmingdata->materialname.'</td>
-                    <td>'.$rowrespondrimmingdata->length.'</td>
+                    <td>'.$rowrespondrimmingdata->remark.'</td>
                     <td>'.$rowrespondrimmingdata->sides.'</td>
                     <td>'.$rowrespondrimmingdata->qty.'</td>
                     <td>'.$rowrespondrimmingdata->batchno.'</td>
@@ -264,52 +361,34 @@ class Jobcardissuematerialinfo extends CI_Model {
             }
         $html.='</table>';
         }
-        // if(!empty($responddiecut->result())){
-        // $html.='
-        // <h6 class="small title-style"><span>Die Cutting Section</span></h6>
-        // <table class="table table-striped table-bordered table-sm small w-100 nowrap">
-        //     <thead>
-        //         <tr>
-        //             <th>Qty</th>
-        //             <th>Perforaction</th>
-        //             <th>Half Cutting</th>
-        //             <th>Full Cutting</th>
-        //         </tr>
-        //     </thead>';
-        //     foreach($responddiecut->result() as $rowresponddiecutdata){
-        //     $html.='
-        //     <tbody>
-        //         <tr>
-        //             <td>'.$rowresponddiecutdata->qty.'</td>
-        //             <td>'.$rowresponddiecutdata->peraforation.'</td>
-        //             <td>'.$rowresponddiecutdata->halfCutting.'</td>
-        //             <td>'.$rowresponddiecutdata->fullCutting.'</td>
-        //         </tr>
-        //     </tbody>
-        //     ';
-        //     }
-        // $html.='</table>';
-        // }
         if(!empty($respondother->result())){
         $html.='
         <h6 class="small title-style"><span>Other Section</span></h6>
         <table class="table table-striped table-bordered table-sm small w-100 nowrap">
             <thead>
                 <tr>
-                    <th>Material</th>
-                    <th>Qty</th>
-                    <th>Batch No</th>
-                    <th>Issue Qty</th>
+                    <th>Perforating</th>
+                    <th>Gattering</th>
+                    <th>Rimming</th>
+                    <th>Binding</th>
+                    <th>Stapling</th>
+                    <th>Padding</th>
+                    <th>Creasing</th>
+                    <th>Threading</th>
                 </tr>
             </thead>';
             foreach($respondother->result() as $rowrespondotherdata){
             $html.='
             <tbody>
                 <tr>
-                    <td>'.$rowrespondotherdata->materialname.'</td>
-                    <td>'.$rowrespondotherdata->qty.'</td>
-                    <td>'.$rowrespondotherdata->batchno.'</td>
-                    <td>'.$rowrespondotherdata->issueqty.'</td>
+                    <td>'.$rowrespondotherdata->perfoating.'</td>
+                    <td>'.$rowrespondotherdata->gattering.'</td>
+                    <td>'.$rowrespondotherdata->rimming.'</td>
+                    <td>'.$rowrespondotherdata->binding.'</td>
+                    <td>'.$rowrespondotherdata->stapling.'</td>
+                    <td>'.$rowrespondotherdata->padding.'</td>
+                    <td>'.$rowrespondotherdata->creasing.'</td>
+                    <td>'.$rowrespondotherdata->threading.'</td>
                 </tr>
             </tbody>
             ';
@@ -686,7 +765,7 @@ class Jobcardissuematerialinfo extends CI_Model {
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'landscape');
         $dompdf->render();
-        $dompdf->stream("Goods Received Note - ". $recordID .".pdf", ["Attachment"=>0]);
+        $dompdf->stream("Material Issue Note - ". $recordID .".pdf", ["Attachment"=>0]);
     }
     public function Getissuenotelist(){
         $recordID=$this->input->post('recordID');
