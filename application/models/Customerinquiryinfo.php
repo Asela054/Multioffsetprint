@@ -1201,7 +1201,7 @@ class Customerinquiryinfo extends CI_Model{
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Goods Received Note</title>
+            <title>Job Card Information</title>
             <style>
                 @page {
                     size: 210mm 297mm;

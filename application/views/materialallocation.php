@@ -13,7 +13,7 @@ include "include/topnavbar.php";
 					<div class="page-header-content py-3">
 						<h1 class="page-header-title">
 							<div class="page-header-icon"><i class="fas fa-archive"></i></div>
-							<span>Job card</span>
+							<span>Allocate Material</span>
 						</h1>
 					</div>
 				</div>
@@ -23,7 +23,7 @@ include "include/topnavbar.php";
 					<div class="card-body p-0 p-2">
                         <div class="row">
 							<div class="col-12 text-right">
-							<button type="button" class="btn btn-primary btn-sm px-3" data-toggle="modal" data-target="#modalissue"><i class="fas fa-plus mr-2"></i>Material Issue</button>
+							<button type="button" class="btn btn-primary btn-sm px-3" data-toggle="modal" data-target="#modalissue"><i class="fas fa-plus mr-2"></i>Allocate Material Issue</button>
 							</div>
                             <div class="col-12">
 								<hr>
@@ -39,7 +39,7 @@ include "include/topnavbar.php";
                                                 <th>Company</th>
                                                 <th>Branch</th>
                                                 <th>Customer</th>
-                                                <th>Job Card No</th>
+                                                <th>Allocate No</th>
                                                 <th>Job Desc</th>
                                                 <!-- <th>Issue Qty</th> -->
                                                 <!-- <th>Status</th> -->
@@ -62,7 +62,7 @@ include "include/topnavbar.php";
 	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="modalissueLabel">Issue Material</h5>
+				<h5 class="modal-title" id="modalissueLabel">Material Allocation</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -94,11 +94,12 @@ include "include/topnavbar.php";
 								<select class="form-control form-control-sm  px-0" name="section" id="section" required>
 									<option value="">Select</option>
 									<option value="1">Material Section</option>
-									<option value="2">Coating Section</option>
-									<option value="3">Color Section</option>
-									<option value="4">Lamination Section</option>
-									<option value="5">Rimming Section</option>
-									<option value="7">Other Section</option>
+									<option value="2">Printing Section</option>
+									<option value="3">Coating Section</option>
+									<option value="4">Foiling Section</option>
+									<option value="5">Lamination Section</option>
+									<option value="6">Pasting Section</option>
+									<option value="7">Rimming Section</option>
 								</select>
 							</div>
 							<div class="form-group mb-1">
@@ -106,7 +107,7 @@ include "include/topnavbar.php";
 								<input type="text" id="inquiryqty" name="inquiryqty" class="form-control form-control-sm" readonly>
 							</div>
 							<div class="form-group mb-1">
-								<label class="small font-weight-bold text-dark">Qty</label>
+								<label class="small font-weight-bold text-dark">Already Issue Qty</label>
 								<input type="text" id="alreadyissuedqty" name="alreadyissuedqty" class="form-control form-control-sm" readonly>
 							</div>
 							<div class="form-group mb-1">
@@ -140,7 +141,7 @@ include "include/topnavbar.php";
 						<div class="row">
 							<div class="col-12 text-right">
 								<?php if($addcheck==1){ ?>
-								<button type="button" id="issueMaterialBtn" class="btn btn-danger btn-sm px-4 mb-3" disabled><i class="far fa-save"></i>&nbsp;Issue Material</button>
+								<button type="button" id="issueMaterialBtn" class="btn btn-danger btn-sm px-4 mb-3" disabled><i class="far fa-save"></i>&nbsp;Allocate Complete</button>
 								<?php } ?>
 							</div>
 						</div>
@@ -330,7 +331,7 @@ $(document).ready(function () {
 				sectionType: section
 			},
 			url: 'MaterialAllocation/GetRequestIssueQty',
-			success: function (result) {console.log(result);
+			success: function (result) {// console.log(result);
 					
 				var obj = JSON.parse(result);
 

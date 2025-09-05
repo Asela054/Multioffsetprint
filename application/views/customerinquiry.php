@@ -88,7 +88,7 @@ include "include/topnavbar.php";
                                         </div>
                                         <div class="col-7">
                                             <label class="small font-weight-bold text-dark">Job BOM Infomation</label>
-                                            <select class="form-control form-control-sm  selecter2 px-0" name="jobbom" id="jobbom" required>
+                                            <select class="form-control form-control-sm  selecter2 px-0" name="jobbom" id="jobbom">
                                                 <option value="">Select</option>
                                             </select>
                                         </div>
