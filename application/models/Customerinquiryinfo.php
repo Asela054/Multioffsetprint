@@ -1001,7 +1001,7 @@ class Customerinquiryinfo extends CI_Model{
                         </div>
                     </div>
                 </div>';
-                if($responddiecut->num_rows()==0){
+                if($responddiecut->num_rows()>0){
                 $html.='<div class="card shadow-none border">
                     <div class="card-body p-2 small">
                         <h6 class="small title-style"><span>Die Cutting Section</span></h6>
@@ -1051,7 +1051,7 @@ class Customerinquiryinfo extends CI_Model{
                         </div>
                     </div>
                 </div>';
-                if($responddiecut->num_rows()==0){
+                if($responddiecut->num_rows()>0){
                 $html.='<h6 class="small title-style"><span>Other Section</span></h6>
                 <div class="card shadow-none border">
                     <div class="card-body p-2 small">
