@@ -180,7 +180,7 @@ class GRNVoucherinfo extends CI_Model{
     public function Goodreceivevoucherview() {
         $recordID=$this->input->post('recordID');
 
-        $this->db->select("tbl_grn_vouchar_import_cost.*, `tbl_supplier`.`suppliername`, `tbl_supplier`.`telephone_no`, CONCAT(`tbl_supplier`.`address_line1`, ' ', `tbl_supplier`.`address_line2`, ' ', `tbl_supplier`.`city`) AS `address`, `tbl_company`.`company`, `tbl_company_branch`.`branch`, CONCAT(`tbl_company`.`address1`, ' ', `tbl_company`.`address2`) AS `companyaddress`");
+        $this->db->select("tbl_grn_vouchar_import_cost.*, `tbl_supplier`.`suppliername`, `tbl_supplier`.`telephone_no`, CONCAT(`tbl_supplier`.`address_line1`, ' ', `tbl_supplier`.`address_line2`, ' ', `tbl_supplier`.`city`) AS `address`, `tbl_company`.`company`, `tbl_company_branch`.`branch`, CONCAT(`tbl_company`.`address1`, ' ', `tbl_company`.`address2`) AS `companyaddress`, `tbl_print_grn`.`subtotalcost`, `tbl_print_grn`.`discountcost`, `tbl_print_grn`.`vatamountcost`, `tbl_print_grn`.`totalcost`");
         $this->db->from('tbl_grn_vouchar_import_cost');
         $this->db->join('tbl_print_grn', 'tbl_print_grn.idtbl_print_grn = tbl_grn_vouchar_import_cost.tbl_print_grn_idtbl_print_grn', 'left');
         $this->db->join('tbl_supplier', 'tbl_supplier.idtbl_supplier = tbl_print_grn.tbl_supplier_idtbl_supplier', 'left');
@@ -199,6 +199,18 @@ class GRNVoucherinfo extends CI_Model{
         $this->db->where('tbl_grn_vouchar_import_cost_detail.status', 1);
     
         $responddetail=$this->db->get();
+
+        $grnID=$respond->row(0)->tbl_print_grn_idtbl_print_grn;
+
+        $this->db->select('tbl_print_grndetail.*,tbl_print_grn.grndate,tbl_print_grn.grn_no,tbl_print_grn.tbl_material_group_idtbl_material_group, tbl_print_material_info.materialinfocode, tbl_print_material_info.materialname,tbl_measurements.measure_type');
+		$this->db->from('tbl_print_grndetail');
+		$this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info', 'left');
+		$this->db->join('tbl_print_grn', 'tbl_print_grn.idtbl_print_grn = tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', 'left');
+		$this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_grndetail.tbl_measurements_idtbl_mesurements', 'left');
+		$this->db->where('tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', $grnID);
+		$this->db->where('tbl_print_grndetail.status', 1);
+
+		$respondgrndetail=$this->db->get();
     
         $html='';
     
@@ -207,7 +219,35 @@ class GRNVoucherinfo extends CI_Model{
             <div class="col-6 small"><label class="small font-weight-bold text-dark mb-1">Date:</label> '.$respond->row(0)->date.'<br><label class="small font-weight-bold text-dark mb-1">Company:</label> '.$respond->row(0)->company.'<br><label class="small font-weight-bold text-dark mb-1">Branch:</label> '.$respond->row(0)->branch.'</div>
             <div class="col-6 small"><label class="small font-weight-bold text-dark mb-1">Supplier:</label> '.$respond->row(0)->suppliername.'<br><label class="small font-weight-bold text-dark mb-1">Phone:</label> '.$respond->row(0)->telephone_no.'<br><label class="small font-weight-bold text-dark mb-1">Address:</label> '.$respond->row(0)->address.'</div>
         </div>
-        <hr class="border-dark">
+        <h6 class="title-style small my-2 font-weight-bold"><span>GRN Information</span></h6>
+        <table class="table table-striped table-bordered table-sm small"> 
+            <thead> 
+                <tr> 
+                    <th>Material Info</th> 
+                    <th>Unit Price</th> 
+                    <th class="text-center">Qty</th>
+                    <th class="text-center">Uom</th> 
+                    <th class="text-center">Discount</th> 
+                    <th class="text-right">Total</th> 
+                </tr> 
+            </thead> 
+            <tbody>';
+		    foreach($respondgrndetail->result() as $rowgrninfo) {
+                $total=number_format(($rowgrninfo->qty*$rowgrninfo->unitprice), 2);
+                $html .= '<tr>
+                    <td>' . $rowgrninfo->materialname . '/ ' . $rowgrninfo->materialinfocode . '</td>
+                    <td>' . (!empty($rowgrninfo->packetprice) 
+                        ? number_format($rowgrninfo->packetprice, 2, '.', ',') 
+                        : number_format($rowgrninfo->unitprice, 2, '.', ',')) . '</td>
+                    <td class="text-center">' . $rowgrninfo->qty . '</td>
+                    <td class="text-center">' . $rowgrninfo->measure_type . '</td>
+                    <td class="text-center">' . $rowgrninfo->unit_discount . '</td>
+                    <td class="text-right">' . number_format($rowgrninfo->total, 2, '.', ',') . '</td>
+                </tr>';					
+		    }
+		    $html .= '</tbody>
+		</table>
+        <h6 class="title-style small my-2 font-weight-bold"><span>Other Cost Information</span></h6>
         <table class="table table-striped table-bordered table-sm small">
             <thead>
                 <tr>
@@ -230,7 +270,24 @@ class GRNVoucherinfo extends CI_Model{
                     <th colspan="2" class="text-right">'.number_format($respond->row(0)->total, 2).'</th>
                 </tr>
             </tfoot>
-        </table>';
+        </table>
+        <div class="row">
+            <div class="col-9 text-right small font-weight-bold">Discount</div>
+            <div class="col-3 text-right small">'.$respond->row(0)->discountcost.'</div>
+        </div>
+        <div class="row">
+            <div class="col-9 text-right small font-weight-bold">Sub Total</div>
+            <div class="col-3 text-right small">'.$respond->row(0)->subtotalcost.'</div>
+        </div>
+        <div class="row">
+            <div class="col-9 text-right small font-weight-bold">Vat</div>
+            <div class="col-3 text-right small">'.$respond->row(0)->vatamountcost.'</div>
+        </div>
+        <div class="row">
+            <div class="col-9 text-right font-weight-bold">Net Total</div>
+            <div class="col-3 text-right font-weight-bold">'.$respond->row(0)->totalcost.'</div>
+        </div>        
+        ';
     
         echo $html;
     }
