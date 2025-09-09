@@ -423,7 +423,7 @@ class Newcustomerjobsinfo extends CI_Model{
                         'materialby'=> $materialby, 
                         'cutsize'=> $cutSize, 
                         'cutups'=> $cutups, 
-                        'upspersheet'=> $cutups, 
+                        'upspersheet'=> $upspersheet, 
                         'wastage'=> $wastage, 
                         'status'=> '1', 
                         'insertdatetime'=> $updatedatetime, 
@@ -439,7 +439,7 @@ class Newcustomerjobsinfo extends CI_Model{
                 foreach($colorTable as $colorData){
                     $printmaterialby=$colorData['col_1'];
                     $printmaterialID=$colorData['col_2'];
-                    $colortype=$colorData['col_3'];
+                    $colortype=$colorData['col_5'];
                     $colorqty=$colorData['col_6'];
                     $remark=$colorData['col_7'];
 
