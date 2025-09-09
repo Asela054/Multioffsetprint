@@ -654,6 +654,7 @@ class Customerinquiryinfo extends CI_Model{
             `tbl_jobcard_bom_material`.`upspersheet`, 
             `tbl_jobcard_bom_material`.`wastage`, 
             CEIL((("' . $requestqty . '"/(`tbl_jobcard_bom_material`.`cutups`*`tbl_jobcard_bom_material`.`upspersheet`))*(100+`tbl_jobcard_bom_material`.`wastage`)/100)) AS `issueqty`, 
+            (("' . $requestqty . '"/(`tbl_jobcard_bom_material`.`cutups`*`tbl_jobcard_bom_material`.`upspersheet`))*(100+`tbl_jobcard_bom_material`.`wastage`)/100) AS `actqty`, 
             tbl_print_material_info.`materialname`, 
             tbl_print_material_info.materialinfocode
         ');
@@ -669,6 +670,7 @@ class Customerinquiryinfo extends CI_Model{
             `tbl_jobcard_bom_color`.`remark`, 
             `tbl_jobcard_bom_color`.`qty`,
             CEIL("' . $requestqty . '"*`tbl_jobcard_bom_color`.`qty`) AS `issueqty`,
+            "' . $requestqty . '"*`tbl_jobcard_bom_color`.`qty` AS `actqty`,
             tbl_print_material_info.`materialname`, 
             tbl_print_material_info.materialinfocode');
         $this->db->from('tbl_jobcard_bom_color');
@@ -682,6 +684,7 @@ class Customerinquiryinfo extends CI_Model{
             `tbl_jobcard_bom_varnish`.`fullspot`, 
             `tbl_jobcard_bom_varnish`.`varnishQty`, 
             CEIL("' . $requestqty . '"*`tbl_jobcard_bom_varnish`.`varnishQty`) AS `issueqty`,
+            "' . $requestqty . '"*`tbl_jobcard_bom_varnish`.`varnishQty` AS `actqty`,
             `tbl_jobcard_bom_varnish`.`remark`,
             tbl_print_material_info.`materialname`, 
             tbl_print_material_info.materialinfocode, 
@@ -699,6 +702,7 @@ class Customerinquiryinfo extends CI_Model{
             `tbl_jobcard_bom_foil`.`qty`, 
             `tbl_jobcard_bom_foil`.`remark`,
             CEIL("' . $requestqty . '"*`tbl_jobcard_bom_foil`.`qty`) AS `issueqty`,
+            "' . $requestqty . '"*`tbl_jobcard_bom_foil`.`qty` AS `actqty`,
             tbl_print_material_info.`materialname`,
             tbl_print_material_info.materialinfocode
         ');
@@ -713,6 +717,7 @@ class Customerinquiryinfo extends CI_Model{
             `tbl_jobcard_bom_lamination`.`filmsize`, 
             `tbl_jobcard_bom_lamination`.`lamination_qty`, 
             CEIL("' . $requestqty . '"*`tbl_jobcard_bom_lamination`.`lamination_qty`) AS `issueqty`,
+            "' . $requestqty . '"*`tbl_jobcard_bom_lamination`.`lamination_qty` AS `actqty`,
             tbl_print_material_info.`materialname`,
             tbl_print_material_info.materialinfocode,
             tbl_lamination.lamination
@@ -729,6 +734,7 @@ class Customerinquiryinfo extends CI_Model{
             `tbl_jobcard_bom_pasting`.`pasteqty`, 
             `tbl_jobcard_bom_pasting`.`remark`,
             CEIL("' . $requestqty . '"*`tbl_jobcard_bom_pasting`.`pasteqty`) AS `issueqty`,
+            "' . $requestqty . '"*`tbl_jobcard_bom_pasting`.`pasteqty` AS `actqty`,
             tbl_print_material_info.`materialname`,
             tbl_print_material_info.materialinfocode,
             tbl_machine.machine
@@ -753,6 +759,7 @@ class Customerinquiryinfo extends CI_Model{
             `tbl_jobcard_bom_rimming`.`remark`,
             `tbl_jobcard_bom_rimming`.`qty`,
             CEIL("' . $requestqty . '"*`tbl_jobcard_bom_rimming`.`qty`) AS `issueqty`,
+            "' . $requestqty . '"*`tbl_jobcard_bom_rimming`.`qty` AS `actqty`,
             tbl_print_material_info.`materialname`,
             tbl_print_material_info.materialinfocode,
             tbl_rimming.rimming
@@ -796,6 +803,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <th class="text-center">Cut Ups</th>
                                         <th class="text-center">Ups Per Sheet</th>
                                         <th class="text-center">Wastage (%)</th>
+                                        <th class="text-center">Act. Qty</th>
                                         <th class="text-center">Issue Qty</th>
                                     </tr>
                                 </thead>
@@ -809,6 +817,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <td class="text-center">'.$rowlist->cutups.'</td>
                                         <td class="text-center">'.$rowlist->upspersheet.'</td>
                                         <td class="text-center">'.$rowlist->wastage.'</td>
+                                        <td class="text-center">'.$rowlist->actqty.'</td>
                                         <td class="text-center">'.$rowlist->issueqty.'</td>
                                     </tr>';
                                 }
@@ -830,6 +839,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <th>Color Type</th>
                                         <th>Remark</th>
                                         <th class="text-center">BOM Qty</th>
+                                        <th class="text-center">Act. Qty</th>
                                         <th class="text-center">Issue Qty</th>
                                     </tr>
                                 </thead>
@@ -842,6 +852,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <td>'.$rowlist->colortype.'</td>
                                         <td>'.$rowlist->remark.'</td>
                                         <td class="text-center">'.$rowlist->qty.'</td>
+                                        <td class="text-center">'.$rowlist->actqty.'</td>
                                         <td class="text-center">'.$rowlist->issueqty.'</td>
                                     </tr>';
                                 }
@@ -864,6 +875,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <th>Full / Spot</th>
                                         <th>Remark</th>
                                         <th class="text-center">BOM Qty</th>
+                                        <th class="text-center">Act. Qty</th>
                                         <th class="text-center">Issue Qty</th>
                                     </tr>
                                 </thead>
@@ -877,6 +889,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <td>'.$rowlist->fullspot.'</td>
                                         <td>'.$rowlist->remark.'</td>
                                         <td class="text-center">'.$rowlist->varnishQty.'</td>
+                                        <td class="text-center">'.$rowlist->actqty.'</td>
                                         <td class="text-center">'.$rowlist->issueqty.'</td>
                                     </tr>';
                                 }
@@ -897,6 +910,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <th>Material By</th>
                                         <th>Remark</th>
                                         <th class="text-center">BOM Qty</th>
+                                        <th class="text-center">Act. Qty</th>
                                         <th class="text-center">Issue Qty</th>
                                     </tr>
                                 </thead>
@@ -908,6 +922,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <td>'.$rowlist->foilmaterialby.'</td>
                                         <td>'.$rowlist->remark.'</td>
                                         <td class="text-center">'.$rowlist->qty.'</td>
+                                        <td class="text-center">'.$rowlist->actqty.'</td>
                                         <td class="text-center">'.$rowlist->issueqty.'</td>
                                     </tr>';
                                 }
@@ -929,6 +944,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <th>Sides</th>
                                         <th>Film Size</th>
                                         <th class="text-center">BOM Qty</th>
+                                        <th class="text-center">Act. Qty</th>
                                         <th class="text-center">Issue Qty</th>
                                     </tr>
                                 </thead>
@@ -941,6 +957,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <td>'.$rowlist->sides.'</td>
                                         <td>'.$rowlist->filmsize.'</td>
                                         <td class="text-center">'.$rowlist->lamination_qty.'</td>
+                                        <td class="text-center">'.$rowlist->actqty.'</td>
                                         <td class="text-center">'.$rowlist->issueqty.'</td>
                                     </tr>';
                                 }
@@ -962,6 +979,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <th>Paste Type</th>
                                         <th>Remark</th>
                                         <th class="text-center">BOM Qty</th>
+                                        <th class="text-center">Act. Qty</th>
                                         <th class="text-center">Issue Qty</th>
                                     </tr>
                                 </thead>
@@ -974,6 +992,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <td>'.$rowlist->pastetype.'</td>
                                         <td>'.$rowlist->remark.'</td>
                                         <td class="text-center">'.$rowlist->pasteqty.'</td>
+                                        <td class="text-center">'.$rowlist->actqty.'</td>
                                         <td class="text-center">'.$rowlist->issueqty.'</td>
                                     </tr>';
                                 }
@@ -1008,6 +1027,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <th>Sides</th>
                                         <th>Remark</th>
                                         <th class="text-center">BOM Qty</th>
+                                        <th class="text-center">Act. Qty</th>
                                         <th class="text-center">Issue Qty</th>
                                     </tr>
                                 </thead>
@@ -1020,6 +1040,7 @@ class Customerinquiryinfo extends CI_Model{
                                         <td>'.$rowlist->sides.'</td>
                                         <td>'.$rowlist->remark.'</td>
                                         <td class="text-center">'.$rowlist->qty.'</td>
+                                        <td class="text-center">'.$rowlist->actqty.'</td>
                                         <td class="text-center">'.$rowlist->issueqty.'</td>
                                     </tr>';
                                 }

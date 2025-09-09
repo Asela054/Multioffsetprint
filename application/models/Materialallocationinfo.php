@@ -15,7 +15,7 @@ class Materialallocationinfo extends CI_Model{
             $this->db->where('tbl_customerinquiry.tbl_customer_idtbl_customer', $customerid);
             $this->db->where('tbl_customerinquiry.status', 1);
             $this->db->where('tbl_customerinquiry.approvestatus', 1);
-            $this->db->where('tbl_customerinquiry_detail.job_finish_status', 0);
+            // $this->db->where('tbl_customerinquiry_detail.job_finish_status', 0);
             $this->db->group_by("tbl_customerinquiry_detail.idtbl_customerinquiry_detail");
             $this->db->limit(5);
             $respond = $this->db->get();
@@ -29,7 +29,7 @@ class Materialallocationinfo extends CI_Model{
                 $this->db->where('tbl_customerinquiry.tbl_customer_idtbl_customer', $customerid);
                 $this->db->where('tbl_customerinquiry.status', 1);
                 $this->db->where('tbl_customerinquiry.approvestatus', 1);
-                $this->db->where('tbl_customerinquiry_detail.job_finish_status', 0);
+                // $this->db->where('tbl_customerinquiry_detail.job_finish_status', 0);
                 $this->db->like('tbl_customerinquiry_detail.job_no', $searchTerm, 'both'); 
                 $this->db->or_like('tbl_customerinquiry_detail.job', $searchTerm, 'both');
                 $this->db->group_by("tbl_customerinquiry_detail.idtbl_customerinquiry_detail");
@@ -43,7 +43,7 @@ class Materialallocationinfo extends CI_Model{
                 $this->db->where('tbl_customerinquiry.tbl_customer_idtbl_customer', $customerid);
                 $this->db->where('tbl_customerinquiry.status', 1);
                 $this->db->where('tbl_customerinquiry.approvestatus', 1);
-                $this->db->where('tbl_customerinquiry_detail.job_finish_status', 0);
+                // $this->db->where('tbl_customerinquiry_detail.job_finish_status', 0);
                 $this->db->group_by("tbl_customerinquiry_detail.idtbl_customerinquiry_detail");
                 $this->db->limit(5);
                 $respond=$this->db->get();         
@@ -94,13 +94,13 @@ class Materialallocationinfo extends CI_Model{
 
             if($respondmaterial->num_rows()>0){
                 $html.='
-                <tr>
-                    <th colspan="4">Material Section</th>
+                <tr data-otherrow="materialsection">
+                    <th colspan="4" class="sectionremove">Material Section</th>
                 </tr>
                 ';
                 foreach($respondmaterial->result() as $rowmaterial){
                     $html.='
-                    <tr>
+                    <tr class="materialsection">
                         <td class="d-none">1</td>
                         <td>'.$rowmaterial->materialname.'</td>
                         <td class="text-center">'.$rowmaterial->upspersheet.'</td>
@@ -130,13 +130,13 @@ class Materialallocationinfo extends CI_Model{
 
             if($respondcolor->num_rows()>0){
                 $html.='
-                <tr>
-                    <th colspan="4">Printing Section</th>
+                <tr data-otherrow="printingsection">
+                    <th colspan="4" class="sectionremove">Printing Section</th>
                 </tr>
                 ';
                 foreach($respondcolor->result() as $rowcolor){
                     $html.='
-                    <tr>
+                    <tr class="printingsection">
                         <td class="d-none">2</td>
                         <td>'.$rowcolor->materialname.'</td>
                         <td class="text-center">'.$rowcolor->qty.'</td>
@@ -166,13 +166,13 @@ class Materialallocationinfo extends CI_Model{
 
             if($respondcoating->num_rows()>0){
                 $html.='
-                <tr>
-                    <th colspan="4">Coating Section</th>
+                <tr data-otherrow="coatingsection">
+                    <th colspan="4" class="sectionremove">Coating Section</th>
                 </tr>
                 ';
                 foreach($respondcoating->result() as $rowcoating){
                     $html.='
-                    <tr>
+                    <tr class="coatingsection">
                         <td class="d-none">3</td>
                         <td>'.$rowcoating->materialname.'</td>
                         <td class="text-center">'.$rowcoating->varnishQty.'</td>
@@ -202,13 +202,13 @@ class Materialallocationinfo extends CI_Model{
 
             if($respondfoil->num_rows()>0){
                 $html.='
-                <tr>
-                    <th colspan="4">Foiling Section</th>
+                <tr data-otherrow="foilsection">
+                    <th colspan="4" class="sectionremove">Foiling Section</th>
                 </tr>
                 ';
                 foreach($respondfoil->result() as $rowfoil){
                     $html.='
-                    <tr>
+                    <tr class="foilsection">
                         <td class="d-none">4</td>
                         <td>'.$rowfoil->materialname.'</td>
                         <td class="text-center">'.$rowfoil->qty.'</td>
@@ -238,13 +238,13 @@ class Materialallocationinfo extends CI_Model{
 
             if($respondlamination->num_rows()>0){
                 $html.='
-                <tr>
-                    <th colspan="4">Lamination Section</th>
+                <tr data-otherrow="laminationsection">
+                    <th colspan="4" class="sectionremove">Lamination Section</th>
                 </tr>
                 ';
                 foreach($respondlamination->result() as $rowlamination){
                     $html.='
-                    <tr>
+                    <tr class="laminationsection">
                         <td class="d-none">5</td>
                         <td>'.$rowlamination->materialname.'</td>
                         <td class="text-center">'.$rowlamination->lamination_qty.'</td>
@@ -274,13 +274,13 @@ class Materialallocationinfo extends CI_Model{
 
             if($respondpaste->num_rows()>0){
                 $html.='
-                <tr>
-                    <th colspan="4">Pasting Section</th>
+                <tr data-otherrow="pastesection">
+                    <th colspan="4" class="sectionremove">Pasting Section</th>
                 </tr>
                 ';
                 foreach($respondpaste->result() as $rowpaste){
                     $html.='
-                    <tr>
+                    <tr class="pastesection">
                         <td class="d-none">6</td>
                         <td>'.$rowpaste->materialname.'</td>
                         <td class="text-center">'.$rowpaste->pasteqty.'</td>
@@ -310,13 +310,13 @@ class Materialallocationinfo extends CI_Model{
 
             if($respondrimming->num_rows()>0){
                 $html.='
-                <tr>
-                    <th colspan="4">Rimming Section</th>
+                <tr data-otherrow="rimmingsection">
+                    <th colspan="4" class="sectionremove">Rimming Section</th>
                 </tr>
                 ';
                 foreach($respondrimming->result() as $rowrimming){
                     $html.='
-                    <tr>
+                    <tr class="rimmingsection">
                         <td class="d-none">7</td>
                         <td>'.$rowrimming->materialname.'</td>
                         <td class="text-center">'.$rowrimming->qty.'</td>

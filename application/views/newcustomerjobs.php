@@ -356,8 +356,8 @@ include "include/topnavbar.php";
 														<label class="custom-control-label small" for="printingcolortype2">Metlic Color</label>
 													</div>
 													<div class="custom-control custom-radio custom-control-inline mb-0">
-														<input type="radio" class="custom-control-input" id="printingcolortype3" value="Any Other" name="printingcolortype">
-														<label class="custom-control-label small" for="printingcolortype3">Any Other</label>
+														<input type="radio" class="custom-control-input" id="printingcolortype3" value="Other" name="printingcolortype">
+														<label class="custom-control-label small" for="printingcolortype3">Other</label>
 													</div>
 												</div>
 											</div>
@@ -1582,7 +1582,7 @@ include "include/topnavbar.php";
 						rimmingObj.push(item);
 					});
 				}
-				// console.log(varnishObj);
+				// console.log(materialObj);
 
 				var diechannel = '';
 				var dieboard = '';

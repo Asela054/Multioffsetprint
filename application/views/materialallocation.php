@@ -515,6 +515,15 @@ $(document).ready(function () {
 			}
 		});
 	});
+	$('#tableissue tbody').on('click', 'tr .sectionremove', async function () {
+		var r = await Otherconfirmation("You want to remove this ? ");
+        if (r == true) {
+			const currentRow = $(this).closest('tr');
+			const rowClass = currentRow.attr('data-otherrow');
+			$('#tableissue tbody tr.'+rowClass).remove();	
+			currentRow.remove();		
+		}
+	});
 	$('#btnsubmitbatch').click(function(){
 		if (!$("#formbatchno")[0].checkValidity()) {
 			// If the form is invalid, submit it. The form won't actually submit;
