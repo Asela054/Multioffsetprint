@@ -1000,8 +1000,9 @@ class Customerinquiryinfo extends CI_Model{
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="card shadow-none border">
+                </div>';
+                if($responddiecut->num_rows()==0){
+                $html.='<div class="card shadow-none border">
                     <div class="card-body p-2 small">
                         <h6 class="small title-style"><span>Die Cutting Section</span></h6>
                         <div class="row">
@@ -1013,8 +1014,9 @@ class Customerinquiryinfo extends CI_Model{
                             <div class="col-6"><strong>Emboss By :</strong> '.$responddiecut->row(0)->embossby.'</div>
                         </div>
                     </div>
-                </div>
-                <div class="card shadow-none border mt-2">
+                </div>';
+                }
+                $html.='<div class="card shadow-none border mt-2">
                     <div class="card-body p-2">
                         <h6 class="title-style small"><span>Rimming Section</span></h6>
                         <div class="table-responsive">
@@ -1048,8 +1050,9 @@ class Customerinquiryinfo extends CI_Model{
                             </table>
                         </div>
                     </div>
-                </div>
-                <h6 class="small title-style"><span>Other Section</span></h6>
+                </div>';
+                if($responddiecut->num_rows()==0){
+                $html.='<h6 class="small title-style"><span>Other Section</span></h6>
                 <div class="card shadow-none border">
                     <div class="card-body p-2 small">
                         <div class="row">
@@ -1063,8 +1066,9 @@ class Customerinquiryinfo extends CI_Model{
                             <div class="col-6"><strong>Threading :</strong> '.$respondother->row(0)->threading.'</div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </div>';
+                }
+            $html.='</div>
         </div>
         ';
 
