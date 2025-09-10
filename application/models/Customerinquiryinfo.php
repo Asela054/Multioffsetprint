@@ -191,7 +191,8 @@ class Customerinquiryinfo extends CI_Model{
                 $data = array( 
                     'qty'=> $qty,
                     'updatedatetime'=> $insertdatetime, 
-                    'tbl_user_idtbl_user'=> $userID
+                    'tbl_user_idtbl_user'=> $userID,
+                    'tbl_jobcard_bom_idtbl_jobcard_bom'=> $jobbom
                 );
                 $this->db->where('tbl_customerinquiry_idtbl_customerinquiry', $recordID);
                 $this->db->update('tbl_customerinquiry_detail', $data);
