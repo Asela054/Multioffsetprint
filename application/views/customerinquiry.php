@@ -256,24 +256,7 @@ $(document).ready(function() {
                     $('#unitprice').val(obj.unitprice);
                 }
             });
-            $.ajax({
-                type: "POST",
-                data: {
-                    recordID: jobID
-                },
-                url: '<?php echo base_url() ?>Customerinquiry/Getjobbominfo',
-                success: function(result) {
-                    var obj = JSON.parse(result);
-                    var html1 = '';
-                    html1 += '<option value="">Select</option>';
-                    $.each(obj, function(i, item) {
-                        html1 += '<option value="' + obj[i].idtbl_jobcard_bom + '">';
-                        html1 += obj[i].jobbomname;
-                        html1 += '</option>';
-                    });
-                    $('#jobbom').empty().append(html1).trigger('change');
-                }
-            });
+            getBomlist(jobID, '');
         }
     });
     //Add List
@@ -559,8 +542,7 @@ $(document).ready(function() {
                     var newOptionjob = new Option(obj.job_name, obj.job_id, true, true);
                     $('#job').append(newOptionjob);
 
-                    var newOptionjobbom = new Option(obj.jobbomname, obj.jobbomid, true, true);
-                    $('#jobbom').append(newOptionjobbom);
+                    getBomlist(obj.job_id, obj.jobbomid);
 
                     $('#qty').val(obj.qty);
                     $('#uom').val(obj.uom);
@@ -807,6 +789,30 @@ function approvejob(confirmnot){
                     });
                 }
             });
+        }
+    });
+}
+function getBomlist(jobID, setValue){
+    $.ajax({
+        type: "POST",
+        data: {
+            recordID: jobID
+        },
+        url: '<?php echo base_url() ?>Customerinquiry/Getjobbominfo',
+        success: function(result) {
+            var obj = JSON.parse(result);
+            var html1 = '';
+            html1 += '<option value="">Select</option>';
+            $.each(obj, function(i, item) {
+                html1 += '<option value="' + obj[i].idtbl_jobcard_bom + '">';
+                html1 += obj[i].jobbomname;
+                html1 += '</option>';
+            });
+            $('#jobbom').empty().append(html1);
+
+            if(setValue!=''){
+                $('#jobbom').val(setValue);
+            }
         }
     });
 }
