@@ -24,6 +24,7 @@ class Issuegoodreceive extends CI_Controller {
 	public function Issuepdf($x){
 		$this->load->model('Issuegoodreceiveinfo');
         $result=$this->Issuegoodreceiveinfo->Issuepdf($x);
+		echo  $result;
 	}
 	public function Issuegoodreceivestatus($x, $y){
 		$this->load->model('Issuegoodreceiveinfo');

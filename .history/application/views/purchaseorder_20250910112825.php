@@ -1426,20 +1426,26 @@ $(document).ready(function() {
 
                 if (result.length > 0) {
                     $.each(result, function (index, item) {
+                        // Create <li> for each item
                         var listItem = '<li class="list-group-item bg-warning-soft">';
 
+                        // Show request name in bold
                         listItem += '<strong>' + item.requestname + '</strong> - ';
 
+                        // Show qty + measurement type
                         listItem += item.qty + ' ' + item.measure_type;
 
+                        // If comment exists, show it in brackets
                         if (item.comment && item.comment !== "") {
                             listItem += ' <em>(' + item.comment + ')</em>';
                         }
 
                         listItem += '</li>';
 
+                        // Append to requestitem list
                         $('#requestitem').append(listItem);
 
+                        // For first record, set order type hidden field
                         if (index === 0) {
                             $('#requestordertype').val(item.order_type);
                         }

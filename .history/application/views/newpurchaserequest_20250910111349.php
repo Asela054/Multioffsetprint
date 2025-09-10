@@ -118,7 +118,7 @@ include "include/topnavbar.php";
             									<th>Request</th>
             									<th class="text-center">Qty</th>
             									<th class="text-center">UOM</th>
-                                                <th>Comment</th>
+                                                <th>UOM</th>
             									<th class="text-right">Action</th>
             								</tr>
             							</thead>

@@ -158,10 +158,10 @@ class PorderreqPrintinfo extends CI_Model {
                         <tbody>';
                             foreach ($section as $row) {
                                 $html .= '<tr>
-                                    <td style="width: 20%; border: 1px solid black; padding-left: 10px;">' . htmlspecialchars($row['requestname']) . '</td>
-                                    <td style="width: 25%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['qty']) . '</td>
-                                    <td style="width: 25%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['measureType']) . '</td>
-                                    <td style="width: 30%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['comment']) . '</td>
+                                    <td style="width: 40%; border: 1px solid black; padding-left: 10px;">' . htmlspecialchars($row['requestname']) . '</td>
+                                    <td style="width: 10%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['qty']) . '</td>
+                                    <td style="width: 10%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['measureType']) . '</td>
+                                    <td style="width: 10%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['comment']) . '</td>
                                 </tr>';
                             }
                         $html.='</tbody>';

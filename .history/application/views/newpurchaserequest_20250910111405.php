@@ -662,7 +662,7 @@ $(document).ready(function() {
 
                 $.ajax({
                     type: "POST",
-                    url: "Newpurchaserequest/Newpurchaserequestinsertupdate",
+                    // url: "Newpurchaserequest/Newpurchaserequestinsertupdate",
                     data: requestData,
                     success: function (result) {
                         Swal.close();

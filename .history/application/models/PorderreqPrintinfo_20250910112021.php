@@ -44,7 +44,6 @@ class PorderreqPrintinfo extends CI_Model {
             $requestname = $rowlist->requestname;
             $qty = $rowlist->qty;
             $measureType = $rowlist->measure_type;
-            $comment = $rowlist->comment;
         
             if ($count % 5 == 0) {
                 $dataArray[$section] = [];
@@ -53,8 +52,7 @@ class PorderreqPrintinfo extends CI_Model {
             $dataArray[$section][] = [
                 'requestname' => $requestname,
                 'qty' => $qty,
-                'measureType' => $measureType,
-                'comment' => $comment
+                'measureType' => $measureType
             ];
         
             $count++;
@@ -152,16 +150,15 @@ class PorderreqPrintinfo extends CI_Model {
                                 <th style="width: 10%; padding-left: 10px; border: 1px solid #000;">Request Item</th>
                                 <th style="width: 10%;text-align:center; border: 1px solid #000;">Quantity</th>
                                 <th style="width: 10%;text-align:center; border: 1px solid #000;">UOM</th>
-                                <th style="width: 10%;text-align:center; border: 1px solid #000;">Comment</th>
+                                                                <th style="width: 10%;text-align:center; border: 1px solid #000;">UOM</th>
                             </tr>
                         </thead>
                         <tbody>';
                             foreach ($section as $row) {
                                 $html .= '<tr>
-                                    <td style="width: 20%; border: 1px solid black; padding-left: 10px;">' . htmlspecialchars($row['requestname']) . '</td>
-                                    <td style="width: 25%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['qty']) . '</td>
-                                    <td style="width: 25%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['measureType']) . '</td>
-                                    <td style="width: 30%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['comment']) . '</td>
+                                    <td style="width: 40%; border: 1px solid black; padding-left: 10px;">' . htmlspecialchars($row['requestname']) . '</td>
+                                    <td style="width: 10%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['qty']) . '</td>
+                                    <td style="width: 10%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['measureType']) . '</td>
                                 </tr>';
                             }
                         $html.='</tbody>';

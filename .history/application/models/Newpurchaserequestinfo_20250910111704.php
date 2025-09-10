@@ -218,11 +218,10 @@
 				$materialname = $rowtabledata['col_1'];
 				$qty = $rowtabledata['col_2'];
 				$uom = $rowtabledata['col_4'];
-				$comment = $rowtabledata['col_5'];
+								$uom = $rowtabledata['col_4'];
 	
 				$dataone = array(
 					'qty' => $qty,
-					'comment' => $comment,
 					'tbl_measurements_idtbl_measurements' => $uom,
 					'status' => '1',
 					'insertdatetime' => $updatedatetime,
@@ -352,12 +351,11 @@
 		<th class="bg-primary text-light">Request Item</th>
 		<th class="bg-primary text-light">Qty</th>
 		<th class="bg-primary text-light">Uom</th>
-		<th class="bg-primary text-light text-center">Comment</th>
 		</thead>
 		<tbody>';
         foreach($responddetail->result() as $roworderinfo) {
 				$html.='<tr>
-        <td>'.$roworderinfo->requestname.'</td><td>'.$roworderinfo->qty.'</td><td>'.$roworderinfo->measure_type.'</td><td class="text-center">'.$roworderinfo->comment.'</td></tr>';
+        <td>'.$roworderinfo->requestname.'</td><td>'.$roworderinfo->qty.'</td><td>'.$roworderinfo->measure_type.'</td></tr>';
 		}
 
 		$html.='</tbody>
