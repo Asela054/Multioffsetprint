@@ -352,12 +352,12 @@
 		<th class="bg-primary text-light">Request Item</th>
 		<th class="bg-primary text-light">Qty</th>
 		<th class="bg-primary text-light">Uom</th>
-		<th class="bg-primary text-light text-center">Comment</th>
+				<th class="bg-primary text-light">Uom</th>
 		</thead>
 		<tbody>';
         foreach($responddetail->result() as $roworderinfo) {
 				$html.='<tr>
-        <td>'.$roworderinfo->requestname.'</td><td>'.$roworderinfo->qty.'</td><td>'.$roworderinfo->measure_type.'</td><td class="text-center">'.$roworderinfo->comment.'</td></tr>';
+        <td>'.$roworderinfo->requestname.'</td><td>'.$roworderinfo->qty.'</td><td>'.$roworderinfo->measure_type.'</td></tr>';
 		}
 
 		$html.='</tbody>

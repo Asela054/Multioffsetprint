@@ -1430,16 +1430,20 @@ $(document).ready(function() {
 
                         listItem += '<strong>' + item.requestname + '</strong> - ';
 
+                        // Show qty + measurement type
                         listItem += item.qty + ' ' + item.measure_type;
 
+                        // If comment exists, show it in brackets
                         if (item.comment && item.comment !== "") {
                             listItem += ' <em>(' + item.comment + ')</em>';
                         }
 
                         listItem += '</li>';
 
+                        // Append to requestitem list
                         $('#requestitem').append(listItem);
 
+                        // For first record, set order type hidden field
                         if (index === 0) {
                             $('#requestordertype').val(item.order_type);
                         }

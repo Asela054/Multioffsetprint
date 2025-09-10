@@ -1424,27 +1424,32 @@ $(document).ready(function() {
     			var result = JSON.parse(response);
     			$('#requestitem').empty();
 
-                if (result.length > 0) {
-                    $.each(result, function (index, item) {
-                        var listItem = '<li class="list-group-item bg-warning-soft">';
+// Check if the result array has any items
+if (result.length > 0) {
+    // Iterate through each item in the result array
+    $.each(result, function (index, item) {
+        // Create a list item element with Bootstrap styling classes
+        var listItem = '<li class="list-group-item bg-warning-soft">';
+        
+        // Add the request name as a bold element
+        listItem += '<strong>' + item.requestname + '</strong> - ';
+        
+        // Add quantity and measurement type
+        listItem += item.qty + ' ' + item.measure_type;
+        
+        // Close the list item tag
+        listItem += '</li>';
+        
+        // Append the created list item to the element with ID 'requestitem'
+        $('#requestitem').append(listItem);
 
-                        listItem += '<strong>' + item.requestname + '</strong> - ';
-
-                        listItem += item.qty + ' ' + item.measure_type;
-
-                        if (item.comment && item.comment !== "") {
-                            listItem += ' <em>(' + item.comment + ')</em>';
-                        }
-
-                        listItem += '</li>';
-
-                        $('#requestitem').append(listItem);
-
-                        if (index === 0) {
-                            $('#requestordertype').val(item.order_type);
-                        }
-                    });
-                }
+        // For the first item only (index 0), set the order type value
+        if (index === 0) {
+            // Set the value of the element with ID 'requestordertype' to the item's order_type
+            $('#requestordertype').val(item.order_type);
+        }
+    });
+}
     		},
     	});
     });

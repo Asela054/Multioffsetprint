@@ -609,7 +609,7 @@ class Issuegoodreceiveinfo extends CI_Model{
 
 		$recordID = $x;
 
-		$this->db->select('tbl_print_issuedetail.*, tbl_print_issue.ordertype, tbl_order_type.type, tbl_location.location, employees.emp_id, employees.emp_name_with_initial, tbl_print_issue.idtbl_print_issue, tbl_print_material_info.materialname');
+		$this->db->select('tbl_print_issuedetail.*, tbl_print_issue.ordertype, tbl_order_type.type, tbl_location.location, employees.emp_id, employees.emp_name_with_initial, tbl_print_issue.idtbl_print_issue, tbl_print_material_info.materialname, tbl_machine.machine');
 		$this->db->from('tbl_print_issuedetail');
 		$this->db->join('tbl_print_issue', 'tbl_print_issuedetail.tbl_print_issue_idtbl_print_issue = tbl_print_issue.idtbl_print_issue', 'left');
 		$this->db->join('tbl_order_type', 'tbl_print_issue.ordertype = tbl_order_type.idtbl_order_type', 'left');

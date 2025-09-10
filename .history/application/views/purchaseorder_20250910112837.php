@@ -1440,6 +1440,7 @@ $(document).ready(function() {
 
                         $('#requestitem').append(listItem);
 
+                        // For first record, set order type hidden field
                         if (index === 0) {
                             $('#requestordertype').val(item.order_type);
                         }

@@ -93,10 +93,10 @@ include "include/topnavbar.php";
             								</div>
             							</div>
             						</div>
-                                    <div class="form-group mb-1">
-                                        <label class="small font-weight-bold text-dark">Comment</label>
-                                        <textarea name="comment" id="comment" class="form-control form-control-sm"></textarea>
-                                    </div>
+							<div class="form-group mb-1">
+								<label class="small font-weight-bold text-dark">Comment</label>
+								<textarea name="comment" id="comment" class="form-control form-control-sm"></textarea>
+							</div>
             						<div class="form-group mt-3 text-right">
             							<button type="button" id="formsubmit" class="btn btn-warning btn-sm font-weight-bold px-4"
             								<?php if($addcheck==0){echo 'disabled';} ?>><i
@@ -118,7 +118,6 @@ include "include/topnavbar.php";
             									<th>Request</th>
             									<th class="text-center">Qty</th>
             									<th class="text-center">UOM</th>
-                                                <th>Comment</th>
             									<th class="text-right">Action</th>
             								</tr>
             							</thead>
@@ -580,13 +579,11 @@ $(document).ready(function() {
                 var newqty = parseFloat($('#newqty').val());
                 var uomID = $('#uom').val();
                 var uom = $("#uom option:selected").text();
-                var comment = $('#comment').val();
 
                 $('#tableorder > tbody:last').append('<tr class="pointer"><td>' + product +
                     '</td><td class="text-center">' +
                     newqty + '</td> <td class="text-center">' +
                     uom + '</td><td class="d-none">' + uomID +
-                    '</td><td>' + comment +
                     '</td><td><button type="button" onclick= "productDelete(this);" id="btnDeleterow" class=" btn btn-danger btn-sm float-right"><i class="fas fa-trash-alt"></i></button></td> </tr>'
                 );
 

@@ -1432,15 +1432,13 @@ $(document).ready(function() {
 
                         listItem += item.qty + ' ' + item.measure_type;
 
-                        if (item.comment && item.comment !== "") {
-                            listItem += ' <em>(' + item.comment + ')</em>';
-                        }
-
                         listItem += '</li>';
 
                         $('#requestitem').append(listItem);
 
+                        // For the first item only (index 0), set the order type value
                         if (index === 0) {
+                            // Set the value of the element with ID 'requestordertype' to the item's order_type
                             $('#requestordertype').val(item.order_type);
                         }
                     });

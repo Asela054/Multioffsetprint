@@ -1426,21 +1426,24 @@ $(document).ready(function() {
 
                 if (result.length > 0) {
                     $.each(result, function (index, item) {
+                        // Create a list item element with Bootstrap styling classes
                         var listItem = '<li class="list-group-item bg-warning-soft">';
-
+                        
+                        // Add the request name as a bold element
                         listItem += '<strong>' + item.requestname + '</strong> - ';
-
+                        
+                        // Add quantity and measurement type
                         listItem += item.qty + ' ' + item.measure_type;
-
-                        if (item.comment && item.comment !== "") {
-                            listItem += ' <em>(' + item.comment + ')</em>';
-                        }
-
+                        
+                        // Close the list item tag
                         listItem += '</li>';
-
+                        
+                        // Append the created list item to the element with ID 'requestitem'
                         $('#requestitem').append(listItem);
 
+                        // For the first item only (index 0), set the order type value
                         if (index === 0) {
+                            // Set the value of the element with ID 'requestordertype' to the item's order_type
                             $('#requestordertype').val(item.order_type);
                         }
                     });

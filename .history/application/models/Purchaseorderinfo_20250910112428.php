@@ -703,7 +703,6 @@
 					'requestname' => $row->requestname,
 					'qty' => $row->qty,
 					'measure_type' => $row->measure_type,
-					'comment' => $row->comment,
 					'order_type' => $row->group
 				];
 			}

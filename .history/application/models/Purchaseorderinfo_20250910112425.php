@@ -686,7 +686,7 @@
 	public function Getporderreqdetails() {
 		$recordID = $this->input->post('recordID');
 		
-		$this->db->select('requestname, qty, measure_type, comment, group');
+		$this->db->select('requestname, qty, measure_type, group, group');
 		$this->db->from('tbl_print_porder_req_detail');
 		$this->db->join('tbl_print_porder_req', 'tbl_print_porder_req.idtbl_print_porder_req = tbl_print_porder_req_detail.tbl_print_porder_req_idtbl_print_porder_req', 'left');
 		$this->db->join('tbl_material_group', 'tbl_material_group.idtbl_material_group = tbl_print_porder_req.tbl_material_group_idtbl_material_group', 'left');
@@ -703,7 +703,6 @@
 					'requestname' => $row->requestname,
 					'qty' => $row->qty,
 					'measure_type' => $row->measure_type,
-					'comment' => $row->comment,
 					'order_type' => $row->group
 				];
 			}

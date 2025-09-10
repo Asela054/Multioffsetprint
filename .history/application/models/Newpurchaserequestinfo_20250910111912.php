@@ -357,7 +357,7 @@
 		<tbody>';
         foreach($responddetail->result() as $roworderinfo) {
 				$html.='<tr>
-        <td>'.$roworderinfo->requestname.'</td><td>'.$roworderinfo->qty.'</td><td>'.$roworderinfo->measure_type.'</td><td class="text-center">'.$roworderinfo->comment.'</td></tr>';
+        <td>'.$roworderinfo->requestname.'</td><td>'.$roworderinfo->qty.'</td><td>'.$roworderinfo->measure_type.'</td><td>'.$roworderinfo->comment.'</td></tr>';
 		}
 
 		$html.='</tbody>
