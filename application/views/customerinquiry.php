@@ -485,6 +485,7 @@ $(document).ready(function() {
                 "data": null,
                 "render": function(data, type, full) {
                     var button = '';
+                    button += '<button class="btn btn-primary btn-sm btnJobCard mr-1" id="' + full['idtbl_customerinquiry'] + '" data-toggle="tooltip" title="Job Card"><i class="fas fa-file"></i></button>';
                     if(full['approvestatus']==0){
                         button += '<button class="btn btn-dark btn-sm btnView mr-1" id="' + full['idtbl_customerinquiry'] + '" data-approvestatus="'+full['approvestatus']+'" data-toggle="tooltip" title="View & Approve"><i class="fas fa-eye"></i></button>';
                         if(editcheck==1){
@@ -500,7 +501,6 @@ $(document).ready(function() {
                         }
                     }
                     else{
-                        button += '<button class="btn btn-primary btn-sm btnJobCard mr-1" id="' + full['idtbl_customerinquiry'] + '" data-toggle="tooltip" title="Job Card"><i class="fas fa-file"></i></button>';
                         button += '<button class="btn btn-dark btn-sm btnView mr-1" id="' + full['idtbl_customerinquiry'] + '" data-toggle="tooltip" title="View" data-approvestatus="'+full['approvestatus']+'"><i class="fas fa-eye"></i></button>';
                         if(editcheck==1 && full['approvestatus']==1 && full['job_finish_status']==0){
                             button+='<button type="button" class="btn btn-orange btn-sm btnEdit mr-1" id="'+full['idtbl_customerinquiry']+'" data-toggle="tooltip" title="Edit Some" data-approvestatus="'+full['approvestatus']+'"><i class="fas fa-pencil-alt"></i></button>';
