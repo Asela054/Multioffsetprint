@@ -706,7 +706,7 @@ class Invoiceinfo extends CI_Model{
                 );
         
                 $this->db->where('idtbl_print_dispatch', $disid);
-                $this->db->update('tbl_print_dispatch', $data1);
+                $this->db->update('tbl_print_dispatch', $data1);                
 
                 $this->db->select('tbl_print_invoice.idtbl_print_invoice,tbl_print_invoice.date, tbl_print_invoice.total, tbl_print_invoice.tbl_customer_idtbl_customer,tbl_print_invoice.inv_no, tbl_print_invoice.vat_amount,tbl_print_invoice.subtotal,tbl_customer.vat_customer');
                 $this->db->from('tbl_print_invoice');
