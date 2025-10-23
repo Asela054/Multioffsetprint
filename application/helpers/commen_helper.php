@@ -104,9 +104,14 @@ function SearchCustomerList($searchTerm){
     echo json_encode($data);
 }
 function GetMaterialList($searchTerm, $searchCategory) {
+    $companyid=$_SESSION['company_id'];
+    $branchid=$_SESSION['branch_id'];
+    
     if(!isset($searchTerm)){
         $CI = get_instance();
         $CI->db->where('status', 1);
+        $CI->db->where('tbl_company_idtbl_company', $companyid);
+        $CI->db->where('tbl_company_branch_idtbl_company_branch', $branchid);
         if(!empty($searchCategory)){$CI->db->where_in('tbl_material_type_idtbl_material_type', $searchCategory);}
         $CI->db->select('`idtbl_print_material_info`, `materialname`, `materialinfocode`');
         $CI->db->from('tbl_print_material_info');
@@ -117,6 +122,8 @@ function GetMaterialList($searchTerm, $searchCategory) {
         if(!empty($searchTerm)){
             $CI = get_instance();
             $CI->db->where('status', 1);
+            $CI->db->where('tbl_company_idtbl_company', $companyid);
+            $CI->db->where('tbl_company_branch_idtbl_company_branch', $branchid);
             if(!empty($searchCategory)){$CI->db->where_in('tbl_material_type_idtbl_material_type', $searchCategory);}
             $CI->db->select('`idtbl_print_material_info`, `materialname`, `materialinfocode`');
             $CI->db->from('tbl_print_material_info');
@@ -126,6 +133,8 @@ function GetMaterialList($searchTerm, $searchCategory) {
         else{
             $CI = get_instance();
             $CI->db->where('status', 1);
+            $CI->db->where('tbl_company_idtbl_company', $companyid);
+            $CI->db->where('tbl_company_branch_idtbl_company_branch', $branchid);
             if(!empty($searchCategory)){$CI->db->where_in('tbl_material_type_idtbl_material_type', $searchCategory);}
             $CI->db->select('`idtbl_print_material_info`, `materialname`, `materialinfocode`');
             $CI->db->from('tbl_print_material_info');
