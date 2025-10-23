@@ -58,7 +58,7 @@ class InvoicePrintinfo extends CI_Model{
             if ($rowlist->idtbl_material_group == 4) {
                 $itemDescription = $rowlist->comment;
             } else {
-                $itemDescription = $rowlist->materialname;
+                $itemDescription = $rowlist->materialname; // Show material name for other groups
             }
             $qty = $rowlist->qty;
             $measureType = $rowlist->measure_type;

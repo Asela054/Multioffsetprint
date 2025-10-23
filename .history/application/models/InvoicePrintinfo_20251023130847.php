@@ -56,9 +56,9 @@ class InvoicePrintinfo extends CI_Model{
             $nettotal = $unitPrice * $rowlist->qty;
             $materialInfoCode = $rowlist->materialinfocode;
             if ($rowlist->idtbl_material_group == 4) {
-                $itemDescription = $rowlist->comment;
+                $itemDescription = $rowlist->comment; // Show comment for material group 4
             } else {
-                $itemDescription = $rowlist->materialname;
+                $itemDescription = $rowlist->materialname; // Show material name for other groups
             }
             $qty = $rowlist->qty;
             $measureType = $rowlist->measure_type;

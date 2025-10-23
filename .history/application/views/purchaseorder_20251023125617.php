@@ -1050,111 +1050,113 @@ $(document).ready(function() {
             // this will just cause the browser to display the native HTML5 error messages.
             $("#editsubmitBtn").click();
         } else {
+            var productID = $('#editproduct').val();
+            var comment = $('#editcomment').val();
+            var product = $("#editproduct option:selected").text();
+            var unitprice = parseFloat($('#editunitprice').val());
+            var vat = parseFloat($('#editvat').val());
+            var discount = parseFloat($('#editdiscount').val());
+            var newqty = parseFloat($('#editnewqty').val());
+            var uomID = $('#edituom').val();
+            var pieces = parseFloat($('#editpiecesper_qty').val());
+            var uom = $("#edituom option:selected").text();
+            var ordertype = $('#editordertype').val(); // Get the order type for edit form
+            var newtotal;
+            var newprice;
+            
+            if (pieces !== 0) {
+                newtotal = unitprice * pieces;
+                newprice = unitprice * pieces / newqty;
+            } else {
+                newtotal = unitprice * newqty;
+                newprice = 0;
+            }
+            
+            var vatamount = parseFloat(((newtotal - discount) / 100) * vat);
+            var finaltotal = parseFloat((newtotal + vatamount) - discount);
 
-                var productID = $('#editproduct').val();
-                var comment = $('#editcomment').val();
-                var product = $("#editproduct option:selected").text();
-                var unitprice = parseFloat($('#editunitprice').val());
-                var vat = parseFloat($('#editvat').val());
-                var discount = parseFloat($('#editdiscount').val());
-                var newqty = parseFloat($('#editnewqty').val());
-                var uomID = $('#edituom').val();
-                var pieces = parseFloat($('#editpiecesper_qty').val());
-                var uom = $("#edituom option:selected").text();
-                var newtotal;
-                var newprice;
-                if (pieces !== 0) {
-                    newtotal = unitprice * pieces;
-                    newprice = unitprice * pieces / newqty;
-                } else {
-                    newtotal = unitprice * newqty;
-                    newprice = 0;
-                }
-                var vatamount = parseFloat(((newtotal - discount) / 100) * vat);
-                var finaltotal = parseFloat((newtotal + vatamount) - discount);
+            var totdiscount = parseFloat(discount);
+            var totvat = parseFloat(vatamount);
+            var total = parseFloat(newtotal);
+            var finaltot = parseFloat(finaltotal);
+            var showfinaltot = addCommas(parseFloat(finaltot).toFixed(2));
+            var showtotal = addCommas(parseFloat(total).toFixed(2));
+            var showtotdiscount = addCommas(parseFloat(totdiscount).toFixed(2));
+            var showtotvat = addCommas(parseFloat(totvat).toFixed(2));
 
-                var totdiscount = parseFloat(discount);
-                var totvat = parseFloat(vatamount);
-                var total = parseFloat(newtotal);
-                var finaltot = parseFloat(finaltotal);
-                var showfinaltot = addCommas(parseFloat(finaltot).toFixed(2));
-                var showtotal = addCommas(parseFloat(total).toFixed(2));
-                var showtotdiscount = addCommas(parseFloat(totdiscount).toFixed(2));
-                var showtotvat = addCommas(parseFloat(totvat).toFixed(2));
+            // Determine what to show in the product column - use comment if ordertype is 4
+            var productDisplay = (ordertype == 4) ? comment : product;
 
+            $('#edittableorder > tbody:last').append('<tr class="pointer"><td>' + productDisplay +
+                '</td><td class="d-none">' +
+                comment + '</td><td class="d-none">' + productID +
+                '</td><td class="text-center">' + newqty +
+                '</td><td class="text-center">' + uom +
+                '</td><td class="d-none">' + uomID +
+                '</td><td class="text-right">' +
+                parseFloat(unitprice).toFixed(2) + '</td><td class="edittotal d-none">' + total +
+                '</td><td class="text-right">' +
+                showtotal + '</td><td class="text-right d-none">' +
+                pieces + '</td></tr>');
 
-                $('#edittableorder > tbody:last').append('<tr class="pointer"><td>' + product +
-                    '</td><td class="d-none">' +
-                    comment + '</td><td class="d-none">' + productID +
-                    '</td><td class="text-center">' + newqty +
-                    '</td><td class="text-center">' + uom +
-                    '</td><td class="d-none">' + uomID +
-                    '</td><td class="text-right">' +
-                    parseFloat(unitprice).toFixed(2) + '</td><td class="edittotal d-none">' + total +
-                    '</td><td class="text-right">' +
-                    showtotal + '</td><td class="text-right d-none">' +
-                    pieces + '</td></tr>');
+            $('#editproduct').val('');
+            $('#editunitprice').val('');
+            $('#editsaleprice').val('');
+            $('#editcomment').val('');
+            $('#edituom').val('');
+            $('#editnewqty').val('0');
+            $('#editdiscount').val('0');
+            $('#editpiecesper_qty').val('0');
+            $('#editpiecesper_qty_uom').val('');
+            $('#editporderrequest').prop('readonly', true).css('pointer-events', 'none');
 
-                $('#editproduct').val('');
-                $('#editunitprice').val('');
-                $('#editsaleprice').val('');
-                $('#editcomment').val('');
-                $('#edituom').val('');
-                $('#editnewqty').val('0');
-                $('#editdiscount').val('0');
-                $('#editpiecesper_qty').val('0');
-                $('#editpiecesper_qty_uom').val('');
-                $('#editporderrequest').prop('readonly', true).css('pointer-events', 'none');
+            var sum = 0;
+            $(".edittotal").each(function() {
+                sum += parseFloat($(this).text());
+            });
 
+            var showgrosstot = addCommas(parseFloat(sum).toFixed(2));
 
-                var sum = 0;
-                $(".edittotal").each(function() {
-                    sum += parseFloat($(this).text());
-                });
+            $('#editdivgrosstotal').html(
+                '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
+                showgrosstot);
+            $('#edithidegrosstotalorder').val(sum);
+            $('#editproduct').focus();
 
-                var showgrosstot = addCommas(parseFloat(sum).toFixed(2));
+            var sum = 0;
+            $(".total_vat").each(function() {
+                sum += parseFloat($(this).text());
+            });
 
-                $('#editdivgrosstotal').html(
-                    '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
-                    showgrosstot);
-                $('#edithidegrosstotalorder').val(sum);
-                $('#editproduct').focus();
+            var showtotvat = addCommas(parseFloat(sum).toFixed(2));
 
+            $('#divtotalvat').html('Vat Total &nbsp; &nbsp; Rs.' + showtotvat);
+            $('#hidevatlorder').val(sum);
+            $('#product').focus();
 
-                var sum = 0;
-                $(".total_vat").each(function() {
-                    sum += parseFloat($(this).text());
-                });
+            var sum = 0;
+            $(".total_discount").each(function() {
+                sum += parseFloat($(this).text());
+            });
 
-                var showtotvat = addCommas(parseFloat(sum).toFixed(2));
+            var showtotdiscount = addCommas(parseFloat(sum).toFixed(2));
 
-                $('#divtotalvat').html('Vat Total &nbsp; &nbsp; Rs.' + showtotvat);
-                $('#hidevatlorder').val(sum);
-                $('#product').focus();
+            $('#divtotaldiscount').html('Discount &nbsp; &nbsp; Rs.' + showtotdiscount);
+            $('#hidediscountlorder').val(sum);
+            $('#product').focus();
 
-                var sum = 0;
-                $(".total_discount").each(function() {
-                    sum += parseFloat($(this).text());
-                });
+            var sum = 0;
+            $(".final_total").each(function() {
+                sum += parseFloat($(this).text());
+            });
 
-                var showtotdiscount = addCommas(parseFloat(sum).toFixed(2));
+            var showsum = addCommas(parseFloat(sum).toFixed(2));
 
-                $('#divtotaldiscount').html('Discount &nbsp; &nbsp; Rs.' + showtotdiscount);
-                $('#hidediscountlorder').val(sum);
-                $('#product').focus();
-
-                var sum = 0;
-                $(".final_total").each(function() {
-                    sum += parseFloat($(this).text());
-                });
-
-                var showsum = addCommas(parseFloat(sum).toFixed(2));
-
-                $('#divtotal').html(
-                    '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
-                    showsum + '</strong>');
-                $('#hidetotalorder').val(sum);
-                $('#product').focus();
+            $('#divtotal').html(
+                '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
+                showsum + '</strong>');
+            $('#hidetotalorder').val(sum);
+            $('#product').focus();
         }
     });
     $('#tableorder').on('click', 'tr', function() {

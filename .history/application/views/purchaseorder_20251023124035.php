@@ -137,7 +137,7 @@ include "include/topnavbar.php";
 										<label class="small font-weight-bold text-dark">Spare Parts / Service / Material
 											/ Machine *</label>
 										<select class="form-control form-control-sm selecter2 px-0" name="product" id="product">
-											<option value=""></option>
+											<option value="">Select</option>
 										</select>
 									</div>
 								</div>
@@ -968,21 +968,27 @@ $(document).ready(function() {
             var showtotdiscount = addCommas(parseFloat(totdiscount).toFixed(2));
             var showtotvat = addCommas(parseFloat(totvat).toFixed(2));
 
-            // Determine what to show in the product column
-            var productDisplay = (ordertype == 4) ? comment : product;
+            // Create table row - only include comment if ordertype == 4
+            var tableRow = '<tr class="pointer"><td>' + product + '</td>';
+            
+            if (ordertype == 4) {
+                tableRow += '<td class="d-none">' + comment + '</td>';
+            } else {
+                tableRow += '<td class="d-none"></td>'; // Empty comment cell
+            }
+            
+            tableRow += '<td class="d-none">' + productID +
+                    '</td><td class="text-center">' + newqty +
+                    '</td><td class="text-center">' + uom +
+                    '</td><td class="d-none">' + uomID +
+                    '</td><td class="text-right">' +
+                    parseFloat(unitprice).toFixed(2) + '</td><td class="text-right">' +
+                    parseFloat(newprice).toFixed(2) + '</td><td class="total d-none">' + total +
+                    '</td><td class="text-right">' +
+                    showtotal + '</td><td class="text-right d-none">' +
+                    pieces + '</td></tr>';
 
-            $('#tableorder > tbody:last').append('<tr class="pointer"><td>' + productDisplay +
-                '</td><td class="d-none">' +
-                comment + '</td><td class="d-none">' + productID +
-                '</td><td class="text-center">' + newqty +
-                '</td><td class="text-center">' + uom +
-                '</td><td class="d-none">' + uomID +
-                '</td><td class="text-right">' +
-                parseFloat(unitprice).toFixed(2) + '</td><td class="text-right">' +
-                parseFloat(newprice).toFixed(2) + '</td><td class="total d-none">' + total +
-                '</td><td class="text-right">' +
-                showtotal + '</td><td class="text-right d-none">' +
-                pieces + '</td></tr>');
+            $('#tableorder > tbody:last').append(tableRow);
 
             $('#product').val('');
             $('#unitprice').val('');

@@ -450,36 +450,27 @@
 		$html='';
 
 		$html.='
-				<div class="row">
-			<div class="col-6 small"><label class="small font-weight-bold text-dark mb-1">Date:</label> '.$responddetail->row(0)->orderdate.'<br><label class="small font-weight-bold text-dark mb-1">PO No:</label> '.$responddetail->row(0)->porder_no.'<br><label class="small font-weight-bold text-dark mb-1">Customer:</label> '.$respond->row(0)->suppliername.'</div>
-			<div class="col-6 small"><label class="small font-weight-bold text-dark mb-1">Company:</label> '.$respond->row(0)->company.'<br><label class="small font-weight-bold text-dark mb-1">Branch:</label> '.$respond->row(0)->branch.'</div>
-		</div>
-		<hr class="border-dark">
+		        <div class="row">
+            <div class="col-6 small"><label class="small font-weight-bold text-dark mb-1">Date:</label> '.$responddetail->row(0)->orderdate.'<br><label class="small font-weight-bold text-dark mb-1">PO No:</label> '.$responddetail->row(0)->porder_no.'<br><label class="small font-weight-bold text-dark mb-1">Customer:</label> '.$respond->row(0)->suppliername.'</div>
+            <div class="col-6 small"><label class="small font-weight-bold text-dark mb-1">Company:</label> '.$respond->row(0)->company.'<br><label class="small font-weight-bold text-dark mb-1">Branch:</label> '.$respond->row(0)->branch.'</div>
+        </div>
+        <hr class="border-dark">
 			<div class="row"></div><div class="row"><div class="col-12"><hr><table class="table table-striped table-bordered table-sm"><thead><tr><th>Product Info</th><th class="text-right">Unit Price</th><th class="text-right">Qty</th><th class="text-center">Uom</th><th class="text-right">Total</th></tr></thead><tbody>';
-			
 			foreach($responddetail->result() as $roworderinfo) {
-				// Determine what to show in Product Info column
-				$productInfo = '';
-				if ($roworderinfo->idtbl_material_group == 4) {
-					// If material group is 4, show the comment
-					$productInfo = $roworderinfo->comment;
-				} else {
-					// For other material groups, show materialname/materialinfocode
-					$productInfo = $roworderinfo->materialname . '/ ' . $roworderinfo->materialinfocode;
-				}
+							$html .= '<tr>
+							<td>' . $roworderinfo->materialname . '/ ' . $roworderinfo->materialinfocode . '</td>
+							<td class="text-right">' . (!empty($roworderinfo->packetprice) ? $roworderinfo->packetprice : $roworderinfo->unitprice) . '</td>
+							<td class="text-right">' . $roworderinfo->qty . '</td>
+							<td class="text-center">' . $roworderinfo->measure_type . '</td>
+							<td class="text-right">' . number_format(($roworderinfo->netprice), 2) . '</td>
+						</tr>';			
 
-				$html .= '<tr>
-					<td>' . $productInfo . '</td>
-					<td class="text-right">' . (!empty($roworderinfo->packetprice) ? $roworderinfo->packetprice : $roworderinfo->unitprice) . '</td>
-					<td class="text-right">' . $roworderinfo->qty . '</td>
-					<td class="text-center">' . $roworderinfo->measure_type . '</td>
-					<td class="text-right">' . number_format(($roworderinfo->netprice), 2) . '</td>
-				</tr>';			
-			}
+					}
 
-		$html .= '</tbody></table></div></div><div class="row mt-3" ><div class="col-12 text-right"><h3 class="font-weight-normal"><strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<b>Rs. ' . number_format(($respond->row(0)->nettotal), 2) . '</b></h3></div></div>';
+			$html .= '</tbody></table></div></div><div class="row mt-3" ><div class="col-12 text-right"><h3 class="font-weight-normal"><strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<b>Rs. ' . number_format(($respond->row(0)->nettotal), 2) . '</b></h3></div></div>';
 
-		echo $html;
+			echo $html;
+
 	}
 
 	public function porderviewheader() {
