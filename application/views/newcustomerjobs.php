@@ -699,7 +699,7 @@ include "include/topnavbar.php";
 													</select>
 												</div>
 												<div class="col">
-													<lable class="font-weight-bold small">Qty(Inch)*</lable>
+													<lable class="font-weight-bold small">Qty(KG)*</lable>
 													<input type="text" name="pasteQty" id="pasteQty" class="form-control form-control-sm">
 												</div>
 											</div>
@@ -753,7 +753,7 @@ include "include/topnavbar.php";
 														<label class="custom-control-label small" for="diecutby1">By Customer</label>
 													</div>
 													<div class="custom-control custom-radio custom-control-inline">
-														<input type="radio" id="diecutby2" name="diecutby" value="By Us" class="custom-control-input" checked>
+														<input type="radio" id="diecutby2" name="diecutby" value="By Us" class="custom-control-input">
 														<label class="custom-control-label small" for="diecutby2">By Us</label>
 													</div>
 												</div>
