@@ -215,9 +215,9 @@ class Apiinfo extends CI_Model{
 
         $respondotherdetail=$this->db->get();
 
-        if(!empty($respondotherdetail->result())):
+        if(!empty($respondotherdetail->result())): 
             foreach($respondotherdetail->result() as $rowdetailaccount):
-                if($respond->row(0)->vat_customer==1 && $rowdetailaccount->special_cate_sub==2):
+                if(($companyID==1 || $companyID==2) && $rowdetailaccount->special_cate_sub==2):
                     $obj = new stdClass();
                     $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
                     $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
@@ -237,7 +237,7 @@ class Apiinfo extends CI_Model{
                     break;
                 endif;
             endforeach;
-        else:
+        else: 
             foreach($respondchart->result() as $rowrchartaccount):
                 if($rowrchartaccount->specialcate==18):
                     $obj = new stdClass();
@@ -258,7 +258,7 @@ class Apiinfo extends CI_Model{
                 $obj->narration = 'VAT Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
                 $obj->detailaccount = '0';
                 $obj->chartaccount = $rowrchartaccount->idtbl_account;
-                $obj->crder = 'D';
+                $obj->crder = 'C';
                 $segregationdata[] = $obj;
             elseif($rowrchartaccount->specialcate==35):
                 $obj = new stdClass();
