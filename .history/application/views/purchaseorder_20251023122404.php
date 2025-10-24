@@ -137,7 +137,7 @@ include "include/topnavbar.php";
 										<label class="small font-weight-bold text-dark">Spare Parts / Service / Material
 											/ Machine *</label>
 										<select class="form-control form-control-sm selecter2 px-0" name="product" id="product">
-											<option value=""></option>
+											<option value="">Select</option>
 										</select>
 									</div>
 								</div>
@@ -673,7 +673,7 @@ $(document).ready(function() {
                 }
             },
             {
-                "targets": -1,
+                "targets": -1,}
                 "className": 'text-right',
                 "data": null,
                 "render": function(data, type, full) {
@@ -934,114 +934,111 @@ $(document).ready(function() {
             // this will just cause the browser to display the native HTML5 error messages.
             $("#submitBtn").click();
         } else {
-            var productID = $('#product').val();
-            var comment = $('#comment').val();
-            var product = $("#product option:selected").text();
-            var unitprice = parseFloat($('#unitprice').val());
-            var vat = parseFloat($('#vat').val());
-            var discount = parseFloat($('#discount').val());
-            var newqty = parseFloat($('#newqty').val());
-            var uomID = $('#uom').val();
-            var pieces = parseFloat($('#piecesper_qty').val());
-            var uom = $("#uom option:selected").text();
-            var ordertype = $('#ordertype').val();
-            var newtotal;
-            var newprice;
-            
-            if (pieces !== 0) {
-                newtotal = unitprice * pieces;
-                newprice = unitprice * pieces / newqty;
-            } else {
-                newtotal = unitprice * newqty;
-                newprice = 0;
-            }
-            
-            var vatamount = parseFloat(((newtotal - discount) / 100) * vat);
-            var finaltotal = parseFloat((newtotal + vatamount) - discount);
+                var productID = $('#product').val();
+                var comment = $('#comment').val();
+                var product = $("#product option:selected").text();
+                var unitprice = parseFloat($('#unitprice').val());
+                var vat = parseFloat($('#vat').val());
+                var discount = parseFloat($('#discount').val());
+                var newqty = parseFloat($('#newqty').val());
+                var uomID = $('#uom').val();
+                var pieces = parseFloat($('#piecesper_qty').val());
+                var uom = $("#uom option:selected").text();
+                var newtotal;
+                var newprice;
+                if (pieces !== 0) {
+                    newtotal = unitprice * pieces;
+                    newprice = unitprice * pieces / newqty;
+                } else {
+                    newtotal = unitprice * newqty;
+                    newprice = 0;
+                }
+                var vatamount = parseFloat(((newtotal - discount) / 100) * vat);
+                var finaltotal = parseFloat((newtotal + vatamount) - discount);
 
-            var totdiscount = parseFloat(discount);
-            var totvat = parseFloat(vatamount);
-            var total = parseFloat(newtotal);
-            var finaltot = parseFloat(finaltotal);
-            var showfinaltot = addCommas(parseFloat(finaltot).toFixed(2));
-            var showtotal = addCommas(parseFloat(total).toFixed(2));
-            var showtotdiscount = addCommas(parseFloat(totdiscount).toFixed(2));
-            var showtotvat = addCommas(parseFloat(totvat).toFixed(2));
+                var totdiscount = parseFloat(discount);
+                var totvat = parseFloat(vatamount);
+                var total = parseFloat(newtotal);
+                var finaltot = parseFloat(finaltotal);
+                var showfinaltot = addCommas(parseFloat(finaltot).toFixed(2));
+                var showtotal = addCommas(parseFloat(total).toFixed(2));
+                var showtotdiscount = addCommas(parseFloat(totdiscount).toFixed(2));
+                var showtotvat = addCommas(parseFloat(totvat).toFixed(2));
 
-            // Determine what to show in the product column
-            var productDisplay = (ordertype == 4) ? comment : product;
 
-            $('#tableorder > tbody:last').append('<tr class="pointer"><td>' + productDisplay +
-                '</td><td class="d-none">' +
-                comment + '</td><td class="d-none">' + productID +
-                '</td><td class="text-center">' + newqty +
-                '</td><td class="text-center">' + uom +
-                '</td><td class="d-none">' + uomID +
-                '</td><td class="text-right">' +
-                parseFloat(unitprice).toFixed(2) + '</td><td class="text-right">' +
-                parseFloat(newprice).toFixed(2) + '</td><td class="total d-none">' + total +
-                '</td><td class="text-right">' +
-                showtotal + '</td><td class="text-right d-none">' +
-                pieces + '</td></tr>');
+                $('#tableorder > tbody:last').append('<tr class="pointer"><td>' + product +
+                    '</td><td class="d-none">' +
+                    comment + '</td><td class="d-none">' + productID +
+                    '</td><td class="text-center">' + newqty +
+                    '</td><td class="text-center">' + uom +
+                    '</td><td class="d-none">' + uomID +
+                    '</td><td class="text-right">' +
+                    parseFloat(unitprice).toFixed(2) + '</td><td class="text-right">' +
+                    parseFloat(newprice).toFixed(2) + '</td><td class="total d-none">' + total +
+                    '</td><td class="text-right">' +
+                    showtotal + '</td><td class="text-right d-none">' +
+                    pieces + '</td></tr>');
 
-            $('#product').val('');
-            $('#unitprice').val('');
-            $('#saleprice').val('');
-            $('#comment').val('');
-            $('#uom').val('');
-            $('#newqty').val('0');
-            $('#discount').val('0');
-            $('#piecesper_qty').val('0');
-            $('#piecesper_qty_uom').val('');
-            $('#porderrequest').prop('readonly', true).css('pointer-events', 'none');
+                $('#product').val('');
+                $('#unitprice').val('');
+                $('#saleprice').val('');
+                $('#comment').val('');
+                $('#uom').val('');
+                $('#newqty').val('0');
+                $('#discount').val('0');
+                $('#piecesper_qty').val('0');
+                $('#piecesper_qty_uom').val('');
+                $('#porderrequest').prop('readonly', true).css('pointer-events', 'none');
 
-            var sum = 0;
-            $(".total").each(function() {
-                sum += parseFloat($(this).text());
-            });
 
-            var showgrosstot = addCommas(parseFloat(sum).toFixed(2));
+                var sum = 0;
+                $(".total").each(function() {
+                    sum += parseFloat($(this).text());
+                });
 
-            $('#divgrosstotal').html(
-                '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
-                showgrosstot);
-            $('#hidegrosstotalorder').val(sum);
-            $('#product').focus();
+                var showgrosstot = addCommas(parseFloat(sum).toFixed(2));
 
-            var sum = 0;
-            $(".total_vat").each(function() {
-                sum += parseFloat($(this).text());
-            });
+                $('#divgrosstotal').html(
+                    '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
+                    showgrosstot);
+                $('#hidegrosstotalorder').val(sum);
+                $('#product').focus();
 
-            var showtotvat = addCommas(parseFloat(sum).toFixed(2));
 
-            $('#divtotalvat').html('Vat Total &nbsp; &nbsp; Rs.' + showtotvat);
-            $('#hidevatlorder').val(sum);
-            $('#product').focus();
+                var sum = 0;
+                $(".total_vat").each(function() {
+                    sum += parseFloat($(this).text());
+                });
 
-            var sum = 0;
-            $(".total_discount").each(function() {
-                sum += parseFloat($(this).text());
-            });
+                var showtotvat = addCommas(parseFloat(sum).toFixed(2));
 
-            var showtotdiscount = addCommas(parseFloat(sum).toFixed(2));
+                $('#divtotalvat').html('Vat Total &nbsp; &nbsp; Rs.' + showtotvat);
+                $('#hidevatlorder').val(sum);
+                $('#product').focus();
 
-            $('#divtotaldiscount').html('Discount &nbsp; &nbsp; Rs.' + showtotdiscount);
-            $('#hidediscountlorder').val(sum);
-            $('#product').focus();
+                var sum = 0;
+                $(".total_discount").each(function() {
+                    sum += parseFloat($(this).text());
+                });
 
-            var sum = 0;
-            $(".final_total").each(function() {
-                sum += parseFloat($(this).text());
-            });
+                var showtotdiscount = addCommas(parseFloat(sum).toFixed(2));
 
-            var showsum = addCommas(parseFloat(sum).toFixed(2));
+                $('#divtotaldiscount').html('Discount &nbsp; &nbsp; Rs.' + showtotdiscount);
+                $('#hidediscountlorder').val(sum);
+                $('#product').focus();
 
-            $('#divtotal').html(
-                '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
-                showsum + '</strong>');
-            $('#hidetotalorder').val(sum);
-            $('#product').focus();
+                var sum = 0;
+                $(".final_total").each(function() {
+                    sum += parseFloat($(this).text());
+                });
+
+                var showsum = addCommas(parseFloat(sum).toFixed(2));
+
+                $('#divtotal').html(
+                    '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
+                    showsum + '</strong>');
+                $('#hidetotalorder').val(sum);
+                $('#product').focus();
         }
     });
     $("#editformsubmit").click(function() {

@@ -35,8 +35,7 @@ class InvoicePrintinfo extends CI_Model{
         `tbl_print_porder`.*,
         `tbl_print_material_info`.`materialinfocode`,
         `tbl_print_material_info`.`materialname`,
-        `tbl_measurements`.`measure_type`,
-        `tbl_material_group`.`idtbl_material_group`
+        `tbl_measurements`.`measure_type`
         FROM `tbl_print_porder`
         LEFT JOIN `tbl_print_porder_detail` ON `tbl_print_porder`.`idtbl_print_porder` = `tbl_print_porder_detail`.`tbl_print_porder_idtbl_print_porder`
         LEFT JOIN `tbl_material_group` ON `tbl_material_group`.`idtbl_material_group` = `tbl_print_porder`.`tbl_material_group_idtbl_material_group`
@@ -55,11 +54,7 @@ class InvoicePrintinfo extends CI_Model{
         
             $nettotal = $unitPrice * $rowlist->qty;
             $materialInfoCode = $rowlist->materialinfocode;
-            if ($rowlist->idtbl_material_group == 4) {
-                $itemDescription = $rowlist->comment;
-            } else {
-                $itemDescription = $rowlist->materialname;
-            }
+            $itemDescription = $rowlist->materialname;
             $qty = $rowlist->qty;
             $measureType = $rowlist->measure_type;
     

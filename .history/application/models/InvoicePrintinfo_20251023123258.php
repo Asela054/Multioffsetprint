@@ -35,8 +35,7 @@ class InvoicePrintinfo extends CI_Model{
         `tbl_print_porder`.*,
         `tbl_print_material_info`.`materialinfocode`,
         `tbl_print_material_info`.`materialname`,
-        `tbl_measurements`.`measure_type`,
-        `tbl_material_group`.`idtbl_material_group`
+        `tbl_measurements`.`measure_type`
         FROM `tbl_print_porder`
         LEFT JOIN `tbl_print_porder_detail` ON `tbl_print_porder`.`idtbl_print_porder` = `tbl_print_porder_detail`.`tbl_print_porder_idtbl_print_porder`
         LEFT JOIN `tbl_material_group` ON `tbl_material_group`.`idtbl_material_group` = `tbl_print_porder`.`tbl_material_group_idtbl_material_group`
@@ -55,11 +54,7 @@ class InvoicePrintinfo extends CI_Model{
         
             $nettotal = $unitPrice * $rowlist->qty;
             $materialInfoCode = $rowlist->materialinfocode;
-            if ($rowlist->idtbl_material_group == 4) {
-                $itemDescription = $rowlist->comment;
-            } else {
-                $itemDescription = $rowlist->materialname;
-            }
+            $itemDescription = $rowlist->materialname;
             $qty = $rowlist->qty;
             $measureType = $rowlist->measure_type;
     
@@ -153,7 +148,9 @@ class InvoicePrintinfo extends CI_Model{
                             <p style="margin:0px;font-size:13px;font-weight:normal;"><u>E-Mail : '.$companydetails->row()->companyemail.'</u></p>
                             <p style="margin:0px;font-size:13px;font-weight:normal;">PO No : ' . $prefix . '/' . $respond->row(0)->porder_no . '</p>
                             <p style="margin:0px;font-size:13px;font-weight:normal;">Date : '.$respond->row(0)->orderdate.'</p>
-                            '.($respond->num_rows() > 0 && $company_id == 1 ? '<p style="margin:0px;font-size:13px;font-weight:normal;">Our Vat No : &nbsp; 103305667-7000</p>' : '').'
+if ($respond->num_rows() > 0 && $company_id == 1) {
+    echo '<p style="margin:0px;font-size:13px;font-weight:normal;">Our Vat No : &nbsp; 103305667-7000</p>';
+}
                         </td>
                     </tr>
                 </table>
