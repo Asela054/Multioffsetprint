@@ -17,11 +17,11 @@ class GRNVoucherinfo extends CI_Model{
         return $this->db->get();
     }    
     public function get_grn_details($grnno) {
-        $this->db->select('tbl_print_grndetail.*,tbl_print_grn.tbl_order_type_idtbl_order_type, tbl_print_material_info.idtbl_print_material_info, tbl_print_material_info.materialinfocode, tbl_print_material_info.materialname,tbl_machine.machine,tbl_machine.machinecode,tbl_measurements.measure_type');
+        $this->db->select('tbl_print_grndetail.*, tbl_print_material_info.idtbl_print_material_info, tbl_print_material_info.materialinfocode, tbl_print_material_info.materialname, tbl_measurements.measure_type');
 		$this->db->from('tbl_print_grndetail');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info', 'left');
 		$this->db->join('tbl_print_grn', 'tbl_print_grn.idtbl_print_grn = tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', 'left');
-		$this->db->join('tbl_machine', 'tbl_machine.idtbl_machine = tbl_print_grndetail.tbl_machine_id', 'left');
+		// $this->db->join('tbl_machine', 'tbl_machine.idtbl_machine = tbl_print_grndetail.tbl_machine_id', 'left');
 		$this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_grndetail.tbl_measurements_idtbl_mesurements', 'left');
         $this->db->where('tbl_print_grn_idtbl_print_grn', $grnno);
         $this->db->where('tbl_print_grndetail.status', 1);

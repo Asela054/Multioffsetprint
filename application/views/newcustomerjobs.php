@@ -785,7 +785,7 @@ include "include/topnavbar.php";
 														<label class="custom-control-label small" for="diecutembrossby1">By Customer</label>
 													</div>
 													<div class="custom-control custom-radio custom-control-inline">
-														<input type="radio" id="diecutembrossby2" name="diecutembrossby" value="By Us" class="custom-control-input" checked>
+														<input type="radio" id="diecutembrossby2" name="diecutembrossby" value="By Us" class="custom-control-input">
 														<label class="custom-control-label small" for="diecutembrossby2">By Us</label>
 													</div>
 												</div>

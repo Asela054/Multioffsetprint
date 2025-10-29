@@ -377,12 +377,12 @@ class Newcustomerjobsinfo extends CI_Model{
         $pastingTable = $this->input->post('pastingTable');
         $rimmingTable = $this->input->post('rimmingTable');
 
-        $diecutby=$this->input->post('diecutby');
+        if(!empty($this->input->post('diecutby'))){$diecutby=$this->input->post('diecutby');}else{$diecutby='0';}
         $diechannel=$this->input->post('diechannel');
         $dieboard=$this->input->post('dieboard');
         $diesize=$this->input->post('diesize');
         $dieqty=$this->input->post('dieqty');
-        $diecutembrossby=$this->input->post('diecutembrossby');
+        if(!empty($this->input->post('diecutembrossby'))){$diecutembrossby=$this->input->post('diecutembrossby');}else{$diecutembrossby='0';}
 
         $otherPerforating=$this->input->post('otherPerforating');
         $otherGattering=$this->input->post('otherGattering');
