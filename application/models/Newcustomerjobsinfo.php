@@ -382,7 +382,7 @@ class Newcustomerjobsinfo extends CI_Model{
         $dieboard=$this->input->post('dieboard');
         $diesize=$this->input->post('diesize');
         $dieqty=$this->input->post('dieqty');
-        $diecutembrossby=$this->input->post('diecutembrossby');
+        if(!empty($this->input->post('diecutembrossby'))){$diecutembrossby=$this->input->post('diecutembrossby');}else{$diecutembrossby='0';}
 
         $otherPerforating=$this->input->post('otherPerforating');
         $otherGattering=$this->input->post('otherGattering');
