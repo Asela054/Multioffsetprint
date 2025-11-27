@@ -399,6 +399,7 @@ class Materialallocationinfo extends CI_Model{
         $cusinquiry=$this->input->post('cusinquiry');
         $bominfo=$this->input->post('bominfo');
         $issueqty=$this->input->post('issueqty');
+        $jobcardtype=$this->input->post('jobcardtype');
         $tableData=$this->input->post('tableData');
         
         $companyID=$_SESSION['company_id'];
@@ -436,6 +437,7 @@ class Materialallocationinfo extends CI_Model{
             else{$jobcardno=date('Ym').($respond->row(0)->count+1);}
 
             $data = array(
+                'jobcardtype'=> $jobcardtype,
                 'jobcardno'=> $jobcardno,
                 'job_description'=> $jobdesc,
                 'date'=> $today,
