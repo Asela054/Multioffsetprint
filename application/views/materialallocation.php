@@ -541,6 +541,7 @@ $(document).ready(function () {
 		var cusinquiry = $('#cusinquiry').val();
 		var bominfo = $('#bominfo').val();
 		var issueqty = $('#issueqty').val();
+		var jobcardtype = 0;
 
 		var emptybatch = 0;
 		var tbody = $('#tableissue tbody');
@@ -588,6 +589,7 @@ $(document).ready(function () {
 							cusinquiry: cusinquiry,
 							bominfo: bominfo,
 							issueqty: issueqty,
+							jobcardtype: jobcardtype,
 							tableData: jsonObj
 						},
 						url: '<?php echo base_url() ?>MaterialAllocation/Issuematerialinsertupdate',

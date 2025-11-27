@@ -502,7 +502,8 @@ $(document).ready(function() {
                     }
                     else{
                         button += '<button class="btn btn-dark btn-sm btnView mr-1" id="' + full['idtbl_customerinquiry'] + '" data-toggle="tooltip" title="View" data-approvestatus="'+full['approvestatus']+'"><i class="fas fa-eye"></i></button>';
-                        if(editcheck==1 && full['approvestatus']==1 && full['job_finish_status']==0){
+                        // if(editcheck==1 && full['approvestatus']==1 && full['job_finish_status']==0){
+                        if(editcheck==1 && full['approvestatus']==1){
                             button+='<button type="button" class="btn btn-orange btn-sm btnEdit mr-1" id="'+full['idtbl_customerinquiry']+'" data-toggle="tooltip" title="Edit Some" data-approvestatus="'+full['approvestatus']+'"><i class="fas fa-pencil-alt"></i></button>';
                         }
                     }

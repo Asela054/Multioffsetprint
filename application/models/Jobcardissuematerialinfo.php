@@ -524,7 +524,7 @@ class Jobcardissuematerialinfo extends CI_Model {
             $this->db->where('status', 1);
             $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
             $respond = $this->db->get();
-
+            
             // Get job description
             $this->db->select('job_description');
             $this->db->from('tbl_jobcard');
@@ -536,33 +536,69 @@ class Jobcardissuematerialinfo extends CI_Model {
             $traamount = $respond->row(0)->issuematerialvalue;
             $narrationcr = $respondjobcard->row(0)->job_description.' Material Issued on '.$tradate;
             $narrationdr = $respondjobcard->row(0)->job_description.' Material Issued on '.$tradate;
-            if ($companyID == 1) {
-                $accountdrno = 114;
-                $accountcrno = 115;
-            }
 
+            $chartspecialcate = array('39', '37');
+            $this->db->where('tbl_account_allocation.companybank', $companyID);
+            $this->db->where('tbl_account_allocation.branchcompanybank', $branchID);
+            $this->db->where_in('tbl_account.specialcate', $chartspecialcate);
+            $this->db->where('tbl_account.status', 1);
+            $this->db->where('tbl_account_allocation.status', 1);
+            $this->db->where('tbl_account_allocation.tbl_account_idtbl_account is NOT NULL', NULL, FALSE);
+            $this->db->select('`tbl_account`.`idtbl_account`, `tbl_account`.`accountno`, `tbl_account`.`accountname`, `tbl_account`.`specialcate`');
+            $this->db->from('tbl_account');
+            $this->db->join('tbl_account_allocation', 'tbl_account_allocation.tbl_account_idtbl_account = tbl_account.idtbl_account', 'left');
+
+            $respondchart=$this->db->get();
+
+            foreach($respondchart->result() as $rowchartdata):
+                if($rowchartdata->specialcate == '39'):
+                    $accountdrno = $rowchartdata->idtbl_account; 
+                elseif($rowchartdata->specialcate == '37'):
+                    $accountcrno = $rowchartdata->idtbl_account; 
+                endif;
+            endforeach;
             // Make API call
             $apiURL = $_SESSION['accountapiurl'].'Api/Issuematerialprocess';
-            $postData = "userid=$userID&company=$companyID&branch=$branchID&tradate=$tradate&traamount=$traamount&accountcrno=$accountcrno&narrationcr=$narrationcr&accountdrno=$accountdrno&narrationdr=$narrationdr";
 
+            $postData = http_build_query([
+                'userid' => $userID,
+                'company' => $companyID,
+                'branch' => $branchID,
+                'tradate' => $tradate,
+                'traamount' => $traamount,
+                'accountcrno' => $accountcrno,
+                'narrationcr' => $narrationcr,
+                'accountdrno' => $accountdrno,
+                'narrationdr' => $narrationdr,
+            ]);
+            
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $apiURL);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $apiURL,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $postData,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/x-www-form-urlencoded',
+                ]
+            ]);
+            
             $server_output = curl_exec($ch);
-            
-            if (curl_errno($ch)) {
-                throw new Exception("API call failed: " . curl_error($ch));
-            }
-            
+            $curlError = curl_error($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
-            if ($httpCode != 200) {
-                throw new Exception("API returned HTTP code: $httpCode");
-            }
+            // Check both HTTP status and API response
+            $apiResponse = json_decode($server_output, true);
+            // echo "<pre>";
+            // print_r($apiResponse); // or use var_dump($apiResponse) for data types
+            // echo "</pre>";
+            // die();
+            if ($httpCode != 200 || !isset($apiResponse['status']) || $apiResponse['status'] !== 'success') {
+                $errorMsg = $apiResponse['message'] ?? 'API request failed';
+                throw new Exception($errorMsg);
+            }   
 
             // Update issue material status
             $dataissue = array(
