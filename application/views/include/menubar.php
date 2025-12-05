@@ -865,6 +865,13 @@ else if($functionmenu=='Materialgroup'){
     $deletecheck=checkprivilege($menuprivilegearray, 176, 4);
     $approvecheck=checkprivilege($menuprivilegearray, 176, 5);
 }
+else if($functionmenu=='MaterialAllocationManual'){
+    $addcheck=checkprivilege($menuprivilegearray, 178, 1);
+    $editcheck=checkprivilege($menuprivilegearray, 178, 2);
+    $statuscheck=checkprivilege($menuprivilegearray, 178, 3);
+    $deletecheck=checkprivilege($menuprivilegearray, 178, 4);
+    $approvecheck=checkprivilege($menuprivilegearray, 178, 5);
+}
 
 function checkprivilege($arraymenu, $menuID, $type){
     foreach($arraymenu as $array){
@@ -968,13 +975,13 @@ function checkprivilege($arraymenu, $menuID, $type){
             </div>
 
             <!-- Job Management Menu New Added -->
-            <?php } if(menucheck($menuprivilegearray, 4)==1 | menucheck($menuprivilegearray, 26)==1 | menucheck($menuprivilegearray, 27)==1 | menucheck($menuprivilegearray, 28)==1 | menucheck($menuprivilegearray, 42)==1 | menucheck($menuprivilegearray, 43)==1 | menucheck($menuprivilegearray, 44)==1 | menucheck($menuprivilegearray, 150)==1 | menucheck($menuprivilegearray, 156)==1 | menucheck($menuprivilegearray, 168)==1){ ?>
+            <?php } if(menucheck($menuprivilegearray, 4)==1 | menucheck($menuprivilegearray, 26)==1 | menucheck($menuprivilegearray, 27)==1 | menucheck($menuprivilegearray, 28)==1 | menucheck($menuprivilegearray, 42)==1 | menucheck($menuprivilegearray, 43)==1 | menucheck($menuprivilegearray, 44)==1 | menucheck($menuprivilegearray, 150)==1 | menucheck($menuprivilegearray, 156)==1 | menucheck($menuprivilegearray, 168)==1 | menucheck($menuprivilegearray, 178)==1){ ?>
             <a class="nav-link p-0 px-3 py-2 collapsed text-dark" href="javascript:void(0);" data-toggle="collapse" data-target="#jobmanagement" aria-expanded="false" aria-controls="jobmanagement">
                 <div class="nav-link-icon"><i class="fa fa-archive"></i></div>
                 Job Management
                 <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
             </a>
-            <div class="collapse <?php if($functionmenu=="Customer"| $functionmenu=="Customerinquiry" | $functionmenu=="Customerinquiryforapprove" | $functionmenu=="Approvedcustomerinquiry" | $functionmenu=="Quatation" | $functionmenu=="NewDeliveryPlan" | $functionmenu=="OrderReconsilation" | $functionmenu=="PlanDetails" | $functionmenu=="MaterialAllocation" | $functionmenu=="Newcustomerjobs" | $functionmenu=="Jobcardissuematerial"){echo 'show';} ?>" id="jobmanagement" data-parent="#accordionSidenav">
+            <div class="collapse <?php if($functionmenu=="Customer"| $functionmenu=="Customerinquiry" | $functionmenu=="Customerinquiryforapprove" | $functionmenu=="Approvedcustomerinquiry" | $functionmenu=="Quatation" | $functionmenu=="NewDeliveryPlan" | $functionmenu=="OrderReconsilation" | $functionmenu=="PlanDetails" | $functionmenu=="MaterialAllocation" | $functionmenu=="Newcustomerjobs" | $functionmenu=="Jobcardissuematerial" | $functionmenu=="MaterialAllocationManual"){echo 'show';} ?>" id="jobmanagement" data-parent="#accordionSidenav">
                 <nav class="sidenav-menu-nested nav accordion">
                     <?php if(menucheck($menuprivilegearray, 4)==1){ ?>
                     <a class="nav-link p-0 px-3 py-1 text-dark"  href="<?php echo base_url().'Customer'; ?>">Customer</a>
@@ -986,6 +993,8 @@ function checkprivilege($arraymenu, $menuID, $type){
                     <a class="nav-link p-0 px-3 py-1 text-dark"  href="<?php echo base_url().'MaterialAllocation'; ?>">Allocate Material</a>
                     <?php } if(menucheck($menuprivilegearray, 168)==1){ ?>
                     <a class="nav-link p-0 px-3 py-1 text-dark"  href="<?php echo base_url().'Jobcardissuematerial'; ?>">Issue Material</a>
+                    <?php } if(menucheck($menuprivilegearray, 178)==1){ ?>
+                    <a class="nav-link p-0 px-3 py-1 text-dark"  href="<?php echo base_url().'MaterialAllocationManual'; ?>">Manual Issue Material</a>
                     <?php }?>
                 </nav>
             </div>
