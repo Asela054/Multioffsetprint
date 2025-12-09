@@ -242,6 +242,7 @@ $(document).ready(function () {
 		}
 	});
 	$('#section').change(function(){
+
 		if ($(this).val() == '1') {
 			materialsectiontype = JSON.stringify(["1"]);
 
@@ -383,7 +384,6 @@ $(document).ready(function () {
 							'<td class="text-center">' + issueqty + '</td>' +
 							'<td class="batchnolist text-primary" style="cursor:pointer">Select Batch Number</td>' +
 							'<td class="d-none materialid">' + materialid + '</td>' + 
-							'<td class="text-center d-none">' + issueqty + '</td>' +
 							'</tr>'
 						);
 
@@ -547,7 +547,7 @@ $(document).ready(function () {
 							jobcardtype: jobcardtype,
 							tableData: jsonObj
 						},
-						url: '<?php echo base_url() ?>MaterialAllocationManual/Issuematerialinsertupdate',
+						// url: '<?php echo base_url() ?>MaterialAllocationManual/Issuematerialinsertupdate',
 						success: function(result) { //alert(result);
 							Swal.close();
 							document.body.style.overflow = 'auto';

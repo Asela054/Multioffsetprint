@@ -242,29 +242,30 @@ $(document).ready(function () {
 		}
 	});
 	$('#section').change(function(){
-		if ($(this).val() == '1') {
-			materialsectiontype = JSON.stringify(["1"]);
 
-		} else if ($(this).val() == '2') {
-			materialsectiontype = JSON.stringify(["2"]);
+    if ($(this).val() == '1') {
+        materialsectiontype = JSON.stringify(["1"]);
 
-		} else if ($(this).val() == '3') {
-			materialsectiontype = JSON.stringify(["3"]);
+    } else if ($(this).val() == '2') {
+        materialsectiontype = JSON.stringify(["2"]);
 
-		} else if ($(this).val() == '4') {
-			materialsectiontype = JSON.stringify(["4"]);
+    } else if ($(this).val() == '3') {
+        materialsectiontype = JSON.stringify(["3"]);
 
-		} else if ($(this).val() == '5') {
-			materialsectiontype = JSON.stringify(["5"]);
+    } else if ($(this).val() == '4') {
+        materialsectiontype = JSON.stringify(["4"]);
 
-		} else if ($(this).val() == '6') {
-			materialsectiontype = JSON.stringify(["6"]);
+    } else if ($(this).val() == '5') {
+        materialsectiontype = JSON.stringify(["5"]);
 
-		} else if ($(this).val() == '7') {
-			materialsectiontype = JSON.stringify(["7"]);
-		}
+    } else if ($(this).val() == '6') {
+        materialsectiontype = JSON.stringify(["6"]);
 
-	});
+    } else if ($(this).val() == '7') {
+        materialsectiontype = JSON.stringify(["7"]);
+    }
+
+});
 	$("#materialinfo").select2({
 		// dropdownParent: $('#modalBomInfo'),
 		ajax: {
@@ -383,7 +384,6 @@ $(document).ready(function () {
 							'<td class="text-center">' + issueqty + '</td>' +
 							'<td class="batchnolist text-primary" style="cursor:pointer">Select Batch Number</td>' +
 							'<td class="d-none materialid">' + materialid + '</td>' + 
-							'<td class="text-center d-none">' + issueqty + '</td>' +
 							'</tr>'
 						);
 
@@ -547,7 +547,7 @@ $(document).ready(function () {
 							jobcardtype: jobcardtype,
 							tableData: jsonObj
 						},
-						url: '<?php echo base_url() ?>MaterialAllocationManual/Issuematerialinsertupdate',
+						// url: '<?php echo base_url() ?>MaterialAllocationManual/Issuematerialinsertupdate',
 						success: function(result) { //alert(result);
 							Swal.close();
 							document.body.style.overflow = 'auto';

@@ -242,28 +242,11 @@ $(document).ready(function () {
 		}
 	});
 	$('#section').change(function(){
-		if ($(this).val() == '1') {
-			materialsectiontype = JSON.stringify(["1"]);
-
-		} else if ($(this).val() == '2') {
-			materialsectiontype = JSON.stringify(["2"]);
-
-		} else if ($(this).val() == '3') {
-			materialsectiontype = JSON.stringify(["3"]);
-
-		} else if ($(this).val() == '4') {
-			materialsectiontype = JSON.stringify(["4"]);
-
-		} else if ($(this).val() == '5') {
-			materialsectiontype = JSON.stringify(["5"]);
-
-		} else if ($(this).val() == '6') {
-			materialsectiontype = JSON.stringify(["6"]);
-
-		} else if ($(this).val() == '7') {
-			materialsectiontype = JSON.stringify(["7"]);
+		if($(this).val()=='1'){
+			materialsectiontype=JSON.stringify(["1", "2"]);
+		} else if($(this).val()=='2'){
+			materialsectiontype=JSON.stringify(["3"]);
 		}
-
 	});
 	$("#materialinfo").select2({
 		// dropdownParent: $('#modalBomInfo'),
@@ -297,179 +280,157 @@ $(document).ready(function () {
 
 
 
-	$('#submitBtn').click(function () {
+$('#submitBtn').click(function () {
 
-		if (!$("#formbommaterialinfo")[0].checkValidity()) {
-			$("#hidesubmitcheck").click();
-			return;
-		}
+    if (!$("#formbommaterialinfo")[0].checkValidity()) {
+        $("#hidesubmitcheck").click();
+        return;
+    }
 
-		$('#submitBtn').prop('disabled', true);
+    $('#submitBtn').prop('disabled', true);
 
-		var inquiryqty = $('#inquiryqty').val();
-		var issueqty = $('#issueqty').val();
-		var section = $('#section').val();
-		var materialid = $('#materialinfo').val();
+    var inquiryqty = $('#inquiryqty').val();
+    var issueqty   = $('#issueqty').val();
+    var section    = $('#section').val();       // ✅ Section type
+    var materialid = $('#materialinfo').val();  // ✅ Correct material ID
 
-		var balqty = parseFloat(inquiryqty) - parseFloat(issueqty);
+    var balqty = parseFloat(inquiryqty) - parseFloat(issueqty);
 
-		var typeIDs = [];
-		$('#tableissue tbody tr').each(function () {
-			var typeID = $(this).find('td:eq(0)').text().trim();
-			if (typeID && $.inArray(typeID, typeIDs) === -1) {
-				typeIDs.push(typeID);
-			}
-		});
+    var typeIDs = [];
+    $('#tableissue tbody tr').each(function() {
+        var typeID = $(this).find('td:eq(0)').text().trim();
+        if (typeID && $.inArray(typeID, typeIDs) === -1) {
+            typeIDs.push(typeID);
+        }
+    });
 
-		if ($.inArray(section, typeIDs) !== -1) {
-			Swal.fire({
-				icon: 'error',
-				title: 'Error',
-				text: 'You selected section already set to issue table.'
-			});
-			$('#submitBtn').prop('disabled', false);
-			return;
-		}
+    if ($.inArray(section, typeIDs) !== -1) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'You selected section already set to issue table.' });
+        $('#submitBtn').prop('disabled', false);
+        return;
+    }
 
-		if (balqty < 0) {
-			Swal.fire({
-				icon: 'error',
-				title: 'Error',
-				text: 'Issued qty exceeds request qty.'
-			});
-			$('#submitBtn').prop('disabled', false);
-			return;
-		}
+    if (balqty < 0) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Issued qty exceeds request qty.' });
+        $('#submitBtn').prop('disabled', false);
+        return;
+    }
 
-		Swal.fire({
-			title: '',
-			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-			allowOutsideClick: false,
-			showConfirmButton: false,
-			backdrop: 'rgba(255,255,255,0.5)',
-			customClass: {
-				popup: 'fullscreen-swal'
-			},
-			didOpen: () => {
+    // ✅ SPINNER OPEN
+    Swal.fire({
+        title: '',
+        html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        backdrop: 'rgba(255,255,255,0.5)',
+        customClass: { popup: 'fullscreen-swal' },
+        didOpen: () => {
 
-				$.ajax({
-					type: "POST",
-					url: "<?php echo base_url(); ?>MaterialAllocationManual/CheckBomMaterialInfo",
-					data: {
-						materialid: materialid,
-						issueqty: issueqty
-					},
-					success: function (result) {
+            $.ajax({
+                type: "POST",
+                url: "<?php echo base_url(); ?>MaterialAllocationManual/CheckBomMaterialInfo",
+                data: {
+                    materialid: materialid,
+                    issueqty: issueqty
+                },
+                success: function(result){
 
-						var obj = JSON.parse(result);
+                    var obj = JSON.parse(result);
 
-						Swal.close();
-						document.body.style.overflow = 'auto';
+                    // ✅ CLOSE SPINNER ALWAYS
+                    Swal.close();
+                    document.body.style.overflow = 'auto';
 
-						if (obj.warnstatus == 1) {
-							Swal.fire({
-								icon: 'error',
-								title: 'Stock Warning',
-								text: obj.warntext
-							});
-							$('#submitBtn').prop('disabled', false);
-							return;
-						}
+                    if(obj.warnstatus == 1){
+                        Swal.fire({ icon: 'error', title: 'Stock Warning', text: obj.warntext });
+                        $('#submitBtn').prop('disabled', false);
+                        return;
+                    }
 
-						$('#tableissue > tbody:last').append(
-							'<tr>' +
-							'<td class="d-none">' + section + '</td>' + 
-							'<td>' + $("#materialinfo option:selected").text() + '</td>' +
-							'<td class="text-center">' + issueqty + '</td>' +
-							'<td class="batchnolist text-primary" style="cursor:pointer">Select Batch Number</td>' +
-							'<td class="d-none materialid">' + materialid + '</td>' + 
-							'<td class="text-center d-none">' + issueqty + '</td>' +
-							'</tr>'
-						);
+                    // ✅ ADD ROW (BATCH COLUMN CLICKABLE)
+                    $('#tableissue > tbody:last').append(
+                        '<tr>' +
+                            '<td class="d-none">'+ section +'</td>' +                                // section
+                            '<td>'+ $("#materialinfo option:selected").text() +'</td>' +             // ✅ MATERIAL NAME
+                            '<td class="text-center">'+ issueqty +'</td>' +
+                            '<td class="batchnolist text-primary" style="cursor:pointer">Select</td>' + // ✅ SELECTABLE BATCH
+                            '<td class="d-none materialid">'+ materialid +'</td>' +                  // ✅ MATERIAL ID
+                        '</tr>'
+                    );
 
-						$('#issueqty').val('');
-						$('#section').val('');
-						$('#materialinfo').val('').trigger('change');
+                    // ✅ RESET
+                    $('#issueqty').val('');
+                    $('#section').val('');
+                    $('#materialinfo').val('').trigger('change');
 
-						$('#submitBtn').prop('disabled', false);
-						$('#issueMaterialBtn').prop('disabled', false);
-					},
+                    $('#submitBtn').prop('disabled', false);
+                },
 
-					error: function () {
-						Swal.close();
-						$('#submitBtn').prop('disabled', false);
-						Swal.fire({
-							icon: 'error',
-							title: 'Error',
-							text: 'Server error!'
-						});
-					}
-				});
-			}
-		});
-	});
-	var rowID = 0;
+                error: function(){
+                    Swal.close();
+                    $('#submitBtn').prop('disabled', false);
+                    Swal.fire({ icon:'error', title:'Error', text:'Server error!' });
+                }
+            });
+        }
+    });
+});
 
-	$('#tableissue tbody').on('click', '.batchnolist', function () {
+var rowID = 0;
 
-		var row = $(this).closest("tr");
-		rowID = row.index();
-		var materialID = row.find('.materialid').text();
+$('#tableissue tbody').on('click', '.batchnolist', function () {
 
-		Swal.fire({
-			title: '',
-			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-			allowOutsideClick: false,
-			showConfirmButton: false,
-			backdrop: 'rgba(255,255,255,0.5)',
-			customClass: {
-				popup: 'fullscreen-swal'
-			},
-			didOpen: () => {
+    var row        = $(this).closest("tr");
+    rowID          = row.index();
+    var materialID = row.find('.materialid').text();  // ✅ Correct material ID
 
-				$.ajax({
-					type: "POST",
-					data: {
-						materialID: materialID
-					},
-					url: '<?php echo base_url() ?>MaterialAllocationManual/Getbatchnolistaccomaterial',
+    Swal.fire({
+        title: '',
+        html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        backdrop: 'rgba(255,255,255,0.5)',
+        customClass: { popup: 'fullscreen-swal' },
+        didOpen: () => {
 
-					success: function (result) {
+            $.ajax({
+                type: "POST",
+                data: { materialID: materialID },
+                url: '<?php echo base_url() ?>MaterialAllocationManual/Getbatchnolistaccomaterial',
 
-						Swal.close();
+                success: function(result){
 
-						var obj = JSON.parse(result);
-						var html = '';
+                    Swal.close();
 
-						$.each(obj, function (i, item) {
-							html += '<option value="' + item.batchno + '">';
-							html += item.batchno + ' - ' + item.qty;
-							html += '</option>';
-						});
+                    var obj = JSON.parse(result);
+                    var html = '';
 
-						$('#batchnolist').empty().append(html);
-						$('#modalbatchno').modal('show');
-					},
+                    $.each(obj, function(i, item) {
+                        html += '<option value="' + item.batchno + '">';
+                        html += item.batchno + ' - ' + item.qty;
+                        html += '</option>';
+                    });
 
-					error: function () {
-						Swal.close();
-						Swal.fire({
-							icon: 'error',
-							title: 'Error',
-							text: 'Batch load failed!'
-						});
-					}
-				});
-			}
-		});
-	});
-	$('#batchnolist').change(function () {
-		var selectedBatch = $(this).val();
+                    $('#batchnolist').empty().append(html);
+                    $('#modalbatchno').modal('show');
+                },
 
-		$('#tableissue tbody tr').eq(rowID).find('td:eq(3)').text(selectedBatch);
+                error: function() {
+                    Swal.close();
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Batch load failed!' });
+                }
+            });
+        }
+    });
+});
+$('#batchnolist').change(function () {
+    var selectedBatch = $(this).val();
 
-		$('#modalbatchno').modal('hide');
-	});
+    $('#tableissue tbody tr').eq(rowID).find('td:eq(3)').text(selectedBatch);
+
+    $('#modalbatchno').modal('hide');
+});
+
 	$('#tableissue tbody').on('click', 'tr .sectionremove', async function () {
 		var r = await Otherconfirmation("You want to remove this ? ");
         if (r == true) {
@@ -496,7 +457,6 @@ $(document).ready(function () {
 		var cusinquiry = $('#cusinquiry').val();
 		var bominfo = $('#bominfo').val();
 		var issueqty = $('#issueqty').val();
-		var jobcardtype = 1;
 
 		var emptybatch = 0;
 		var tbody = $('#tableissue tbody');
@@ -544,7 +504,6 @@ $(document).ready(function () {
 							cusinquiry: cusinquiry,
 							bominfo: bominfo,
 							issueqty: issueqty,
-							jobcardtype: jobcardtype,
 							tableData: jsonObj
 						},
 						url: '<?php echo base_url() ?>MaterialAllocationManual/Issuematerialinsertupdate',

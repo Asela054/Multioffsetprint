@@ -199,7 +199,7 @@ class MaterialallocationManualinfo extends CI_Model{
         foreach($tableData as $rowdatalist){
             $type=$rowdatalist['col_1'];
             $materialname=$rowdatalist['col_2'];
-            $issueqtydata=$rowdatalist['col_3'];
+            $bomqty=$rowdatalist['col_3'];
             $batchnolist=$rowdatalist['col_4'];
             $materialID=$rowdatalist['col_5'];
             $reqissueqty=$rowdatalist['col_6'];

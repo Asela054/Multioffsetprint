@@ -548,7 +548,7 @@ $(document).ready(function () {
 							tableData: jsonObj
 						},
 						url: '<?php echo base_url() ?>MaterialAllocationManual/Issuematerialinsertupdate',
-						success: function(result) { //alert(result);
+						success: function(result) { alert(result);
 							Swal.close();
 							document.body.style.overflow = 'auto';
 

@@ -383,8 +383,15 @@ $(document).ready(function () {
 							'<td class="text-center">' + issueqty + '</td>' +
 							'<td class="batchnolist text-primary" style="cursor:pointer">Select Batch Number</td>' +
 							'<td class="d-none materialid">' + materialid + '</td>' + 
-							'<td class="text-center d-none">' + issueqty + '</td>' +
 							'</tr>'
+
+                        <td class="d-none">2</td>
+                        <td>'.$rowcolor->materialname.'</td>
+                        <td class="text-center">'.$rowcolor->qty.'</td>
+                        <td class="text-center">'.$rowcolor->issueqty.'</td>
+                        <td class="batchnolist"></td>
+                        <td class="d-none">'.$rowcolor->tbl_print_material_info_idtbl_print_material_info.'</td>
+                        <td class="d-none">'.$issueqty.'</td>
 						);
 
 						$('#issueqty').val('');
@@ -548,7 +555,7 @@ $(document).ready(function () {
 							tableData: jsonObj
 						},
 						url: '<?php echo base_url() ?>MaterialAllocationManual/Issuematerialinsertupdate',
-						success: function(result) { //alert(result);
+						success: function(result) { alert(result);
 							Swal.close();
 							document.body.style.overflow = 'auto';
 

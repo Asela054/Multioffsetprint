@@ -199,7 +199,7 @@ class MaterialallocationManualinfo extends CI_Model{
         foreach($tableData as $rowdatalist){
             $type=$rowdatalist['col_1'];
             $materialname=$rowdatalist['col_2'];
-            $issueqtydata=$rowdatalist['col_3'];
+            $bomqty=$rowdatalist['col_3'];
             $batchnolist=$rowdatalist['col_4'];
             $materialID=$rowdatalist['col_5'];
             $reqissueqty=$rowdatalist['col_6'];
@@ -333,7 +333,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_varnish_idtbl_varnish'=> '', 
+                    'tbl_varnish_idtbl_varnish'=> $respondbomvarnishinfo->row(0)->tbl_varnish_idtbl_varnish, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
@@ -388,13 +388,16 @@ class MaterialallocationManualinfo extends CI_Model{
             if($type==4){//Foiling Section
                 
                 $datafoil = array(
+                    'foilmaterialby'=> $respondbomfoilinfo->row(0)->foilmaterialby, 
+                    'qty'=> $respondbomfoilinfo->row(0)->qty, 
+                    'remark'=> $respondbomfoilinfo->row(0)->remark, 
                     'batchno'=> $batchnolist, 
                     'issueqty'=> $issueqtydata, 
                     'status'=> '1', 
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_foiling_idtbl_foiling'=> '', 
+                    'tbl_foiling_idtbl_foiling'=> $respondbomfoilinfo->row(0)->tbl_foiling_idtbl_foiling, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
@@ -443,19 +446,38 @@ class MaterialallocationManualinfo extends CI_Model{
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+                        // //Stock Update Query
+                        // $this->db->where('batchno', $rowbatchno);
+                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                        // $this->db->where('tbl_company_idtbl_company', $companyID);
+                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+                        // $this->db->set('qty', 'qty - '.$issueqty, false);
+                        // $this->db->update('tbl_print_stock');
                     }
                 }
             }         
             if($type==5){//Lamination Section
+                $this->db->select('`sides`, `filmsize`, `lamination_qty`, `wastage`, `tbl_lamination_idtbl_lamination`');
+                $this->db->from('tbl_jobcard_bom_lamination');
+                $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
 
+                $respondbomlamination=$this->db->get();
+                
                 $datalamination = array(
+                    'sides'=> $respondbomlamination->row(0)->sides, 
+                    'filmsize'=> $respondbomlamination->row(0)->filmsize, 
+                    'lamination_qty'=> $respondbomlamination->row(0)->lamination_qty, 
+                    'wastage'=> $respondbomlamination->row(0)->wastage, 
                     'batchno'=> $batchnolist, 
                     'issueqty'=> $issueqtydata, 
                     'status'=> '1', 
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_lamination_idtbl_lamination'=> '', 
+                    'tbl_lamination_idtbl_lamination'=> $respondbomlamination->row(0)->tbl_lamination_idtbl_lamination, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
@@ -505,19 +527,35 @@ class MaterialallocationManualinfo extends CI_Model{
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
+                        // //Stock Update Query
+                        // $this->db->where('batchno', $rowbatchno);
+                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                        // $this->db->where('tbl_company_idtbl_company', $companyID);
+                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+                        // $this->db->set('qty', 'qty - '.$issueqty, false);
+                        // $this->db->update('tbl_print_stock');
                     }
                 }
             }
             if($type==6){//Paste Section
+                $this->db->select('`pastetype`, `pasteqty`, `remark`, `tbl_machine_idtbl_machine`');
+                $this->db->from('tbl_jobcard_bom_pasting');
+                $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+
+                $respondbompasting=$this->db->get();
                 
                 $datapasting = array(
-
+                    'pastetype'=> $respondbompasting->row(0)->pastetype, 
+                    'pasteqty'=> $respondbompasting->row(0)->pasteqty, 
+                    'remark'=> $respondbompasting->row(0)->remark, 
                     'batchno'=> $batchnolist, 
                     'issueqty'=> $issueqtydata, 
                     'status'=> '1', 
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
-                    'tbl_machine_idtbl_machine'=> '', 
+                    'tbl_machine_idtbl_machine'=> $respondbompasting->row(0)->tbl_machine_idtbl_machine, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
@@ -567,11 +605,26 @@ class MaterialallocationManualinfo extends CI_Model{
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+                        // //Stock Update Query
+                        // $this->db->where('batchno', $rowbatchno);
+                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                        // $this->db->where('tbl_company_idtbl_company', $companyID);
+                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+                        // $this->db->set('qty', 'qty - '.$issueqty, false);
+                        // $this->db->update('tbl_print_stock');
                     }
                 }
             }
             if($type==7){//Rimming Section
+                $this->db->select('`rimmingby`, `sides`, `qty`, `remark`, `tbl_rimming_idtbl_rimming`');
+                $this->db->from('tbl_jobcard_bom_rimming');
+                $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
 
+                $respondbomrimming=$this->db->get();
+                
                 $datarimming = array(
                     'rimmingby'=> $respondbomrimming->row(0)->rimmingby, 
                     'sides'=> $respondbomrimming->row(0)->sides, 
@@ -583,7 +636,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_rimming_idtbl_rimming'=> '', 
+                    'tbl_rimming_idtbl_rimming'=> $respondbomrimming->row(0)->tbl_rimming_idtbl_rimming, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
@@ -633,6 +686,14 @@ class MaterialallocationManualinfo extends CI_Model{
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
+                        // //Stock Update Query
+                        // $this->db->where('batchno', $rowbatchno);
+                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                        // $this->db->where('tbl_company_idtbl_company', $companyID);
+                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+                        // $this->db->set('qty', 'qty - '.$issueqty, false);
+                        // $this->db->update('tbl_print_stock');
                     }
                 }
             }
@@ -644,20 +705,20 @@ class MaterialallocationManualinfo extends CI_Model{
         $this->db->where('tbl_jobcard_idtbl_jobcard', $jobCardID);
         $this->db->where('status', '1');
 
-        $respondcheckdiecut = $this->db->get();
+        $respondcheckdiecut=$this->db->get();
 
-        if ($respondcheckdiecut->row(0)->count == 0) {
+        if($respondcheckdiecut->row(0)->count==0){
+            $this->db->select("`channel`, `board`, `size`, `qty`, `diecutby`, `embossby`, 1 AS `status`, '$updatedatetime' AS `insertdatetime`, '$userID' AS `tbl_user_idtbl_user`, '$jobCardID' AS `tbl_jobcard_idtbl_jobcard`");
+            $this->db->from('tbl_jobcard_bom_diecutting');
+            $this->db->where('status', 1);
+            $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+            
+            $responddiecut = $this->db->get();
 
-            $data = [
-                [
-                    'status'  => 1,
-                    'insertdatetime' => $updatedatetime,
-                    'tbl_user_idtbl_user' => $userID,
-                    'tbl_jobcard_idtbl_jobcard' => $jobCardID
-                ]
-            ];
-
-            $this->db->insert_batch('tbl_jobcard_diecutting', $data);
+            if ($responddiecut->num_rows() > 0) {
+                $data = $responddiecut->result_array();
+                $this->db->insert_batch('tbl_jobcard_diecutting', $data);
+            }
         }
 
         //Other Section
@@ -666,20 +727,20 @@ class MaterialallocationManualinfo extends CI_Model{
         $this->db->where('tbl_jobcard_idtbl_jobcard', $jobCardID);
         $this->db->where('status', '1');
 
-        $respondcheckother = $this->db->get();
+        $respondcheckother=$this->db->get();
 
-        if ($respondcheckother->row(0)->count == 0) {
+        if($respondcheckother->row(0)->count==0){
+            $this->db->select("`perfoating`, `gattering`, `rimming`, `binding`, `stapling`, `padding`, `creasing`, `threading`, 1 AS `status`, '$updatedatetime' AS `insertdatetime`, '$userID' AS `tbl_user_idtbl_user`, '$jobCardID' AS `tbl_jobcard_idtbl_jobcard`");
+            $this->db->from('tbl_jobcard_bom_other');
+            $this->db->where('status', 1);
+            $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+            
+            $respondother = $this->db->get();
 
-            $data = [
-                [
-                    'status'    => 1,
-                    'insertdatetime' => $updatedatetime,
-                    'tbl_user_idtbl_user' => $userID,
-                    'tbl_jobcard_idtbl_jobcard' => $jobCardID
-                ]
-            ];
-
-            $this->db->insert_batch('tbl_jobcard_other', $data);
+            if ($respondother->num_rows() > 0) {
+                $data = $respondother->result_array();
+                $this->db->insert_batch('tbl_jobcard_other', $data);
+            }
         }
 
         $this->db->trans_complete();

@@ -242,28 +242,11 @@ $(document).ready(function () {
 		}
 	});
 	$('#section').change(function(){
-		if ($(this).val() == '1') {
-			materialsectiontype = JSON.stringify(["1"]);
-
-		} else if ($(this).val() == '2') {
-			materialsectiontype = JSON.stringify(["2"]);
-
-		} else if ($(this).val() == '3') {
-			materialsectiontype = JSON.stringify(["3"]);
-
-		} else if ($(this).val() == '4') {
-			materialsectiontype = JSON.stringify(["4"]);
-
-		} else if ($(this).val() == '5') {
-			materialsectiontype = JSON.stringify(["5"]);
-
-		} else if ($(this).val() == '6') {
-			materialsectiontype = JSON.stringify(["6"]);
-
-		} else if ($(this).val() == '7') {
-			materialsectiontype = JSON.stringify(["7"]);
+		if($(this).val()=='1'){
+			materialsectiontype=JSON.stringify(["1", "2"]);
+		} else if($(this).val()=='2'){
+			materialsectiontype=JSON.stringify(["3"]);
 		}
-
 	});
 	$("#materialinfo").select2({
 		// dropdownParent: $('#modalBomInfo'),
@@ -363,6 +346,7 @@ $(document).ready(function () {
 
 						var obj = JSON.parse(result);
 
+						// ✅ CLOSE SPINNER ALWAYS
 						Swal.close();
 						document.body.style.overflow = 'auto';
 
@@ -376,23 +360,23 @@ $(document).ready(function () {
 							return;
 						}
 
+						// ✅ ADD ROW (BATCH COLUMN CLICKABLE)
 						$('#tableissue > tbody:last').append(
 							'<tr>' +
-							'<td class="d-none">' + section + '</td>' + 
-							'<td>' + $("#materialinfo option:selected").text() + '</td>' +
+							'<td class="d-none">' + section + '</td>' + // section
+							'<td>' + $("#materialinfo option:selected").text() + '</td>' + // ✅ MATERIAL NAME
 							'<td class="text-center">' + issueqty + '</td>' +
-							'<td class="batchnolist text-primary" style="cursor:pointer">Select Batch Number</td>' +
-							'<td class="d-none materialid">' + materialid + '</td>' + 
-							'<td class="text-center d-none">' + issueqty + '</td>' +
+							'<td class="batchnolist text-primary" style="cursor:pointer">Select</td>' + // ✅ SELECTABLE BATCH
+							'<td class="d-none materialid">' + materialid + '</td>' + // ✅ MATERIAL ID
 							'</tr>'
 						);
 
+						// ✅ RESET
 						$('#issueqty').val('');
 						$('#section').val('');
 						$('#materialinfo').val('').trigger('change');
 
 						$('#submitBtn').prop('disabled', false);
-						$('#issueMaterialBtn').prop('disabled', false);
 					},
 
 					error: function () {
@@ -414,7 +398,7 @@ $(document).ready(function () {
 
 		var row = $(this).closest("tr");
 		rowID = row.index();
-		var materialID = row.find('.materialid').text();
+		var materialID = row.find('.materialid').text(); // ✅ Correct material ID
 
 		Swal.fire({
 			title: '',
@@ -496,7 +480,6 @@ $(document).ready(function () {
 		var cusinquiry = $('#cusinquiry').val();
 		var bominfo = $('#bominfo').val();
 		var issueqty = $('#issueqty').val();
-		var jobcardtype = 1;
 
 		var emptybatch = 0;
 		var tbody = $('#tableissue tbody');
@@ -544,7 +527,6 @@ $(document).ready(function () {
 							cusinquiry: cusinquiry,
 							bominfo: bominfo,
 							issueqty: issueqty,
-							jobcardtype: jobcardtype,
 							tableData: jsonObj
 						},
 						url: '<?php echo base_url() ?>MaterialAllocationManual/Issuematerialinsertupdate',
