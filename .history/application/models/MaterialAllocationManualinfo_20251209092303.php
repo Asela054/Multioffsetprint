@@ -199,7 +199,7 @@ class MaterialallocationManualinfo extends CI_Model{
         foreach($tableData as $rowdatalist){
             $type=$rowdatalist['col_1'];
             $materialname=$rowdatalist['col_2'];
-            $issueqtydata=$rowdatalist['col_3'];
+            $bomqty=$rowdatalist['col_3'];
             $batchnolist=$rowdatalist['col_4'];
             $materialID=$rowdatalist['col_5'];
             $reqissueqty=$rowdatalist['col_6'];
@@ -333,7 +333,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_varnish_idtbl_varnish'=> '', 
+                    'tbl_varnish_idtbl_varnish'=> $respondbomvarnishinfo->row(0)->tbl_varnish_idtbl_varnish, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
@@ -394,7 +394,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_foiling_idtbl_foiling'=> '', 
+                    'tbl_foiling_idtbl_foiling'=> $respondbomfoilinfo->row(0)->tbl_foiling_idtbl_foiling, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
@@ -455,7 +455,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_lamination_idtbl_lamination'=> '', 
+                    'tbl_lamination_idtbl_lamination'=> $respondbomlamination->row(0)->tbl_lamination_idtbl_lamination, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
@@ -511,13 +511,15 @@ class MaterialallocationManualinfo extends CI_Model{
             if($type==6){//Paste Section
                 
                 $datapasting = array(
-
+                    'pastetype'=> $respondbompasting->row(0)->pastetype, 
+                    'pasteqty'=> $respondbompasting->row(0)->pasteqty, 
+                    'remark'=> $respondbompasting->row(0)->remark, 
                     'batchno'=> $batchnolist, 
                     'issueqty'=> $issueqtydata, 
                     'status'=> '1', 
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
-                    'tbl_machine_idtbl_machine'=> '', 
+                    'tbl_machine_idtbl_machine'=> $respondbompasting->row(0)->tbl_machine_idtbl_machine, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
@@ -583,7 +585,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_rimming_idtbl_rimming'=> '', 
+                    'tbl_rimming_idtbl_rimming'=> $respondbomrimming->row(0)->tbl_rimming_idtbl_rimming, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
@@ -661,26 +663,34 @@ class MaterialallocationManualinfo extends CI_Model{
         }
 
         //Other Section
-        $this->db->select('COUNT(*) AS `count`');
-        $this->db->from('tbl_jobcard_other');
-        $this->db->where('tbl_jobcard_idtbl_jobcard', $jobCardID);
-        $this->db->where('status', '1');
+$this->db->select('COUNT(*) AS `count`');
+$this->db->from('tbl_jobcard_other');
+$this->db->where('tbl_jobcard_idtbl_jobcard', $jobCardID);
+$this->db->where('status', '1');
 
-        $respondcheckother = $this->db->get();
+$respondcheckother = $this->db->get();
 
-        if ($respondcheckother->row(0)->count == 0) {
+if ($respondcheckother->row(0)->count == 0) {
 
-            $data = [
-                [
-                    'status'    => 1,
-                    'insertdatetime' => $updatedatetime,
-                    'tbl_user_idtbl_user' => $userID,
-                    'tbl_jobcard_idtbl_jobcard' => $jobCardID
-                ]
-            ];
+    $data = [
+        [
+            'perfoating' => null,
+            'gattering'  => null,
+            'rimming'    => null,
+            'binding'    => null,
+            'stapling'   => null,
+            'padding'    => null,
+            'creasing'  => null,
+            'threading' => null,
+            'status'    => 1,
+            'insertdatetime' => $updatedatetime,
+            'tbl_user_idtbl_user' => $userID,
+            'tbl_jobcard_idtbl_jobcard' => $jobCardID
+        ]
+    ];
 
-            $this->db->insert_batch('tbl_jobcard_other', $data);
-        }
+    $this->db->insert_batch('tbl_jobcard_other', $data);
+}
 
         $this->db->trans_complete();
 

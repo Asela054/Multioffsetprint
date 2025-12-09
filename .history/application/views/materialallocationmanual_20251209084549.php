@@ -383,7 +383,6 @@ $(document).ready(function () {
 							'<td class="text-center">' + issueqty + '</td>' +
 							'<td class="batchnolist text-primary" style="cursor:pointer">Select Batch Number</td>' +
 							'<td class="d-none materialid">' + materialid + '</td>' + 
-							'<td class="text-center d-none">' + issueqty + '</td>' +
 							'</tr>'
 						);
 

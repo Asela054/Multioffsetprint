@@ -2,7 +2,7 @@
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-class MaterialallocationManualinfo extends CI_Model{
+class Materialallocationinfo extends CI_Model{
     public function Getcustomerinquirylist() {
         $searchTerm = $this->input->post('searchTerm');
         $customerid = $this->input->post('customerid');
@@ -71,37 +71,310 @@ class MaterialallocationManualinfo extends CI_Model{
         echo json_encode($respond->result());
     }
     public function CheckBomMaterialInfo(){
+        $cusinquiryid = $this->input->post('cusinquiryid');
+        $inquiryqty = $this->input->post('inquiryqty');
+        $issueqty = $this->input->post('issueqty');
+        $bominfo = $this->input->post('bominfo');
+        $section = $this->input->post('section');
+        $html='';
+        $warningstockstatus=0;
+        $warningstocktext='';
 
-        $materialid = $this->input->post('materialid');
-        $issueqty   = $this->input->post('issueqty');
+        //Material Section
+        if($section==1){
+            $this->db->select('tbl_jobcard_bom_material.cutups, tbl_jobcard_bom_material.upspersheet, tbl_jobcard_bom_material.wastage, tbl_jobcard_bom_material.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, tbl_jobcard_bom_material.cutsize, SUM(tbl_print_stock.qty) AS `totqty`, CEIL((("' . $issueqty . '"/(`tbl_jobcard_bom_material`.`cutups`*`tbl_jobcard_bom_material`.`upspersheet`))*(100+`tbl_jobcard_bom_material`.`wastage`)/100)) AS `issueqty`');
+            $this->db->from('tbl_jobcard_bom_material');
+            $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_material.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_material.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->where('tbl_jobcard_bom_material.status', 1);
+            $this->db->where('tbl_jobcard_bom_material.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+            $this->db->group_by("tbl_jobcard_bom_material.tbl_print_material_info_idtbl_print_material_info");
 
-        $warningstockstatus = 0;
-        $warningstocktext   = '';
+            $respondmaterial=$this->db->get();
 
-        $this->db->select('SUM(qty) AS totqty');
-        $this->db->from('tbl_print_stock');
-        $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialid);
-        $totalStock = $this->db->get()->row()->totqty ?? 0;
+            if($respondmaterial->num_rows()>0){
+                $html.='
+                <tr data-otherrow="materialsection">
+                    <th colspan="4" class="sectionremove">Material Section</th>
+                </tr>
+                ';
+                foreach($respondmaterial->result() as $rowmaterial){
+                    $html.='
+                    <tr class="materialsection">
+                        <td class="d-none">1</td>
+                        <td>'.$rowmaterial->materialname.'</td>
+                        <td class="text-center">'.$rowmaterial->upspersheet.'</td>
+                        <td class="text-center">'.$rowmaterial->issueqty.'</td>
+                        <td class="batchnolist"></td>
+                        <td class="d-none">'.$rowmaterial->tbl_print_material_info_idtbl_print_material_info.'</td>
+                        <td class="d-none">'.$issueqty.'</td>
+                    </tr>
+                    ';
 
-        $this->db->select('batchno, qty');
-        $this->db->from('tbl_print_stock');
-        $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialid);
-        $batchResult = $this->db->get()->result();
-
-        if ($issueqty > $totalStock) {
-            $warningstockstatus = 1;
-            $warningstocktext   = 'Stock not enough for this material';
+                    if($rowmaterial->issueqty > $rowmaterial->totqty){$warningstockstatus=1;$warningstocktext.=$rowmaterial->materialname.', ';}
+                }
+            }
         }
 
-        $obj = new stdClass();
-        $obj->totqty     = $totalStock;
-        $obj->batchlist  = $batchResult; 
-        $obj->warnstatus = $warningstockstatus;
-        $obj->warntext   = $warningstocktext;
+        //Printing Section
+        if($section==2){
+            $this->db->select('tbl_jobcard_bom_color.qty, tbl_jobcard_bom_color.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_color`.`qty`) AS `issueqty`');
+            $this->db->from('tbl_jobcard_bom_color');
+            $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_color.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_color.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->where('tbl_jobcard_bom_color.status', 1);
+            $this->db->where('tbl_jobcard_bom_color.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+            $this->db->group_by("tbl_jobcard_bom_color.tbl_print_material_info_idtbl_print_material_info");
+
+            $respondcolor=$this->db->get();
+
+            if($respondcolor->num_rows()>0){
+                $html.='
+                <tr data-otherrow="printingsection">
+                    <th colspan="4" class="sectionremove">Printing Section</th>
+                </tr>
+                ';
+                foreach($respondcolor->result() as $rowcolor){
+                    $html.='
+                    <tr class="printingsection">
+                        <td class="d-none">2</td>
+                        <td>'.$rowcolor->materialname.'</td>
+                        <td class="text-center">'.$rowcolor->qty.'</td>
+                        <td class="text-center">'.$rowcolor->issueqty.'</td>
+                        <td class="batchnolist"></td>
+                        <td class="d-none">'.$rowcolor->tbl_print_material_info_idtbl_print_material_info.'</td>
+                        <td class="d-none">'.$issueqty.'</td>
+                    </tr>
+                    ';
+
+                    if($rowcolor->issueqty > $rowcolor->totqty){$warningstockstatus=1;$warningstocktext.=$rowcolor->materialname.', ';}
+                }
+            }
+        }
+
+        //Coating Section
+        if($section==3){
+            $this->db->select('tbl_jobcard_bom_varnish.varnishQty, tbl_jobcard_bom_varnish.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_varnish`.`varnishQty`) AS `issueqty`');
+            $this->db->from('tbl_jobcard_bom_varnish');
+            $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_varnish.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_varnish.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->where('tbl_jobcard_bom_varnish.status', 1);
+            $this->db->where('tbl_jobcard_bom_varnish.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+            $this->db->group_by("tbl_jobcard_bom_varnish.tbl_print_material_info_idtbl_print_material_info");
+
+            $respondcoating=$this->db->get();
+
+            if($respondcoating->num_rows()>0){
+                $html.='
+                <tr data-otherrow="coatingsection">
+                    <th colspan="4" class="sectionremove">Coating Section</th>
+                </tr>
+                ';
+                foreach($respondcoating->result() as $rowcoating){
+                    $html.='
+                    <tr class="coatingsection">
+                        <td class="d-none">3</td>
+                        <td>'.$rowcoating->materialname.'</td>
+                        <td class="text-center">'.$rowcoating->varnishQty.'</td>
+                        <td class="text-center">'.$rowcoating->issueqty.'</td>
+                        <td class="batchnolist"></td>
+                        <td class="d-none">'.$rowcoating->tbl_print_material_info_idtbl_print_material_info.'</td>
+                        <td class="d-none">'.$issueqty.'</td>
+                    </tr>
+                    ';
+
+                    if($rowcoating->issueqty > $rowcoating->totqty){$warningstockstatus=1;$warningstocktext.=$rowcoating->materialname.', ';}
+                }
+            }
+        }
+
+        //Foiling Section
+        if($section==4){
+            $this->db->select('tbl_jobcard_bom_foil.qty, tbl_jobcard_bom_foil.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_foil`.`qty`) AS `issueqty`');
+            $this->db->from('tbl_jobcard_bom_foil');
+            $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_foil.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_foil.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->where('tbl_jobcard_bom_foil.status', 1);
+            $this->db->where('tbl_jobcard_bom_foil.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+            $this->db->group_by("tbl_jobcard_bom_foil.tbl_print_material_info_idtbl_print_material_info");
+
+            $respondfoil=$this->db->get();
+
+            if($respondfoil->num_rows()>0){
+                $html.='
+                <tr data-otherrow="foilsection">
+                    <th colspan="4" class="sectionremove">Foiling Section</th>
+                </tr>
+                ';
+                foreach($respondfoil->result() as $rowfoil){
+                    $html.='
+                    <tr class="foilsection">
+                        <td class="d-none">4</td>
+                        <td>'.$rowfoil->materialname.'</td>
+                        <td class="text-center">'.$rowfoil->qty.'</td>
+                        <td class="text-center">'.$rowfoil->issueqty.'</td>
+                        <td class="batchnolist"></td>
+                        <td class="d-none">'.$rowfoil->tbl_print_material_info_idtbl_print_material_info.'</td>
+                        <td class="d-none">'.$issueqty.'</td>
+                    </tr>
+                    ';
+
+                    if($rowfoil->issueqty > $rowfoil->totqty){$warningstockstatus=1;$warningstocktext.=$rowfoil->materialname.', ';}
+                }
+            }
+        }
+
+        //Lamination Section
+        if($section==5){
+            $this->db->select('tbl_jobcard_bom_lamination.lamination_qty, tbl_jobcard_bom_lamination.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_lamination`.`lamination_qty`) AS `issueqty`');
+            $this->db->from('tbl_jobcard_bom_lamination');
+            $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_lamination.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_lamination.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->where('tbl_jobcard_bom_lamination.status', 1);
+            $this->db->where('tbl_jobcard_bom_lamination.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+            $this->db->group_by("tbl_jobcard_bom_lamination.tbl_print_material_info_idtbl_print_material_info");
+
+            $respondlamination=$this->db->get();
+
+            if($respondlamination->num_rows()>0){
+                $html.='
+                <tr data-otherrow="laminationsection">
+                    <th colspan="4" class="sectionremove">Lamination Section</th>
+                </tr>
+                ';
+                foreach($respondlamination->result() as $rowlamination){
+                    $html.='
+                    <tr class="laminationsection">
+                        <td class="d-none">5</td>
+                        <td>'.$rowlamination->materialname.'</td>
+                        <td class="text-center">'.$rowlamination->lamination_qty.'</td>
+                        <td class="text-center">'.$rowlamination->issueqty.'</td>
+                        <td class="batchnolist"></td>
+                        <td class="d-none">'.$rowlamination->tbl_print_material_info_idtbl_print_material_info.'</td>
+                        <td class="d-none">'.$issueqty.'</td>
+                    </tr>
+                    ';
+
+                    if($rowlamination->issueqty > $rowlamination->totqty){$warningstockstatus=1;$warningstocktext.=$rowlamination->materialname.', ';}
+                }
+            }
+        }
+
+        //Pasting Section
+        if($section==6){
+            $this->db->select('tbl_jobcard_bom_pasting.pasteqty, tbl_jobcard_bom_pasting.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_pasting`.`pasteqty`) AS `issueqty`');
+            $this->db->from('tbl_jobcard_bom_pasting');
+            $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_pasting.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_pasting.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->where('tbl_jobcard_bom_pasting.status', 1);
+            $this->db->where('tbl_jobcard_bom_pasting.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+            $this->db->group_by("tbl_jobcard_bom_pasting.tbl_print_material_info_idtbl_print_material_info");
+
+            $respondpaste=$this->db->get();
+
+            if($respondpaste->num_rows()>0){
+                $html.='
+                <tr data-otherrow="pastesection">
+                    <th colspan="4" class="sectionremove">Pasting Section</th>
+                </tr>
+                ';
+                foreach($respondpaste->result() as $rowpaste){
+                    $html.='
+                    <tr class="pastesection">
+                        <td class="d-none">6</td>
+                        <td>'.$rowpaste->materialname.'</td>
+                        <td class="text-center">'.$rowpaste->pasteqty.'</td>
+                        <td class="text-center">'.$rowpaste->issueqty.'</td>
+                        <td class="batchnolist"></td>
+                        <td class="d-none">'.$rowpaste->tbl_print_material_info_idtbl_print_material_info.'</td>
+                        <td class="d-none">'.$issueqty.'</td>
+                    </tr>
+                    ';
+
+                    if($rowpaste->issueqty > $rowpaste->totqty){$warningstockstatus=1;$warningstocktext.=$rowpaste->materialname.', ';}
+                }
+            }
+        }
+
+        //Rimming Section
+        if($section==7){
+            $this->db->select('tbl_jobcard_bom_rimming.qty, tbl_jobcard_bom_rimming.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_rimming`.`qty`) AS `issueqty`');
+            $this->db->from('tbl_jobcard_bom_rimming');
+            $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_rimming.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_rimming.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->where('tbl_jobcard_bom_rimming.status', 1);
+            $this->db->where('tbl_jobcard_bom_rimming.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+            $this->db->group_by("tbl_jobcard_bom_rimming.tbl_print_material_info_idtbl_print_material_info");
+
+            $respondrimming=$this->db->get();
+
+            if($respondrimming->num_rows()>0){
+                $html.='
+                <tr data-otherrow="rimmingsection">
+                    <th colspan="4" class="sectionremove">Rimming Section</th>
+                </tr>
+                ';
+                foreach($respondrimming->result() as $rowrimming){
+                    $html.='
+                    <tr class="rimmingsection">
+                        <td class="d-none">7</td>
+                        <td>'.$rowrimming->materialname.'</td>
+                        <td class="text-center">'.$rowrimming->qty.'</td>
+                        <td class="text-center">'.$rowrimming->issueqty.'</td>
+                        <td class="batchnolist"></td>
+                        <td class="d-none">'.$rowrimming->tbl_print_material_info_idtbl_print_material_info.'</td>
+                        <td class="d-none">'.$issueqty.'</td>
+                    </tr>
+                    ';
+
+                    if($rowrimming->issueqty > $rowrimming->totqty){$warningstockstatus=1;$warningstocktext.='Rimming Section, ';}
+                }
+            }
+        }
+
+        // //Other Section
+        // if($section==7){
+        //     $this->db->select('tbl_jobcard_bom_other.qty, tbl_jobcard_bom_other.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`');
+        //     $this->db->from('tbl_jobcard_bom_other');
+        //     $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_other.tbl_print_material_info_idtbl_print_material_info', 'left');
+        //     $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_other.tbl_print_material_info_idtbl_print_material_info', 'left');
+        //     $this->db->where('tbl_jobcard_bom_other.status', 1);
+        //     $this->db->where('tbl_jobcard_bom_other.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+        //     $this->db->group_by("tbl_jobcard_bom_other.tbl_print_material_info_idtbl_print_material_info");
+
+        //     $respondother=$this->db->get();
+
+        //     if($respondother->num_rows()>0){
+        //         $html.='
+        //         <tr>
+        //             <th colspan="4">Lamination Section</th>
+        //         </tr>
+        //         ';
+        //         foreach($respondother->result() as $rowother){
+        //             $html.='
+        //             <tr>
+        //                 <td class="d-none">7</td>
+        //                 <td>'.$rowother->materialname.'</td>
+        //                 <td class="text-center">'.$rowother->qty.'</td>
+        //                 <td class="text-center">'.ceil($rowother->qty*$issueqty).'</td>
+        //                 <td class="batchnolist"></td>
+        //                 <td class="d-none">'.$rowother->tbl_print_material_info_idtbl_print_material_info.'</td>
+        //                 <td class="d-none">'.$issueqty.'</td>
+        //             </tr>
+        //             ';
+
+        //             if(($rowother->qty*$issueqty) > $rowother->totqty){$warningstockstatus=1;$warningstocktext.=$rowother->materialname.', ';}
+        //         }
+        //     }
+        // }
+
+        $obj=new stdClass();
+        $obj->tabledata=$html;
+        $obj->warnstatus=$warningstockstatus;
+        $obj->warntext=$warningstocktext;
 
         echo json_encode($obj);
     }
-
     public function Getbatchnolistaccomaterial(){
         $materialID=$this->input->post('materialID');
         $companyID=$_SESSION['company_id'];
@@ -124,6 +397,7 @@ class MaterialallocationManualinfo extends CI_Model{
 
         $customer=$this->input->post('customer');
         $cusinquiry=$this->input->post('cusinquiry');
+        $bominfo=$this->input->post('bominfo');
         $issueqty=$this->input->post('issueqty');
         $jobcardtype=$this->input->post('jobcardtype');
         $tableData=$this->input->post('tableData');
@@ -173,7 +447,7 @@ class MaterialallocationManualinfo extends CI_Model{
                 'insertdatetime'=> $updatedatetime,
                 'tbl_user_idtbl_user'=> $userID,
                 'tbl_customerinquiry_idtbl_customerinquiry'=> $cusinquiry,
-                'tbl_jobcard_bom_idtbl_jobcard_bom'=> '',
+                'tbl_jobcard_bom_idtbl_jobcard_bom'=> $bominfo,
                 'tbl_company_idtbl_company'=> $companyID,
                 'tbl_company_branch_idtbl_company_branch'=> $branchID,
                 'tbl_customer_idtbl_customer'=> $customer
@@ -199,14 +473,25 @@ class MaterialallocationManualinfo extends CI_Model{
         foreach($tableData as $rowdatalist){
             $type=$rowdatalist['col_1'];
             $materialname=$rowdatalist['col_2'];
-            $issueqtydata=$rowdatalist['col_3'];
+            $bomqty=$rowdatalist['col_3'];
             $batchnolist=$rowdatalist['col_4'];
             $materialID=$rowdatalist['col_5'];
             $reqissueqty=$rowdatalist['col_6'];
 
             if($type==1){//Material Section
+                $this->db->select('`materialby`, `cutsize`, `cutups`, `upspersheet`, `wastage`');
+                $this->db->from('tbl_jobcard_bom_material');
+                $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+
+                $respondbommateinfo=$this->db->get();
                 
                 $datamaterial = array(
+                    'materialby'=> $respondbommateinfo->row(0)->materialby, 
+                    'cutsize'=> $respondbommateinfo->row(0)->cutsize, 
+                    'cutups'=> $respondbommateinfo->row(0)->cutups, 
+                    'upspersheet'=> $respondbommateinfo->row(0)->upspersheet, 
+                    'wastage'=> $respondbommateinfo->row(0)->wastage, 
                     'batchno'=> $batchnolist, 
                     'issueqty'=> $issueqtydata, 
                     'status'=> '1', 
@@ -261,12 +546,31 @@ class MaterialallocationManualinfo extends CI_Model{
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+                        // //Stock Update Query
+                        // $this->db->where('batchno', $rowbatchno);
+                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                        // $this->db->where('tbl_company_idtbl_company', $companyID);
+                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+                        // $this->db->set('qty', 'qty - '.$issueqty, false);
+                        // $this->db->update('tbl_print_stock');
                     }
                 }
             }
             if($type==2){//Printing Section
+                $this->db->select('`colormaterialby`, `colortype`, `remark`, `qty`');
+                $this->db->from('tbl_jobcard_bom_color');
+                $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+
+                $respondbomcolorinfo=$this->db->get();
                 
                 $datacolor = array(
+                    'colormaterialby'=> $respondbomcolorinfo->row(0)->colormaterialby, 
+                    'colortype'=> $respondbomcolorinfo->row(0)->colortype, 
+                    'remark'=> $respondbomcolorinfo->row(0)->remark, 
+                    'qty'=> $respondbomcolorinfo->row(0)->qty, 
                     'batchno'=> $batchnolist, 
                     'issueqty'=> $issueqtydata, 
                     'status'=> '1', 
@@ -321,19 +625,38 @@ class MaterialallocationManualinfo extends CI_Model{
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+                        // //Stock Update Query
+                        // $this->db->where('batchno', $rowbatchno);
+                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                        // $this->db->where('tbl_company_idtbl_company', $companyID);
+                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+                        // $this->db->set('qty', 'qty - '.$issueqty, false);
+                        // $this->db->update('tbl_print_stock');
                     }
                 }
             }
             if($type==3){//Coating Section
+                $this->db->select('`glossmatt`, `fullspot`, `varnishQty`, `remark`, `tbl_varnish_idtbl_varnish`');
+                $this->db->from('tbl_jobcard_bom_varnish');
+                $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+
+                $respondbomvarnishinfo=$this->db->get();
                 
                 $datavarnish = array(
+                    'glossmatt'=> $respondbomvarnishinfo->row(0)->glossmatt, 
+                    'fullspot'=> $respondbomvarnishinfo->row(0)->fullspot, 
+                    'varnishQty'=> $respondbomvarnishinfo->row(0)->varnishQty, 
+                    'remark'=> $respondbomvarnishinfo->row(0)->remark, 
                     'batchno'=> $batchnolist, 
                     'issueqty'=> $issueqtydata, 
                     'status'=> '1', 
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_varnish_idtbl_varnish'=> '', 
+                    'tbl_varnish_idtbl_varnish'=> $respondbomvarnishinfo->row(0)->tbl_varnish_idtbl_varnish, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
@@ -382,19 +705,37 @@ class MaterialallocationManualinfo extends CI_Model{
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+                        // //Stock Update Query
+                        // $this->db->where('batchno', $rowbatchno);
+                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                        // $this->db->where('tbl_company_idtbl_company', $companyID);
+                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+                        // $this->db->set('qty', 'qty - '.$issueqty, false);
+                        // $this->db->update('tbl_print_stock');
                     }
                 }
             }    
             if($type==4){//Foiling Section
+                $this->db->select('`foilmaterialby`, `qty`, `remark`, `tbl_foiling_idtbl_foiling`');
+                $this->db->from('tbl_jobcard_foil');
+                $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+
+                $respondbomfoilinfo=$this->db->get();
                 
                 $datafoil = array(
+                    'foilmaterialby'=> $respondbomfoilinfo->row(0)->foilmaterialby, 
+                    'qty'=> $respondbomfoilinfo->row(0)->qty, 
+                    'remark'=> $respondbomfoilinfo->row(0)->remark, 
                     'batchno'=> $batchnolist, 
                     'issueqty'=> $issueqtydata, 
                     'status'=> '1', 
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_foiling_idtbl_foiling'=> '', 
+                    'tbl_foiling_idtbl_foiling'=> $respondbomfoilinfo->row(0)->tbl_foiling_idtbl_foiling, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
@@ -443,19 +784,38 @@ class MaterialallocationManualinfo extends CI_Model{
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+                        // //Stock Update Query
+                        // $this->db->where('batchno', $rowbatchno);
+                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                        // $this->db->where('tbl_company_idtbl_company', $companyID);
+                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+                        // $this->db->set('qty', 'qty - '.$issueqty, false);
+                        // $this->db->update('tbl_print_stock');
                     }
                 }
             }         
             if($type==5){//Lamination Section
+                $this->db->select('`sides`, `filmsize`, `lamination_qty`, `wastage`, `tbl_lamination_idtbl_lamination`');
+                $this->db->from('tbl_jobcard_bom_lamination');
+                $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
 
+                $respondbomlamination=$this->db->get();
+                
                 $datalamination = array(
+                    'sides'=> $respondbomlamination->row(0)->sides, 
+                    'filmsize'=> $respondbomlamination->row(0)->filmsize, 
+                    'lamination_qty'=> $respondbomlamination->row(0)->lamination_qty, 
+                    'wastage'=> $respondbomlamination->row(0)->wastage, 
                     'batchno'=> $batchnolist, 
                     'issueqty'=> $issueqtydata, 
                     'status'=> '1', 
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_lamination_idtbl_lamination'=> '', 
+                    'tbl_lamination_idtbl_lamination'=> $respondbomlamination->row(0)->tbl_lamination_idtbl_lamination, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
@@ -505,19 +865,35 @@ class MaterialallocationManualinfo extends CI_Model{
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
+                        // //Stock Update Query
+                        // $this->db->where('batchno', $rowbatchno);
+                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                        // $this->db->where('tbl_company_idtbl_company', $companyID);
+                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+                        // $this->db->set('qty', 'qty - '.$issueqty, false);
+                        // $this->db->update('tbl_print_stock');
                     }
                 }
             }
             if($type==6){//Paste Section
+                $this->db->select('`pastetype`, `pasteqty`, `remark`, `tbl_machine_idtbl_machine`');
+                $this->db->from('tbl_jobcard_bom_pasting');
+                $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+
+                $respondbompasting=$this->db->get();
                 
                 $datapasting = array(
-
+                    'pastetype'=> $respondbompasting->row(0)->pastetype, 
+                    'pasteqty'=> $respondbompasting->row(0)->pasteqty, 
+                    'remark'=> $respondbompasting->row(0)->remark, 
                     'batchno'=> $batchnolist, 
                     'issueqty'=> $issueqtydata, 
                     'status'=> '1', 
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
-                    'tbl_machine_idtbl_machine'=> '', 
+                    'tbl_machine_idtbl_machine'=> $respondbompasting->row(0)->tbl_machine_idtbl_machine, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
@@ -567,11 +943,26 @@ class MaterialallocationManualinfo extends CI_Model{
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+                        // //Stock Update Query
+                        // $this->db->where('batchno', $rowbatchno);
+                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                        // $this->db->where('tbl_company_idtbl_company', $companyID);
+                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+                        // $this->db->set('qty', 'qty - '.$issueqty, false);
+                        // $this->db->update('tbl_print_stock');
                     }
                 }
             }
             if($type==7){//Rimming Section
+                $this->db->select('`rimmingby`, `sides`, `qty`, `remark`, `tbl_rimming_idtbl_rimming`');
+                $this->db->from('tbl_jobcard_bom_rimming');
+                $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
 
+                $respondbomrimming=$this->db->get();
+                
                 $datarimming = array(
                     'rimmingby'=> $respondbomrimming->row(0)->rimmingby, 
                     'sides'=> $respondbomrimming->row(0)->sides, 
@@ -583,7 +974,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_rimming_idtbl_rimming'=> '', 
+                    'tbl_rimming_idtbl_rimming'=> $respondbomrimming->row(0)->tbl_rimming_idtbl_rimming, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
@@ -633,6 +1024,14 @@ class MaterialallocationManualinfo extends CI_Model{
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
+                        // //Stock Update Query
+                        // $this->db->where('batchno', $rowbatchno);
+                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                        // $this->db->where('tbl_company_idtbl_company', $companyID);
+                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+                        // $this->db->set('qty', 'qty - '.$issueqty, false);
+                        // $this->db->update('tbl_print_stock');
                     }
                 }
             }
@@ -644,20 +1043,20 @@ class MaterialallocationManualinfo extends CI_Model{
         $this->db->where('tbl_jobcard_idtbl_jobcard', $jobCardID);
         $this->db->where('status', '1');
 
-        $respondcheckdiecut = $this->db->get();
+        $respondcheckdiecut=$this->db->get();
 
-        if ($respondcheckdiecut->row(0)->count == 0) {
+        if($respondcheckdiecut->row(0)->count==0){
+            $this->db->select("`channel`, `board`, `size`, `qty`, `diecutby`, `embossby`, 1 AS `status`, '$updatedatetime' AS `insertdatetime`, '$userID' AS `tbl_user_idtbl_user`, '$jobCardID' AS `tbl_jobcard_idtbl_jobcard`");
+            $this->db->from('tbl_jobcard_bom_diecutting');
+            $this->db->where('status', 1);
+            $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+            
+            $responddiecut = $this->db->get();
 
-            $data = [
-                [
-                    'status'  => 1,
-                    'insertdatetime' => $updatedatetime,
-                    'tbl_user_idtbl_user' => $userID,
-                    'tbl_jobcard_idtbl_jobcard' => $jobCardID
-                ]
-            ];
-
-            $this->db->insert_batch('tbl_jobcard_diecutting', $data);
+            if ($responddiecut->num_rows() > 0) {
+                $data = $responddiecut->result_array();
+                $this->db->insert_batch('tbl_jobcard_diecutting', $data);
+            }
         }
 
         //Other Section
@@ -666,20 +1065,20 @@ class MaterialallocationManualinfo extends CI_Model{
         $this->db->where('tbl_jobcard_idtbl_jobcard', $jobCardID);
         $this->db->where('status', '1');
 
-        $respondcheckother = $this->db->get();
+        $respondcheckother=$this->db->get();
 
-        if ($respondcheckother->row(0)->count == 0) {
+        if($respondcheckother->row(0)->count==0){
+            $this->db->select("`perfoating`, `gattering`, `rimming`, `binding`, `stapling`, `padding`, `creasing`, `threading`, 1 AS `status`, '$updatedatetime' AS `insertdatetime`, '$userID' AS `tbl_user_idtbl_user`, '$jobCardID' AS `tbl_jobcard_idtbl_jobcard`");
+            $this->db->from('tbl_jobcard_bom_other');
+            $this->db->where('status', 1);
+            $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+            
+            $respondother = $this->db->get();
 
-            $data = [
-                [
-                    'status'    => 1,
-                    'insertdatetime' => $updatedatetime,
-                    'tbl_user_idtbl_user' => $userID,
-                    'tbl_jobcard_idtbl_jobcard' => $jobCardID
-                ]
-            ];
-
-            $this->db->insert_batch('tbl_jobcard_other', $data);
+            if ($respondother->num_rows() > 0) {
+                $data = $respondother->result_array();
+                $this->db->insert_batch('tbl_jobcard_other', $data);
+            }
         }
 
         $this->db->trans_complete();
@@ -1091,7 +1490,7 @@ class MaterialallocationManualinfo extends CI_Model{
 
         echo $html;
     }
-    public function MaterialAllocationManualapprove() {
+    public function MaterialAllocationapprove() {
         $userID = $_SESSION['userid'];
         $companyID = $_SESSION['company_id'];
         $branchID = $_SESSION['branch_id'];
@@ -1249,7 +1648,7 @@ class MaterialallocationManualinfo extends CI_Model{
         } catch (Exception $e) {
             $this->db->trans_rollback();
             
-            error_log("MaterialAllocationManualapprove Error: " . $e->getMessage());
+            error_log("MaterialAllocationapprove Error: " . $e->getMessage());
             
             $actionObj->icon = 'fas fa-exclamation-triangle';
             $actionObj->title = '';
@@ -1333,7 +1732,7 @@ class MaterialallocationManualinfo extends CI_Model{
                 $actionJSON=json_encode($actionObj);
                 
                 $this->session->set_flashdata('msg', $actionJSON);
-                redirect('MaterialAllocationManual');                
+                redirect('MaterialAllocation');                
             } else {
                 $this->db->trans_rollback();
 
@@ -1348,7 +1747,7 @@ class MaterialallocationManualinfo extends CI_Model{
                 $actionJSON=json_encode($actionObj);
                 
                 $this->session->set_flashdata('msg', $actionJSON);
-                redirect('MaterialAllocationManual');
+                redirect('MaterialAllocation');
             }
         }
     }
@@ -1999,7 +2398,7 @@ class MaterialallocationManualinfo extends CI_Model{
         $result = $query->row();
         echo json_encode(['total_reqissueqty' => $result->total_reqissueqty ?? 0]);
     }
-    public function MaterialAllocationManualcheckstatus(){
+    public function MaterialAllocationcheckstatus(){
         $this->db->trans_begin();
 
         $recordID=$this->input->post('jobcardid');

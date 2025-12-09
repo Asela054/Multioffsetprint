@@ -242,28 +242,11 @@ $(document).ready(function () {
 		}
 	});
 	$('#section').change(function(){
-		if ($(this).val() == '1') {
-			materialsectiontype = JSON.stringify(["1"]);
-
-		} else if ($(this).val() == '2') {
-			materialsectiontype = JSON.stringify(["2"]);
-
-		} else if ($(this).val() == '3') {
-			materialsectiontype = JSON.stringify(["3"]);
-
-		} else if ($(this).val() == '4') {
-			materialsectiontype = JSON.stringify(["4"]);
-
-		} else if ($(this).val() == '5') {
-			materialsectiontype = JSON.stringify(["5"]);
-
-		} else if ($(this).val() == '6') {
-			materialsectiontype = JSON.stringify(["6"]);
-
-		} else if ($(this).val() == '7') {
-			materialsectiontype = JSON.stringify(["7"]);
+		if($(this).val()=='1'){
+			materialsectiontype=JSON.stringify(["1", "2"]);
+		} else if($(this).val()=='2'){
+			materialsectiontype=JSON.stringify(["3"]);
 		}
-
 	});
 	$("#materialinfo").select2({
 		// dropdownParent: $('#modalBomInfo'),
@@ -297,135 +280,137 @@ $(document).ready(function () {
 
 
 
+
+
+
 	$('#submitBtn').click(function () {
-
 		if (!$("#formbommaterialinfo")[0].checkValidity()) {
+			// If the form is invalid, submit it. The form won't actually submit;
+			// this will just cause the browser to display the native HTML5 error messages.
 			$("#hidesubmitcheck").click();
-			return;
-		}
+		} else {
+			$('#submitBtn').prop('disabled', true);
+			var cusinquiryid = $('#cusinquiry').val();
+			var inquiryqty = $('#inquiryqty').val();
+			var issueqty = $('#issueqty').val();
+			// var alreadyissuedqty = $('#alreadyissuedqty').val();
+			// var bominfo = $('#bominfo').val();
+			var section = $('#section').val();
 
-		$('#submitBtn').prop('disabled', true);
+			var balqty = parseFloat(inquiryqty)-parseFloat(issueqty);
 
-		var inquiryqty = $('#inquiryqty').val();
-		var issueqty = $('#issueqty').val();
-		var section = $('#section').val();
-		var materialid = $('#materialinfo').val();
+			var typeIDs = [];
 
-		var balqty = parseFloat(inquiryqty) - parseFloat(issueqty);
-
-		var typeIDs = [];
-		$('#tableissue tbody tr').each(function () {
-			var typeID = $(this).find('td:eq(0)').text().trim();
-			if (typeID && $.inArray(typeID, typeIDs) === -1) {
-				typeIDs.push(typeID);
-			}
-		});
-
-		if ($.inArray(section, typeIDs) !== -1) {
-			Swal.fire({
-				icon: 'error',
-				title: 'Error',
-				text: 'You selected section already set to issue table.'
+			$('#tableissue tbody tr').each(function() {
+				var typeID = $(this).find('td:first').text().trim();
+				
+				if (typeID && $.inArray(typeID, typeIDs) === -1) {
+					typeIDs.push(typeID);
+				}
 			});
-			$('#submitBtn').prop('disabled', false);
-			return;
-		}
 
-		if (balqty < 0) {
-			Swal.fire({
-				icon: 'error',
-				title: 'Error',
-				text: 'Issued qty exceeds request qty.'
-			});
-			$('#submitBtn').prop('disabled', false);
-			return;
-		}
-
-		Swal.fire({
-			title: '',
-			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-			allowOutsideClick: false,
-			showConfirmButton: false,
-			backdrop: 'rgba(255,255,255,0.5)',
-			customClass: {
-				popup: 'fullscreen-swal'
-			},
-			didOpen: () => {
-
-				$.ajax({
-					type: "POST",
-					url: "<?php echo base_url(); ?>MaterialAllocationManual/CheckBomMaterialInfo",
-					data: {
-						materialid: materialid,
-						issueqty: issueqty
-					},
-					success: function (result) {
-
-						var obj = JSON.parse(result);
-
-						Swal.close();
-						document.body.style.overflow = 'auto';
-
-						if (obj.warnstatus == 1) {
-							Swal.fire({
-								icon: 'error',
-								title: 'Stock Warning',
-								text: obj.warntext
-							});
-							$('#submitBtn').prop('disabled', false);
-							return;
-						}
-
-						$('#tableissue > tbody:last').append(
-							'<tr>' +
-							'<td class="d-none">' + section + '</td>' + 
-							'<td>' + $("#materialinfo option:selected").text() + '</td>' +
-							'<td class="text-center">' + issueqty + '</td>' +
-							'<td class="batchnolist text-primary" style="cursor:pointer">Select Batch Number</td>' +
-							'<td class="d-none materialid">' + materialid + '</td>' + 
-							'<td class="text-center d-none">' + issueqty + '</td>' +
-							'</tr>'
-						);
-
-						$('#issueqty').val('');
-						$('#section').val('');
-						$('#materialinfo').val('').trigger('change');
-
-						$('#submitBtn').prop('disabled', false);
-						$('#issueMaterialBtn').prop('disabled', false);
-					},
-
-					error: function () {
-						Swal.close();
-						$('#submitBtn').prop('disabled', false);
-						Swal.fire({
-							icon: 'error',
-							title: 'Error',
-							text: 'Server error!'
-						});
-					}
+			if ($.inArray(section, typeIDs) !== -1) {
+				// Show an error alert
+				Swal.fire({
+					icon: 'error',
+					title: 'Error',
+					text: 'You selected section already set to issue table.'
 				});
+				$('#submitBtn').prop('disabled', false);
 			}
-		});
+			else{
+				if(balqty<0){
+					// Show an error alert
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: 'Your issued quantity and already issued quantity total exceed the requested quantity.'
+					});
+					$('#submitBtn').prop('disabled', false);
+				}
+				else{
+					Swal.fire({
+						title: '',
+						html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+						allowOutsideClick: false,
+						showConfirmButton: false, // Hide the OK button
+						backdrop: `
+							rgba(255, 255, 255, 0.5) 
+						`,
+						customClass: {
+							popup: 'fullscreen-swal'
+						},
+						didOpen: () => {
+							document.body.style.overflow = 'hidden';
+
+							$.ajax({
+								type: "POST",
+								data: {
+									cusinquiryid: cusinquiryid,
+									inquiryqty: inquiryqty,
+									issueqty: issueqty,
+									section: section
+								},
+								url: '<?php echo base_url() ?>MaterialAllocationManual/CheckBomMaterialInfo',
+								success: function(result) { alert ()
+									Swal.close();
+									document.body.style.overflow = 'auto';
+
+									var obj = JSON.parse(result);
+									$('#tableissue > tbody').append(obj.tabledata);
+									if(obj.warnstatus==1){
+										$('#warningdata').html('<div class="alert alert-danger" role="alert">Some Product quantity not enough for you production. Please check stock in these material '+obj.warntext+' and production start again.</div>');
+										$('#submitBtn').prop('disabled', false);
+										$('#issueMaterialBtn').prop('disabled', true);
+									}
+									else{
+										$('#issueMaterialBtn').prop('disabled', false);
+										$('#warningdata').html('');
+										$('#alreadyissuedqty').val('');
+										$('#issueqty').val('');
+										$('#section').val('');
+									}
+								},
+								error: function(error) {
+									$('#submitBtn').prop('disabled', false);
+									$('#issueMaterialBtn').prop('disabled', true);
+									// Close the SweetAlert on error
+									Swal.close();
+									document.body.style.overflow = 'auto';
+									
+									// Show an error alert
+									Swal.fire({
+										icon: 'error',
+										title: 'Error',
+										text: 'Something went wrong. Please try again later.'
+									});
+								}
+							});
+						}
+					}); 
+				}
+			}
+		}
 	});
-	var rowID = 0;
-
-	$('#tableissue tbody').on('click', '.batchnolist', function () {
-
-		var row = $(this).closest("tr");
-		rowID = row.index();
-		var materialID = row.find('.materialid').text();
+	$('#tableissue tbody').on('click', 'tr .batchnolist', function () {
+		var row = $(this);
+		// console.log(row);
+		var materialID = row.closest("tr").find('td:eq(5)').text();
+		rowID = row.closest("tr")[0].rowIndex;
 
 		Swal.fire({
 			title: '',
 			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
 			allowOutsideClick: false,
-			showConfirmButton: false,
-			backdrop: 'rgba(255,255,255,0.5)',
+			showConfirmButton: false, // Hide the OK button
+			backdrop: `
+				rgba(255, 255, 255, 0.5) 
+			`,
 			customClass: {
 				popup: 'fullscreen-swal'
 			},
 			didOpen: () => {
+				document.body.style.overflow = 'hidden';
 
 				$.ajax({
 					type: "POST",
@@ -433,42 +418,41 @@ $(document).ready(function () {
 						materialID: materialID
 					},
 					url: '<?php echo base_url() ?>MaterialAllocationManual/Getbatchnolistaccomaterial',
-
-					success: function (result) {
-
+					success: function(result) { //alert(result);
 						Swal.close();
+						document.body.style.overflow = 'auto';
 
-						var obj = JSON.parse(result);
+						var objfirst = JSON.parse(result);
+
 						var html = '';
-
-						$.each(obj, function (i, item) {
-							html += '<option value="' + item.batchno + '">';
-							html += item.batchno + ' - ' + item.qty;
+						$.each(objfirst, function(i, item) {
+							//alert(objfirst[i].id);
+							html += '<option value="' + objfirst[i].batchno + '">';
+							html += objfirst[i].batchno+' - '+objfirst[i].qty;
 							html += '</option>';
 						});
 
 						$('#batchnolist').empty().append(html);
+						$('#batchnolist').trigger('change');
 						$('#modalbatchno').modal('show');
 					},
-
-					error: function () {
+					error: function(error) {
+						$('#submitBtn').prop('disabled', false);
+						$('#issueMaterialBtn').prop('disabled', true);
+						// Close the SweetAlert on error
 						Swal.close();
+						document.body.style.overflow = 'auto';
+						
+						// Show an error alert
 						Swal.fire({
 							icon: 'error',
 							title: 'Error',
-							text: 'Batch load failed!'
+							text: 'Something went wrong. Please try again later.'
 						});
 					}
-				});
+				}); 
 			}
 		});
-	});
-	$('#batchnolist').change(function () {
-		var selectedBatch = $(this).val();
-
-		$('#tableissue tbody tr').eq(rowID).find('td:eq(3)').text(selectedBatch);
-
-		$('#modalbatchno').modal('hide');
 	});
 	$('#tableissue tbody').on('click', 'tr .sectionremove', async function () {
 		var r = await Otherconfirmation("You want to remove this ? ");
@@ -496,7 +480,6 @@ $(document).ready(function () {
 		var cusinquiry = $('#cusinquiry').val();
 		var bominfo = $('#bominfo').val();
 		var issueqty = $('#issueqty').val();
-		var jobcardtype = 1;
 
 		var emptybatch = 0;
 		var tbody = $('#tableissue tbody');
@@ -544,7 +527,6 @@ $(document).ready(function () {
 							cusinquiry: cusinquiry,
 							bominfo: bominfo,
 							issueqty: issueqty,
-							jobcardtype: jobcardtype,
 							tableData: jsonObj
 						},
 						url: '<?php echo base_url() ?>MaterialAllocationManual/Issuematerialinsertupdate',
