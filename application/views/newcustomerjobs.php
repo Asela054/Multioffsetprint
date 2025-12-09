@@ -1047,7 +1047,7 @@ include "include/topnavbar.php";
 		$("#materialpaperboard").select2({
             dropdownParent: $('#modalBomInfo'),
             ajax: {
-                url: "<?php echo base_url() ?>Newcustomerjobs/GetMaterialList",
+                url: "<?php echo base_url() ?>Newcustomerjobs/\p4",
                 type: "post",
                 dataType: 'json',
                 delay: 250,
