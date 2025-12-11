@@ -261,7 +261,7 @@ $(document).ready(function () {
 			materialsectiontype = JSON.stringify(["7"]);
 
 		} else if ($(this).val() == '7') {
-			materialsectiontype = JSON.stringify([]);
+			materialsectiontype = JSON.stringify(["7"]);
 		}
 
 	});

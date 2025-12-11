@@ -249,19 +249,19 @@ $(document).ready(function () {
 			materialsectiontype = JSON.stringify(["3"]);
 
 		} else if ($(this).val() == '3') {
-			materialsectiontype = JSON.stringify(["8"]);
+			materialsectiontype = JSON.stringify(["3"]);
 
 		} else if ($(this).val() == '4') {
-			materialsectiontype = JSON.stringify(["5"]);
+			materialsectiontype = JSON.stringify(["4"]);
 
 		} else if ($(this).val() == '5') {
-			materialsectiontype = JSON.stringify(["6"]);
+			materialsectiontype = JSON.stringify(["5"]);
 
 		} else if ($(this).val() == '6') {
-			materialsectiontype = JSON.stringify(["7"]);
+			materialsectiontype = JSON.stringify(["6"]);
 
 		} else if ($(this).val() == '7') {
-			materialsectiontype = JSON.stringify([]);
+			materialsectiontype = JSON.stringify(["7"]);
 		}
 
 	});
