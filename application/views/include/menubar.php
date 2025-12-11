@@ -944,7 +944,7 @@ function checkprivilege($arraymenu, $menuID, $type){
             <!-- Material Menu New Added -->
             <?php } if(menucheck($menuprivilegearray, 59)==1 | menucheck($menuprivilegearray, 13)==1 | menucheck($menuprivilegearray, 101)==1 | menucheck($menuprivilegearray, 25)==1 | menucheck($menuprivilegearray, 9)==1 | menucheck($menuprivilegearray, 10)==1 | menucheck($menuprivilegearray, 11)==1 | menucheck($menuprivilegearray, 12)==1 | menucheck($menuprivilegearray, 14)==1 | menucheck($menuprivilegearray, 176)==1){ ?>
             <a class="nav-link p-0 px-3 py-2 collapsed text-dark" href="javascript:void(0);" data-toggle="collapse" data-target="#collapsematerials" aria-expanded="false" aria-controls="collapsematerials">
-                <div class="nav-link-icon"><i class="fas fa-users"></i></div>
+                <div class="nav-link-icon"><i class="fas fa-shopping-basket"></i></div>
                 Material Info
                 <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
             </a>

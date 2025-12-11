@@ -1,11 +1,15 @@
 <?php
 class Materialdetailinfo extends CI_Model{
-    public function Getmaterialcategory(){
+    public function Getmaterialcaregorybygroup(){
+        $recordID=$this->input->post('recordID');
+
         $this->db->select('`idtbl_material_type`, `paper`');
         $this->db->from('tbl_material_type');
         $this->db->where('status', 1);
+        $this->db->where('tbl_material_group_idtbl_material_group', $recordID);
 
-        return $respond=$this->db->get();
+        $respond=$this->db->get();
+        echo json_encode($respond->result());
     }
     public function Getmaterialname(){
         $this->db->select('`idtbl_material_code`, `materialname`, `materialcode`');
@@ -285,52 +289,52 @@ class Materialdetailinfo extends CI_Model{
         }
     }
     
-public function Getadduomqty()
-{
-    $materialID = $this->input->post('id');
+    public function Getadduomqty()
+    {
+        $materialID = $this->input->post('id');
 
-    $this->db->distinct();
-    $this->db->select('c.idtbl_uom_conversions, c.main_uom, c.convert_uom, c.qty, 
-                      main.measure_type AS main_uom_name, 
-                      convert.measure_type AS convert_uom_name');
-    $this->db->from('tbl_uom_conversions c');
-    $this->db->join('tbl_measurements as main', 'main.idtbl_mesurements = c.main_uom', 'left');
-    $this->db->join('tbl_measurements as convert', 'convert.idtbl_mesurements = c.convert_uom', 'left');
-    $this->db->where('c.status', 1);
-    $uoms = $this->db->get()->result_array();
+        $this->db->distinct();
+        $this->db->select('c.idtbl_uom_conversions, c.main_uom, c.convert_uom, c.qty, 
+                        main.measure_type AS main_uom_name, 
+                        convert.measure_type AS convert_uom_name');
+        $this->db->from('tbl_uom_conversions c');
+        $this->db->join('tbl_measurements as main', 'main.idtbl_mesurements = c.main_uom', 'left');
+        $this->db->join('tbl_measurements as convert', 'convert.idtbl_mesurements = c.convert_uom', 'left');
+        $this->db->where('c.status', 1);
+        $uoms = $this->db->get()->result_array();
 
-    $result = [];
-    foreach ($uoms as $uom) {
-        $this->db->select('rel.tbl_print_material_info_idtbl_print_material_info');
-        $this->db->from('tbl_material_uom_qty muq');
-        $this->db->join('tbl_material_uom_qty_has_tbl_print_material_info rel', 
-            'rel.tbl_material_uom_qty_idtbl_material_uom_qty = muq.idtbl_material_uom_qty');
-        $this->db->where('muq.measurement', $uom['convert_uom']);
-        $this->db->where('muq.tbl_measurements_idtbl_mesurements', $uom['main_uom']);
-        $this->db->where('rel.tbl_print_material_info_idtbl_print_material_info', $materialID);
-        
-        $query = $this->db->get();
-        $is_checked = $query->num_rows() > 0 ? 1 : 0;
-        
-        $result[] = [
-            'idtbl_uom_conversions' => $uom['idtbl_uom_conversions'],
-            'main_uom' => $uom['main_uom_name'],
-            'convert_uom' => $uom['convert_uom_name'],
-            'qty' => $uom['qty'],
-            'is_checked' => $is_checked
-        ];
+        $result = [];
+        foreach ($uoms as $uom) {
+            $this->db->select('rel.tbl_print_material_info_idtbl_print_material_info');
+            $this->db->from('tbl_material_uom_qty muq');
+            $this->db->join('tbl_material_uom_qty_has_tbl_print_material_info rel', 
+                'rel.tbl_material_uom_qty_idtbl_material_uom_qty = muq.idtbl_material_uom_qty');
+            $this->db->where('muq.measurement', $uom['convert_uom']);
+            $this->db->where('muq.tbl_measurements_idtbl_mesurements', $uom['main_uom']);
+            $this->db->where('rel.tbl_print_material_info_idtbl_print_material_info', $materialID);
+            
+            $query = $this->db->get();
+            $is_checked = $query->num_rows() > 0 ? 1 : 0;
+            
+            $result[] = [
+                'idtbl_uom_conversions' => $uom['idtbl_uom_conversions'],
+                'main_uom' => $uom['main_uom_name'],
+                'convert_uom' => $uom['convert_uom_name'],
+                'qty' => $uom['qty'],
+                'is_checked' => $is_checked
+            ];
+        }
+
+        if (!empty($result)) {
+            echo json_encode([
+                'status' => 'success',
+                'uom_conversions' => $result
+            ]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'No data found']);
+        }
     }
-
-    if (!empty($result)) {
-        echo json_encode([
-            'status' => 'success',
-            'uom_conversions' => $result
-        ]);
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'No data found']);
-    }
-}
-      
+        
 
     public function Materialdetailstatus($x, $y){
         $this->db->trans_begin();
@@ -900,7 +904,7 @@ public function Getadduomqty()
         `ug`.`sizecode`,
         `uh`.`sidecode`,
         `ui`.`unittypecode`
-    FROM 
+        FROM 
         `tbl_print_material_info` `u`
         LEFT JOIN `tbl_material_category` `ub` ON `ub`.`idtbl_material_category` = `u`.`tbl_material_category_idtbl_material_category`
         WHERE `u`.`idtbl_print_material_info`=?";

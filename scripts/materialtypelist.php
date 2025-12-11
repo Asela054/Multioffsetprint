@@ -32,6 +32,7 @@ $columns = array(
 	array( 'db' => '`u`.`idtbl_material_type`', 'dt' => 'idtbl_material_type', 'field' => 'idtbl_material_type' ),
 	array( 'db' => '`u`.`paper`', 'dt' => 'paper', 'field' => 'paper' ),
 	array( 'db' => '`u`.`qty_in_box`', 'dt' => 'qty_in_box', 'field' => 'qty_in_box' ),
+	array( 'db' => '`ua`.`group`', 'dt' => 'group', 'field' => 'group' ),
 	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' )
 );
 
@@ -52,7 +53,7 @@ $sql_details = array(
 // require( 'ssp.class.php' );
 require('ssp.customized.class.php' );
 
-$joinQuery = "FROM `tbl_material_type` AS `u` ";
+$joinQuery = "FROM `tbl_material_type` AS `u` LEFT JOIN `tbl_material_group` AS `ua` ON (`u`.`tbl_material_group_idtbl_material_group`=`ua`.`idtbl_material_group`)";
 $extraWhere = "`u`.`status` IN (1, 2)";
 
 echo json_encode(

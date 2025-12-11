@@ -43,8 +43,7 @@ include "include/topnavbar.php";
                                     <div class="form-row mb-1">
                                         <div class="col">
                                             <label class="small font-weight-bold">Material Group*</label>
-                                            <select class="form-control form-control-sm" name="materialgroup"
-                                                id="materialgroup" required>
+                                            <select class="form-control form-control-sm" name="materialgroup" id="materialgroup" required>
                                                 <option value="">Select</option>
                                                 <?php foreach($materialgroup->result() as $rowmaterialgroup){ ?>
                                                 <option value="<?php echo $rowmaterialgroup->idtbl_material_group ?>">
@@ -55,14 +54,8 @@ include "include/topnavbar.php";
                                         </div>
                                         <div class="col">
                                             <label class="small font-weight-bold">Material Category</label>
-                                            <select class="form-control form-control-sm" name="materialcategory"
-                                                id="materialcategory">
+                                            <select class="form-control form-control-sm" name="materialcategory" id="materialcategory">
                                                 <option value="">Select</option>
-                                                <?php foreach($materialcategory->result() as $rowmaterialcategory){ ?>
-                                                <option value="<?php echo $rowmaterialcategory->idtbl_material_type ?>">
-                                                    <?php echo $rowmaterialcategory->paper ?>
-                                                </option>
-                                                <?php } ?>
                                             </select>
                                         </div>
                                     </div>
@@ -364,6 +357,11 @@ $(document).ready(function() {
     var materialCategoryGauge;
     var concatenatedValue;
 
+    $('#materialgroup').change(function() {
+        var id = $(this).val();
+        Getmaterialcategorybygroup(id, '');
+    });
+
     $('#materialcategory, #material_color, #material_categorygauge').change(function() {
         updateMaterialName();
     });
@@ -393,7 +391,7 @@ $(document).ready(function() {
                     // checkfield(obj.materialcategory);
                     $('#recordID').val(obj.id);
                     $('#materialname').val(obj.materialname);
-                    $('#materialcategory').val(obj.materialcategory);
+                    // $('#materialcategory').val(obj.materialcategory);
                     $('#material_color').val(obj.materialcolor);
                     $('#material_categorygauge').val(obj.materialcategorygauge);
                     $('#unitprice').val(obj.unitprice);
@@ -402,6 +400,7 @@ $(document).ready(function() {
                     $('#comment').val(obj.comment);
                     $('#supplier').val(obj.supplier);
                     $('#materialgroup').val(obj.materialgroup);
+                    Getmaterialcategorybygroup(obj.materialgroup, obj.materialcategory);
                     $('#recordOption').val('2');
                     $('#submitBtn').html('<i class="far fa-save"></i>&nbsp;Update');
                 }
@@ -470,6 +469,28 @@ $(document).ready(function() {
     });
 
 });
+
+function Getmaterialcategorybygroup(recordID, value) {
+    $.ajax({
+        type: "POST",
+        data: {
+            recordID: recordID
+        },
+        url: '<?php echo base_url() ?>Materialdetail/Getmaterialcaregorybygroup',
+        success: function(result) {
+            var obj = JSON.parse(result);
+            $('#materialcategory').empty();
+            $('#materialcategory').append('<option value="">Select</option>');
+            obj.forEach(function(item) {
+                $('#materialcategory').append('<option value="' + item.idtbl_material_type + '">' + item.paper + '</option>');
+            });
+
+            if(value){
+                $('#materialcategory').val(value); 
+            }
+        }
+    });
+}
 
 function addCommas(nStr) {
     nStr += '';

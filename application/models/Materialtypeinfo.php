@@ -5,6 +5,7 @@ class Materialtypeinfo extends CI_Model{
 
         $userID=$_SESSION['userid'];
 
+        $materialgroup=$this->input->post('materialgroup');
         $materialcat_name=$this->input->post('materialcat_name');
 		$qtyinbox=$this->input->post('qtyinbox');
       
@@ -20,6 +21,7 @@ class Materialtypeinfo extends CI_Model{
                 'status'=> '1', 
                 'insertdatetime'=> $insertdatetime, 
                 'tbl_user_idtbl_user'=> $userID,
+                'tbl_material_group_idtbl_material_group'=> $materialgroup
             );
 
             $this->db->insert('tbl_material_type', $data);
@@ -62,9 +64,9 @@ class Materialtypeinfo extends CI_Model{
             $data = array(
 				'paper'=> $materialcat_name, 
 				'qty_in_box'=> $qtyinbox,
-                'status'=> '1', 
                 'updatedatetime'=> $insertdatetime, 
                 'tbl_user_idtbl_user'=> $userID,
+                'tbl_material_group_idtbl_material_group'=> $materialgroup
             );
 
             $this->db->where('idtbl_material_type', $recordID);
@@ -260,6 +262,14 @@ class Materialtypeinfo extends CI_Model{
         $obj->id=$respond->row(0)->idtbl_material_type;
         $obj->paper=$respond->row(0)->paper;
 		$obj->qty_in_box=$respond->row(0)->qty_in_box;
+		$obj->materialgroup=$respond->row(0)->tbl_material_group_idtbl_material_group;
         echo json_encode($obj);
+    }
+    public function Materialgroup(){
+        $this->db->select('`idtbl_material_group`, `group`');
+        $this->db->from('tbl_material_group');
+        $this->db->where('status', 1);
+
+        return $respond=$this->db->get();
     }
 }
