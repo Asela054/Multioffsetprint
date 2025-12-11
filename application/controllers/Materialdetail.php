@@ -9,7 +9,7 @@ class Materialdetail extends CI_Controller {
         $this->load->model('Materialdetailinfo');
 		$result['menuaccess']=$this->Commeninfo->Getmenuprivilege();
         $result['measurement']=$this->Materialdetailinfo->Getmeasurement();
-        $result['materialcategory']=$this->Materialdetailinfo->Getmaterialcategory();
+        // $result['materialcategory']=$this->Materialdetailinfo->Getmaterialcategory();
 		$result['materialcolor']=$this->Materialdetailinfo->Getmaterialcolor();
 		$result['materialgroup']=$this->Materialdetailinfo->Getmaterialgroup();
 		$result['materialcategorygauge']=$this->Materialdetailinfo->Getmaterialcategorygauge();
@@ -73,6 +73,10 @@ class Materialdetail extends CI_Controller {
 	public function Getadduomqty(){
 		$this->load->model('Materialdetailinfo');
         $result=$this->Materialdetailinfo->Getadduomqty();
+	}
+	public function Getmaterialcaregorybygroup(){
+		$this->load->model('Materialdetailinfo');
+        $result=$this->Materialdetailinfo->Getmaterialcaregorybygroup();
 	}
 	
 }

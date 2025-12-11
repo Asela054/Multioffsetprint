@@ -8,6 +8,7 @@ class Materialtype extends CI_Controller {
 		$this->load->model('Materialtypeinfo');
 		$this->load->model('Commeninfo');
 		$result['menuaccess']=$this->Commeninfo->Getmenuprivilege();
+		$result['materialgroup']=$this->Materialtypeinfo->Materialgroup();
 		$this->load->view('materialtype',$result);
 	}
    

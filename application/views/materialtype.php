@@ -26,7 +26,16 @@ include "include/topnavbar.php";
                             <div class="col-3">
                                 <form action="<?php echo base_url() ?>Materialtype/Materialtypeinsertupdate" method="post" autocomplete="off">
                                     <div class="form-group mb-1">
-                                        <label class="small font-weight-bold">Material Category Name*</label>
+                                        <label class="small font-weight-bold">Material Group*</label>
+                                        <select class="form-control form-control-sm" name="materialgroup" id="materialgroup" required>
+                                            <option value="">Select</option>
+                                            <?php foreach($materialgroup->result() as $rowmaterialgroup): ?>
+                                            <option value="<?php echo $rowmaterialgroup->idtbl_material_group ?>"><?php echo $rowmaterialgroup->group ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label class="small font-weight-bold">Material Type*</label>
                                         <input type="text" class="form-control form-control-sm" name="materialcat_name" id="materialcat_name" required>
                                     </div>
 									<div class="form-group mb-1">
@@ -47,7 +56,8 @@ include "include/topnavbar.php";
                                         <thead>
                                             <tr>
                                                 <th>#</th>
-                                                <th>Material Category</th>
+                                                <th>Material Group</th>
+                                                <th>Material Type</th>
 												<th>Quntity in a Box</th>
                                                 <th class="text-right">Actions</th>
                                             </tr>
@@ -112,6 +122,9 @@ include "include/topnavbar.php";
                     }
                 },
                 {
+                    "data": "group"
+                },
+                {
                     "data": "paper"
                 },
 				{
@@ -159,6 +172,7 @@ include "include/topnavbar.php";
                         $('#recordID').val(obj.id);
                         $('#materialcat_name').val(obj.paper); 
 						$('#qtyinbox').val(obj.qty_in_box); 
+						$('#materialgroup').val(obj.materialgroup); 
                          
                         $('#recordOption').val('2');
                         $('#submitBtn').html('<i class="far fa-save"></i>&nbsp;Update');
