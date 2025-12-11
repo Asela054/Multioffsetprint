@@ -258,10 +258,10 @@ $(document).ready(function () {
 			materialsectiontype = JSON.stringify(["6"]);
 
 		} else if ($(this).val() == '6') {
-			materialsectiontype = JSON.stringify(["7"]);
+			materialsectiontype = JSON.stringify(["6"]);
 
 		} else if ($(this).val() == '7') {
-			materialsectiontype = JSON.stringify([]);
+			materialsectiontype = JSON.stringify(["7"]);
 		}
 
 	});
