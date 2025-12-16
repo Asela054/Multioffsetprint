@@ -244,7 +244,7 @@ class InvoicePrintinfo extends CI_Model{
                                     <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal"></label></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" style="font-size:11px;"></td>
+                                    <td colspan="2" style="font-size:11px;">IP REF</td>
                                     <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
                                     <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
                                 </tr>
@@ -262,7 +262,7 @@ class InvoicePrintinfo extends CI_Model{
                                     <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal">'.number_format($net,2).'</label></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" style="font-size:11px;"></td>
+                                    <td colspan="2" style="font-size:11px;">IP REF</td>
                                     <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
                                     <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
                                 </tr>
