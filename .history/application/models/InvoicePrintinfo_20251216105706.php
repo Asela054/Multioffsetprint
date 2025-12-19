@@ -137,31 +137,15 @@ class InvoicePrintinfo extends CI_Model{
             <header>
                 <table style="width:100%;border-collapse: collapse;">
                     <tr>
-                        <td width="55%" style="vertical-align: top;padding:0px;">
-                            <p style="margin:0px;font-size:16px;font-weight: bold;">PURCHASE ORDER</p>
-                            <p style="margin:0px;font-size:13px;font-weight: bold;">To: '.$respond->row(0)->suppliername.'</p>';
-
-                        $address_line1 = trim($respond->row(0)->address_line1);
-                        $address_line2 = trim($respond->row(0)->address_line2);
-                        $city = trim($respond->row(0)->city);
-
-                        if (!empty($address_line1) && $address_line1 !== '') {
-                            $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $address_line1 . ',' . '</p>';
-                        }
-                        if (!empty($address_line2) && $address_line2 !== '') {
-                            $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $address_line2 . ',' . '</p>';
-                        }
-                        if (!empty($city) && $city !== '') {
-                            $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $city . '.' . '</p>';
-                        }
-
-                        $tpnumber_clean = trim(str_replace('&nbsp;', '', $tpnumber));
-                        if (!empty($tpnumber_clean) && $tpnumber_clean !== '') {
-                            $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $tpnumber . '</p>';
-                        }
-
-                        $html .= '<p style="font-size:13px;">Atten ....................................................</p>
-                        </td>
+<td width="55%" style="vertical-align: top;padding:0px;">
+    <p style="margin:0px;font-size:16px;font-weight: bold;">PURCHASE ORDER</p>
+    <p style="margin:0px;font-size:13px;font-weight: bold;">To: '.$respond->row(0)->suppliername.'</p>
+    <p style="margin:0px;font-size:13px;padding-left: 24px;"> '.$respond->row(0)->address_line1.($respond->row(0)->address_line1 ? ',' : '').'</p>
+    <p style="margin:0px;font-size:13px;padding-left: 24px;"> '.$respond->row(0)->address_line2.($respond->row(0)->address_line2 ? ',' : '').'</p>
+    <p style="margin:0px;font-size:13px;padding-left: 24px;"> '.$respond->row(0)->city.($respond->row(0)->city ? '.' : '').'</p>
+    <p style="margin:0px;font-size:13px;padding-left: 24px;"> '.$tpnumber.'</p>
+    <p style="font-size:13px;">Atten ....................................................</p>
+</td>
                         <td style="vertical-align: top;padding:0px;">
                             <p style="margin:0px;font-size:18px;font-weight:bold;text-transform: uppercase;">'.$companydetails->row()->companyname.'</p>
                             <p style="margin:0px;font-size:13px;font-weight:normal;text-transform: uppercase;">'.$companydetails->row()->companyaddress.'</p>
@@ -239,12 +223,12 @@ class InvoicePrintinfo extends CI_Model{
                         if ($index === count($dataArray) - 1) {
                             $html .= '<tfoot>
                                 <tr>
-                                    <td colspan="2" style="border-top: 1px solid #000;font-size:12px;"></td>
+                                    <td colspan="2" style="border-top: 1px solid #000;font-size:12px;">PRF INV DETAILS.</td>
                                     <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Total (Excl)</td>
                                     <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal"></label></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" style="font-size:11px;"></td>
+                                    <td colspan="2" style="font-size:11px;">IP REF</td>
                                     <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
                                     <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
                                 </tr>
@@ -257,12 +241,12 @@ class InvoicePrintinfo extends CI_Model{
                         } else {
                             $html .= '<tfoot>
                                 <tr>
-                                    <td colspan="2" style="border-top: 1px solid #000;font-size:12px;"></td>
+                                    <td colspan="2" style="border-top: 1px solid #000;font-size:12px;">PRF INV DETAILS.</td>
                                     <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Total (Excl)</td>
                                     <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal">'.number_format($net,2).'</label></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" style="font-size:11px;"></td>
+                                    <td colspan="2" style="font-size:11px;">IP REF</td>
                                     <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
                                     <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
                                 </tr>

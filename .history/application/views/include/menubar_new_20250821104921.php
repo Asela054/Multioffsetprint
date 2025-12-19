@@ -523,6 +523,11 @@ function checkprivilege($arraymenu, $menuID, $type){
 			</div>
 
 
+
+
+
+
+
 			<?php }if(menucheck($menuprivilegearray, 42)==1 | menucheck($menuprivilegearray, 43)==1 | menucheck($menuprivilegearray, 44)==1){ ?>
 			<a class="nav-link p-0 px-3 py-2 collapsed text-dark" href="javascript:void(0);" data-toggle="collapse"
 				data-target="#collapseService" aria-expanded="false" aria-controls="collapseService">

@@ -160,7 +160,7 @@ class InvoicePrintinfo extends CI_Model{
                             $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $tpnumber . '</p>';
                         }
 
-                        $html .= '<p style="font-size:13px;">Atten ....................................................</p>
+                        $html .= '<p style="font-size:13px; margin-top: 100px;">Atten ....................................................</p>
                         </td>
                         <td style="vertical-align: top;padding:0px;">
                             <p style="margin:0px;font-size:18px;font-weight:bold;text-transform: uppercase;">'.$companydetails->row()->companyname.'</p>
@@ -239,12 +239,12 @@ class InvoicePrintinfo extends CI_Model{
                         if ($index === count($dataArray) - 1) {
                             $html .= '<tfoot>
                                 <tr>
-                                    <td colspan="2" style="border-top: 1px solid #000;font-size:12px;"></td>
+                                    <td colspan="2" style="border-top: 1px solid #000;font-size:12px;">PRF INV DETAILS.</td>
                                     <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Total (Excl)</td>
                                     <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal"></label></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" style="font-size:11px;"></td>
+                                    <td colspan="2" style="font-size:11px;">IP REF</td>
                                     <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
                                     <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
                                 </tr>
@@ -257,12 +257,12 @@ class InvoicePrintinfo extends CI_Model{
                         } else {
                             $html .= '<tfoot>
                                 <tr>
-                                    <td colspan="2" style="border-top: 1px solid #000;font-size:12px;"></td>
+                                    <td colspan="2" style="border-top: 1px solid #000;font-size:12px;">PRF INV DETAILS.</td>
                                     <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Total (Excl)</td>
                                     <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal">'.number_format($net,2).'</label></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" style="font-size:11px;"></td>
+                                    <td colspan="2" style="font-size:11px;">IP REF</td>
                                     <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
                                     <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
                                 </tr>
