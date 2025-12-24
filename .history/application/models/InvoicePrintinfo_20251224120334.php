@@ -145,50 +145,52 @@ class InvoicePrintinfo extends CI_Model{
         <body>
             <header>
                 <table style="width:100%;border-collapse: collapse;">
-                <tr>
-                    <td width="55%" style="vertical-align: top;padding:0px;">
-                        <p style="margin:0px;font-size:16px;font-weight: bold;">PURCHASE ORDER</p>
-                        <p style="margin:0px;font-size:13px;font-weight: bold;">To: '.$respond->row(0)->suppliername.'</p>';
-                        
-                        if (!empty($remarkFeild)) {
-                            $html .= '<p style="margin:0px;font-size:13px;font-weight: bold;">Remark: '.htmlspecialchars($remarkFeild).'</p>';
-                        }
+<tr>
+    <td width="55%" style="vertical-align: top;padding:0px;">
+        <p style="margin:0px;font-size:16px;font-weight: bold;">PURCHASE ORDER</p>
+        <p style="margin:0px;font-size:13px;font-weight: bold;">To: '.$respond->row(0)->suppliername.'</p>';
+        
+        // Only show remark if it's not empty
+        if (!empty($remarkFeild)) {
+            $html .= '<p style="margin:0px;font-size:13px;font-weight: bold;">Remark: '.htmlspecialchars($remarkFeild).'</p>';
+        }
 
-                        $address_line1 = trim($respond->row(0)->address_line1);
-                        $address_line2 = trim($respond->row(0)->address_line2);
-                        $city = trim($respond->row(0)->city);
+        $address_line1 = trim($respond->row(0)->address_line1);
+        $address_line2 = trim($respond->row(0)->address_line2);
+        $city = trim($respond->row(0)->city);
 
-                        if (!empty($address_line1) && $address_line1 !== '') {
-                            $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $address_line1 . ',' . '</p>';
-                        }
-                        if (!empty($address_line2) && $address_line2 !== '') {
-                            $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $address_line2 . ',' . '</p>';
-                        }
-                        if (!empty($city) && $city !== '') {
-                            $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $city . '.' . '</p>';
-                        }
+        if (!empty($address_line1) && $address_line1 !== '') {
+            $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $address_line1 . ',' . '</p>';
+        }
+        if (!empty($address_line2) && $address_line2 !== '') {
+            $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $address_line2 . ',' . '</p>';
+        }
+        if (!empty($city) && $city !== '') {
+            $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $city . '.' . '</p>';
+        }
 
-                        $tpnumber_clean = trim(str_replace('&nbsp;', '', $tpnumber));
-                        if (!empty($tpnumber_clean) && $tpnumber_clean !== '') {
-                            $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $tpnumber . '</p>';
-                        }
+        $tpnumber_clean = trim(str_replace('&nbsp;', '', $tpnumber));
+        if (!empty($tpnumber_clean) && $tpnumber_clean !== '') {
+            $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $tpnumber . '</p>';
+        }
 
-                        $html .= '</td>
-                        <td style="vertical-align: top;padding:0px;">
-                            <p style="margin:0px;font-size:18px;font-weight:bold;text-transform: uppercase;">'.$companydetails->row()->companyname.'</p>
-                            <p style="margin:0px;font-size:13px;font-weight:normal;text-transform: uppercase;">'.$companydetails->row()->companyaddress.'</p>
-                            <p style="margin:0px;font-size:13px;font-weight:normal;">Phone : '.$companydetails->row()->companymobile.'/'.$companydetails->row()->companyphone.'</p>
-                            <p style="margin:0px;font-size:13px;font-weight:normal;"><u>E-Mail : '.$companydetails->row()->companyemail.'</u></p>
-                            <p style="margin:0px;font-size:13px;font-weight:normal;">PO No : ' . $prefix . '/' . $respond->row(0)->porder_no . '</p>
-                            <p style="margin:0px;font-size:13px;font-weight:normal;">Date : '.$respond->row(0)->orderdate.'</p>
-                            '.($respond->num_rows() > 0 && $company_id == 1 ? '<p style="margin:0px;font-size:13px;font-weight:normal;">Our Vat No : &nbsp; 103305667-7000</p>' : '').'
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="padding-top: -20px;">
-                            <p style="margin:0px;font-size:13px;">Atten ....................................................</p>
-                        </td>
-                    </tr>
+        $html .= '</td>
+        <td style="vertical-align: top;padding:0px;">
+            <p style="margin:0px;font-size:18px;font-weight:bold;text-transform: uppercase;">'.$companydetails->row()->companyname.'</p>
+            <p style="margin:0px;font-size:13px;font-weight:normal;text-transform: uppercase;">'.$companydetails->row()->companyaddress.'</p>
+            <p style="margin:0px;font-size:13px;font-weight:normal;">Phone : '.$companydetails->row()->companymobile.'/'.$companydetails->row()->companyphone.'</p>
+            <p style="margin:0px;font-size:13px;font-weight:normal;"><u>E-Mail : '.$companydetails->row()->companyemail.'</u></p>
+            <p style="margin:0px;font-size:13px;font-weight:normal;">PO No : ' . $prefix . '/' . $respond->row(0)->porder_no . '</p>
+            <p style="margin:0px;font-size:13px;font-weight:normal;">Date : '.$respond->row(0)->orderdate.'</p>
+            '.($respond->num_rows() > 0 && $company_id == 1 ? '<p style="margin:0px;font-size:13px;font-weight:normal;">Our Vat No : &nbsp; 103305667-7000</p>' : '').'
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" style="padding-top: 10px;">
+            <p style="margin:0px;font-size:13px;">Atten ....................................................</p>
+        </td>
+    </tr>
+
                 </table>
             </header>
 

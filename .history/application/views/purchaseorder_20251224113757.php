@@ -82,7 +82,7 @@ include "include/topnavbar.php";
 								<div class="col">
 									<label class="small font-weight-bold text-dark">PO Request</label>
 									<select class="form-control form-control-sm selecter2 px-0" name="porderrequest"
-										id="porderrequest">
+										id="porderrequest" required>
 										<option value="">Select</option>
 										<?php foreach($porderlist->result() as $rowporderlist){ ?>
 										<option value="<?php echo $rowporderlist->idtbl_print_porder_req ?>">

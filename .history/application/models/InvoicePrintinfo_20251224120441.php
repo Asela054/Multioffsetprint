@@ -150,6 +150,7 @@ class InvoicePrintinfo extends CI_Model{
                         <p style="margin:0px;font-size:16px;font-weight: bold;">PURCHASE ORDER</p>
                         <p style="margin:0px;font-size:13px;font-weight: bold;">To: '.$respond->row(0)->suppliername.'</p>';
                         
+                        // Only show remark if it's not empty
                         if (!empty($remarkFeild)) {
                             $html .= '<p style="margin:0px;font-size:13px;font-weight: bold;">Remark: '.htmlspecialchars($remarkFeild).'</p>';
                         }

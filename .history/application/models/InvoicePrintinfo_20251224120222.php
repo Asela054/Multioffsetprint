@@ -145,14 +145,11 @@ class InvoicePrintinfo extends CI_Model{
         <body>
             <header>
                 <table style="width:100%;border-collapse: collapse;">
-                <tr>
-                    <td width="55%" style="vertical-align: top;padding:0px;">
-                        <p style="margin:0px;font-size:16px;font-weight: bold;">PURCHASE ORDER</p>
-                        <p style="margin:0px;font-size:13px;font-weight: bold;">To: '.$respond->row(0)->suppliername.'</p>';
-                        
-                        if (!empty($remarkFeild)) {
-                            $html .= '<p style="margin:0px;font-size:13px;font-weight: bold;">Remark: '.htmlspecialchars($remarkFeild).'</p>';
-                        }
+                    <tr>
+                        <td width="55%" style="vertical-align: top;padding:0px;">
+                            <p style="margin:0px;font-size:16px;font-weight: bold;">PURCHASE ORDER</p>
+                            <p style="margin:0px;font-size:13px;font-weight: bold;">To: '.$respond->row(0)->suppliername.'</p>
+                            <p style="margin:0px;font-size:13px;font-weight: bold;">Remark:'.$remarkFeild.'</p>';
 
                         $address_line1 = trim($respond->row(0)->address_line1);
                         $address_line2 = trim($respond->row(0)->address_line2);
@@ -173,7 +170,8 @@ class InvoicePrintinfo extends CI_Model{
                             $html .= '<p style="margin:0px;font-size:13px;padding-left: 24px;">' . $tpnumber . '</p>';
                         }
 
-                        $html .= '</td>
+                        $html .= '<p style="vertical-align: bottom; font-size:13px;">Atten ....................................................</p>
+                        </td>
                         <td style="vertical-align: top;padding:0px;">
                             <p style="margin:0px;font-size:18px;font-weight:bold;text-transform: uppercase;">'.$companydetails->row()->companyname.'</p>
                             <p style="margin:0px;font-size:13px;font-weight:normal;text-transform: uppercase;">'.$companydetails->row()->companyaddress.'</p>
@@ -182,11 +180,6 @@ class InvoicePrintinfo extends CI_Model{
                             <p style="margin:0px;font-size:13px;font-weight:normal;">PO No : ' . $prefix . '/' . $respond->row(0)->porder_no . '</p>
                             <p style="margin:0px;font-size:13px;font-weight:normal;">Date : '.$respond->row(0)->orderdate.'</p>
                             '.($respond->num_rows() > 0 && $company_id == 1 ? '<p style="margin:0px;font-size:13px;font-weight:normal;">Our Vat No : &nbsp; 103305667-7000</p>' : '').'
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="padding-top: -20px;">
-                            <p style="margin:0px;font-size:13px;">Atten ....................................................</p>
                         </td>
                     </tr>
                 </table>

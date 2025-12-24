@@ -144,8 +144,8 @@ include "include/topnavbar.php";
 								</div>
 								<div class="col-4">
 									<div class="form-group mb-1">
-										<label class="small font-weight-bold">Delivery Address Line 2</label>
-										<input type="text" class="form-control form-control-sm" name="dline2" id="dline2">
+										<label class="small font-weight-bold">Delivery Address Line 2*</label>
+										<input type="text" class="form-control form-control-sm" name="dline2" id="dline2" required>
 									</div>
 								</div>
 								<div class="col-4">
@@ -167,13 +167,13 @@ include "include/topnavbar.php";
 								</div>
 								<div class="col-4">
 									<div class="form-group mb-1">
-										<label class="small font-weight-bold">City</label>
+										<label class="small font-weight-bold">City*</label>
 										<input type="text" class="form-control form-control-sm" name="city" id="city">
 									</div>
 								</div>
 								<div class="col-4">
 									<div class="form-group mb-1">
-										<label class="small font-weight-bold">Delivery City</label>
+										<label class="small font-weight-bold">Delivery City*</label>
 										<input type="text" class="form-control form-control-sm" name="dcity" id="dcity">
 									</div>
 								</div>
@@ -192,13 +192,13 @@ include "include/topnavbar.php";
 								</div>
 								<div class="col-4">
 									<div class="form-group mb-1">
-										<label class="small font-weight-bold">State</label>
+										<label class="small font-weight-bold">State*</label>
 										<input type="text" class="form-control form-control-sm" name="state" id="state">
 									</div>
 								</div>
 								<div class="col-4">
 									<div class="form-group mb-1">
-										<label class="small font-weight-bold">Delivery State</label>
+										<label class="small font-weight-bold">Delivery State*</label>
 										<input type="text" class="form-control form-control-sm" name="dstate" id="dstate">
 									</div>
 								</div>
