@@ -198,7 +198,7 @@ include "include/topnavbar.php";
 								</div>
 								<div class="col-4">
 									<div class="form-group mb-1">
-										<label class="small font-weight-bold">Delivery State</label>
+										<label class="small font-weight-bold">Delivery State*</label>
 										<input type="text" class="form-control form-control-sm" name="dstate" id="dstate">
 									</div>
 								</div>
