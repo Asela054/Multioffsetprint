@@ -557,6 +557,10 @@ class Jobcardissuematerialinfo extends CI_Model {
                     $accountcrno = $rowchartdata->idtbl_account; 
                 endif;
             endforeach;
+
+            if($traamount <= 0){
+                throw new Exception('Material value is zero, cannot proceed with accounting entry.');
+            }
             // Make API call
             $apiURL = $_SESSION['accountapiurl'].'Api/Issuematerialprocess';
 
