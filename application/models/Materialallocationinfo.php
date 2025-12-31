@@ -1954,8 +1954,9 @@ class Materialallocationinfo extends CI_Model{
                         <td><b>Branch:</b> '.$respond->row(0)->branch.'</td>
                     </tr>
                 </table>
-            </div>
-            <div class="section">
+            </div>';
+            if(!empty($respondmaterial->result())){
+            $html.='<div class="section">
                 <table width="100%" style="font-size: 12px;">
                     <tr>
                         <td colspan="2"><hr style="border: .1px solid;"></td>
@@ -1998,8 +1999,10 @@ class Materialallocationinfo extends CI_Model{
                         </td>
                     </tr>
                 </table>
-            </div>
-            <div class="section">
+            </div>';
+            }
+            if(!empty($respondcolor->result())){
+            $html.='<div class="section">
                 <table width="100%" style="font-size: 12px;">
                     <tr>
                         <td colspan="2">&nbsp;</td>
@@ -2042,8 +2045,10 @@ class Materialallocationinfo extends CI_Model{
                         </td>
                     </tr>
                 </table>
-            </div>
-            <div class="section">
+            </div>';
+            }
+            if(!empty($respondvarnish->result())){
+            $html.='<div class="section">
                 <table width="100%" style="font-size: 12px;">
                     <tr>
                         <td colspan="2">&nbsp;</td>
@@ -2086,8 +2091,10 @@ class Materialallocationinfo extends CI_Model{
                         </td>
                     </tr>
                 </table>
-            </div>
-            <div class="section">
+            </div>';
+            }
+            if(!empty($respondfoiling->result())){
+            $html.='<div class="section">
                 <table width="100%" style="font-size: 12px;">
                     <tr>
                         <td colspan="2">&nbsp;</td>
@@ -2130,8 +2137,10 @@ class Materialallocationinfo extends CI_Model{
                         </td>
                     </tr>
                 </table>
-            </div>
-            <div class="section">
+            </div>';
+            }
+            if(!empty($respondlamination->result())){
+            $html.='<div class="section">
                 <table width="100%" style="font-size: 12px;">
                     <tr>
                         <td colspan="2">&nbsp;</td>
@@ -2174,8 +2183,10 @@ class Materialallocationinfo extends CI_Model{
                         </td>
                     </tr>
                 </table>
-            </div>
-            <div class="section">
+            </div>';
+            }
+            if(!empty($respondpasting->result())){
+            $html.='<div class="section">
                 <table width="100%" style="font-size: 12px;">
                     <tr>
                         <td colspan="2">&nbsp;</td>
@@ -2218,8 +2229,10 @@ class Materialallocationinfo extends CI_Model{
                         </td>
                     </tr>
                 </table>
-            </div>
-            <div class="section">
+            </div>';
+            }
+            if(!empty($responddiecut->result())){
+            $html.='<div class="section">
                 <table width="100%" style="font-size: 12px;">
                     <tr>
                         <td colspan="2">&nbsp;</td>
@@ -2260,8 +2273,10 @@ class Materialallocationinfo extends CI_Model{
                         </td>
                     </tr>
                 </table>
-            </div>
-            <div class="section">
+            </div>';
+            }
+            if(!empty($respondrimming->result())){
+            $html.='<div class="section">
                 <table width="100%" style="font-size: 12px;">
                     <tr>
                         <td colspan="2">&nbsp;</td>
@@ -2306,8 +2321,10 @@ class Materialallocationinfo extends CI_Model{
                         </td>
                     </tr>
                 </table>
-            </div>
-            <div class="section">
+            </div>';
+            }
+            if(!empty($respondother->result())){
+            $html.='<div class="section">
                 <table width="100%" style="font-size: 12px;">
                     <tr>
                         <td colspan="2">&nbsp;</td>
@@ -2352,7 +2369,9 @@ class Materialallocationinfo extends CI_Model{
                         </td>
                     </tr>
                 </table>
-            </div>
+            </div>';
+            }
+            $html.='
             <div class="section" style="border-radius: 10px; border: 1px solid #000;padding: 5px;">
                 <table width="100%" style="border-collapse: collapse;">
                     <tr>
