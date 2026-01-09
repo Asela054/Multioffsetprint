@@ -7,7 +7,7 @@ class PdfGRNinfo extends CI_Model {
         $recordID=$x;
         $insertdatetime=date('Y-m-d H:i:s');
 
-        $this->db->select('*, COALESCE(tbl_print_grn.idtbl_print_grn, 0) AS idtbl_print_grn, COALESCE(tbl_print_grn.total, 0) AS grn_total, COALESCE(tbl_print_grn.discount, 0) AS discount, COALESCE(tbl_print_grndetail.qty, 0) AS qty, COALESCE(tbl_print_grndetail.unitprice, 0) AS unitprice, COALESCE(tbl_material_group.idtbl_material_group, 0) AS idtbl_material_group , COALESCE(tbl_print_grndetail.comment, 0) AS comment');
+        $this->db->select('*, COALESCE(tbl_print_grn.idtbl_print_grn, 0) AS idtbl_print_grn, COALESCE(tbl_print_grn.total, 0) AS grn_total, COALESCE(tbl_print_grn.discount, 0) AS discount, COALESCE(tbl_print_grndetail.qty, 0) AS qty, COALESCE(tbl_print_grndetail.unitprice, 0) AS unitprice, COALESCE(tbl_material_group.idtbl_material_group, 0) AS idtbl_material_group , COALESCE(tbl_print_grndetail.qty, 0) AS qty');
         $this->db->from('tbl_print_grn');
         $this->db->join('tbl_print_grndetail', 'tbl_print_grn.idtbl_print_grn = tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info = tbl_print_material_info.idtbl_print_material_info', 'left');
