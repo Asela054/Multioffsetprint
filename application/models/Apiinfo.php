@@ -38,7 +38,7 @@ class Apiinfo extends CI_Model{
         $sqlmaterialaccount = "SELECT `idtbl_account`, `accountno`, `accountname` FROM `tbl_print_grn` LEFT JOIN `tbl_account` ON `tbl_account`.`specialcate` = CASE WHEN `tbl_print_grn`.`grntype` = 1 OR `tbl_print_grn`.`grntype` = 4 THEN 38 ELSE 37 END LEFT JOIN `tbl_account_allocation` ON `tbl_account_allocation`.`tbl_account_idtbl_account` = `tbl_account`.`idtbl_account` WHERE `tbl_print_grn`.`idtbl_print_grn`=? AND `tbl_account_allocation`.`companybank`=? AND `tbl_account_allocation`.`branchcompanybank`=? AND `tbl_account_allocation`.`status`=?";
         $respondmaterialaccount = $this->db->query($sqlmaterialaccount, array($grnID, $companyID, $branchID, 1));
 
-        $sqlmaterial="SELECT `tbl_print_grndetail`.`qty`, `tbl_print_grndetail`.`unitprice`, (`tbl_print_grndetail`.`qty`*`tbl_print_grndetail`.`unitprice`) AS `grncosttotal`, `tbl_print_grndetail`.`costunitprice`, `tbl_print_grndetail`.`total` As `costtotal`, `tbl_account_detail`.`idtbl_account_detail`, `tbl_account_detail`.`accountno`, `tbl_account_detail`.`accountname`, `tbl_print_material_info`.`materialname` FROM `tbl_print_grndetail` LEFT JOIN `tbl_print_material_info` ON `tbl_print_material_info`.`idtbl_print_material_info` = `tbl_print_grndetail`.`tbl_print_material_info_idtbl_print_material_info` LEFT JOIN `tbl_account_detail` ON `tbl_account_detail`.`special_cate_sub` = `tbl_print_material_info`.`tbl_material_type_idtbl_material_type` AND `tbl_account_detail`.`status`=? AND `tbl_account_detail`.`special_cate_detail`=? WHERE `tbl_print_grndetail`.`tbl_print_grn_idtbl_print_grn`=? AND `tbl_print_grndetail`.`status`=?";
+        $sqlmaterial="SELECT `tbl_print_grndetail`.`qty`, `tbl_print_grndetail`.`unitprice`, (`tbl_print_grndetail`.`qty`*`tbl_print_grndetail`.`unitprice`) AS `grncosttotal`, `tbl_print_grndetail`.`costunitprice`, `tbl_print_grndetail`.`total` As `costtotal`, `tbl_account_detail`.`idtbl_account_detail`, `tbl_account_detail`.`accountno`, `tbl_account_detail`.`accountname`, `tbl_print_material_info`.`materialname`, `tbl_print_grn`.`tbl_material_group_idtbl_material_group`, `tbl_print_material_info`.`idtbl_print_material_info` FROM `tbl_print_grndetail` LEFT JOIN `tbl_print_grn` ON `tbl_print_grn`.`idtbl_print_grn` = `tbl_print_grndetail`.`tbl_print_grn_idtbl_print_grn` LEFT JOIN `tbl_print_material_info` ON `tbl_print_material_info`.`idtbl_print_material_info` = `tbl_print_grndetail`.`tbl_print_material_info_idtbl_print_material_info` LEFT JOIN `tbl_account_detail` ON `tbl_account_detail`.`special_cate_sub` = `tbl_print_material_info`.`tbl_material_type_idtbl_material_type` AND `tbl_account_detail`.`status`=? AND `tbl_account_detail`.`special_cate_detail`=? WHERE `tbl_print_grndetail`.`tbl_print_grn_idtbl_print_grn`=? AND `tbl_print_grndetail`.`status`=?";
         $respondmaterial = $this->db->query($sqlmaterial, array(1, 2, $grnID, 1));       
         
         if ($respondmaterial->num_rows() > 0) {
@@ -54,7 +54,26 @@ class Apiinfo extends CI_Model{
                     $segregationdata[] = $obj;
                 }
                 else{
-                    $materiltotalvalue += $rowmaterial->costtotal;
+                    if($rowmaterial->tbl_material_group_idtbl_material_group==4){
+                        $this->db->select('tbl_account_detail.idtbl_account_detail, tbl_account_detail.accountno, tbl_account_detail.accountname, tbl_account.idtbl_account, tbl_account.accountno AS chartaccountno, tbl_account.accountname AS chartaccountname');
+                        $this->db->from('tbl_print_material_info');
+                        $this->db->join('tbl_account', 'tbl_account.idtbl_account = tbl_print_material_info.tbl_account_idtbl_account', 'left');
+                        $this->db->join('tbl_account_detail', 'tbl_account_detail.idtbl_account_detail = tbl_print_material_info.tbl_account_detail_idtbl_account_detail', 'left');
+                        $this->db->where('tbl_print_material_info.idtbl_print_material_info', $rowmaterial->idtbl_print_material_info);
+                        $this->db->where('tbl_print_material_info.status', 1);
+                        $responddetail=$this->db->get();
+
+                        $obj = new stdClass();
+                        $obj->amount = str_replace(",", "", $rowmaterial->costtotal);
+                        $obj->narration = 'Material Costing for ' . $rowmaterial->materialname . ' ' . $grnno;
+                        if(!empty($responddetail->row(0)->idtbl_account_detail)){$obj->detailaccount = $responddetail->row(0)->idtbl_account_detail;}else{$obj->detailaccount = 0;}
+                        if(!empty($responddetail->row(0)->idtbl_account)){$obj->chartaccount = $responddetail->row(0)->idtbl_account;}else{$obj->chartaccount = 0;}
+                        $obj->crder = 'D';
+                        $segregationdata[] = $obj;
+                    }
+                    else{
+                        $materiltotalvalue += $rowmaterial->costtotal;
+                    }
                 }
             }
         }

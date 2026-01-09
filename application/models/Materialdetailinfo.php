@@ -93,6 +93,22 @@ class Materialdetailinfo extends CI_Model{
             $material_categorygauge = 0;
         }
 
+        if(!empty($this->input->post('chartofdetailaccount'))){
+            $chartofdetailaccount = $this->input->post('chartofdetailaccount');
+            $accounttype = $this->input->post('hiddenaccounttype');
+        } else {
+            $chartofdetailaccount = 0;
+            $accounttype = 0;
+        }
+
+        if($accounttype == 1){
+            $chartofaccount=$chartofdetailaccount;
+            $chartofdetailaccount=0;
+        } else {
+            $chartofaccount=0;
+            $chartofdetailaccount=$chartofdetailaccount;
+        }
+
         $recordOption=$this->input->post('recordOption');
         if(!empty($this->input->post('recordID'))){$recordID=$this->input->post('recordID');}
 
@@ -114,7 +130,9 @@ class Materialdetailinfo extends CI_Model{
                 'tbl_color_idtbl_color'=> $material_color,
                 'tbl_categorygauge_idtbl_categorygauge'=> $material_categorygauge,
                 'tbl_supplier_idtbl_supplier'=> $supplier,
-                'tbl_material_group_idtbl_material_group'=> $materialgroup
+                'tbl_material_group_idtbl_material_group'=> $materialgroup,
+                'tbl_account_idtbl_account'=> $chartofaccount,
+                'tbl_account_detail_idtbl_account_detail'=> $chartofdetailaccount
             );
 
             $this->db->insert('tbl_print_material_info', $data);
@@ -168,7 +186,9 @@ class Materialdetailinfo extends CI_Model{
                 'tbl_color_idtbl_color'=> $material_color,
                 'tbl_categorygauge_idtbl_categorygauge'=> $material_categorygauge,
                 'tbl_supplier_idtbl_supplier'=> $supplier,
-                'tbl_material_group_idtbl_material_group'=> $materialgroup
+                'tbl_material_group_idtbl_material_group'=> $materialgroup,
+                'tbl_account_idtbl_account'=> $chartofaccount,
+                'tbl_account_detail_idtbl_account_detail'=> $chartofdetailaccount
             );
 
             $this->db->where('idtbl_print_material_info', $recordID);
@@ -487,6 +507,14 @@ class Materialdetailinfo extends CI_Model{
 
         $respond=$this->db->get();
 
+        $this->db->select('tbl_account_detail.idtbl_account_detail, tbl_account_detail.accountno, tbl_account_detail.accountname, tbl_account.idtbl_account, tbl_account.accountno AS chartaccountno, tbl_account.accountname AS chartaccountname');
+        $this->db->from('tbl_print_material_info');
+        $this->db->join('tbl_account', 'tbl_account.idtbl_account = tbl_print_material_info.tbl_account_idtbl_account', 'left');
+        $this->db->join('tbl_account_detail', 'tbl_account_detail.idtbl_account_detail = tbl_print_material_info.tbl_account_detail_idtbl_account_detail', 'left');
+        $this->db->where('tbl_print_material_info.idtbl_print_material_info', $recordID);
+        $this->db->where('tbl_print_material_info.status', 1);
+        $responddetail=$this->db->get();
+
         $obj=new stdClass();
         $obj->id=$respond->row(0)->idtbl_print_material_info;
         $obj->materialname=$respond->row(0)->materialname;
@@ -499,6 +527,22 @@ class Materialdetailinfo extends CI_Model{
         $obj->materialcategorygauge=$respond->row(0)->tbl_categorygauge_idtbl_categorygauge;
         $obj->supplier=$respond->row(0)->tbl_supplier_idtbl_supplier;
         $obj->materialgroup=$respond->row(0)->tbl_material_group_idtbl_material_group;  
+
+        if(!empty($responddetail->row(0)->idtbl_account_detail)){
+            $obj->accountid=$responddetail->row(0)->idtbl_account_detail;
+            $obj->account=$responddetail->row(0)->accountname.' - '.$responddetail->row(0)->accountno;
+            $obj->accounttype=2;
+        }
+        else if(!empty($responddetail->row(0)->idtbl_account)){
+            $obj->accountid=$responddetail->row(0)->idtbl_account;
+            $obj->account=$responddetail->row(0)->chartaccountname.' - '.$responddetail->row(0)->chartaccountno;
+            $obj->accounttype=1;
+        }
+        else{
+            $obj->accountid=0;
+            $obj->account='';
+            $obj->accounttype=0;
+        }
 
         echo json_encode($obj);
     }
