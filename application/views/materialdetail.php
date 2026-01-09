@@ -120,12 +120,19 @@ include "include/topnavbar.php";
                                                 id="reorder">
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group mb-1">
                                         <label class="small font-weight-bold">Comment</label>
                                         <textarea class="form-control form-control-sm" name="comment"
                                             id="comment"></textarea>
                                     </div>
-                                    <div class="form-group mt-2 text-right">
+                                    <div class="form-group mb-1">
+                                        <label class="small font-weight-bold">Account No*</label>
+                                        <select name="chartofdetailaccount" id="chartofdetailaccount" class="form-control form-control-sm" style="width: 100%;" required>
+                                            <option value="">Select</option>
+                                        </select>
+                                        <input type="hidden" name="hiddenaccounttype" id="hiddenaccounttype" value="">
+                                    </div>
+                                    <div class="form-group mt-3 text-right">
                                         <button type="submit" id="submitBtn" class="btn btn-primary btn-sm px-4"
                                             <?php if($addcheck==0){echo 'disabled';} ?>><i
                                                 class="far fa-save"></i>&nbsp;Add</button>
@@ -360,6 +367,26 @@ $(document).ready(function() {
     $('#materialgroup').change(function() {
         var id = $(this).val();
         Getmaterialcategorybygroup(id, '');
+        $('#chartofdetailaccount').val(null).trigger('change');
+
+        if(id==4){ 
+            $('#material_color').prop('disabled', true);
+            $('#material_categorygauge').prop('disabled', true);
+            $('#chartofdetailaccount').prop('disabled', false);
+        } else {
+            $('#material_color').prop('disabled', false);
+            $('#material_categorygauge').prop('disabled', false);
+            $('#chartofdetailaccount').prop('disabled', true);
+        }
+    });
+
+    $('#chartofdetailaccount').change(function() {
+        var selectedOption = $(this).select2('data')[0];
+        if (selectedOption && selectedOption.data) {
+            $('#hiddenaccounttype').val(selectedOption.data.type);
+        } else {
+            $('#hiddenaccounttype').val('');
+        }
     });
 
     $('#materialcategory, #material_color, #material_categorygauge').change(function() {
@@ -401,6 +428,25 @@ $(document).ready(function() {
                     $('#supplier').val(obj.supplier);
                     $('#materialgroup').val(obj.materialgroup);
                     Getmaterialcategorybygroup(obj.materialgroup, obj.materialcategory);
+
+                    if(obj.materialgroup==4){ 
+                        $('#material_color').prop('disabled', true);
+                        $('#material_categorygauge').prop('disabled', true);
+                        $('#chartofdetailaccount').prop('disabled', false);
+                    } else{
+                        $('#material_color').prop('disabled', false);
+                        $('#material_categorygauge').prop('disabled', false);
+                        $('#chartofdetailaccount').prop('disabled', true);
+                    }
+
+                    var newOption = new Option(obj.account, obj.accountid, true, true);
+                    $('#chartofdetailaccount').append(newOption).trigger('change');
+                    var optionData = $('#chartofdetailaccount').select2('data');
+                    var lastOption = optionData[optionData.length - 1]; 
+                    lastOption.data = { type: obj.accounttype };
+                    $('#chartofdetailaccount').trigger('change');  
+                    $('#hiddenaccounttype').val(obj.accounttype);
+
                     $('#recordOption').val('2');
                     $('#submitBtn').html('<i class="far fa-save"></i>&nbsp;Update');
                 }
@@ -467,7 +513,36 @@ $(document).ready(function() {
             }
         });
     });
-
+    $("#chartofdetailaccount").select2({
+            // dropdownParent: $('#modalsegregation'),
+            ajax: {
+                url: "<?php echo base_url() ?>Materialdetail/Getaccountlist",
+                type: "post",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term, // search term
+                        companyid: '<?php echo $_SESSION['company_id']; ?>',
+                        branchid: '<?php echo $_SESSION['branch_id']; ?>'
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response.map(function (item) {
+                            return {
+                                id: item.id,
+                                text: item.text,
+                                data: {
+                                    type: item.acctype
+                                }
+                            };
+                        })
+                    }
+                },
+                cache: true
+            },
+        });
 });
 
 function Getmaterialcategorybygroup(recordID, value) {

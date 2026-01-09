@@ -78,5 +78,11 @@ class Materialdetail extends CI_Controller {
 		$this->load->model('Materialdetailinfo');
         $result=$this->Materialdetailinfo->Getmaterialcaregorybygroup();
 	}
-	
+	public function Getaccountlist(){
+        $searchTerm=$this->input->post('searchTerm');
+        $companyid=$this->input->post('companyid');
+        $branchid=$this->input->post('branchid');
+
+        $result=get_all_accounts($searchTerm, $companyid, $branchid);
+	}
 }
