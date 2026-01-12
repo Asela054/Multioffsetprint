@@ -78,9 +78,4 @@ class Customerinquiry extends CI_Controller {
 		$this->load->model('Customerinquiryinfo');
 		$result=$this->Customerinquiryinfo->Customerinquiryexportpdf($id);
 	}
-
-	public function Customerinquiryfinish(){
-		$this->load->model('Customerinquiryinfo');
-		$result=$this->Customerinquiryinfo->Customerinquiryfinish();
-	}
 }

@@ -477,17 +477,17 @@ class Customerinquiryinfo extends CI_Model{
             }
         }
     }
-    public function Customerinquiryfinish(){
+        public function Customerinquiryfinish(){
         $this->db->trans_begin();
 
         $userID=$_SESSION['userid'];
-        $finishreason=$this->input->post('finishreason');
+        $remark=$this->input->post('remark');
         $hiddenID=$this->input->post('hiddenID');
         $updatedatetime=date('Y-m-d H:i:s');
 
             $data = array(
                 'job_finish_status' => '1',
-                'finish_reason'=> $finishreason, 
+                'finish_reason'=> $remark, 
                 'updatedatetime'=> $updatedatetime
             );
 

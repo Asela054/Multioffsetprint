@@ -195,7 +195,7 @@ include "include/topnavbar.php";
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="staticBackdropLabel"><i class="fas fa-marker"></i> Manual Finish</h4>
+                <h4 class="modal-title" id="staticBackdropLabel"><i class="fas fa-marker"></i> ADD REMARK</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -208,12 +208,12 @@ include "include/topnavbar.php";
                                 <input type="hidden" class="form-control form-control-sm" id="hiddeninquiryid" name="hiddeninquiryid">
                             </div>
                             <div class="form-group mb-1">
-                                        <label class="small font-weight-bold text-dark">Finish Reason*</label><br>
-                                        <textarea rows="6" cols="50" type="text" class="form-control form-control-sm" id="finishreason" name="finishreason" required></textarea>
+                                        <label class="small font-weight-bold text-dark">Remark*</label><br>
+                                        <textarea rows="6" cols="50" type="text" class="form-control form-control-sm" id="remark" name="remark" required></textarea>
                                     </div>
                             <div class="form-group mt-2 text-right">
                                 <button type="submit" id="submitBtnRemark" class="btn btn-primary btn-sm px-4"><i
-                                        class="far fa-save"></i>&nbsp;Finish</button>
+                                        class="far fa-save"></i>&nbsp;Add</button>
                                         <input type="submit" class="d-none" id="hidesubmitremark" value="">
                             </div>
                         </form>
@@ -519,7 +519,7 @@ $(document).ready(function() {
                 "data": null,
                 "render": function(data, type, full) {
                     var button = '';
-                    button+='<button class="btn btn-yellow btn-sm btnAddremarks mr-1" id="'+full['idtbl_customerinquiry']+'" data-toggle="tooltip" data-placement="bottom" title="Manual Finish"><i class="fas fa-marker"></i></button>';
+                    button+='<button class="btn btn-outline-primary btn-sm btnAddremarks mr-1" id="'+full['idtbl_customerinquiry']+'" data-toggle="tooltip" data-placement="bottom" title="Add Salesrep"><i class="fas fa-marker"></i></button>';
                     button += '<button class="btn btn-primary btn-sm btnJobCard mr-1" id="' + full['idtbl_customerinquiry'] + '" data-toggle="tooltip" title="Job Card"><i class="fas fa-file"></i></button>';
                     if(full['approvestatus']==0){
                         button += '<button class="btn btn-dark btn-sm btnView mr-1" id="' + full['idtbl_customerinquiry'] + '" data-approvestatus="'+full['approvestatus']+'" data-toggle="tooltip" title="View & Approve"><i class="fas fa-eye"></i></button>';
@@ -604,33 +604,12 @@ $(document).ready(function() {
             });
         }
     });
-    $('#datatable tbody').on('click', '.btnAddremarks', function () {
+    $('#dataTable tbody').on('click', '.btnAddremarks', function () {
         var id = $(this).attr('id');
         $("#hiddeninquiryid").val(id);
 
         $('#addremarksmodal').modal('show');
 
-    });
-    $('#submitBtnRemark').click(function () {
-        if (!$("#addremarkform")[0].checkValidity()) {
-            $("#hidesubmitremark").click();
-        } else {
-            var finishreason = $('#finishreason').val();
-            var hiddenID = $('#hiddeninquiryid').val();
-
-            $.ajax({
-                type: "POST",
-                data: {
-                    finishreason: finishreason,
-                    hiddenID: hiddenID
-
-                },
-                url: '<?php echo base_url() ?>Customerinquiry/Customerinquiryfinish',
-                success: function (result) {
-                    action(result);
-                }
-            });
-        }
     });
     $('#datatable tbody').on('click', '.btnView', function() {
         var id = $(this).attr('id');

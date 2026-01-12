@@ -615,18 +615,18 @@ $(document).ready(function() {
         if (!$("#addremarkform")[0].checkValidity()) {
             $("#hidesubmitremark").click();
         } else {
-            var finishreason = $('#finishreason').val();
-            var hiddenID = $('#hiddeninquiryid').val();
+            var remark = $('#remark').val();
+            var hiddenID = $('#hiddeninvoiceid').val();
 
             $.ajax({
                 type: "POST",
                 data: {
-                    finishreason: finishreason,
+                    remark: remark,
                     hiddenID: hiddenID
 
                 },
-                url: '<?php echo base_url() ?>Customerinquiry/Customerinquiryfinish',
-                success: function (result) {
+                url: 'process/addinvoiceremarkprocess.php',
+                success: function (result) { //alert(result);
                     action(result);
                 }
             });
