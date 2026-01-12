@@ -213,7 +213,7 @@ include "include/topnavbar.php";
                                     </div>
                             <div class="form-group mt-2 text-right">
                                 <button type="submit" id="submitBtnRemark" class="btn btn-primary btn-sm px-4"><i
-                                        class="far fa-save"></i>&nbsp;Finish</button>
+                                        class="far fa-save"></i>&nbsp;Finsih</button>
                                         <input type="submit" class="d-none" id="hidesubmitremark" value="">
                             </div>
                         </form>
@@ -610,27 +610,6 @@ $(document).ready(function() {
 
         $('#addremarksmodal').modal('show');
 
-    });
-    $('#submitBtnRemark').click(function () {
-        if (!$("#addremarkform")[0].checkValidity()) {
-            $("#hidesubmitremark").click();
-        } else {
-            var finishreason = $('#finishreason').val();
-            var hiddenID = $('#hiddeninquiryid').val();
-
-            $.ajax({
-                type: "POST",
-                data: {
-                    finishreason: finishreason,
-                    hiddenID: hiddenID
-
-                },
-                url: '<?php echo base_url() ?>Customerinquiry/Customerinquiryfinish',
-                success: function (result) {
-                    action(result);
-                }
-            });
-        }
     });
     $('#datatable tbody').on('click', '.btnView', function() {
         var id = $(this).attr('id');

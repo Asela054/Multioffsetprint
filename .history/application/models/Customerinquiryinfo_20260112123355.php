@@ -477,22 +477,23 @@ class Customerinquiryinfo extends CI_Model{
             }
         }
     }
-    public function Customerinquiryfinish(){
+        public function Customerinquirystatus($x, $y){
         $this->db->trans_begin();
 
         $userID=$_SESSION['userid'];
-        $finishreason=$this->input->post('finishreason');
-        $hiddenID=$this->input->post('hiddenID');
+        $recordID=$x;
+        $type=$y;
         $updatedatetime=date('Y-m-d H:i:s');
 
+        if($type==1){
             $data = array(
-                'job_finish_status' => '1',
-                'finish_reason'=> $finishreason, 
+                'status' => '1',
+                'tbl_user_idtbl_user'=> $userID, 
                 'updatedatetime'=> $updatedatetime
             );
 
-			$this->db->where('tbl_customerinquiry_idtbl_customerinquiry', $hiddenID);
-            $this->db->update('tbl_customerinquiry_detail', $data);
+			$this->db->where('idtbl_customerinquiry', $recordID);
+            $this->db->update('tbl_customerinquiry', $data);
 
             $this->db->trans_complete();
 
@@ -502,7 +503,7 @@ class Customerinquiryinfo extends CI_Model{
                 $actionObj=new stdClass();
                 $actionObj->icon='fas fa-check';
                 $actionObj->title='';
-                $actionObj->message='Job Finish Successfully';
+                $actionObj->message='Record Activate Successfully';
                 $actionObj->url='';
                 $actionObj->target='_blank';
                 $actionObj->type='success';
@@ -527,6 +528,97 @@ class Customerinquiryinfo extends CI_Model{
                 $this->session->set_flashdata('msg', $actionJSON);
                 redirect('Customerinquiry');
             }
+        }
+        else if($type==2){
+            $data = array(
+                'status' => '2',
+                'tbl_user_idtbl_user'=> $userID, 
+                'updatedatetime'=> $updatedatetime
+            );
+
+			$this->db->where('idtbl_customerinquiry', $recordID);
+            $this->db->update('tbl_customerinquiry', $data);
+
+
+            $this->db->trans_complete();
+
+            if ($this->db->trans_status() === TRUE) {
+                $this->db->trans_commit();
+                
+                $actionObj=new stdClass();
+                $actionObj->icon='fas fa-times';
+                $actionObj->title='';
+                $actionObj->message='Record Deactivate Successfully';
+                $actionObj->url='';
+                $actionObj->target='_blank';
+                $actionObj->type='warning';
+
+                $actionJSON=json_encode($actionObj);
+                
+                $this->session->set_flashdata('msg', $actionJSON);
+                redirect('Customerinquiry');                
+            } else {
+                $this->db->trans_rollback();
+
+                $actionObj=new stdClass();
+                $actionObj->icon='fas fa-warning';
+                $actionObj->title='';
+                $actionObj->message='Record Error';
+                $actionObj->url='';
+                $actionObj->target='_blank';
+                $actionObj->type='danger';
+
+                $actionJSON=json_encode($actionObj);
+                
+                $this->session->set_flashdata('msg', $actionJSON);
+                redirect('Customerinquiry');
+            }
+        }
+        else if($type==3){
+			$data = array(
+                'status' => '3',
+                'tbl_user_idtbl_user'=> $userID, 
+                'updatedatetime'=> $updatedatetime
+            );
+
+			$this->db->where('idtbl_customerinquiry', $recordID);
+            $this->db->update('tbl_customerinquiry', $data);
+
+
+            $this->db->trans_complete();
+
+            if ($this->db->trans_status() === TRUE) {
+                $this->db->trans_commit();
+                
+                $actionObj=new stdClass();
+                $actionObj->icon='fas fa-trash-alt';
+                $actionObj->title='';
+                $actionObj->message='Record Remove Successfully';
+                $actionObj->url='';
+                $actionObj->target='_blank';
+                $actionObj->type='danger';
+
+                $actionJSON=json_encode($actionObj);
+                
+                $this->session->set_flashdata('msg', $actionJSON);
+                redirect('Customerinquiry');                
+            } else {
+                $this->db->trans_rollback();
+
+                $actionObj=new stdClass();
+                $actionObj->icon='fas fa-warning';
+                $actionObj->title='';
+                $actionObj->message='Record Error';
+                $actionObj->url='';
+                $actionObj->target='_blank';
+                $actionObj->type='danger';
+
+                $actionJSON=json_encode($actionObj);
+                
+                $this->session->set_flashdata('msg', $actionJSON);
+                redirect('Customerinquiry');
+            }
+        }
     }
     public function Customerinquiryapprove(){
 		$this->db->trans_begin();

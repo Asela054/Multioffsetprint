@@ -615,13 +615,13 @@ $(document).ready(function() {
         if (!$("#addremarkform")[0].checkValidity()) {
             $("#hidesubmitremark").click();
         } else {
-            var finishreason = $('#finishreason').val();
+            var remark = $('#remark').val();
             var hiddenID = $('#hiddeninquiryid').val();
 
             $.ajax({
                 type: "POST",
                 data: {
-                    finishreason: finishreason,
+                    remark: remark,
                     hiddenID: hiddenID
 
                 },

@@ -477,7 +477,7 @@ class Customerinquiryinfo extends CI_Model{
             }
         }
     }
-    public function Customerinquiryfinish(){
+        public function Customerinquiryfinish(){
         $this->db->trans_begin();
 
         $userID=$_SESSION['userid'];

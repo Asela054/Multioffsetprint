@@ -613,20 +613,22 @@ $(document).ready(function() {
     });
     $('#submitBtnRemark').click(function () {
         if (!$("#addremarkform")[0].checkValidity()) {
+            // If the form is invalid, submit it. The form won't actually submit;
+            // this will just cause the browser to display the native HTML5 error messages.
             $("#hidesubmitremark").click();
         } else {
-            var finishreason = $('#finishreason').val();
-            var hiddenID = $('#hiddeninquiryid').val();
+            var remark = $('#remark').val();
+            var hiddenID = $('#hiddeninvoiceid').val();
 
             $.ajax({
                 type: "POST",
                 data: {
-                    finishreason: finishreason,
+                    remark: remark,
                     hiddenID: hiddenID
 
                 },
-                url: '<?php echo base_url() ?>Customerinquiry/Customerinquiryfinish',
-                success: function (result) {
+                url: 'process/addinvoiceremarkprocess.php',
+                success: function (result) { //alert(result);
                     action(result);
                 }
             });

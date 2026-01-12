@@ -612,25 +612,48 @@ $(document).ready(function() {
 
     });
     $('#submitBtnRemark').click(function () {
+
         if (!$("#addremarkform")[0].checkValidity()) {
             $("#hidesubmitremark").click();
-        } else {
-            var finishreason = $('#finishreason').val();
-            var hiddenID = $('#hiddeninquiryid').val();
-
-            $.ajax({
-                type: "POST",
-                data: {
-                    finishreason: finishreason,
-                    hiddenID: hiddenID
-
-                },
-                url: '<?php echo base_url() ?>Customerinquiry/Customerinquiryfinish',
-                success: function (result) {
-                    action(result);
-                }
-            });
+            return;
         }
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to finish this inquiry?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Finish',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                var finishreason = $('#finishreason').val();
+                var hiddenID = $('#hiddeninquiryid').val();
+
+                $.ajax({
+                    type: "POST",
+                    url: '<?php echo base_url() ?>Customerinquiry/Customerinquiryfinish',
+                    data: {
+                        finishreason: finishreason,
+                        hiddenID: hiddenID
+                    },
+                    success: function (result) {
+                        action(result);
+                    },
+                    error: function () {
+                        Swal.fire(
+                            'Error!',
+                            'Something went wrong. Please try again.',
+                            'error'
+                        );
+                    }
+                });
+
+            }
+        });
     });
     $('#datatable tbody').on('click', '.btnView', function() {
         var id = $(this).attr('id');

@@ -195,7 +195,7 @@ include "include/topnavbar.php";
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="staticBackdropLabel"><i class="fas fa-marker"></i> Manual Finish</h4>
+                <h4 class="modal-title" id="staticBackdropLabel"><i class="fas fa-marker"></i> ADD REMARK</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -213,7 +213,7 @@ include "include/topnavbar.php";
                                     </div>
                             <div class="form-group mt-2 text-right">
                                 <button type="submit" id="submitBtnRemark" class="btn btn-primary btn-sm px-4"><i
-                                        class="far fa-save"></i>&nbsp;Finish</button>
+                                        class="far fa-save"></i>&nbsp;Add</button>
                                         <input type="submit" class="d-none" id="hidesubmitremark" value="">
                             </div>
                         </form>
@@ -604,33 +604,12 @@ $(document).ready(function() {
             });
         }
     });
-    $('#datatable tbody').on('click', '.btnAddremarks', function () {
+    $('#dataTable tbody').on('click', '.btnAddremarks', function () {
         var id = $(this).attr('id');
         $("#hiddeninquiryid").val(id);
 
         $('#addremarksmodal').modal('show');
 
-    });
-    $('#submitBtnRemark').click(function () {
-        if (!$("#addremarkform")[0].checkValidity()) {
-            $("#hidesubmitremark").click();
-        } else {
-            var finishreason = $('#finishreason').val();
-            var hiddenID = $('#hiddeninquiryid').val();
-
-            $.ajax({
-                type: "POST",
-                data: {
-                    finishreason: finishreason,
-                    hiddenID: hiddenID
-
-                },
-                url: '<?php echo base_url() ?>Customerinquiry/Customerinquiryfinish',
-                success: function (result) {
-                    action(result);
-                }
-            });
-        }
     });
     $('#datatable tbody').on('click', '.btnView', function() {
         var id = $(this).attr('id');

@@ -611,27 +611,29 @@ $(document).ready(function() {
         $('#addremarksmodal').modal('show');
 
     });
-    $('#submitBtnRemark').click(function () {
-        if (!$("#addremarkform")[0].checkValidity()) {
-            $("#hidesubmitremark").click();
-        } else {
-            var finishreason = $('#finishreason').val();
-            var hiddenID = $('#hiddeninquiryid').val();
+            $('#submitBtnRemark').click(function(){
+            if (!$("#addremarkform")[0].checkValidity()) {
+                // If the form is invalid, submit it. The form won't actually submit;
+                // this will just cause the browser to display the native HTML5 error messages.
+                $("#hidesubmitremark").click();
+            } else {   
+                var remark = $('#remark').val();
+                var hiddenID = $('#hiddeninvoiceid').val();
 
-            $.ajax({
-                type: "POST",
-                data: {
-                    finishreason: finishreason,
-                    hiddenID: hiddenID
+                $.ajax({
+                    type: "POST",
+                    data: {
+                        remark: remark,
+                        hiddenID: hiddenID
 
-                },
-                url: '<?php echo base_url() ?>Customerinquiry/Customerinquiryfinish',
-                success: function (result) {
-                    action(result);
-                }
-            });
-        }
-    });
+                    },
+                    url: 'process/addinvoiceremarkprocess.php',
+                    success: function(result) { //alert(result);
+                        action(result);
+                    }
+                });
+            }
+        });
     $('#datatable tbody').on('click', '.btnView', function() {
         var id = $(this).attr('id');
         var approvestatus = $(this).attr('data-approvestatus');

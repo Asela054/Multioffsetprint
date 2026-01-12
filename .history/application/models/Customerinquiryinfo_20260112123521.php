@@ -477,22 +477,22 @@ class Customerinquiryinfo extends CI_Model{
             }
         }
     }
-    public function Customerinquiryfinish(){
+        public function Customerinquiryfinish(){
         $this->db->trans_begin();
 
         $userID=$_SESSION['userid'];
-        $finishreason=$this->input->post('finishreason');
+        $remark=$this->input->post('remark');
         $hiddenID=$this->input->post('hiddenID');
         $updatedatetime=date('Y-m-d H:i:s');
 
             $data = array(
-                'job_finish_status' => '1',
-                'finish_reason'=> $finishreason, 
+                'status' => '1',
+                'tbl_user_idtbl_user'=> $userID, 
                 'updatedatetime'=> $updatedatetime
             );
 
-			$this->db->where('tbl_customerinquiry_idtbl_customerinquiry', $hiddenID);
-            $this->db->update('tbl_customerinquiry_detail', $data);
+			$this->db->where('idtbl_customerinquiry', $recordID);
+            $this->db->update('tbl_customerinquiry', $data);
 
             $this->db->trans_complete();
 
@@ -502,7 +502,7 @@ class Customerinquiryinfo extends CI_Model{
                 $actionObj=new stdClass();
                 $actionObj->icon='fas fa-check';
                 $actionObj->title='';
-                $actionObj->message='Job Finish Successfully';
+                $actionObj->message='Record Activate Successfully';
                 $actionObj->url='';
                 $actionObj->target='_blank';
                 $actionObj->type='success';

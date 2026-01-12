@@ -611,27 +611,6 @@ $(document).ready(function() {
         $('#addremarksmodal').modal('show');
 
     });
-    $('#submitBtnRemark').click(function () {
-        if (!$("#addremarkform")[0].checkValidity()) {
-            $("#hidesubmitremark").click();
-        } else {
-            var finishreason = $('#finishreason').val();
-            var hiddenID = $('#hiddeninquiryid').val();
-
-            $.ajax({
-                type: "POST",
-                data: {
-                    finishreason: finishreason,
-                    hiddenID: hiddenID
-
-                },
-                url: '<?php echo base_url() ?>Customerinquiry/Customerinquiryfinish',
-                success: function (result) {
-                    action(result);
-                }
-            });
-        }
-    });
     $('#datatable tbody').on('click', '.btnView', function() {
         var id = $(this).attr('id');
         var approvestatus = $(this).attr('data-approvestatus');

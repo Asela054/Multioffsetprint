@@ -477,57 +477,6 @@ class Customerinquiryinfo extends CI_Model{
             }
         }
     }
-    public function Customerinquiryfinish(){
-        $this->db->trans_begin();
-
-        $userID=$_SESSION['userid'];
-        $finishreason=$this->input->post('finishreason');
-        $hiddenID=$this->input->post('hiddenID');
-        $updatedatetime=date('Y-m-d H:i:s');
-
-            $data = array(
-                'job_finish_status' => '1',
-                'finish_reason'=> $finishreason, 
-                'updatedatetime'=> $updatedatetime
-            );
-
-			$this->db->where('tbl_customerinquiry_idtbl_customerinquiry', $hiddenID);
-            $this->db->update('tbl_customerinquiry_detail', $data);
-
-            $this->db->trans_complete();
-
-            if ($this->db->trans_status() === TRUE) {
-                $this->db->trans_commit();
-                
-                $actionObj=new stdClass();
-                $actionObj->icon='fas fa-check';
-                $actionObj->title='';
-                $actionObj->message='Job Finish Successfully';
-                $actionObj->url='';
-                $actionObj->target='_blank';
-                $actionObj->type='success';
-
-                $actionJSON=json_encode($actionObj);
-                
-                $this->session->set_flashdata('msg', $actionJSON);
-                redirect('Customerinquiry');                
-            } else {
-                $this->db->trans_rollback();
-
-                $actionObj=new stdClass();
-                $actionObj->icon='fas fa-warning';
-                $actionObj->title='';
-                $actionObj->message='Record Error';
-                $actionObj->url='';
-                $actionObj->target='_blank';
-                $actionObj->type='danger';
-
-                $actionJSON=json_encode($actionObj);
-                
-                $this->session->set_flashdata('msg', $actionJSON);
-                redirect('Customerinquiry');
-            }
-    }
     public function Customerinquiryapprove(){
 		$this->db->trans_begin();
 
