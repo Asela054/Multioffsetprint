@@ -450,25 +450,26 @@ $(document).ready(function() {
 
                         $('#viewGrnVoucher').modal('show');
                         $('#showdata').html(result);
-
+                        
                         if(approvestatus>0){
 							$('#btnapprovereject').addClass('d-none').prop('disabled', true);
+                            $('#btncheck').addClass('d-none').prop('disabled', true);
 							if(approvestatus==1){
                                 $('#alertdiv').html('<div class="alert alert-success" role="alert"><i class="fas fa-check-circle mr-2"></i> Good receive voucher approved</div>');
                             }
 							else if(approvestatus==2){
                                 $('#alertdiv').html('<div class="alert alert-danger" role="alert"><i class="fas fa-times-circle mr-2"></i> Good receive voucher rejected</div>');
-                                $('#btncheck').addClass('d-none').prop('disabled', true);
                             }
 						}
                         else{
-                            if(checkby==0){
+                            if(checkby==0){                    
                                 $('#btnapprovereject').addClass('d-none').prop('disabled', true);
                                 $('#btncheck').removeClass('d-none').prop('disabled', false);
                             }
                             else{
                                 $('#btnapprovereject').removeClass('d-none').prop('disabled', false);
                                 $('#btncheck').addClass('d-none').prop('disabled', true);
+                                $('#alertdiv').html('<div class="alert alert-secondary mt-2" role="alert"><i class="fas fa-check-circle mr-2"></i> Good receive voucher checked</div>');
                             }
                         }
                     },
@@ -560,14 +561,14 @@ $(document).ready(function() {
 
                                 $.each(response.data['detailinfo'], function(index, grn) {
                                     var row = '<tr>' +
-                                        '<td>' + grn.materialname + '</td>' +
+                                        '<td data-grndetailid="'+grn.idtbl_print_grndetail+'">' + grn.materialname + '</td>' +
                                         '<td>' + grn.comment + '</td>' +
                                         '<td class="d-none">' + grn
                                         .idtbl_print_material_info + '</td>' +
                                         '<td class="unitprice text-right">' + addCommas(grn.unitprice) + '</td>' +
                                         '<td class="d-none">' + grn.saleprice + '</td>' +
                                         '<td class="text-center qty">' + grn.qty + '</td>' +
-                                        '<td class="text-center">' + grn.measure_type +
+                                        '<td class="text-center" data-measureid="'+grn.tbl_measurements_idtbl_mesurements+'">' + grn.measure_type +
                                         '</td>' +
                                         '<td class="d-none">' + grn.hidetotal + '</td>' +
                                         '<td class="text-right discount">' + grn.unit_discount +
@@ -700,6 +701,7 @@ $(document).ready(function() {
         $('#tableorder tbody tr').each(function() {
             var row = $(this);
             var grnDetail = {
+                grndetailD: row.find('td:eq(0)').data('grndetailid'),
                 materialname: row.find('td:eq(0)').text(),
                 comment: row.find('td:eq(1)').text(),
                 idtbl_print_material_info: row.find('td:eq(2)').text(),
@@ -707,6 +709,7 @@ $(document).ready(function() {
                 saleprice: row.find('td:eq(4)').text(),
                 qty: row.find('td:eq(5)').text(),
                 measure_type: row.find('td:eq(6)').text(),
+                measureID : row.find('td:eq(6)').data('measureid'),
                 hidetotal: row.find('td:eq(7)').text(),
                 unit_discount: row.find('td:eq(8)').text(),
                 total: row.find('td:eq(9)').text()
