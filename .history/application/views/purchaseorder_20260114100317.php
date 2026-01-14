@@ -338,7 +338,7 @@ include "include/topnavbar.php";
 								<div class="col">
 									<label class="small font-weight-bold text-dark">UOM*</label>
 									<select class="form-control form-control-sm" name="edituom"
-										id="edituom" required>
+										id="edituom">
 										<option value="">Select</option>
 										<?php foreach($measurelist->result() as $rowmeasurelist){ ?>
 										<option value="<?php echo $rowmeasurelist->idtbl_mesurements ?>">

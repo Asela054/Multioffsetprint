@@ -338,7 +338,7 @@ include "include/topnavbar.php";
 								<div class="col">
 									<label class="small font-weight-bold text-dark">UOM*</label>
 									<select class="form-control form-control-sm" name="edituom"
-										id="edituom" required>
+										id="edituom">
 										<option value="">Select</option>
 										<?php foreach($measurelist->result() as $rowmeasurelist){ ?>
 										<option value="<?php echo $rowmeasurelist->idtbl_mesurements ?>">
@@ -1263,27 +1263,30 @@ $(document).ready(function() {
                     url: "Purchaseorder/Purchaseorderinsertupdate",
                     data: orderData,
                     success: function (result) {
-                        Swal.close();
-                        document.body.style.overflow = 'auto';
+    Swal.close();
+    document.body.style.overflow = 'auto';
 
-                        var obj = JSON.parse(result);
+    var obj = JSON.parse(result);
 
-                        if (obj.status == 1) {
-                            actionreload(obj.action);
-                        } else {
-                            action(obj.action);
-                        }
-                    },
-                    error: function () {
-                        Swal.close();
-                        document.body.style.overflow = 'auto';
+    if (obj.status == 1) {
+        // Success action
+        actionreload(obj.action);
+    } else {
+        // Failure action
+        action(obj.action);
+    }
+},
+error: function () {
+    Swal.close();
+    document.body.style.overflow = 'auto';
 
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Something went wrong. Please try again later.'
-                        });
-                    }
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Something went wrong. Please try again later.'
+    });
+}
+
                 });
             },
         });
@@ -1292,7 +1295,7 @@ $(document).ready(function() {
 
     $('#editbtncreateorder').click(function () {
         $('#editbtncreateorder').prop('disabled', true).html(
-            '<i class="fas fa-circle-notch fa-spin mr-2"></i> Update Order'
+            '<i class="fas fa-circle-notch fa-spin mr-2"></i> Create Order'
         );
 
         var jsonObj = [];
@@ -1311,7 +1314,7 @@ $(document).ready(function() {
                 title: "No Data",
                 text: "Please add items before updating an order.",
             });
-            $('#editbtncreateorder').prop('disabled', false).html("Update Order");
+            $('#editbtncreateorder').prop('disabled', false).html("Create Order");
             return;
         }
 
@@ -1336,24 +1339,37 @@ $(document).ready(function() {
             type: "POST",
             url: "Purchaseorder/Purchaseorderupdate",
             data: orderData,
-                success: function (result) {
-                    $('#staticBackdrop').modal('hide');
+            success: function (result) {
+                $('#staticBackdrop').modal('hide');
+                var response = JSON.parse(result);
 
-                    var obj = JSON.parse(result);
-
-                    if (obj.status == 1) {
-                        actionreload(obj.action);
-                    } else {
-                        action(obj.action);
-                    }
-                },
-                error: function () {
+                if (response.status == 1) {
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Something went wrong. Please try again later.'
+                        icon: "success",
+                        title: "Order Updated!",
+                        text: "Purchase order updated successfully!",
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "Something went wrong. Please try again later.",
                     });
                 }
+
+                action(response.action);
+            },
+            error: function () {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Something went wrong. Please try again later.",
+                });
+            }
         });
     });
 

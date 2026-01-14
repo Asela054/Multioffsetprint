@@ -338,7 +338,7 @@ include "include/topnavbar.php";
 								<div class="col">
 									<label class="small font-weight-bold text-dark">UOM*</label>
 									<select class="form-control form-control-sm" name="edituom"
-										id="edituom" required>
+										id="edituom">
 										<option value="">Select</option>
 										<?php foreach($measurelist->result() as $rowmeasurelist){ ?>
 										<option value="<?php echo $rowmeasurelist->idtbl_mesurements ?>">
@@ -1292,7 +1292,7 @@ $(document).ready(function() {
 
     $('#editbtncreateorder').click(function () {
         $('#editbtncreateorder').prop('disabled', true).html(
-            '<i class="fas fa-circle-notch fa-spin mr-2"></i> Update Order'
+            '<i class="fas fa-circle-notch fa-spin mr-2"></i> Create Order'
         );
 
         var jsonObj = [];
@@ -1311,7 +1311,7 @@ $(document).ready(function() {
                 title: "No Data",
                 text: "Please add items before updating an order.",
             });
-            $('#editbtncreateorder').prop('disabled', false).html("Update Order");
+            $('#editbtncreateorder').prop('disabled', false).html("Create Order");
             return;
         }
 
