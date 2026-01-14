@@ -21,7 +21,7 @@ class Apiinfo extends CI_Model{
                     'expcode' => $row->expcode,
                     'grnno' => $row->grn_no,
                     'grndate' => $row->expdate,
-                    'amount' => str_replace(",", "", $row->amount),
+                    'amount' => str_replace(",", "", (!empty($row->amount) ? $row->amount : $row->invamount)),
                     'invamount' => str_replace(",", "", $row->invamount),
                     'status' => '1',
                     'insertdatetime' => $updatedatetime,
