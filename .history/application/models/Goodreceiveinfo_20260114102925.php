@@ -284,13 +284,13 @@
 						$productInfo .= ' / ' . $roworderinfo->materialinfocode;
 					}
 				}
-					$total=number_format(($roworderinfo->qty*$roworderinfo->costunitprice), 2);
+					$total=number_format(($roworderinfo->qty*$roworderinfo->unitprice), 2);
 
 						$html .= '<tr>
 						<td>' . $productInfo . '</td>
 						<td>' . (!empty($roworderinfo->packetprice) 
 							? number_format($roworderinfo->packetprice, 2, '.', ',') 
-							: number_format($roworderinfo->costunitprice, 2, '.', ',')) . '</td>
+							: number_format($roworderinfo->unitprice, 2, '.', ',')) . '</td>
 						<td class="text-center">' . $roworderinfo->qty . '</td>
 						<td class="text-center">' . $roworderinfo->measure_type . '</td>
 						<td class="text-center">' . $roworderinfo->unit_discount . '</td>
@@ -732,10 +732,11 @@
 	public function Getservicematerialsprices() {
 		$recordID = $this->input->post('recordID');
 
-		$this->db->select('qty, unitprice, tbl_measurements_idtbl_measurements');
+		$this->db->select('qty, unitprice');
 		$this->db->from('tbl_print_porder_detail');
 		$this->db->where('status', 1);
-		$this->db->where('idtbl_print_porder_detail', $recordID);
+		$this->db->where('idtbl_print_porder_detail', $porderID);
+		$this->db->where('tbl_material_id', $recordID);
 
 		$query = $this->db->get();
 

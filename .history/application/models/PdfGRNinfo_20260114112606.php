@@ -308,7 +308,7 @@ class PdfGRNinfo extends CI_Model {
 		$this->db->where('tbl_grn_vouchar_import_cost.idtbl_grn_vouchar_import_cost', $recordID);
 		$companydetails = $this->db->get();
 
-        $this->db->select('*, COALESCE(tbl_print_grn.idtbl_print_grn, 0) AS idtbl_print_grn, COALESCE(tbl_print_grn.total, 0) AS grn_total, COALESCE(tbl_print_grn.discount, 0) AS discount, COALESCE(tbl_print_grndetail.qty, 0) AS qty, COALESCE(tbl_print_grndetail.costunitprice, 0) AS costunitprice');
+        $this->db->select('*, COALESCE(tbl_print_grn.idtbl_print_grn, 0) AS idtbl_print_grn, COALESCE(tbl_print_grn.total, 0) AS grn_total, COALESCE(tbl_print_grn.discount, 0) AS discount, COALESCE(tbl_print_grndetail.qty, 0) AS qty, COALESCE(tbl_print_grndetail.unitprice, 0) AS unitprice');
         $this->db->from('tbl_print_grn');
         $this->db->join('tbl_print_grndetail', 'tbl_print_grn.idtbl_print_grn = tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info = tbl_print_material_info.idtbl_print_material_info', 'left');
@@ -522,9 +522,9 @@ class PdfGRNinfo extends CI_Model {
                                             <td style="text-align: center;font-size: 12px;">0.00</td>
                                             <td style="text-align: center;font-size: 12px;">'.$rowgrninfo->qty.'</td>
                                             <td style="text-align: center;font-size: 12px;">'.$rowgrninfo->measure_type.'</td>
-                                            <td style="text-align: right;font-size: 12px;" nowrap>'.$rowgrninfo->costunitprice.'</td>
+                                            <td style="text-align: right;font-size: 12px;" nowrap>'.$rowgrninfo->unitprice.'</td>
                                             <td style="text-align: left;font-size: 12px;" nowrap>'.$rowgrninfo->unit_discount.'</td>
-                                            <td style="text-align: right;font-size: 12px;" nowrap>'.number_format($rowgrninfo->costunitprice, 2).'</td>
+                                            <td style="text-align: right;font-size: 12px;" nowrap>'.number_format($rowgrninfo->unitprice, 2).'</td>
                                             <td style="text-align: right;font-size: 12px;" nowrap>'.number_format($rowgrninfo->total, 2).'</td>
                                         </tr>
                                         ';

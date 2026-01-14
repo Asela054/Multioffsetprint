@@ -991,7 +991,6 @@ $(document).ready(function() {
                 if (data.length > 0) {
                     $('#newqty').val(data[0].qty);
                     $('#unitprice').val(data[0].unitprice);
-                    $('#piecesper_qty').val(0);
                     $('#uom').val(data[0].tbl_measurements_idtbl_measurements).trigger('change');
                 } else {
                     $('#newqty').val('');

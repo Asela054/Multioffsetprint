@@ -128,9 +128,9 @@ class Goodreceive extends CI_Controller {
 		$this->load->model('Goodreceiveinfo');
         $result=$this->Goodreceiveinfo->Getservicematerials();
 	}
-	public function Getservicematerialsprices(){
+	public function Getservicematerials(){
 		$this->load->model('Goodreceiveinfo');
-        $result=$this->Goodreceiveinfo->Getservicematerialsprices();
+        $result=$this->Goodreceiveinfo->Getservicematerials();
 	}
 	public function pdfgrnget($x) {
         $this->load->model('PdfGRNinfo');

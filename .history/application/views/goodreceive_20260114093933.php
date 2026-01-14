@@ -156,7 +156,7 @@ include "include/topnavbar.php";
                             <div class="form-group mb-1">
                                 <label class="small font-weight-bold text-dark">UOM*</label>
                                 <select class="form-control form-control-sm" style="pointer-events: none;"
-                                    name="uom" id="uom">
+                                    name="uom" id="uom" readonly>
                                     <option value="">Select</option>
                                     <?php foreach($measurelist->result() as $rowmeasurelist){ ?>
                                     <option value="<?php echo $rowmeasurelist->idtbl_mesurements ?>">
@@ -802,28 +802,38 @@ $(document).ready(function() {
                         vat_type: vat_type
                     },
                     url: 'Goodreceive/Goodreceiveinsertupdate',
-                        success: function (result) {
-                            Swal.close();
-                            document.body.style.overflow = 'auto';
+    				success: function (result) {
+    					Swal.close();
+    					document.body.style.overflow = "auto";
 
-                            var obj = JSON.parse(result);
-
-                            if (obj.status == 1) {
-                                actionreload(obj.action);
-                            } else {
-                                action(obj.action);
-                            }
-                        },
-                        error: function () {
-                            Swal.close();
-                            document.body.style.overflow = 'auto';
-
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Something went wrong. Please try again later.'
-                            });
-                        }
+    					var response = JSON.parse(result);
+    					if (response.status == 1) {
+    						Swal.fire({
+    							icon: "success",
+    							title: "Good Receive Note Created!",
+    							text: "Good Receive Note created successfully!",
+    							timer: 2000,
+    							showConfirmButton: false
+    						}).then(() => {
+    							window.location.reload();
+    						});
+    					} else {
+    						Swal.fire({
+    							icon: "error",
+    							title: "Error",
+    							text: "Something went wrong. Please try again later.",
+    						});
+    					}
+    				},
+    				error: function () {
+    					Swal.close();
+    					document.body.style.overflow = "auto";
+    					Swal.fire({
+    						icon: "error",
+    						title: "Error",
+    						text: "Something went wrong. Please try again later.",
+    					});
+    				}
     			});
     		},
     	});
@@ -953,9 +963,8 @@ $(document).ready(function() {
                 if (data.length > 0) {
                     $.each(data, function (index, item) {
                         $('#servicematerial').append(
-                            '<option value="' + item.comment + '" ' +
-                            'data-recordid="' + item.idtbl_print_porder_detail + '">' +
-                                item.comment +
+                            '<option value="' + item.comment + '">' +
+                            item.comment +
                             '</option>'
                         );
                     });
@@ -965,49 +974,8 @@ $(document).ready(function() {
     });
 
     $('#servicematerial').change(function () {
-        var comment  = $(this).val();
-        var detailid = $('#servicematerial option:selected').data('recordid');
-
-        $('#comment').val(comment);
-        $('#uom').prop('disabled', false).css('pointer-events', 'auto');
-
-        if (!detailid) {
-            $('#newqty').val('');
-            $('#unitprice').val('0');
-            $('#piecesper_qty').val('0');
-            $('#uom').val('');
-            return;
-        }
-
-        $.ajax({
-            type: "POST",
-            url: 'Goodreceive/Getservicematerialsprices',
-            data: {
-                recordID: detailid
-            },
-            success: function (result) {
-                var data = JSON.parse(result);
-
-                if (data.length > 0) {
-                    $('#newqty').val(data[0].qty);
-                    $('#unitprice').val(data[0].unitprice);
-                    $('#piecesper_qty').val(0);
-                    $('#uom').val(data[0].tbl_measurements_idtbl_measurements).trigger('change');
-                } else {
-                    $('#newqty').val('');
-                    $('#unitprice').val('0');
-                    $('#uom').val('');
-                    $('#piecesper_qty').val('0');
-                }
-            },
-            error: function () {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Failed to load quantity and price.'
-                });
-            }
-        });
+    	var comment = $(this).val();
+    	$('#comment').val(comment);
     });
 
 
