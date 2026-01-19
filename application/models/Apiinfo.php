@@ -21,7 +21,7 @@ class Apiinfo extends CI_Model{
                     'expcode' => $row->expcode,
                     'grnno' => $row->grn_no,
                     'grndate' => $row->expdate,
-                    'amount' => str_replace(",", "", $row->amount),
+                    'amount' => str_replace(",", "", (!empty($row->amount) ? $row->amount : $row->invamount)),
                     'invamount' => str_replace(",", "", $row->invamount),
                     'status' => '1',
                     'insertdatetime' => $updatedatetime,
@@ -35,7 +35,7 @@ class Apiinfo extends CI_Model{
             }
         }
 
-        $sqlmaterialaccount = "SELECT `idtbl_account`, `accountno`, `accountname` FROM `tbl_print_grn` LEFT JOIN `tbl_account` ON `tbl_account`.`specialcate` = CASE WHEN `tbl_print_grn`.`grntype` = 1 OR `tbl_print_grn`.`grntype` = 4 THEN 38 ELSE 37 END LEFT JOIN `tbl_account_allocation` ON `tbl_account_allocation`.`tbl_account_idtbl_account` = `tbl_account`.`idtbl_account` WHERE `tbl_print_grn`.`idtbl_print_grn`=? AND `tbl_account_allocation`.`companybank`=? AND `tbl_account_allocation`.`branchcompanybank`=? AND `tbl_account_allocation`.`status`=?";
+        $sqlmaterialaccount = "SELECT `idtbl_account`, `accountno`, `accountname` FROM `tbl_print_grn` LEFT JOIN `tbl_account` ON `tbl_account`.`specialcate` = CASE WHEN `tbl_print_grn`.`grntype` = 1 THEN '37' WHEN `tbl_print_grn`.`grntype` IN (2, 3) THEN '38' END LEFT JOIN `tbl_account_allocation` ON `tbl_account_allocation`.`tbl_account_idtbl_account` = `tbl_account`.`idtbl_account` WHERE `tbl_print_grn`.`idtbl_print_grn`=? AND `tbl_account_allocation`.`companybank`=? AND `tbl_account_allocation`.`branchcompanybank`=? AND `tbl_account_allocation`.`status`=?";
         $respondmaterialaccount = $this->db->query($sqlmaterialaccount, array($grnID, $companyID, $branchID, 1));
 
         $sqlmaterial="SELECT `tbl_print_grndetail`.`qty`, `tbl_print_grndetail`.`unitprice`, (`tbl_print_grndetail`.`qty`*`tbl_print_grndetail`.`unitprice`) AS `grncosttotal`, `tbl_print_grndetail`.`costunitprice`, `tbl_print_grndetail`.`total` As `costtotal`, `tbl_account_detail`.`idtbl_account_detail`, `tbl_account_detail`.`accountno`, `tbl_account_detail`.`accountname`, `tbl_print_material_info`.`materialname`, `tbl_print_grn`.`tbl_material_group_idtbl_material_group`, `tbl_print_material_info`.`idtbl_print_material_info` FROM `tbl_print_grndetail` LEFT JOIN `tbl_print_grn` ON `tbl_print_grn`.`idtbl_print_grn` = `tbl_print_grndetail`.`tbl_print_grn_idtbl_print_grn` LEFT JOIN `tbl_print_material_info` ON `tbl_print_material_info`.`idtbl_print_material_info` = `tbl_print_grndetail`.`tbl_print_material_info_idtbl_print_material_info` LEFT JOIN `tbl_account_detail` ON `tbl_account_detail`.`special_cate_sub` = `tbl_print_material_info`.`tbl_material_type_idtbl_material_type` AND `tbl_account_detail`.`status`=? AND `tbl_account_detail`.`special_cate_detail`=? WHERE `tbl_print_grndetail`.`tbl_print_grn_idtbl_print_grn`=? AND `tbl_print_grndetail`.`status`=?";
@@ -155,9 +155,9 @@ class Apiinfo extends CI_Model{
             $vatamount = $respondvat->row()->vatamount;
             $vatamountcost = $respondvat->row()->vatamountcost;
 
-            if ($vatamount > 0) {
+            if ($vatamountcost > 0) {
                 $obj = new stdClass();
-                $obj->amount = str_replace(",", "", $vatamount);
+                $obj->amount = str_replace(",", "", $vatamountcost);
                 $obj->narration = 'VAT Costing for GRN No: ' . $grnno;
                 $obj->detailaccount = 0;
                 $obj->chartaccount = $respondvataccount->row()->idtbl_account;
