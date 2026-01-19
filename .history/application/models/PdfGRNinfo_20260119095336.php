@@ -33,7 +33,7 @@ class PdfGRNinfo extends CI_Model {
         $count = 0;
         $section = 1;
 
-        $totalSum = $query->row()->grn_subtotal;
+        $totalSum = $query->row()->grn_total;
         $grn_total = $query->row()->grn_total;
         $grn_vat = $query->row()->vatamount;
 

@@ -7,7 +7,7 @@ class PdfGRNinfo extends CI_Model {
         $recordID=$x;
         $insertdatetime=date('Y-m-d H:i:s');
 
-        $this->db->select('*, COALESCE(tbl_print_grn.idtbl_print_grn, 0) AS idtbl_print_grn, COALESCE(tbl_print_grn.subtotalcost, 0) AS grn_subtotal, COALESCE(tbl_print_grn.totalcost, 0) AS grn_total, COALESCE(tbl_print_grn.vatamountcost, 0) AS vatamount, COALESCE(tbl_print_grn.discount, 0) AS discount, COALESCE(tbl_print_grndetail.qty, 0) AS qty, COALESCE(tbl_print_grndetail.costunitprice, 0) AS costunitprice, COALESCE(tbl_material_group.idtbl_material_group, 0) AS idtbl_material_group , COALESCE(tbl_print_grndetail.comment, 0) AS comment');
+        $this->db->select('*, COALESCE(tbl_print_grn.idtbl_print_grn, 0) AS idtbl_print_grn, COALESCE(tbl_print_grn.totalcost, 0) AS grn_total, COALESCE(tbl_print_grn.totalcost, 0) AS vatamount, COALESCE(tbl_print_grn.discount, 0) AS discount, COALESCE(tbl_print_grndetail.qty, 0) AS qty, COALESCE(tbl_print_grndetail.costunitprice, 0) AS costunitprice, COALESCE(tbl_material_group.idtbl_material_group, 0) AS idtbl_material_group , COALESCE(tbl_print_grndetail.comment, 0) AS comment');
         $this->db->from('tbl_print_grn');
         $this->db->join('tbl_print_grndetail', 'tbl_print_grn.idtbl_print_grn = tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info = tbl_print_material_info.idtbl_print_material_info', 'left');
@@ -33,7 +33,7 @@ class PdfGRNinfo extends CI_Model {
         $count = 0;
         $section = 1;
 
-        $totalSum = $query->row()->grn_subtotal;
+        $totalSum = 0;
         $grn_total = $query->row()->grn_total;
         $grn_vat = $query->row()->vatamount;
 
@@ -53,6 +53,8 @@ class PdfGRNinfo extends CI_Model {
                     $itemDescription .= ' / ' . $rowlist->materialinfocode;
                 }
             }
+        
+            $totalSum += $rowlist->total;
         
             $dataArray[$section][] = [
                 'itemcode' => $itemcode,

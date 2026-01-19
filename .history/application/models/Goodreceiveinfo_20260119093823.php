@@ -328,7 +328,7 @@
 							</tr>
 							<tr>
 								<td width="80%" style="text-align: right; font-weight: bold;">Sub Total</td>
-								<td width="20%" style="text-align: right; font-weight: bold;">Rs. ' . number_format(($respond->row(0)->subtotalcost), 2) . '</td>
+								<td width="20%" style="text-align: right; font-weight: bold;">Rs. ' . number_format(($respond->row(0)->subtotal), 2) . '</td>
 							</tr>
 							<tr>
 								<td width="80%" style="text-align: right; font-weight: bold;">Vat(%)</td>
@@ -337,7 +337,7 @@
 							</tr>
 							<tr>
 								<td width="80%" style="text-align: right; font-weight: bold;"><strong><span style="color: black; font-size: 18px;">Final Price</span></strong></td>
-								<td width="20%" style="text-align: right; font-weight: bold;"><span style="color: black; font-size: 18px;">Rs. ' . number_format(($respond->row(0)->totalcost), 2) . '</span></td>
+								<td width="20%" style="text-align: right; font-weight: bold;"><span style="color: black; font-size: 18px;">Rs. ' . number_format(($respond->row(0)->total), 2) . '</span></td>
 							</tr>
 
 						</tbody>
