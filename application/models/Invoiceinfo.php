@@ -690,7 +690,7 @@ class Invoiceinfo extends CI_Model{
         $obj = new stdClass();
         $actionObj = new stdClass();
     
-         try {
+        try {
             $this->db->trans_begin();
     
             if ($confirmnot == 1) {
@@ -739,60 +739,111 @@ class Invoiceinfo extends CI_Model{
                     }
                 }            
 
-                // $this->db->select('tbl_print_invoice.idtbl_print_invoice,tbl_print_invoice.date, tbl_print_invoice.total, tbl_print_invoice.tbl_customer_idtbl_customer,tbl_print_invoice.inv_no, tbl_print_invoice.vat_amount,tbl_print_invoice.subtotal,tbl_customer.vat_customer');
-                // $this->db->from('tbl_print_invoice');
-                // $this->db->join('tbl_customer', 'tbl_print_invoice.tbl_customer_idtbl_customer = tbl_customer.idtbl_customer');
-                // $this->db->where('tbl_print_invoice.status', 1);
-                // $this->db->where('tbl_print_invoice.idtbl_print_invoice', $recordID);
-                // $respond = $this->db->get();
+                $this->db->select('tbl_print_invoice.idtbl_print_invoice,tbl_print_invoice.date, tbl_print_invoice.total, tbl_print_invoice.tbl_customer_idtbl_customer,tbl_print_invoice.inv_no, tbl_print_invoice.vat_amount,tbl_print_invoice.subtotal,tbl_customer.vat_customer');
+                $this->db->from('tbl_print_invoice');
+                $this->db->join('tbl_customer', 'tbl_print_invoice.tbl_customer_idtbl_customer = tbl_customer.idtbl_customer');
+                $this->db->where('tbl_print_invoice.status', 1);
+                $this->db->where('tbl_print_invoice.idtbl_print_invoice', $recordID);
+                $respond = $this->db->get();
 
-                // // GET API SEGREGATION DATA
-                // $APIstatus = $this->load->model('Apiinfo');
-                // $APIstatus = $this->Apiinfo->InvoiceApi($recordID);
+                // GET API SEGREGATION DATA
+                $APIstatus = $this->load->model('Apiinfo');
+                $APIstatus = $this->Apiinfo->InvoiceApi($recordID);
 
-                // $segregationdataencode = json_encode($APIstatus);
-                // $customer = $respond->row(0)->tbl_customer_idtbl_customer;
-                // $invoice = $respond->row(0)->inv_no;
-                // $invoiceamount = $respond->row(0)->total;
+                if (empty($APIstatus)) {
+                    throw new Exception("Invoice API configuration error: Missing chart of accounts for one or more items.");
+                }
+
+                $segregationdataencode = json_encode($APIstatus);
+                $customer = $respond->row(0)->tbl_customer_idtbl_customer;
+                $invoice = $respond->row(0)->inv_no;
+                $invoiceamount = $respond->row(0)->total;
+
+                if ($finishJob == 1) {
+                    $jobFinishData = $this->Apiinfo->JobfinishApi($jobid);
+                    
+                    // Check if JobfinishApi returned empty data
+                    if (empty($jobFinishData)) {
+                        throw new Exception("Please check all type chart of account and details are properly configured for Job Finish.");
+                    }
+                    
+                    // $APIstatus .= $jobFinishData;
+
+                    $apiurljobfinish = $_SESSION['accountapiurl'].'Api/Costmaterialprocess';
+
+                    $postDatajobfinish = http_build_query([
+                        'userid' => $userID,
+                        'company' => $company,
+                        'branch' => $branch,
+                        'customer' => $customer,
+                        'jobid' => $jobid,
+                        'jobfinishdata' => json_encode($jobFinishData)
+                    ]);
+
+                    $ch = curl_init();
+                    curl_setopt_array($ch, [
+                        CURLOPT_URL => $apiurljobfinish,
+                        CURLOPT_POST => true,
+                        CURLOPT_POSTFIELDS => $postDatajobfinish,
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_TIMEOUT => 30,
+                        CURLOPT_HTTPHEADER => [
+                            'Content-Type: application/x-www-form-urlencoded',
+                        ]
+                    ]);
+                    
+                    $server_output = curl_exec($ch);
+                    $curlError = curl_error($ch);
+                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    curl_close($ch);
+
+                    // Check both HTTP status and API response
+                    $apiResponsejobfinish = json_decode($server_output, true);
+
+                    if ($httpCode != 200 || !isset($apiResponsejobfinish['status']) || $apiResponsejobfinish['status'] !== 'success') {
+                        $errorMsg = $apiResponsejobfinish['message'] ?? 'API request failed in jobfinish';
+                        throw new Exception($errorMsg);
+                    }   
+                }                
     
-                // // Make API call
-                // $apiURL = $_SESSION['accountapiurl'].'Api/Receiptsegregationinsertupdate';
+                // Make API call
+                $apiURL = $_SESSION['accountapiurl'].'Api/Receiptsegregationinsertupdate';
                 
-                // // Use http_build_query for safer parameter encoding
-                // $postData = http_build_query([
-                //     'userid' => $userID,
-                //     'company' => $company,
-                //     'branch' => $branch,
-                //     'customer' => $customer,
-                //     'invoice' => $invoice,
-                //     'invoiceamount' => $invoiceamount,
-                //     'segregationdata' => $segregationdataencode
-                // ]);
+                // Use http_build_query for safer parameter encoding
+                $postData = http_build_query([
+                    'userid' => $userID,
+                    'company' => $company,
+                    'branch' => $branch,
+                    'customer' => $customer,
+                    'invoice' => $invoice,
+                    'invoiceamount' => $invoiceamount,
+                    'segregationdata' => $segregationdataencode
+                ]);
 
-                // $ch = curl_init();
-                // curl_setopt_array($ch, [
-                //     CURLOPT_URL => $apiURL,
-                //     CURLOPT_POST => true,
-                //     CURLOPT_POSTFIELDS => $postData,
-                //     CURLOPT_RETURNTRANSFER => true,
-                //     CURLOPT_TIMEOUT => 30,
-                //     CURLOPT_HTTPHEADER => [
-                //         'Content-Type: application/x-www-form-urlencoded',
-                //     ]
-                // ]);
+                $ch = curl_init();
+                curl_setopt_array($ch, [
+                    CURLOPT_URL => $apiURL,
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => $postData,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTPHEADER => [
+                        'Content-Type: application/x-www-form-urlencoded',
+                    ]
+                ]);
                 
-                // $server_output = curl_exec($ch);
-                // $curlError = curl_error($ch);
-                // $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                // curl_close($ch);
+                $server_output = curl_exec($ch);
+                $curlError = curl_error($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
 
-                // // Check both HTTP status and API response
-                // $apiResponse = json_decode($server_output, true);
+                // Check both HTTP status and API response
+                $apiResponse = json_decode($server_output, true);
 
-                // if ($httpCode != 200 || !isset($apiResponse['status']) || $apiResponse['status'] !== 'success') {
-                //     $errorMsg = $apiResponse['message'] ?? 'API request failed';
-                //     throw new Exception($errorMsg);
-                // }   
+                if ($httpCode != 200 || !isset($apiResponse['status']) || $apiResponse['status'] !== 'success') {
+                    $errorMsg = $apiResponse['message'] ?? 'API request failed';
+                    throw new Exception($errorMsg);
+                }   
             }
             else{
                 $data = array(

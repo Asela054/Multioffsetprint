@@ -44,16 +44,16 @@ class Apiinfo extends CI_Model{
         if ($respondmaterial->num_rows() > 0) {
             $materiltotalvalue = 0;
             foreach ($respondmaterial->result() as $rowmaterial) {
-                if(!empty($rowmaterial->idtbl_account_detail)){
-                    $obj = new stdClass();
-                    $obj->amount = str_replace(",", "", $rowmaterial->costtotal);
-                    $obj->narration = 'Material Costing for ' . $rowmaterial->materialname . ' ' . $grnno;
-                    $obj->detailaccount = $rowmaterial->idtbl_account_detail;
-                    $obj->chartaccount = 0;
-                    $obj->crder = 'D';
-                    $segregationdata[] = $obj;
-                }
-                else{
+                // if(!empty($rowmaterial->idtbl_account_detail)){
+                //     $obj = new stdClass();
+                //     $obj->amount = str_replace(",", "", $rowmaterial->costtotal);
+                //     $obj->narration = 'Material Costing for ' . $rowmaterial->materialname . ' ' . $grnno;
+                //     $obj->detailaccount = $rowmaterial->idtbl_account_detail;
+                //     $obj->chartaccount = 0;
+                //     $obj->crder = 'D';
+                //     $segregationdata[] = $obj;
+                // }
+                // else{
                     if($rowmaterial->tbl_material_group_idtbl_material_group==4){
                         $this->db->select('tbl_account_detail.idtbl_account_detail, tbl_account_detail.accountno, tbl_account_detail.accountname, tbl_account.idtbl_account, tbl_account.accountno AS chartaccountno, tbl_account.accountname AS chartaccountname');
                         $this->db->from('tbl_print_material_info');
@@ -63,9 +63,14 @@ class Apiinfo extends CI_Model{
                         $this->db->where('tbl_print_material_info.status', 1);
                         $responddetail=$this->db->get();
 
+                        if (empty($detailRow->idtbl_account_detail) && empty($detailRow->idtbl_account)) {
+                            $segregationdata = array();
+                            return $segregationdata;
+                        }
+
                         $obj = new stdClass();
                         $obj->amount = str_replace(",", "", $rowmaterial->costtotal);
-                        $obj->narration = 'Material Costing for ' . $rowmaterial->materialname . ' ' . $grnno;
+                        $obj->narration = 'Service Costing for ' . $rowmaterial->materialname . ' ' . $grnno;
                         if(!empty($responddetail->row(0)->idtbl_account_detail)){$obj->detailaccount = $responddetail->row(0)->idtbl_account_detail;}else{$obj->detailaccount = 0;}
                         if(!empty($responddetail->row(0)->idtbl_account)){$obj->chartaccount = $responddetail->row(0)->idtbl_account;}else{$obj->chartaccount = 0;}
                         $obj->crder = 'D';
@@ -74,7 +79,7 @@ class Apiinfo extends CI_Model{
                     else{
                         $materiltotalvalue += $rowmaterial->costtotal;
                     }
-                }
+                // }
             }
         }
 
@@ -114,9 +119,11 @@ class Apiinfo extends CI_Model{
                     $obj->crder = 'C';
                     $segregationdata[] = $obj;
                 }
-                // else{
-                //     $creditortotalvalue += $rowothercost->amount;
-                // }
+                else{
+                    $segregationdata = array();
+                    return $segregationdata;
+                    // $creditortotalvalue += $rowothercost->amount;
+                }
             }
         }
         
@@ -289,6 +296,88 @@ class Apiinfo extends CI_Model{
                 $segregationdata[] = $obj;
             endif;
         endforeach; 
+
+        return $segregationdata;
+    }
+    public function JobfinishApi($customerinquerydetailID){
+        $userID = $_SESSION['userid'];
+        $companyID = $_SESSION['company_id'];
+        $branchID = $_SESSION['branch_id'];
+        $segregationdata = array();
+
+        $this->db->select('job_no, tbl_customerinquiry_idtbl_customerinquiry');
+        $this->db->from('tbl_customerinquiry_detail');
+        $this->db->where('idtbl_customerinquiry_detail', $customerinquerydetailID); 
+        $respondinquery = $this->db->get();
+
+        $customerinqueryID = $respondinquery->row(0)->tbl_customerinquiry_idtbl_customerinquiry;
+        $customerjobno = $respondinquery->row(0)->job_no;
+
+        $this->db->select('SUM(tbl_jobcard_issue_meterial.issueqty) AS totalqty', FALSE);
+        $this->db->select('SUM(tbl_jobcard_issue_meterial.issueqty * tbl_jobcard_issue_meterial.unitprice) AS issuetotal', FALSE);
+        $this->db->select('tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info');
+        $this->db->select('tbl_jobcard.tbl_customerinquiry_idtbl_customerinquiry');
+        $this->db->select('tbl_account_detail.idtbl_account_detail, tbl_account_detail.accountno, tbl_account_detail.accountname, tbl_print_material_info.materialname');
+        $this->db->from('tbl_jobcard_issue_meterial');
+        $this->db->join('tbl_jobcard', 'tbl_jobcard.idtbl_jobcard = tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard', 'left');
+        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info', 'left');
+        $this->db->join('tbl_account_detail', 
+            'tbl_account_detail.special_cate_sub = tbl_print_material_info.tbl_material_type_idtbl_material_type 
+            AND tbl_account_detail.status = 1 
+            AND tbl_account_detail.special_cate_detail = 2', 
+            'left'
+        );
+        $this->db->where('tbl_jobcard_issue_meterial.status', 2);
+        $this->db->where('tbl_jobcard.tbl_customerinquiry_idtbl_customerinquiry', $customerinqueryID);
+        $this->db->group_by('tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info');
+        $respond = $this->db->get();
+
+        $materialissuenettotal = 0;
+        foreach ($respond->result() as $rowmaterial) {
+            if(!empty($rowmaterial->idtbl_account_detail)){
+                $obj = new stdClass();
+                $obj->amount = str_replace(",", "", $rowmaterial->issuetotal);
+                $obj->narration = 'Material Costing for ' . $rowmaterial->materialname . ' ' . $customerjobno;
+                $obj->detailaccount = $rowmaterial->idtbl_account_detail;
+                $obj->chartaccount = 0;
+                $obj->crder = 'D';
+                $segregationdata[] = $obj;
+
+                $materialissuenettotal += $rowmaterial->issuetotal;
+            }
+            else{
+                $segregationdata = array();
+                return $segregationdata;
+            }
+        }
+
+        $chartspecialcate = array('39');
+        $this->db->where('tbl_account_allocation.companybank', $companyID);
+        $this->db->where('tbl_account_allocation.branchcompanybank', $branchID);
+        $this->db->where_in('tbl_account.specialcate', $chartspecialcate);
+        $this->db->where('tbl_account.status', 1);
+        $this->db->where('tbl_account_allocation.status', 1);
+        $this->db->where('tbl_account_allocation.tbl_account_idtbl_account is NOT NULL', NULL, FALSE);
+        $this->db->select('`tbl_account`.`idtbl_account`, `tbl_account`.`accountno`, `tbl_account`.`accountname`, `tbl_account`.`specialcate`');
+        $this->db->from('tbl_account');
+        $this->db->join('tbl_account_allocation', 'tbl_account_allocation.tbl_account_idtbl_account = tbl_account.idtbl_account', 'left');
+
+        $respondchart=$this->db->get();
+
+        foreach($respondchart->result() as $rowrchartaccount):
+            if($rowrchartaccount->specialcate==39 && $materialissuenettotal>0):
+                $obj = new stdClass();
+                $obj->amount = str_replace(",", "", $materialissuenettotal);
+                $obj->narration = 'Material Costing for Job No: ' . $customerjobno;
+                $obj->detailaccount = '0';
+                $obj->chartaccount = $rowrchartaccount->idtbl_account;
+                $obj->crder = 'C';
+                $segregationdata[] = $obj;
+            else:
+                $segregationdata = array();
+                return $segregationdata;
+            endif;
+        endforeach;
 
         return $segregationdata;
     }

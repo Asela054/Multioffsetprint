@@ -212,9 +212,8 @@ include "include/topnavbar.php";
                                         <textarea rows="6" cols="50" type="text" class="form-control form-control-sm" id="finishreason" name="finishreason" required></textarea>
                                     </div>
                             <div class="form-group mt-2 text-right">
-                                <button type="submit" id="submitBtnRemark" class="btn btn-primary btn-sm px-4"><i
-                                        class="far fa-save"></i>&nbsp;Finish</button>
-                                        <input type="submit" class="d-none" id="hidesubmitremark" value="">
+                                <button type="button" id="submitBtnRemark" class="btn btn-primary btn-sm px-4"><i class="far fa-save"></i>&nbsp;Finish</button>
+                                <input type="submit" class="d-none" id="hidesubmitremark" value="">
                             </div>
                         </form>
                     </div>
@@ -612,25 +611,61 @@ $(document).ready(function() {
 
     });
     $('#submitBtnRemark').click(function () {
-        if (!$("#addremarkform")[0].checkValidity()) {
-            $("#hidesubmitremark").click();
-        } else {
-            var finishreason = $('#finishreason').val();
-            var hiddenID = $('#hiddeninquiryid').val();
+        Swal.fire({
+            title: '',
+            html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+            allowOutsideClick: false,
+            showConfirmButton: false, // Hide the OK button
+            backdrop: `
+                rgba(255, 255, 255, 0.5) 
+            `,
+            customClass: {
+                popup: 'fullscreen-swal'
+            },
+            didOpen: () => {
+                document.body.style.overflow = 'hidden';
 
-            $.ajax({
-                type: "POST",
-                data: {
-                    finishreason: finishreason,
-                    hiddenID: hiddenID
+                if (!$("#addremarkform")[0].checkValidity()) {
+                    $("#hidesubmitremark").click();
+                } else {
+                    var finishreason = $('#finishreason').val();
+                    var hiddenID = $('#hiddeninquiryid').val();
 
-                },
-                url: '<?php echo base_url() ?>Customerinquiry/Customerinquiryfinish',
-                success: function (result) {
-                    action(result);
+                    $.ajax({
+                        type: "POST",
+                        data: {
+                            finishreason: finishreason,
+                            hiddenID: hiddenID
+
+                        },
+                        url: '<?php echo base_url() ?>Customerinquiry/Customerinquiryfinish',
+                        success: function (result) {
+                            Swal.close();
+                            document.body.style.overflow = 'auto';
+                            var obj = JSON.parse(result);
+                            if(obj.status==1){
+                                actionreload(obj.action);
+                            }
+                            else{
+                                action(obj.action);
+                            }
+                        },
+                        error: function(error) {
+                            // Close the SweetAlert on error
+                            Swal.close();
+                            document.body.style.overflow = 'auto';
+                            
+                            // Show an error alert
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Something went wrong. Please try again later.'
+                            });
+                        }
+                    });
                 }
-            });
-        }
+            }
+        });
     });
     $('#datatable tbody').on('click', '.btnView', function() {
         var id = $(this).attr('id');

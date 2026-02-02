@@ -478,12 +478,18 @@ class Customerinquiryinfo extends CI_Model{
         }
     }
     public function Customerinquiryfinish(){
-        $this->db->trans_begin();
-
-        $userID=$_SESSION['userid'];
+        $userID = $_SESSION['userid'];
+        $company = $_SESSION['company_id'];
+        $branch = $_SESSION['branch_id'];
         $finishreason=$this->input->post('finishreason');
         $hiddenID=$this->input->post('hiddenID');
         $updatedatetime=date('Y-m-d H:i:s');
+
+        $obj = new stdClass();
+        $actionObj = new stdClass();
+    
+        try {
+            $this->db->trans_begin();
 
             $data = array(
                 'job_finish_status' => '1',
@@ -491,42 +497,91 @@ class Customerinquiryinfo extends CI_Model{
                 'updatedatetime'=> $updatedatetime
             );
 
-			$this->db->where('tbl_customerinquiry_idtbl_customerinquiry', $hiddenID);
+            $this->db->where('tbl_customerinquiry_idtbl_customerinquiry', $hiddenID);
             $this->db->update('tbl_customerinquiry_detail', $data);
 
-            $this->db->trans_complete();
+            $this->db->select('tbl_customerinquiry_detail.idtbl_customerinquiry_detail, tbl_customerinquiry.tbl_customer_idtbl_customer');
+            $this->db->from('tbl_customerinquiry_detail');
+            $this->db->join('tbl_customerinquiry', 'tbl_customerinquiry.idtbl_customerinquiry = tbl_customerinquiry_detail.tbl_customerinquiry_idtbl_customerinquiry');
+            $this->db->where('tbl_customerinquiry_idtbl_customerinquiry', $hiddenID);
+            $respond = $this->db->get();
 
-            if ($this->db->trans_status() === TRUE) {
-                $this->db->trans_commit();
-                
-                $actionObj=new stdClass();
-                $actionObj->icon='fas fa-check';
-                $actionObj->title='';
-                $actionObj->message='Job Finish Successfully';
-                $actionObj->url='';
-                $actionObj->target='_blank';
-                $actionObj->type='success';
+            $customer = $respond->row(0)->tbl_customer_idtbl_customer;
+            $jobid = $respond->row(0)->idtbl_customerinquiry_detail;
 
-                $actionJSON=json_encode($actionObj);
-                
-                $this->session->set_flashdata('msg', $actionJSON);
-                redirect('Customerinquiry');                
-            } else {
-                $this->db->trans_rollback();
+            $jobFinishData = $this->load->model('Apiinfo');
+            $jobFinishData = $this->Apiinfo->JobfinishApi($jobid);
 
-                $actionObj=new stdClass();
-                $actionObj->icon='fas fa-warning';
-                $actionObj->title='';
-                $actionObj->message='Record Error';
-                $actionObj->url='';
-                $actionObj->target='_blank';
-                $actionObj->type='danger';
-
-                $actionJSON=json_encode($actionObj);
-                
-                $this->session->set_flashdata('msg', $actionJSON);
-                redirect('Customerinquiry');
+            if (empty($jobFinishData)) {
+                throw new Exception("Please check all type chart of account and details are properly configured for Job Finish.");
             }
+            
+            // $APIstatus .= $jobFinishData;
+
+            $apiurljobfinish = $_SESSION['accountapiurl'].'Api/Costmaterialprocess';
+
+            $postDatajobfinish = http_build_query([
+                'userid' => $userID,
+                'company' => $company,
+                'branch' => $branch,
+                'customer' => $customer,
+                'jobid' => $jobid,
+                'jobfinishdata' => json_encode($jobFinishData)
+            ]);
+
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $apiurljobfinish,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $postDatajobfinish,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/x-www-form-urlencoded',
+                ]
+            ]);
+            
+            $server_output = curl_exec($ch);
+            $curlError = curl_error($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            // Check both HTTP status and API response
+            $apiResponsejobfinish = json_decode($server_output, true);
+
+            if ($httpCode != 200 || !isset($apiResponsejobfinish['status']) || $apiResponsejobfinish['status'] !== 'success') {
+                $errorMsg = $apiResponsejobfinish['message'] ?? 'API request failed in jobfinish';
+                throw new Exception($errorMsg);
+            }   
+
+            $this->db->trans_commit();
+    
+            $actionObj->icon = 'fas fa-check-circle';
+            $actionObj->title = '';
+            $actionObj->message = 'Manual Job Finished Successfully';
+            $actionObj->url = '';
+            $actionObj->target = '_blank';
+            $actionObj->type = 'success';
+    
+            $obj->status = 1;
+            $obj->action = json_encode($actionObj);            
+        } catch (Exception $e) {
+            $this->db->trans_rollback();
+            
+            error_log("GRNVoucherapprove Error: " . $e->getMessage());
+            
+            $actionObj->icon = 'fas fa-exclamation-triangle';
+            $actionObj->title = '';
+            $actionObj->message = 'Operation Failed: ' . $e->getMessage();
+            $actionObj->url = '';
+            $actionObj->target = '_blank';
+            $actionObj->type = 'danger';
+    
+            $obj->status = 0;
+            $obj->action = json_encode($actionObj);
+        }
+    
+        echo json_encode($obj);
     }
     public function Customerinquiryapprove(){
 		$this->db->trans_begin();
