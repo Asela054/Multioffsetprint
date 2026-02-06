@@ -534,118 +534,168 @@ class Issuegoodreceiveinfo extends CI_Model{
 		echo $html;
 	}
 
-
 	public function Approveissue(){
-        $this->db->trans_begin();
-
-        $userID=$_SESSION['userid'];
-
-        $tableData=$this->input->post('tableData');
+		$userID=$_SESSION['userid'];
+		$company = $_SESSION['company_id'];
+		$branch = $_SESSION['branch_id'];
+		$confirmnot=$this->input->post('confirmnot');
+		$tableData=$this->input->post('tableData');
 		$viewissueid=$this->input->post('viewissueid');
 		$grnreqid=$this->input->post('grnreqid');
-        $updatedatetime=date('Y-m-d H:i:s');
+		$updatedatetime=date('Y-m-d H:i:s');
 
-		$data=array(
-			'approvestatus '=> '1',
-			'updateuser'=> $userID,
-			'updatedatetime'=> $updatedatetime);
+		$obj = new stdClass();
+        $actionObj = new stdClass();
+    
+        try {
+			$this->db->trans_begin();
 
-		$this->db->where('idtbl_print_issue', $viewissueid);
-		$this->db->update('tbl_print_issue', $data);
-
-		$datareq=array(
-			'issuestatus '=> '1',
-			'updateuser'=> $userID,
-			'updatedatetime'=> $updatedatetime);
-
-		$this->db->where('idtbl_grn_req', $grnreqid);
-		$this->db->update('tbl_grn_req', $datareq);
-
-			foreach($tableData as $rowtabledata) {
-				$stockid = $rowtabledata['stockid'];
-				$issueqty = $rowtabledata['qty'];
-				$account_id = $rowtabledata['account_id'];
-				$account_type = $rowtabledata['account_type'];
-
-				$this->db->select('qty');
-				$this->db->from('tbl_print_stock');
-				$this->db->where('idtbl_print_stock', $stockid);
-
-				$query = $this->db->get();
-
-				$currentQuantity=0;
-				if ($query->num_rows() > 0) {
-					$row = $query->row();
-					$currentQuantity = $row->qty;
-				} 
-				$newQuantity = $currentQuantity - $issueqty;
-
-
-				$data1=array(
-					'qty '=> $newQuantity,
+			if ($confirmnot == 1) {
+				$data=array(
+					'approvestatus '=> $confirmnot,
 					'updateuser'=> $userID,
 					'updatedatetime'=> $updatedatetime);
-		
-				$this->db->where('idtbl_print_stock', $stockid);
-				$this->db->update('tbl_print_stock', $data1);
 
-				$accountData = array();
-				if ($account_type == 1) {
-					$accountData['tbl_account_idtbl_account'] = $account_id;
-				} elseif ($account_type == 2) {
-					$accountData['tbl_account_detail_idtbl_account_detail'] = $account_id;
+				$this->db->where('idtbl_print_issue', $viewissueid);
+				$this->db->update('tbl_print_issue', $data);
+
+				$datareq=array(
+					'issuestatus '=> '1',
+					'updateuser'=> $userID,
+					'updatedatetime'=> $updatedatetime);
+
+				$this->db->where('idtbl_grn_req', $grnreqid);
+				$this->db->update('tbl_grn_req', $datareq);
+
+				foreach($tableData as $rowtabledata) {
+					$stockid = $rowtabledata['stockid'];
+					$issueqty = $rowtabledata['qty'];
+					$account_id = $rowtabledata['account_id'];
+					$account_type = $rowtabledata['account_type'];
+
+					$this->db->select('qty');
+					$this->db->from('tbl_print_stock');
+					$this->db->where('idtbl_print_stock', $stockid);
+
+					$query = $this->db->get();
+
+					$currentQuantity=0;
+					if ($query->num_rows() > 0) {
+						$row = $query->row();
+						$currentQuantity = $row->qty;
+					} 
+					$newQuantity = $currentQuantity - $issueqty;
+
+
+					$data1=array(
+						'qty '=> $newQuantity,
+						'updateuser'=> $userID,
+						'updatedatetime'=> $updatedatetime);
+			
+					$this->db->where('idtbl_print_stock', $stockid);
+					$this->db->update('tbl_print_stock', $data1);
+
+					$accountData = array();
+					if ($account_type == 1) {
+						$accountData['tbl_account_idtbl_account'] = $account_id;
+					} elseif ($account_type == 2) {
+						$accountData['tbl_account_detail_idtbl_account_detail'] = $account_id;
+					}
+
+					$data = array_merge(array(
+						'updateuser'=> $userID,
+						'updatedatetime'=> $updatedatetime
+					), $accountData);
+			
+					$this->db->where('stock_id', $stockid);
+					$this->db->where('tbl_print_issue_idtbl_print_issue', $viewissueid);
+					$this->db->update('tbl_print_issuedetail', $data);
+			
 				}
 
-				$data = array_merge(array(
+				// GET API SEGREGATION DATA
+				$APIstatus = $this->load->model('Apiinfo');
+				$issueData = $this->Apiinfo->InternalIssueApi($viewissueid);
+
+				if (empty($issueData)) {
+					throw new Exception("Issue API configuration error: Missing chart of accounts for one or more items.");
+				}
+
+				$fullnarration = 'Costing for Internal Issue Note ID: ' . $viewissueid;
+				$apiurljobfinish = $_SESSION['accountapiurl'].'Api/JurnalEntryProcess';
+
+				$postDataList = http_build_query([
+					'userid' => $userID,
+					'company' => $company,
+					'branch' => $branch,
+					'fullnarration' => $fullnarration,
+					'jurnalentrydata' => json_encode($issueData)
+				]);
+
+				$ch = curl_init();
+				curl_setopt_array($ch, [
+					CURLOPT_URL => $apiurljobfinish,
+					CURLOPT_POST => true,
+					CURLOPT_POSTFIELDS => $postDataList,
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_TIMEOUT => 30,
+					CURLOPT_HTTPHEADER => [
+						'Content-Type: application/x-www-form-urlencoded',
+					]
+				]);
+				
+				$server_output = curl_exec($ch);
+				$curlError = curl_error($ch);
+				$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				curl_close($ch);
+
+				// Check both HTTP status and API response
+				$apiResponsejobfinish = json_decode($server_output, true);
+
+				if ($httpCode != 200 || !isset($apiResponsejobfinish['status']) || $apiResponsejobfinish['status'] !== 'success') {
+					$errorMsg = $apiResponsejobfinish['message'] ?? 'API request failed in jobfinish';
+					throw new Exception($errorMsg);
+				}
+			}
+			else{
+				$data=array(
+					'approvestatus '=> $confirmnot,
 					'updateuser'=> $userID,
-					'updatedatetime'=> $updatedatetime
-				), $accountData);
-		
-				$this->db->where('stock_id', $stockid);
-				$this->db->where('tbl_print_issue_idtbl_print_issue', $viewissueid);
-				$this->db->update('tbl_print_issuedetail', $data);
-		
+					'updatedatetime'=> $updatedatetime);
+
+				$this->db->where('idtbl_print_issue', $viewissueid);
+				$this->db->update('tbl_print_issue', $data);
 			}
 
-        $this->db->trans_complete();
+			$this->db->trans_commit();
+    
+            $actionObj->icon = 'fas fa-check-circle';
+            $actionObj->title = '';
+            $actionObj->message = ($confirmnot == 1) ? 'Issue Note Confirmed Successfully' : 'Record Rejected Successfully';
+            $actionObj->url = '';
+            $actionObj->target = '_blank';
+            $actionObj->type = 'success';
+    
+            $obj->status = 1;
+            $obj->action = json_encode($actionObj);
 
-        if ($this->db->trans_status() === TRUE) {
-            $this->db->trans_commit();
+		} catch (Exception $e) {
+			$this->db->trans_rollback();
             
-            $actionObj=new stdClass();
-            $actionObj->icon='fas fa-save';
-            $actionObj->title='';
-            $actionObj->message='Record Issue Successfully';
-            $actionObj->url='';
-            $actionObj->target='_blank';
-            $actionObj->type='success';
-
-            $actionJSON=json_encode($actionObj);
-
-            $obj=new stdClass();
-            $obj->status=1;          
-            $obj->action=$actionJSON;  
+            error_log("Issue Note Error: " . $e->getMessage());
             
-            echo json_encode($obj);
-        } else {
-            $this->db->trans_rollback();
+            $actionObj->icon = 'fas fa-exclamation-triangle';
+            $actionObj->title = '';
+            $actionObj->message = 'Operation Failed: ' . $e->getMessage();
+            $actionObj->url = '';
+            $actionObj->target = '_blank';
+            $actionObj->type = 'danger';
+    
+            $obj->status = 0;
+            $obj->action = json_encode($actionObj);
+		}
 
-            $actionObj=new stdClass();
-            $actionObj->icon='fas fa-exclamation-triangle';
-            $actionObj->title='';
-            $actionObj->message='Record Error';
-            $actionObj->url='';
-            $actionObj->target='_blank';
-            $actionObj->type='danger';
-
-            $actionJSON=json_encode($actionObj);
-
-            $obj=new stdClass();
-            $obj->status=0;          
-            $obj->action=$actionJSON;  
-            
-            echo json_encode($obj);
-        }
+        echo json_encode($obj);
     }
 
 	public function Issuepdf($x)
