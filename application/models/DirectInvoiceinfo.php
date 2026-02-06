@@ -588,10 +588,7 @@ class DirectInvoiceinfo extends CI_Model{
         echo json_encode($obj);
     }
 
-
     public function Approdirectinvoice(){
-        $this->db->trans_begin();
-    
         $userID = $_SESSION['userid'];
         $company = $_SESSION['company_id'];
         $branch = $_SESSION['branch_id'];
@@ -599,106 +596,198 @@ class DirectInvoiceinfo extends CI_Model{
         $disid = $this->input->post('reqestid');
         $confirmnot=$this->input->post('confirmnot');
         $updatedatetime = date('Y-m-d H:i:s');
+
+        $obj = new stdClass();
+        $actionObj = new stdClass();
     
-        $data = array(
-            'approvestatus' => $confirmnot,
-            'updateuser' => $userID,
-            'updatedatetime' => $updatedatetime
-        );
-    
-        $this->db->where('idtbl_direct_invoice', $recordID);
-        $this->db->update('tbl_direct_invoice', $data);
-    
-            $data1 = array(
-                'invoice_status' => '1',
-                'updateuser' => $userID, 
-                'updatedatetime' => $updatedatetime
-            );
-    
-            $this->db->where('idtbl_direct_dispatch', $disid);
-            $this->db->update('tbl_direct_dispatch', $data1);
-    
-        $this->db->select('tbl_direct_invoice.idtbl_direct_invoice,tbl_direct_invoice.date, tbl_direct_invoice.total,
-                            tbl_direct_dispatch.tbl_customer_idtbl_customer,tbl_direct_invoice.inv_no,
-                            tbl_direct_invoice.vat_amount,tbl_direct_invoice.subtotal,tbl_customer.vat_customer');
-        $this->db->from('tbl_direct_invoice');
-        $this->db->join('tbl_direct_dispatch', 'tbl_direct_dispatch.idtbl_direct_dispatch  = tbl_direct_invoice.tbl_direct_dispatch_idtbl_direct_dispatch ', 'left');
-        $this->db->join('tbl_customer', 'tbl_customer.idtbl_customer  = tbl_direct_dispatch.tbl_customer_idtbl_customer ', 'left');
-        $this->db->where('tbl_direct_invoice.status', 1);
-        $this->db->where('tbl_direct_invoice.idtbl_direct_invoice', $recordID);
-    
-        $respond = $this->db->get();
-    
-        if ($respond->num_rows() > 0) {
-            foreach ($respond->result() as $row) {
-                $invoiceid = $row->idtbl_direct_invoice;
-                $totalamount = $row->total;
-                $customer = $row->tbl_customer_idtbl_customer;
-                $invoicedate = $row->date;
-                $invoicenum = $row->inv_no;
-                $vatamount = $row->vat_amount;
-                $grossamount = $row->subtotal;
-                $customer_type = $row->vat_customer;
-    
-                $accountsData = array(
-                    'saletype' => '1',
-                    'salecode' => 'INV',
-                    'invno' => $invoicenum,
-                    'manual_invno' => '',
-                    'invdate' => $invoicedate,
-                    'sub_total' => $grossamount,
-                    'vat' => $vatamount,
-                    'amount' => $totalamount,
-                    'status' => '1',   
-                    'insertdatetime' => $updatedatetime,
-                    'tbl_user_idtbl_user' => $userID,
-                    'tbl_customer_idtbl_customer' => $customer,
-                    'tbl_company_idtbl_company' => $company, 
-                    'tbl_company_branch_idtbl_company_branch' => $branch
+        try {
+			$this->db->trans_begin();
+
+			if ($confirmnot == 1) {       
+                $data = array(
+                    'approvestatus' => $confirmnot,
+                    'updateuser' => $userID,
+                    'updatedatetime' => $updatedatetime
                 );
+            
+                $this->db->where('idtbl_direct_invoice', $recordID);
+                $this->db->update('tbl_direct_invoice', $data);
+            
+                $data1 = array(
+                    'invoice_status' => '1',
+                    'updateuser' => $userID, 
+                    'updatedatetime' => $updatedatetime
+                );
+
+                $this->db->where('idtbl_direct_dispatch', $disid);
+                $this->db->update('tbl_direct_dispatch', $data1);
+            
+                $this->db->select('tbl_direct_invoice.idtbl_direct_invoice,tbl_direct_invoice.date, tbl_direct_invoice.total, tbl_direct_dispatch.tbl_customer_idtbl_customer,tbl_direct_invoice.inv_no, tbl_direct_invoice.vat_amount,tbl_direct_invoice.subtotal,tbl_customer.vat_customer');
+                $this->db->from('tbl_direct_invoice');
+                $this->db->join('tbl_direct_dispatch', 'tbl_direct_dispatch.idtbl_direct_dispatch  = tbl_direct_invoice.tbl_direct_dispatch_idtbl_direct_dispatch ', 'left');
+                $this->db->join('tbl_customer', 'tbl_customer.idtbl_customer  = tbl_direct_dispatch.tbl_customer_idtbl_customer ', 'left');
+                $this->db->where('tbl_direct_invoice.status', 1);
+                $this->db->where('tbl_direct_invoice.idtbl_direct_invoice', $recordID);
+            
+                $respond = $this->db->get();
+
+                // $invoiceid = $respond->row(0)->idtbl_direct_invoice;
+                // $totalamount = $respond->row(0)->total;
+                // $customer = $respond->row(0)->tbl_customer_idtbl_customer;
+                // $invoicedate = $respond->row(0)->date;
+                // $invoicenum = $respond->row(0)->inv_no;
+                // $vatamount = $respond->row(0)->vat_amount;
+                // $grossamount = $respond->row(0)->subtotal;
+                // $customer_type = $respond->row(0)->vat_customer;
     
-                $this->db->insert('tbl_sales_info', $accountsData);
+                // $accountsData = array(
+                //     'saletype' => '1',
+                //     'salecode' => 'INV',
+                //     'invno' => $invoicenum,
+                //     'manual_invno' => '',
+                //     'invdate' => $invoicedate,
+                //     'sub_total' => $grossamount,
+                //     'vat' => $vatamount,
+                //     'amount' => $totalamount,
+                //     'status' => '1',   
+                //     'insertdatetime' => $updatedatetime,
+                //     'tbl_user_idtbl_user' => $userID,
+                //     'tbl_customer_idtbl_customer' => $customer,
+                //     'tbl_company_idtbl_company' => $company, 
+                //     'tbl_company_branch_idtbl_company_branch' => $branch
+                // );
+    
+                // $this->db->insert('tbl_sales_info', $accountsData);
+
+                // GET API SEGREGATION DATA
+				$APIstatus = $this->load->model('Apiinfo');
+				$issueMaterialData = $this->Apiinfo->DirectinvoiceMaterialApi($recordID);
+
+				if (empty($issueData)) {
+					throw new Exception("Issue API configuration error: Missing chart of accounts for one or more items.");
+				}
+
+                if (!empty($issueData)) {
+                    $fullnarration = 'Costing for Direct Invoice ID: ' . $recordID;
+                    $apiurljobfinish = $_SESSION['accountapiurl'].'Api/JurnalEntryProcess';
+
+                    $postDataList = http_build_query([
+                        'userid' => $userID,
+                        'company' => $company,
+                        'branch' => $branch,
+                        'fullnarration' => $fullnarration,
+                        'jurnalentrydata' => json_encode($issueMaterialData)
+                    ]);
+
+                    $ch = curl_init();
+                    curl_setopt_array($ch, [
+                        CURLOPT_URL => $apiurljobfinish,
+                        CURLOPT_POST => true,
+                        CURLOPT_POSTFIELDS => $postDataList,
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_TIMEOUT => 30,
+                        CURLOPT_HTTPHEADER => [
+                            'Content-Type: application/x-www-form-urlencoded',
+                        ]
+                    ]);
+                    
+                    $server_output = curl_exec($ch);
+                    $curlError = curl_error($ch);
+                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    curl_close($ch);
+
+                    // Check both HTTP status and API response
+                    $apiResponsejobfinish = json_decode($server_output, true);
+
+                    if ($httpCode != 200 || !isset($apiResponsejobfinish['status']) || $apiResponsejobfinish['status'] !== 'success') {
+                        $errorMsg = $apiResponsejobfinish['message'] ?? 'API request failed in jobfinish';
+                        throw new Exception($errorMsg);
+                    }
+                }
+
+                $APIstatus = $this->Apiinfo->DirectInvoiceApi($recordID);
+                $segregationdataencode = json_encode($APIstatus);
+                $customer = $respond->row(0)->tbl_customer_idtbl_customer;
+                $invoice = $respond->row(0)->inv_no;
+                $invoiceamount = $respond->row(0)->total;
+
+                // Make API call
+                $apiURL = $_SESSION['accountapiurl'].'Api/Receiptsegregationinsertupdate';
+                
+                // Use http_build_query for safer parameter encoding
+                $postData = http_build_query([
+                    'userid' => $userID,
+                    'company' => $company,
+                    'branch' => $branch,
+                    'customer' => $customer,
+                    'invoice' => $invoice,
+                    'invoiceamount' => $invoiceamount,
+                    'segregationdata' => $segregationdataencode
+                ]);
+
+                $ch = curl_init();
+                curl_setopt_array($ch, [
+                    CURLOPT_URL => $apiURL,
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => $postData,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTPHEADER => [
+                        'Content-Type: application/x-www-form-urlencoded',
+                    ]
+                ]);
+                
+                $server_output = curl_exec($ch);
+                $curlError = curl_error($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+
+                // Check both HTTP status and API response
+                $apiResponse = json_decode($server_output, true);
+
+                if ($httpCode != 200 || !isset($apiResponse['status']) || $apiResponse['status'] !== 'success') {
+                    $errorMsg = $apiResponse['message'] ?? 'API request failed';
+                    throw new Exception($errorMsg);
+                }  
+            } else {
+                $data = array(
+                    'approvestatus' => $confirmnot,
+                    'updateuser' => $userID,
+                    'updatedatetime' => $updatedatetime
+                );
+            
+                $this->db->where('idtbl_direct_invoice', $recordID);
+                $this->db->update('tbl_direct_invoice', $data);
             }
-        }
-    
-        if ($this->db->trans_status() === TRUE) {
+
             $this->db->trans_commit();
-            
-            $actionObj=new stdClass();
-            $actionObj->icon='fas fa-save';
-            $actionObj->title='';
-            if($confirmnot==1){$actionObj->message='Record Approved Successfully';}
-            else{$actionObj->message='Record Rejected Successfully';}
-            $actionObj->url='';
-            $actionObj->target='_blank';
-            $actionObj->type='success';
-
-            $actionJSON=json_encode($actionObj);
-
-            $obj=new stdClass();
-            $obj->status=1;          
-            $obj->action=$actionJSON;  
-            
-            echo json_encode($obj);
-        } else {
+    
+            $actionObj->icon = 'fas fa-check-circle';
+            $actionObj->title = '';
+            $actionObj->message = ($confirmnot == 1) ? 'Direct Invoice Confirmed Successfully' : 'Record Rejected Successfully';
+            $actionObj->url = '';
+            $actionObj->target = '_blank';
+            $actionObj->type = 'success';
+    
+            $obj->status = 1;
+            $obj->action = json_encode($actionObj);
+        } catch (Exception $e) {
             $this->db->trans_rollback();
 
-            $actionObj=new stdClass();
-            $actionObj->icon='fas fa-exclamation-triangle';
-            $actionObj->title='';
-            $actionObj->message='Record Error';
-            $actionObj->url='';
-            $actionObj->target='_blank';
-            $actionObj->type='danger';
-
-            $actionJSON=json_encode($actionObj);
-
-            $obj=new stdClass();
-            $obj->status=0;          
-            $obj->action=$actionJSON;  
+            error_log("Issue Note Error: " . $e->getMessage());
             
-            echo json_encode($obj);
-        }
+            $actionObj->icon = 'fas fa-exclamation-triangle';
+            $actionObj->title = '';
+            $actionObj->message = 'Operation Failed: ' . $e->getMessage();
+            $actionObj->url = '';
+            $actionObj->target = '_blank';
+            $actionObj->type = 'danger';
+    
+            $obj->status = 0;
+            $obj->action = json_encode($actionObj);
+		}
+
+        echo json_encode($obj);
     }        
 
     public function DirectInvoicecheckstatus() {
