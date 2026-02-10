@@ -437,16 +437,16 @@ class Issuegoodreceiveinfo extends CI_Model{
 		echo json_encode($obj);
 	}
 
-	public function IssueNoteView() {
+	public function IssueNoteView(){
 		$recordID = $this->input->post('recordID');
 
 		// ================= HEADER =================
 		$this->db->select('
-			i.idtbl_print_issue,
-			i.issuedate,
-			i.total,
-			l.location,
-			e.emp_fullname
+		i.idtbl_print_issue,
+		i.issuedate,
+		i.total,
+		l.location,
+		e.emp_fullname
 		');
 		$this->db->from('tbl_print_issue i');
 		$this->db->join('tbl_location l', 'l.idtbl_location = i.location_id', 'left');
@@ -457,23 +457,23 @@ class Issuegoodreceiveinfo extends CI_Model{
 
 		// ================= DETAILS =================
 		$this->db->select('
-			d.qty,
-			d.stock_id,
-			d.unitprice,
-			d.total,
-			d.comment,
-			m.materialname,
-			m.materialinfocode,
-			u.measure_type
+		d.qty,
+		d.stock_id,
+		d.unitprice,
+		d.total,
+		d.comment,
+		m.materialname,
+		m.materialinfocode,
+		u.measure_type
 		');
 		$this->db->from('tbl_print_issuedetail d');
 		$this->db->join('tbl_print_material_info m',
-			'm.idtbl_print_material_info = d.tbl_print_material_info_idtbl_print_material_info',
-			'left'
+		'm.idtbl_print_material_info = d.tbl_print_material_info_idtbl_print_material_info',
+		'left'
 		);
 		$this->db->join('tbl_measurements u',
-			'u.idtbl_mesurements = d.measure_type_id',
-			'left'
+		'u.idtbl_mesurements = d.measure_type_id',
+		'left'
 		);
 		$this->db->where('d.tbl_print_issue_idtbl_print_issue', $recordID);
 		$this->db->where('d.status', 1);
@@ -482,141 +482,156 @@ class Issuegoodreceiveinfo extends CI_Model{
 		// ================= HTML =================
 		$html = '
 		<div class="row mb-2">
-			<div class="col-6 small">
-				<strong>Issue Date:</strong> ' . $header->row()->issuedate . '<br>
-				<strong>Location:</strong> ' . $header->row()->location . '
-			</div>
-			<div class="col-6 small text-right">
-				<strong>Employee:</strong> ' . $header->row()->emp_fullname . '<br>
-				<strong>Issue No:</strong> ' . $header->row()->idtbl_print_issue . '
-			</div>
+		<div class="col-6 small">
+			<strong>Issue Date:</strong> ' . $header->row()->issuedate . '<br>
+			<strong>Location:</strong> ' . $header->row()->location . '
+		</div>
+		<div class="col-6 small text-right">
+			<strong>Employee:</strong> ' . $header->row()->emp_fullname . '<br>
+			<strong>Issue No:</strong> ' . $header->row()->idtbl_print_issue . '
+		</div>
 		</div>
 
 		<hr class="border-dark">
 
-		<table class="table table-bordered table-sm" id="issueTable">
-			<thead class="thead-light">
-				<tr>
-					<th>Material</th>
-					<th class="text-center">Qty</th>
-					<th class="d-none">Stock ID</th>
-					<th class="text-center">UOM</th>
-					<th class="text-right">Unit Price</th>
-					<th class="text-right">Total</th>
-					<th>Remark</th>
-				</tr>
-			</thead>
-			<tbody>';
+		<table class="table table-bordered table-sm">
+		<thead class="thead-light">
+			<tr>
+				<th>Material</th>
+				<th class="text-center">Qty</th>
+				<th class="d-none">Stock ID</th>
+				<th class="text-center">UOM</th>
+				<th class="text-right">Unit Price</th>
+				<th class="text-right">Total</th>
+				<th>Remark</th>
+			</tr>
+		</thead>
+		<tbody>';
 
 		foreach ($details->result() as $row) {
-			$material = $row->materialname;
-			if (!empty($row->materialinfocode)) {
-				$material .= ' / ' . $row->materialinfocode;
-			}
 
-			// Add classes for JS to pick stock ID and qty
-			$html .= '
-			<tr>
-				<td>' . $material . '</td>
-				<td class="text-center issueqty">' . $row->qty . '</td>
-				<td class="d-none stockid">' . $row->stock_id . '</td>
-				<td class="text-center">' . $row->measure_type . '</td>
-				<td class="text-right">' . number_format($row->unitprice, 2) . '</td>
-				<td class="text-right">' . number_format($row->total, 2) . '</td>
-				<td>' . $row->comment . '</td>
-			</tr>';
+		$material = $row->materialname;
+		if (!empty($row->materialinfocode)) {
+			$material .= ' / ' . $row->materialinfocode;
 		}
 
 		$html .= '
-			</tbody>
+		<tr>
+			<td>' . $material . '</td>
+			<td class="text-center">' . $row->qty . '</td>
+			<td class="d-none">' . $row->stock_id . '</td>
+			<td class="text-center">' . $row->measure_type . '</td>
+			<td class="text-right">' . number_format($row->unitprice, 2) . '</td>
+			<td class="text-right">' . number_format($row->total, 2) . '</td>
+			<td>' . $row->comment . '</td>
+		</tr>';
+		}
+
+		$html .= '
+		</tbody>
 		</table>
 
 		<table width="100%" class="mt-3">
-			<tr>
-				<td width="80%" class="text-right font-weight-bold">Total</td>
-				<td width="20%" class="text-right font-weight-bold">
-					Rs. ' . number_format($header->row()->total, 2) . '
-				</td>
-			</tr>
+		<tr>
+			<td width="80%" class="text-right font-weight-bold">Total</td>
+			<td width="20%" class="text-right font-weight-bold">
+				Rs. ' . number_format($header->row()->total, 2) . '
+			</td>
+		</tr>
 		</table>';
 
 		$response = [
-			'html' => $html
+		'html' => $html
 		];
 
 		$this->output
-			->set_content_type('application/json')
-			->set_output(json_encode($response));
+		->set_content_type('application/json')
+		->set_output(json_encode($response));
 	}
 
 	public function Approvestatus() {
 		$this->db->trans_begin();
+
 		$userID = $_SESSION['userid'];
 		$updatedatetime = date('Y-m-d H:i:s');
+
 		$approveID = $this->input->post('grnid');
 		$grnreqid = $this->input->post('req_id');
 		$confirmnot = $this->input->post('confirmnot');
+		$tableData = $this->input->post('tableData');
 
-		$data = array(
+		// Decode JSON tableData if needed
+		if (!empty($tableData) && is_string($tableData)) {
+			$tableData = json_decode($tableData, true);
+		}
+
+		if (empty($approveID) || empty($grnreqid)) {
+			echo json_encode(['status'=>0, 'message'=>'Issue ID or GRN Request ID missing']);
+			return;
+		}
+
+		// Update issue
+		$this->db->where('idtbl_print_issue', $approveID);
+		$this->db->update('tbl_print_issue', [
 			'approvestatus' => $confirmnot,
 			'updateuser' => $userID,
 			'updatedatetime' => $updatedatetime
-		);
-		$this->db->where('idtbl_print_issue', $approveID);
-		$this->db->update('tbl_print_issue', $data);
+		]);
 
-		$datareq=array(
-			'issuestatus '=> '1',
-			'updateuser'=> $userID,
-			'updatedatetime'=> $updatedatetime);
-
+		// Update GRN request
 		$this->db->where('idtbl_grn_req', $grnreqid);
-		$this->db->update('tbl_grn_req', $datareq);
+		$this->db->update('tbl_grn_req', [
+			'issuestatus' => 1,
+			'updateuser' => $userID,
+			'updatedatetime' => $updatedatetime
+		]);
 
-		if ($confirmnot == 1) {
-			$this->db->select('*');
-			$this->db->from('tbl_print_issuedetail');
-			$this->db->where('tbl_print_issue_idtbl_print_issue', $approveID);
-			$details = $this->db->get();
+		$stockUpdates = []; // Collect stock updates for console
 
-			foreach ($details->result() as $row) {
-				$stockid = $row->stock_id;
-				$issueqty = $row->qty;
+		// Update stock if approved
+		if ($confirmnot == 1 && !empty($tableData) && is_array($tableData)) {
+			foreach ($tableData as $row) {
+				if (!isset($row['stockid'], $row['qty'])) continue;
 
+				$stockid = $row['stockid'];
+				$issueqty = $row['qty'];
+
+				// Get current stock
 				$stock = $this->db->get_where('tbl_print_stock', ['idtbl_print_stock' => $stockid])->row();
-				if ($stock) {
-					$newQty = max($stock->qty - $issueqty, 0);
-					$this->db->where('idtbl_print_stock', $stockid);
-					$this->db->update('tbl_print_stock', [
-						'qty' => $newQty,
-						'updateuser' => $userID,
-						'updatedatetime' => $updatedatetime
-					]);
-				}
+				if (!$stock) continue;
+
+				$newQty = max($stock->qty - $issueqty, 0);
+
+				// Update stock
+				$this->db->where('idtbl_print_stock', $stockid);
+				$this->db->update('tbl_print_stock', [
+					'qty' => $newQty,
+					'updateuser' => $userID,
+					'updatedatetime' => $updatedatetime
+				]);
+
+				// Collect stock update info
+				$stockUpdates[] = [
+					'stockid' => $stockid,
+					'oldQty' => $stock->qty,
+					'issuedQty' => $issueqty,
+					'newQty' => $newQty
+				];
 			}
 		}
 
-		$this->db->trans_complete();
-
-		if ($this->db->trans_status() === TRUE) {
+		if ($this->db->trans_status() === FALSE) {
+			$this->db->trans_rollback();
+			echo json_encode(['status'=>0,'message'=>'Transaction failed.']);
+			return;
+		} else {
 			$this->db->trans_commit();
-			$actionObj = new stdClass();
-			$actionObj->icon = 'fas fa-check';
-			$actionObj->title = '';
-			$actionObj->message = ($confirmnot == 1) ? 'Record Approved Successfully' : 'Record Rejected Successfully';
-			$actionObj->url = '';
-			$actionObj->target = '_blank';
-			$actionObj->type = 'success';
 
+			// Return the stock updates to console
 			echo json_encode([
 				'status' => 1,
-				'action' => json_encode($actionObj)
-			]);
-		} else {
-			$this->db->trans_rollback();
-			echo json_encode([
-				'status' => 0,
-				'message' => 'Transaction failed. Please try again.'
+				'message' => ($confirmnot == 1) ? 'Record Approved Successfully' : 'Record Rejected Successfully',
+				'stockUpdates' => $stockUpdates // <-- for console.log
 			]);
 		}
 	}

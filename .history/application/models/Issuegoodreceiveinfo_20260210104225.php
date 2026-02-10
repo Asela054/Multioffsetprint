@@ -554,7 +554,6 @@ class Issuegoodreceiveinfo extends CI_Model{
 		$userID = $_SESSION['userid'];
 		$updatedatetime = date('Y-m-d H:i:s');
 		$approveID = $this->input->post('grnid');
-		$grnreqid = $this->input->post('req_id');
 		$confirmnot = $this->input->post('confirmnot');
 
 		$data = array(
@@ -565,7 +564,7 @@ class Issuegoodreceiveinfo extends CI_Model{
 		$this->db->where('idtbl_print_issue', $approveID);
 		$this->db->update('tbl_print_issue', $data);
 
-		$datareq=array(
+				$datareq=array(
 			'issuestatus '=> '1',
 			'updateuser'=> $userID,
 			'updatedatetime'=> $updatedatetime);

@@ -1080,11 +1080,11 @@ include "include/topnavbar.php";
 							icon: (obj.status == 1) ? 'success' : 'error',
 							title: message,
 							showConfirmButton: false,
-							timer: 2000,
+							timer: 2000, // Auto-close after 2 seconds
 							timerProgressBar: true
 						}).then(() => {
 							if (obj.status == 1) {
-								location.reload();
+								location.reload(); // refresh page after success
 							}
 						});
 					},

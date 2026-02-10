@@ -1084,7 +1084,7 @@ include "include/topnavbar.php";
 							timerProgressBar: true
 						}).then(() => {
 							if (obj.status == 1) {
-								location.reload();
+								location.reload(); // refresh page after success
 							}
 						});
 					},

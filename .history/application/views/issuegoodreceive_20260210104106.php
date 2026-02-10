@@ -1047,64 +1047,57 @@ include "include/topnavbar.php";
 
 	});
 
-	function approvejob(confirmnot) {
-		// Show a loading Swal while the request is processing
-		Swal.fire({
-			title: '',
-			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-			allowOutsideClick: false,
-			showConfirmButton: false,
-			backdrop: `rgba(255, 255, 255, 0.5)`,
-			customClass: { popup: 'fullscreen-swal' },
-			didOpen: () => {
-				document.body.style.overflow = 'hidden';
+function approvejob(confirmnot) {
+    Swal.fire({
+        title: '',
+        html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        timer: 2000, // auto-close after 2 seconds
+        timerProgressBar: true,
+        backdrop: `rgba(255, 255, 255, 0.5)`,
+        customClass: { popup: 'fullscreen-swal' },
+        didOpen: () => {
+            document.body.style.overflow = 'hidden';
 
-				$.ajax({
-					type: "POST",
-					url: '<?php echo base_url() ?>Issuegoodreceive/Approvestatus',
-					data: {
-						grnid: $('#grnid').val(),
-						req_id: $('#req_id').val(),
-						confirmnot: confirmnot
-					},
-					success: function(result) {
-						Swal.close();
-						document.body.style.overflow = 'auto';
+            $.ajax({
+                type: "POST",
+                url: '<?php echo base_url() ?>Issuegoodreceive/Approvestatus',
+                data: {
+                    grnid: $('#grnid').val(),
+                    confirmnot: confirmnot
+                },
+                success: function(result) {
+                    var obj = JSON.parse(result);
 
-						var obj = JSON.parse(result);
-						var message = (obj.status == 1) ? JSON.parse(obj.action).message : (obj.message || 'Something went wrong.');
+                    // Update Swal content with message
+                    Swal.update({
+                        html: '<p style="font-size:16px;">' + ((obj.status == 1) ? JSON.parse(obj.action).message : (obj.message || 'Something went wrong.')) + '</p>'
+                    });
 
-						Swal.fire({
-							toast: true,
-							position: 'top-end',
-							icon: (obj.status == 1) ? 'success' : 'error',
-							title: message,
-							showConfirmButton: false,
-							timer: 2000,
-							timerProgressBar: true
-						}).then(() => {
-							if (obj.status == 1) {
-								location.reload();
-							}
-						});
-					},
-					error: function() {
-						Swal.close();
-						document.body.style.overflow = 'auto';
+                    // Close Swal after timer and refresh page
+                    setTimeout(() => {
+                        Swal.close();
+                        document.body.style.overflow = 'auto';
+                        if (obj.status == 1) {
+                            location.reload();
+                        }
+                    }, 2000);
+                },
+                error: function(error) {
+                    Swal.close();
+                    document.body.style.overflow = 'auto';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong. Please try again later.'
+                    });
+                }
+            });
+        }
+    });
+}
 
-						Swal.fire({
-							toast: true,
-							position: 'top-end',
-							icon: 'error',
-							title: 'Something went wrong. Please try again later.',
-							showConfirmButton: false,
-							timer: 2000,
-						});
-					}
-				});
-			}
-		});
-	}
 
 	function deactive_confirm() {
 		return confirm("Are you sure you want to deactive this?");

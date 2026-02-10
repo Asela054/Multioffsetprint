@@ -554,7 +554,6 @@ class Issuegoodreceiveinfo extends CI_Model{
 		$userID = $_SESSION['userid'];
 		$updatedatetime = date('Y-m-d H:i:s');
 		$approveID = $this->input->post('grnid');
-		$grnreqid = $this->input->post('req_id');
 		$confirmnot = $this->input->post('confirmnot');
 
 		$data = array(

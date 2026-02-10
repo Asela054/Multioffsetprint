@@ -1064,27 +1064,28 @@ include "include/topnavbar.php";
 					url: '<?php echo base_url() ?>Issuegoodreceive/Approvestatus',
 					data: {
 						grnid: $('#grnid').val(),
-						req_id: $('#req_id').val(),
+												req_id: $('#req_id').val(),
 						confirmnot: confirmnot
 					},
 					success: function(result) {
-						Swal.close();
+						Swal.close(); // close the loading spinner
 						document.body.style.overflow = 'auto';
 
 						var obj = JSON.parse(result);
 						var message = (obj.status == 1) ? JSON.parse(obj.action).message : (obj.message || 'Something went wrong.');
 
+						// Show a simple toast notification without OK button
 						Swal.fire({
 							toast: true,
 							position: 'top-end',
 							icon: (obj.status == 1) ? 'success' : 'error',
 							title: message,
 							showConfirmButton: false,
-							timer: 2000,
+							timer: 2000, // Auto-close after 2 seconds
 							timerProgressBar: true
 						}).then(() => {
 							if (obj.status == 1) {
-								location.reload();
+								location.reload(); // refresh page after success
 							}
 						});
 					},
@@ -1099,6 +1100,7 @@ include "include/topnavbar.php";
 							title: 'Something went wrong. Please try again later.',
 							showConfirmButton: false,
 							timer: 2000,
+							timerProgressBar: true
 						});
 					}
 				});

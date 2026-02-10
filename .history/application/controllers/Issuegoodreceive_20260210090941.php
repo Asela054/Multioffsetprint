@@ -94,6 +94,6 @@ class Issuegoodreceive extends CI_Controller {
 	}
 	public function Approvestatus(){
 		$this->load->model('Issuegoodreceiveinfo');
-        $result=$this->Issuegoodreceiveinfo->Approvestatus();
+        $result=$this->Goodreceiveinfo->Approvestatus();
 	}
 }

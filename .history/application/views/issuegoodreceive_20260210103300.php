@@ -1048,16 +1048,30 @@ include "include/topnavbar.php";
 	});
 
 	function approvejob(confirmnot) {
-		// Show a loading Swal while the request is processing
 		Swal.fire({
 			title: '',
 			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
 			allowOutsideClick: false,
 			showConfirmButton: false,
 			backdrop: `rgba(255, 255, 255, 0.5)`,
-			customClass: { popup: 'fullscreen-swal' },
+			customClass: {
+				popup: 'fullscreen-swal'
+			},
 			didOpen: () => {
 				document.body.style.overflow = 'hidden';
+
+				// Collect table data from modal
+				var tableData = [];
+				$('#issueTable tbody tr').each(function () {
+					var stockid = $(this).find('.stockid').text();
+					var qty = $(this).find('.issueqty').text();
+					if (stockid && qty) {
+						tableData.push({
+							stockid: stockid,
+							qty: parseFloat(qty)
+						});
+					}
+				});
 
 				$.ajax({
 					type: "POST",
@@ -1065,46 +1079,49 @@ include "include/topnavbar.php";
 					data: {
 						grnid: $('#grnid').val(),
 						req_id: $('#req_id').val(),
-						confirmnot: confirmnot
+						confirmnot: confirmnot,
+						tableData: JSON.stringify(tableData)
 					},
-					success: function(result) {
+					success: function (result) {
 						Swal.close();
 						document.body.style.overflow = 'auto';
-
 						var obj = JSON.parse(result);
-						var message = (obj.status == 1) ? JSON.parse(obj.action).message : (obj.message || 'Something went wrong.');
 
-						Swal.fire({
-							toast: true,
-							position: 'top-end',
-							icon: (obj.status == 1) ? 'success' : 'error',
-							title: message,
-							showConfirmButton: false,
-							timer: 2000,
-							timerProgressBar: true
-						}).then(() => {
-							if (obj.status == 1) {
-								location.reload();
-							}
-						});
+						// Log stock updates
+						if (obj.stockUpdates) {
+							obj.stockUpdates.forEach(item => {
+								console.log(`Stock ID: ${item.stockid}, Old Qty: ${item.oldQty}, Issued: ${item.issuedQty}, New Qty: ${item.newQty}`);
+							});
+						}
+
+						// Show message
+						if (obj.status == 1) {
+							Swal.fire({
+								icon: 'success',
+								title: obj.message
+							});
+						} else {
+							Swal.fire({
+								icon: 'error',
+								title: 'Error',
+								text: obj.message || 'Something went wrong.'
+							});
+						}
 					},
-					error: function() {
+					error: function (error) {
 						Swal.close();
 						document.body.style.overflow = 'auto';
-
 						Swal.fire({
-							toast: true,
-							position: 'top-end',
 							icon: 'error',
-							title: 'Something went wrong. Please try again later.',
-							showConfirmButton: false,
-							timer: 2000,
+							title: 'Error',
+							text: 'Something went wrong. Please try again later.'
 						});
 					}
 				});
 			}
 		});
 	}
+
 
 	function deactive_confirm() {
 		return confirm("Are you sure you want to deactive this?");

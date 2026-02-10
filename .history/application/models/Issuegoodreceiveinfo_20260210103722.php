@@ -549,77 +549,71 @@ class Issuegoodreceiveinfo extends CI_Model{
 			->set_output(json_encode($response));
 	}
 
-	public function Approvestatus() {
-		$this->db->trans_begin();
-		$userID = $_SESSION['userid'];
-		$updatedatetime = date('Y-m-d H:i:s');
-		$approveID = $this->input->post('grnid');
-		$grnreqid = $this->input->post('req_id');
-		$confirmnot = $this->input->post('confirmnot');
+public function Approvestatus() {
+    $this->db->trans_begin();
+    $userID = $_SESSION['userid'];
+    $updatedatetime = date('Y-m-d H:i:s');
+    $approveID = $this->input->post('grnid');
+    $confirmnot = $this->input->post('confirmnot');
 
-		$data = array(
-			'approvestatus' => $confirmnot,
-			'updateuser' => $userID,
-			'updatedatetime' => $updatedatetime
-		);
-		$this->db->where('idtbl_print_issue', $approveID);
-		$this->db->update('tbl_print_issue', $data);
+    // Update approval status
+    $data = array(
+        'approvestatus' => $confirmnot,
+        'updateuser' => $userID,
+        'updatedatetime' => $updatedatetime
+    );
+    $this->db->where('idtbl_print_issue', $approveID);
+    $this->db->update('tbl_print_issue', $data);
 
-		$datareq=array(
-			'issuestatus '=> '1',
-			'updateuser'=> $userID,
-			'updatedatetime'=> $updatedatetime);
+    // If approved, update stock and related records
+    if ($confirmnot == 1) {
+        // Get issued details
+        $this->db->select('*');
+        $this->db->from('tbl_print_issuedetail');
+        $this->db->where('tbl_print_issue_idtbl_print_issue', $approveID);
+        $details = $this->db->get();
 
-		$this->db->where('idtbl_grn_req', $grnreqid);
-		$this->db->update('tbl_grn_req', $datareq);
+        foreach ($details->result() as $row) {
+            $stockid = $row->stock_id;
+            $issueqty = $row->qty;
 
-		if ($confirmnot == 1) {
-			$this->db->select('*');
-			$this->db->from('tbl_print_issuedetail');
-			$this->db->where('tbl_print_issue_idtbl_print_issue', $approveID);
-			$details = $this->db->get();
+            $stock = $this->db->get_where('tbl_print_stock', ['idtbl_print_stock' => $stockid])->row();
+            if ($stock) {
+                $newQty = max($stock->qty - $issueqty, 0);
+                $this->db->where('idtbl_print_stock', $stockid);
+                $this->db->update('tbl_print_stock', [
+                    'qty' => $newQty,
+                    'updateuser' => $userID,
+                    'updatedatetime' => $updatedatetime
+                ]);
+            }
+        }
+    }
 
-			foreach ($details->result() as $row) {
-				$stockid = $row->stock_id;
-				$issueqty = $row->qty;
+    $this->db->trans_complete();
 
-				$stock = $this->db->get_where('tbl_print_stock', ['idtbl_print_stock' => $stockid])->row();
-				if ($stock) {
-					$newQty = max($stock->qty - $issueqty, 0);
-					$this->db->where('idtbl_print_stock', $stockid);
-					$this->db->update('tbl_print_stock', [
-						'qty' => $newQty,
-						'updateuser' => $userID,
-						'updatedatetime' => $updatedatetime
-					]);
-				}
-			}
-		}
+    if ($this->db->trans_status() === TRUE) {
+        $this->db->trans_commit();
+        $actionObj = new stdClass();
+        $actionObj->icon = 'fas fa-check';
+        $actionObj->title = '';
+        $actionObj->message = ($confirmnot == 1) ? 'Record Approved Successfully' : 'Record Rejected Successfully';
+        $actionObj->url = '';
+        $actionObj->target = '_blank';
+        $actionObj->type = 'success';
 
-		$this->db->trans_complete();
-
-		if ($this->db->trans_status() === TRUE) {
-			$this->db->trans_commit();
-			$actionObj = new stdClass();
-			$actionObj->icon = 'fas fa-check';
-			$actionObj->title = '';
-			$actionObj->message = ($confirmnot == 1) ? 'Record Approved Successfully' : 'Record Rejected Successfully';
-			$actionObj->url = '';
-			$actionObj->target = '_blank';
-			$actionObj->type = 'success';
-
-			echo json_encode([
-				'status' => 1,
-				'action' => json_encode($actionObj)
-			]);
-		} else {
-			$this->db->trans_rollback();
-			echo json_encode([
-				'status' => 0,
-				'message' => 'Transaction failed. Please try again.'
-			]);
-		}
-	}
+        echo json_encode([
+            'status' => 1,
+            'action' => json_encode($actionObj)
+        ]);
+    } else {
+        $this->db->trans_rollback();
+        echo json_encode([
+            'status' => 0,
+            'message' => 'Transaction failed. Please try again.'
+        ]);
+    }
+}
 
 	public function Issuepdf($x)
 	{

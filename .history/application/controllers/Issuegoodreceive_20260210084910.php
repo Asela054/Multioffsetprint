@@ -26,6 +26,10 @@ class Issuegoodreceive extends CI_Controller {
 		$this->load->model('Issuegoodreceiveinfo');
         $result=$this->Issuegoodreceiveinfo->Issuepdf($x);
 	}
+	public function Issuegoodreceivestatus($x, $y){
+		$this->load->model('Issuegoodreceiveinfo');
+        $result=$this->Issuegoodreceiveinfo->Issuegoodreceivestatus($x, $y);
+	}
 	public function Getlocationaccoitemreq(){
 		$this->load->model('Issuegoodreceiveinfo');
         $result=$this->Issuegoodreceiveinfo->Getlocationaccoitemreq();
@@ -88,12 +92,7 @@ class Issuegoodreceive extends CI_Controller {
 		$branchid = $this->session->userdata('branch_id');
         $result=get_all_accounts($searchTerm, $companyid, $branchid);
 	}
- 	public function IssueNoteView(){
-		$this->load->model('Issuegoodreceiveinfo');
-        $result=$this->Issuegoodreceiveinfo->IssueNoteView();
-	}
-	public function Approvestatus(){
-		$this->load->model('Issuegoodreceiveinfo');
-        $result=$this->Issuegoodreceiveinfo->Approvestatus();
+			$this->load->model('Goodreceiveinfo');
+        $result=$this->Goodreceiveinfo->Goodreceiveview();
 	}
 }

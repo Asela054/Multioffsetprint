@@ -1048,57 +1048,48 @@ include "include/topnavbar.php";
 	});
 
 	function approvejob(confirmnot) {
-		// Show a loading Swal while the request is processing
 		Swal.fire({
 			title: '',
 			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
 			allowOutsideClick: false,
-			showConfirmButton: false,
-			backdrop: `rgba(255, 255, 255, 0.5)`,
-			customClass: { popup: 'fullscreen-swal' },
+			showConfirmButton: false, // Hide the OK button
+			backdrop: `
+            rgba(255, 255, 255, 0.5) 
+        `,
+			customClass: {
+				popup: 'fullscreen-swal'
+			},
 			didOpen: () => {
 				document.body.style.overflow = 'hidden';
 
 				$.ajax({
 					type: "POST",
-					url: '<?php echo base_url() ?>Issuegoodreceive/Approvestatus',
 					data: {
 						grnid: $('#grnid').val(),
 						req_id: $('#req_id').val(),
 						confirmnot: confirmnot
 					},
-					success: function(result) {
+					url: '<?php echo base_url() ?>Issuegoodreceive/Approvestatus',
+					success: function (result) {
 						Swal.close();
 						document.body.style.overflow = 'auto';
-
 						var obj = JSON.parse(result);
-						var message = (obj.status == 1) ? JSON.parse(obj.action).message : (obj.message || 'Something went wrong.');
-
-						Swal.fire({
-							toast: true,
-							position: 'top-end',
-							icon: (obj.status == 1) ? 'success' : 'error',
-							title: message,
-							showConfirmButton: false,
-							timer: 2000,
-							timerProgressBar: true
-						}).then(() => {
-							if (obj.status == 1) {
-								location.reload();
-							}
-						});
+						if (obj.status == 1) {
+							actionreload(obj.action);
+						} else {
+							action(obj.action);
+						}
 					},
-					error: function() {
+					error: function (error) {
+						// Close the SweetAlert on error
 						Swal.close();
 						document.body.style.overflow = 'auto';
 
+						// Show an error alert
 						Swal.fire({
-							toast: true,
-							position: 'top-end',
 							icon: 'error',
-							title: 'Something went wrong. Please try again later.',
-							showConfirmButton: false,
-							timer: 2000,
+							title: 'Error',
+							text: 'Something went wrong. Please try again later.'
 						});
 					}
 				});

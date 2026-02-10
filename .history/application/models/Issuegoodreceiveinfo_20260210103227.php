@@ -551,72 +551,81 @@ class Issuegoodreceiveinfo extends CI_Model{
 
 	public function Approvestatus() {
 		$this->db->trans_begin();
+
 		$userID = $_SESSION['userid'];
 		$updatedatetime = date('Y-m-d H:i:s');
+
 		$approveID = $this->input->post('grnid');
 		$grnreqid = $this->input->post('req_id');
 		$confirmnot = $this->input->post('confirmnot');
+		$tableData = $this->input->post('tableData');
 
-		$data = array(
+		if (!empty($tableData) && is_string($tableData)) {
+			$tableData = json_decode($tableData, true);
+		}
+
+		if (empty($approveID) || empty($grnreqid)) {
+			echo json_encode(['status'=>0, 'message'=>'Issue ID or GRN Request ID missing']);
+			return;
+		}
+
+		// Update issue
+		$this->db->where('idtbl_print_issue', $approveID);
+		$this->db->update('tbl_print_issue', [
 			'approvestatus' => $confirmnot,
 			'updateuser' => $userID,
 			'updatedatetime' => $updatedatetime
-		);
-		$this->db->where('idtbl_print_issue', $approveID);
-		$this->db->update('tbl_print_issue', $data);
+		]);
 
-		$datareq=array(
-			'issuestatus '=> '1',
-			'updateuser'=> $userID,
-			'updatedatetime'=> $updatedatetime);
-
+		// Update GRN request
 		$this->db->where('idtbl_grn_req', $grnreqid);
-		$this->db->update('tbl_grn_req', $datareq);
+		$this->db->update('tbl_grn_req', [
+			'issuestatus' => 1,
+			'updateuser' => $userID,
+			'updatedatetime' => $updatedatetime
+		]);
 
-		if ($confirmnot == 1) {
-			$this->db->select('*');
-			$this->db->from('tbl_print_issuedetail');
-			$this->db->where('tbl_print_issue_idtbl_print_issue', $approveID);
-			$details = $this->db->get();
+		$stockUpdates = [];
 
-			foreach ($details->result() as $row) {
-				$stockid = $row->stock_id;
-				$issueqty = $row->qty;
+		// Update stock if approved
+		if ($confirmnot == 1 && !empty($tableData) && is_array($tableData)) {
+			foreach ($tableData as $row) {
+				if (!isset($row['stockid'], $row['qty'])) continue;
+
+				$stockid = $row['stockid'];
+				$issueqty = $row['qty'];
 
 				$stock = $this->db->get_where('tbl_print_stock', ['idtbl_print_stock' => $stockid])->row();
-				if ($stock) {
-					$newQty = max($stock->qty - $issueqty, 0);
-					$this->db->where('idtbl_print_stock', $stockid);
-					$this->db->update('tbl_print_stock', [
-						'qty' => $newQty,
-						'updateuser' => $userID,
-						'updatedatetime' => $updatedatetime
-					]);
-				}
+				if (!$stock) continue;
+
+				$newQty = max($stock->qty - $issueqty, 0);
+
+				$this->db->where('idtbl_print_stock', $stockid);
+				$this->db->update('tbl_print_stock', [
+					'qty' => $newQty,
+					'updateuser' => $userID,
+					'updatedatetime' => $updatedatetime
+				]);
+
+				$stockUpdates[] = [
+					'stockid' => $stockid,
+					'oldQty' => $stock->qty,
+					'issuedQty' => $issueqty,
+					'newQty' => $newQty
+				];
 			}
 		}
 
-		$this->db->trans_complete();
-
-		if ($this->db->trans_status() === TRUE) {
+		if ($this->db->trans_status() === FALSE) {
+			$this->db->trans_rollback();
+			echo json_encode(['status'=>0,'message'=>'Transaction failed.']);
+		} else {
 			$this->db->trans_commit();
-			$actionObj = new stdClass();
-			$actionObj->icon = 'fas fa-check';
-			$actionObj->title = '';
-			$actionObj->message = ($confirmnot == 1) ? 'Record Approved Successfully' : 'Record Rejected Successfully';
-			$actionObj->url = '';
-			$actionObj->target = '_blank';
-			$actionObj->type = 'success';
 
 			echo json_encode([
 				'status' => 1,
-				'action' => json_encode($actionObj)
-			]);
-		} else {
-			$this->db->trans_rollback();
-			echo json_encode([
-				'status' => 0,
-				'message' => 'Transaction failed. Please try again.'
+				'message' => ($confirmnot == 1) ? 'Record Approved Successfully' : 'Record Rejected Successfully',
+				'stockUpdates' => $stockUpdates
 			]);
 		}
 	}

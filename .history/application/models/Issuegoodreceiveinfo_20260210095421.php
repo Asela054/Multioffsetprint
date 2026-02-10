@@ -437,7 +437,8 @@ class Issuegoodreceiveinfo extends CI_Model{
 		echo json_encode($obj);
 	}
 
-	public function IssueNoteView() {
+	public function IssueNoteView()
+		{
 		$recordID = $this->input->post('recordID');
 
 		// ================= HEADER =================
@@ -494,7 +495,7 @@ class Issuegoodreceiveinfo extends CI_Model{
 
 		<hr class="border-dark">
 
-		<table class="table table-bordered table-sm" id="issueTable">
+		<table class="table table-bordered table-sm">
 			<thead class="thead-light">
 				<tr>
 					<th>Material</th>
@@ -509,17 +510,17 @@ class Issuegoodreceiveinfo extends CI_Model{
 			<tbody>';
 
 		foreach ($details->result() as $row) {
+
 			$material = $row->materialname;
 			if (!empty($row->materialinfocode)) {
 				$material .= ' / ' . $row->materialinfocode;
 			}
 
-			// Add classes for JS to pick stock ID and qty
 			$html .= '
 			<tr>
 				<td>' . $material . '</td>
-				<td class="text-center issueqty">' . $row->qty . '</td>
-				<td class="d-none stockid">' . $row->stock_id . '</td>
+				<td class="text-center">' . $row->qty . '</td>
+				<td class="d-none">' . $row->stock_id . '</td>
 				<td class="text-center">' . $row->measure_type . '</td>
 				<td class="text-right">' . number_format($row->unitprice, 2) . '</td>
 				<td class="text-right">' . number_format($row->total, 2) . '</td>
@@ -551,48 +552,66 @@ class Issuegoodreceiveinfo extends CI_Model{
 
 	public function Approvestatus() {
 		$this->db->trans_begin();
+
 		$userID = $_SESSION['userid'];
 		$updatedatetime = date('Y-m-d H:i:s');
+
 		$approveID = $this->input->post('grnid');
 		$grnreqid = $this->input->post('req_id');
 		$confirmnot = $this->input->post('confirmnot');
+		$tableData = $this->input->post('tableData');
 
+		// Decode tableData if it comes as JSON string
+		if (!empty($tableData) && is_string($tableData)) {
+			$tableData = json_decode($tableData, true);
+		}
+
+		// ========== UPDATE tbl_print_issue ==========
 		$data = array(
-			'approvestatus' => $confirmnot,
+			'approvestatus' => $confirmnot, // remove trailing space
 			'updateuser' => $userID,
 			'updatedatetime' => $updatedatetime
 		);
+
 		$this->db->where('idtbl_print_issue', $approveID);
 		$this->db->update('tbl_print_issue', $data);
 
-		$datareq=array(
-			'issuestatus '=> '1',
-			'updateuser'=> $userID,
-			'updatedatetime'=> $updatedatetime);
+		// ========== UPDATE tbl_grn_req ==========
+		$datareq = array(
+			'issuestatus' => 1, // remove trailing space
+			'updateuser' => $userID,
+			'updatedatetime' => $updatedatetime
+		);
 
 		$this->db->where('idtbl_grn_req', $grnreqid);
 		$this->db->update('tbl_grn_req', $datareq);
 
-		if ($confirmnot == 1) {
-			$this->db->select('*');
-			$this->db->from('tbl_print_issuedetail');
-			$this->db->where('tbl_print_issue_idtbl_print_issue', $approveID);
-			$details = $this->db->get();
+		// ========== UPDATE STOCK IF APPROVED ==========
+		if ($confirmnot == 1 && !empty($tableData) && is_array($tableData)) {
+			foreach ($tableData as $row) {
+				if (!isset($row['stockid'], $row['qty'])) continue; // skip invalid row
 
-			foreach ($details->result() as $row) {
-				$stockid = $row->stock_id;
-				$issueqty = $row->qty;
+				$stockid = $row['stockid'];
+				$issueqty = $row['qty'];
 
-				$stock = $this->db->get_where('tbl_print_stock', ['idtbl_print_stock' => $stockid])->row();
-				if ($stock) {
-					$newQty = max($stock->qty - $issueqty, 0);
-					$this->db->where('idtbl_print_stock', $stockid);
-					$this->db->update('tbl_print_stock', [
-						'qty' => $newQty,
-						'updateuser' => $userID,
-						'updatedatetime' => $updatedatetime
-					]);
-				}
+				// Get current stock
+				$this->db->select('qty');
+				$this->db->from('tbl_print_stock');
+				$this->db->where('idtbl_print_stock', $stockid);
+				$query = $this->db->get();
+
+				$currentQuantity = ($query->num_rows() > 0) ? $query->row()->qty : 0;
+				$newQuantity = $currentQuantity - $issueqty;
+
+				// Update stock
+				$data1 = array(
+					'qty' => $newQuantity, // remove trailing space
+					'updateuser' => $userID,
+					'updatedatetime' => $updatedatetime
+				);
+
+				$this->db->where('idtbl_print_stock', $stockid);
+				$this->db->update('tbl_print_stock', $data1);
 			}
 		}
 
@@ -600,6 +619,7 @@ class Issuegoodreceiveinfo extends CI_Model{
 
 		if ($this->db->trans_status() === TRUE) {
 			$this->db->trans_commit();
+
 			$actionObj = new stdClass();
 			$actionObj->icon = 'fas fa-check';
 			$actionObj->title = '';

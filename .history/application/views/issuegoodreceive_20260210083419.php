@@ -281,37 +281,6 @@ include "include/topnavbar.php";
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="viewmodal" data-backdrop="static" data-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">View Issue Note</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="GRNView">
-
-                <div id="viewhtml"></div>
-
-            </div>
-            <div class="modal-footer">
-                <div class="col-12 text-right">
-                    <hr>
-                <?php if($approvecheck==1){ ?>
-                <button id="btnapprovereject" class="btn btn-primary btn-sm px-3 mb-2"><i class="fas fa-check mr-2"></i>Approve or Reject</button>
-                <?php } ?>
-                    <input type="hidden" name="grnid" id="grnid">
-					<input type="hidden" name="req_id" id="req_id">
-                </div>
-                <div class="col-12 text-center">
-                    <div id="alertdiv"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <?php include "include/footerscripts.php"; ?>
 <script>
 	$(document).ready(function () {
@@ -463,10 +432,11 @@ include "include/topnavbar.php";
 									'<i class="fas fa-file-invoice"></i>' +
 								'</button>';
 						}
-						button += '<button data-toggle="tooltip" data-placement="bottom" title="View Issue Note" class="btn btn-dark btn-sm btnview mr-1" id="' + full[
-                        'idtbl_print_issue'] + '" aproval_id="' + full[
-                            'approvestatus'] + '" req_id="' + full[
-                            'tbl_grn_req_idtbl_grn_req'] + '"><i class="fas fa-eye"></i></button>';
+						button += '<button data-toggle="tooltip" data-placement="bottom" title="View GRN" class="btn btn-dark btn-sm btnview mr-1" id="' + full[
+                        'idtbl_print_grn'] + '" aproval_id="' + full[
+                            'approvestatus'] + '" check_status="' + full[
+                            'check_by'] + '" grn_no="' + full[
+                            'grn_no'] + '"><i class="fas fa-eye"></i></button>';
 						if (full['approvestatus'] == 1) {
 							button += '<button data-toggle="tooltip" data-placement="bottom" title="Active" class="btn btn-success btn-sm mr-1 ';
 							if (statuscheck != 1) {
@@ -536,74 +506,6 @@ include "include/topnavbar.php";
 					// Clear existing content and append new rows
 					$('#approveltable tbody').html(result);
 				}
-			});
-		});
-		$('#dataTable tbody').on('click', '.btnview', function () {
-
-			var id = $(this).attr('id');
-			var req_id = $(this).attr('req_id');
-			$('#grnid').val(id);
-			$('#req_id').val(req_id);
-
-			var approvestatus = $(this).attr('aproval_id');
-
-			$.ajax({
-				type: "POST",
-				data: {
-					recordID: id
-				},
-				url: '<?php echo base_url() ?>Issuegoodreceive/IssueNoteView',
-				success: function (result) {
-
-					$('#viewmodal').modal('show');
-
-					// Load Issue Note HTML
-					$('#viewhtml').html(result.html);
-
-					// Approval status display
-					if (approvestatus > 0) {
-
-						$('#btnapprovereject').addClass('d-none').prop('disabled', true);
-
-						if (approvestatus == 1) {
-							$('#alertdiv').html(
-								'<div class="alert alert-success" role="alert">' +
-								'<i class="fas fa-check-circle mr-2"></i> Issue Note Approved' +
-								'</div>'
-							);
-						} else if (approvestatus == 2) {
-							$('#alertdiv').html(
-								'<div class="alert alert-danger" role="alert">' +
-								'<i class="fas fa-times-circle mr-2"></i> Issue Note Rejected' +
-								'</div>'
-							);
-						}
-					}
-				}
-			});
-
-			// Reset modal when closed
-			$('#viewmodal').on('hidden.bs.modal', function () {
-				$('#alertdiv').html('');
-				$('#btnapprovereject').removeClass('d-none').prop('disabled', false);
-				$('#viewhtml').html('');
-			});
-		});
-		$('#btnapprovereject').click(function(){
-			Swal.fire({
-				title: "Do you want to approve this Issue Note?",
-				showDenyButton: true,
-				showCancelButton: true,
-				confirmButtonText: "Approve",
-				denyButtonText: `Reject`
-			}).then((result) => {
-				if (result.isConfirmed) {
-					var confirmnot = 1;
-					approvejob(confirmnot);
-				} else if (result.isDenied) {
-					var confirmnot = 2;
-					approvejob(confirmnot);
-				} 
 			});
 		});
 		$('#approveltable tbody').on('click', 'tr td.accountlist', function () {
@@ -1046,65 +948,6 @@ include "include/topnavbar.php";
 		});
 
 	});
-
-	function approvejob(confirmnot) {
-		// Show a loading Swal while the request is processing
-		Swal.fire({
-			title: '',
-			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-			allowOutsideClick: false,
-			showConfirmButton: false,
-			backdrop: `rgba(255, 255, 255, 0.5)`,
-			customClass: { popup: 'fullscreen-swal' },
-			didOpen: () => {
-				document.body.style.overflow = 'hidden';
-
-				$.ajax({
-					type: "POST",
-					url: '<?php echo base_url() ?>Issuegoodreceive/Approvestatus',
-					data: {
-						grnid: $('#grnid').val(),
-						req_id: $('#req_id').val(),
-						confirmnot: confirmnot
-					},
-					success: function(result) {
-						Swal.close();
-						document.body.style.overflow = 'auto';
-
-						var obj = JSON.parse(result);
-						var message = (obj.status == 1) ? JSON.parse(obj.action).message : (obj.message || 'Something went wrong.');
-
-						Swal.fire({
-							toast: true,
-							position: 'top-end',
-							icon: (obj.status == 1) ? 'success' : 'error',
-							title: message,
-							showConfirmButton: false,
-							timer: 2000,
-							timerProgressBar: true
-						}).then(() => {
-							if (obj.status == 1) {
-								location.reload();
-							}
-						});
-					},
-					error: function() {
-						Swal.close();
-						document.body.style.overflow = 'auto';
-
-						Swal.fire({
-							toast: true,
-							position: 'top-end',
-							icon: 'error',
-							title: 'Something went wrong. Please try again later.',
-							showConfirmButton: false,
-							timer: 2000,
-						});
-					}
-				});
-			}
-		});
-	}
 
 	function deactive_confirm() {
 		return confirm("Are you sure you want to deactive this?");
