@@ -33,10 +33,10 @@ include "include/topnavbar.php";
                                                 <th>Product Name</th>
                                                 <th>Batch No</th>
                                                 <th>Location</th>
-                                                <th class="text-center">Quantity</th>
+                                                <th class="text-ce">Quantity</th>
                                                 <th>UOM</th>
-                                                <th class="text-right">Unit Price</th>
-                                                <th class="text-right">Total</th>
+                                                <th>Unit Price</th>
+                                                <th>Total</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -131,9 +131,7 @@ $(document).ready(function() {
                 "data": "location"
             },
             {
-                render: function (data, type, row) {
-                    return `<div class="text-center">${row.qty}</div>`;
-                }
+                "data": "qty"
             },
             {
                 "data": "measure_type"

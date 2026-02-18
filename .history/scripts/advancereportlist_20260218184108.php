@@ -17,7 +17,7 @@ $columns = array(
     array('db' => '`u`.`qty`', 'dt' => 'qty', 'field' => 'qty'),
     array('db' => '`u`.`total`', 'dt' => 'total', 'field' => 'total'),
     array('db' => '`u`.`unitprice`', 'dt' => 'unitprice', 'field' => 'unitprice'),
-    array('db' => '`uc`.`measure_type`', 'dt' => 'measure_type', 'field' => 'measure_type'),
+        array('db' => '`u`.`unitprice`', 'dt' => 'unitprice', 'field' => 'unitprice'),
     array('db' => '`ub`.`materialname`', 'dt' => 'materialname', 'field' => 'materialname')
 );
 

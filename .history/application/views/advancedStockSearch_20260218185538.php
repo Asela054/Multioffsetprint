@@ -134,6 +134,7 @@ $(document).ready(function() {
                 render: function (data, type, row) {
                     return `<div class="text-center">${row.qty}</div>`;
                 }
+                "data": "qty"
             },
             {
                 "data": "measure_type"

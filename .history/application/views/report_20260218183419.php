@@ -114,19 +114,6 @@ $(document).ready(function () {
                 $.each(groupWiseList, function (groupName, items) {
                     $('#mainTable').append(generateTable(groupName, items));
                 });
-
-                // Initialize DataTables for each table
-                $('#mainTable table').each(function() {
-                    $(this).DataTable({
-                        "pageLength": 25,
-                        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-                        "ordering": true,
-                        "searching": true,
-                        "paging": true,
-                        "info": true,
-                        "dom": 'frtip'
-                    });
-                });
             }
         });
     });
@@ -136,28 +123,28 @@ $(document).ready(function () {
 
 function generateTable(type, items) {
 
-    let tableId = 'table_' + type.replace(/\s+/g, '_').toLowerCase();
-    
     let tableHtml = `
         <div class="scrollbar pb-3">
             <h3>${type}</h3>
-            <table id="${tableId}" class="table table-striped table-bordered table-sm w-100">
+            <table class="table table-bordered table-striped table-sm w-100">
                 <thead class="thead-light">
                     <tr>
+                        <th>#</th>
                         <th>Product Name</th>
                         <th>Batch No</th>
                         <th>Location</th>
-                        <th class="text-center">Quantity</th>
-                        <th>UOM</th>
-                        <th class="text-right">Unit Price</th>
+                        <th>Quantity</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
                         <th>Category</th>
-                        <th class="text-right">Total</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <tbody>
     `;
 
     let typeTotal = 0; 
+    let rowIndex = 1; 
 
     items.forEach(function (item) {
         let qty = parseFloat(item.qty) || 0;
@@ -168,14 +155,14 @@ function generateTable(type, items) {
 
         tableHtml += `
             <tr>
+                <td>${rowIndex++}</td>
                 <td>${item.materialname}</td>
                 <td>${item.batchno}</td>
                 <td>${item.location}</td>
-                <td class="text-center">${qty}</td>
-                <td>${item.measure_type}</td>
-                <td class="text-right">${unitprice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td>${qty}</td>
+                <td>${unitprice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                 <td>${item.group}</td>
-                <td class="text-right">${calculatedTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td>${calculatedTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             </tr>
         `;
     });

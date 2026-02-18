@@ -392,18 +392,10 @@ $(document).ready(function() {
         dropdownParent: $('#staticBackdrop'),
         width: '100%',
     });
-    $('#grntype').change(function() {
-        toggleServiceMaterial();
+    $('#product').select2({
+        dropdownParent: $('#staticBackdrop'),
+        width: '100%',
     });
-
-    function toggleServiceMaterial() {
-        if ($('#grntype').val() == '4') {
-            $('#servicematerialDiv').show();
-        } else {
-            $('#servicematerialDiv').hide();
-            $('#servicematerial').val('').trigger('change');
-        }
-    }
 
     var addcheck = '<?php echo $addcheck; ?>';
     var editcheck = '<?php echo $editcheck; ?>';
@@ -899,7 +891,6 @@ $(document).ready(function() {
 
                         tempgrntype = result;
                         getitems(porderID, result);
-                        toggleServiceMaterial();
                         resolve();
                     },
                     error: reject

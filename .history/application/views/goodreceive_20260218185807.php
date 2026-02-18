@@ -899,7 +899,6 @@ $(document).ready(function() {
 
                         tempgrntype = result;
                         getitems(porderID, result);
-                        toggleServiceMaterial();
                         resolve();
                     },
                     error: reject

@@ -26,7 +26,6 @@ public function stockReport() {
         tbl_print_stock.unitprice,
         tbl_print_stock.total,
         tbl_print_material_info.materialname,
-        tbl_measurements.measure_type,
         tbl_material_group.group
     ');
 
@@ -39,8 +38,8 @@ public function stockReport() {
         'tbl_print_material_info.idtbl_print_material_info =
          tbl_print_stock.tbl_print_material_info_idtbl_print_material_info', 'left');
 
-    $this->db->join('tbl_measurements',
-        'tbl_measurements.idtbl_mesurements = tbl_print_stock.measure_type_id', 'left');
+             $this->db->join('tbl_location',
+        'tbl_location.idtbl_location = tbl_print_stock.location', 'left');
 
     $this->db->join('tbl_material_group',
         'tbl_material_group.idtbl_material_group =

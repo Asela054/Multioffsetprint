@@ -171,11 +171,11 @@ function generateTable(type, items) {
                 <td>${item.materialname}</td>
                 <td>${item.batchno}</td>
                 <td>${item.location}</td>
-                <td class="text-center">${qty}</td>
+                <td>${qty}</td>
                 <td>${item.measure_type}</td>
-                <td class="text-right">${unitprice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td>${unitprice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                 <td>${item.group}</td>
-                <td class="text-right">${calculatedTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td>${calculatedTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             </tr>
         `;
     });

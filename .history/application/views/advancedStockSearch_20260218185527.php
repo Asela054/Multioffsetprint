@@ -131,9 +131,8 @@ $(document).ready(function() {
                 "data": "location"
             },
             {
-                render: function (data, type, row) {
-                    return `<div class="text-center">${row.qty}</div>`;
-                }
+                re
+                "data": "qty"
             },
             {
                 "data": "measure_type"
