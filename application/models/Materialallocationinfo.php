@@ -79,13 +79,15 @@ class Materialallocationinfo extends CI_Model{
         $html='';
         $warningstockstatus=0;
         $warningstocktext='';
+        $warningsection='';
 
         //Material Section
         if($section==1){
-            $this->db->select('tbl_jobcard_bom_material.cutups, tbl_jobcard_bom_material.upspersheet, tbl_jobcard_bom_material.wastage, tbl_jobcard_bom_material.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, tbl_jobcard_bom_material.cutsize, SUM(tbl_print_stock.qty) AS `totqty`, CEIL((("' . $issueqty . '"/(`tbl_jobcard_bom_material`.`cutups`*`tbl_jobcard_bom_material`.`upspersheet`))*(100+`tbl_jobcard_bom_material`.`wastage`)/100)) AS `issueqty`');
+            $this->db->select('tbl_jobcard_bom_material.cutups, tbl_jobcard_bom_material.upspersheet, tbl_jobcard_bom_material.wastage, tbl_jobcard_bom_material.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, tbl_jobcard_bom_material.cutsize, SUM(tbl_print_stock.qty) AS `totqty`, CEIL((("' . $issueqty . '"/(`tbl_jobcard_bom_material`.`cutups`*`tbl_jobcard_bom_material`.`upspersheet`))*(100+`tbl_jobcard_bom_material`.`wastage`)/100)) AS `issueqty`, `tbl_measurements`.`measure_type`');
             $this->db->from('tbl_jobcard_bom_material');
             $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_material.tbl_print_material_info_idtbl_print_material_info', 'left');
             $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_material.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_material_info.tbl_measurements_idtbl_measurements', 'left');
             $this->db->where('tbl_jobcard_bom_material.status', 1);
             $this->db->where('tbl_jobcard_bom_material.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
             $this->db->group_by("tbl_jobcard_bom_material.tbl_print_material_info_idtbl_print_material_info");
@@ -95,7 +97,7 @@ class Materialallocationinfo extends CI_Model{
             if($respondmaterial->num_rows()>0){
                 $html.='
                 <tr data-otherrow="materialsection">
-                    <th colspan="4" class="sectionremove">Material Section</th>
+                    <th colspan="5" class="sectionremove">Material Section</th>
                 </tr>
                 ';
                 foreach($respondmaterial->result() as $rowmaterial){
@@ -108,20 +110,22 @@ class Materialallocationinfo extends CI_Model{
                         <td class="batchnolist"></td>
                         <td class="d-none">'.$rowmaterial->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
+                        <td class="text-center">'.$rowmaterial->measure_type.'</td>
                     </tr>
                     ';
 
-                    if($rowmaterial->issueqty > $rowmaterial->totqty){$warningstockstatus=1;$warningstocktext.=$rowmaterial->materialname.', ';}
+                    if($rowmaterial->issueqty > $rowmaterial->totqty){$warningstockstatus=1;$warningstocktext.=$rowmaterial->materialname.', ';$warningsection='materialsection';}
                 }
             }
         }
 
         //Printing Section
         if($section==2){
-            $this->db->select('tbl_jobcard_bom_color.qty, tbl_jobcard_bom_color.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_color`.`qty`) AS `issueqty`');
+            $this->db->select('tbl_jobcard_bom_color.qty, tbl_jobcard_bom_color.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_color`.`qty`) AS `issueqty`, `tbl_measurements`.`measure_type`');
             $this->db->from('tbl_jobcard_bom_color');
             $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_color.tbl_print_material_info_idtbl_print_material_info', 'left');
             $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_color.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_material_info.tbl_measurements_idtbl_measurements', 'left');
             $this->db->where('tbl_jobcard_bom_color.status', 1);
             $this->db->where('tbl_jobcard_bom_color.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
             $this->db->group_by("tbl_jobcard_bom_color.tbl_print_material_info_idtbl_print_material_info");
@@ -131,7 +135,7 @@ class Materialallocationinfo extends CI_Model{
             if($respondcolor->num_rows()>0){
                 $html.='
                 <tr data-otherrow="printingsection">
-                    <th colspan="4" class="sectionremove">Printing Section</th>
+                    <th colspan="5" class="sectionremove">Printing Section</th>
                 </tr>
                 ';
                 foreach($respondcolor->result() as $rowcolor){
@@ -144,20 +148,22 @@ class Materialallocationinfo extends CI_Model{
                         <td class="batchnolist"></td>
                         <td class="d-none">'.$rowcolor->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
+                        <td class="text-center">'.$rowcolor->measure_type.'</td>
                     </tr>
                     ';
 
-                    if($rowcolor->issueqty > $rowcolor->totqty){$warningstockstatus=1;$warningstocktext.=$rowcolor->materialname.', ';}
+                    if($rowcolor->issueqty > $rowcolor->totqty){$warningstockstatus=1;$warningstocktext.=$rowcolor->materialname.', ';$warningsection='printingsection';}
                 }
             }
         }
 
         //Coating Section
         if($section==3){
-            $this->db->select('tbl_jobcard_bom_varnish.varnishQty, tbl_jobcard_bom_varnish.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_varnish`.`varnishQty`) AS `issueqty`');
+            $this->db->select('tbl_jobcard_bom_varnish.varnishQty, tbl_jobcard_bom_varnish.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_varnish`.`varnishQty`) AS `issueqty`, `tbl_measurements`.`measure_type`');
             $this->db->from('tbl_jobcard_bom_varnish');
             $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_varnish.tbl_print_material_info_idtbl_print_material_info', 'left');
             $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_varnish.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_material_info.tbl_measurements_idtbl_measurements', 'left');
             $this->db->where('tbl_jobcard_bom_varnish.status', 1);
             $this->db->where('tbl_jobcard_bom_varnish.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
             $this->db->group_by("tbl_jobcard_bom_varnish.tbl_print_material_info_idtbl_print_material_info");
@@ -167,7 +173,7 @@ class Materialallocationinfo extends CI_Model{
             if($respondcoating->num_rows()>0){
                 $html.='
                 <tr data-otherrow="coatingsection">
-                    <th colspan="4" class="sectionremove">Coating Section</th>
+                    <th colspan="5" class="sectionremove">Coating Section</th>
                 </tr>
                 ';
                 foreach($respondcoating->result() as $rowcoating){
@@ -180,20 +186,22 @@ class Materialallocationinfo extends CI_Model{
                         <td class="batchnolist"></td>
                         <td class="d-none">'.$rowcoating->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
+                        <td class="text-center">'.$rowcoating->measure_type.'</td>
                     </tr>
                     ';
 
-                    if($rowcoating->issueqty > $rowcoating->totqty){$warningstockstatus=1;$warningstocktext.=$rowcoating->materialname.', ';}
+                    if($rowcoating->issueqty > $rowcoating->totqty){$warningstockstatus=1;$warningstocktext.=$rowcoating->materialname.', ';$warningsection='coatingsection';}
                 }
             }
         }
 
         //Foiling Section
         if($section==4){
-            $this->db->select('tbl_jobcard_bom_foil.qty, tbl_jobcard_bom_foil.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_foil`.`qty`) AS `issueqty`');
+            $this->db->select('tbl_jobcard_bom_foil.qty, tbl_jobcard_bom_foil.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_foil`.`qty`) AS `issueqty`, `tbl_measurements`.`measure_type`');
             $this->db->from('tbl_jobcard_bom_foil');
             $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_foil.tbl_print_material_info_idtbl_print_material_info', 'left');
             $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_foil.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_material_info.tbl_measurements_idtbl_measurements', 'left');
             $this->db->where('tbl_jobcard_bom_foil.status', 1);
             $this->db->where('tbl_jobcard_bom_foil.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
             $this->db->group_by("tbl_jobcard_bom_foil.tbl_print_material_info_idtbl_print_material_info");
@@ -203,7 +211,7 @@ class Materialallocationinfo extends CI_Model{
             if($respondfoil->num_rows()>0){
                 $html.='
                 <tr data-otherrow="foilsection">
-                    <th colspan="4" class="sectionremove">Foiling Section</th>
+                    <th colspan="5" class="sectionremove">Foiling Section</th>
                 </tr>
                 ';
                 foreach($respondfoil->result() as $rowfoil){
@@ -216,20 +224,22 @@ class Materialallocationinfo extends CI_Model{
                         <td class="batchnolist"></td>
                         <td class="d-none">'.$rowfoil->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
+                        <td class="text-center">'.$rowfoil->measure_type.'</td>
                     </tr>
                     ';
 
-                    if($rowfoil->issueqty > $rowfoil->totqty){$warningstockstatus=1;$warningstocktext.=$rowfoil->materialname.', ';}
+                    if($rowfoil->issueqty > $rowfoil->totqty){$warningstockstatus=1;$warningstocktext.=$rowfoil->materialname.', ';$warningsection='foilsection';}
                 }
             }
         }
 
         //Lamination Section
         if($section==5){
-            $this->db->select('tbl_jobcard_bom_lamination.lamination_qty, tbl_jobcard_bom_lamination.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_lamination`.`lamination_qty`) AS `issueqty`');
+            $this->db->select('tbl_jobcard_bom_lamination.lamination_qty, tbl_jobcard_bom_lamination.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_lamination`.`lamination_qty`) AS `issueqty`, `tbl_measurements`.`measure_type`');
             $this->db->from('tbl_jobcard_bom_lamination');
             $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_lamination.tbl_print_material_info_idtbl_print_material_info', 'left');
             $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_lamination.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_material_info.tbl_measurements_idtbl_measurements', 'left');
             $this->db->where('tbl_jobcard_bom_lamination.status', 1);
             $this->db->where('tbl_jobcard_bom_lamination.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
             $this->db->group_by("tbl_jobcard_bom_lamination.tbl_print_material_info_idtbl_print_material_info");
@@ -239,7 +249,7 @@ class Materialallocationinfo extends CI_Model{
             if($respondlamination->num_rows()>0){
                 $html.='
                 <tr data-otherrow="laminationsection">
-                    <th colspan="4" class="sectionremove">Lamination Section</th>
+                    <th colspan="5" class="sectionremove">Lamination Section</th>
                 </tr>
                 ';
                 foreach($respondlamination->result() as $rowlamination){
@@ -252,20 +262,22 @@ class Materialallocationinfo extends CI_Model{
                         <td class="batchnolist"></td>
                         <td class="d-none">'.$rowlamination->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
+                        <td class="text-center">'.$rowlamination->measure_type.'</td>
                     </tr>
                     ';
 
-                    if($rowlamination->issueqty > $rowlamination->totqty){$warningstockstatus=1;$warningstocktext.=$rowlamination->materialname.', ';}
+                    if($rowlamination->issueqty > $rowlamination->totqty){$warningstockstatus=1;$warningstocktext.=$rowlamination->materialname.', ';$warningsection='laminationsection';}
                 }
             }
         }
 
         //Pasting Section
         if($section==6){
-            $this->db->select('tbl_jobcard_bom_pasting.pasteqty, tbl_jobcard_bom_pasting.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_pasting`.`pasteqty`) AS `issueqty`');
+            $this->db->select('tbl_jobcard_bom_pasting.pasteqty, tbl_jobcard_bom_pasting.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_pasting`.`pasteqty`) AS `issueqty`, `tbl_measurements`.`measure_type`');
             $this->db->from('tbl_jobcard_bom_pasting');
             $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_pasting.tbl_print_material_info_idtbl_print_material_info', 'left');
             $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_pasting.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_material_info.tbl_measurements_idtbl_measurements', 'left');
             $this->db->where('tbl_jobcard_bom_pasting.status', 1);
             $this->db->where('tbl_jobcard_bom_pasting.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
             $this->db->group_by("tbl_jobcard_bom_pasting.tbl_print_material_info_idtbl_print_material_info");
@@ -275,7 +287,7 @@ class Materialallocationinfo extends CI_Model{
             if($respondpaste->num_rows()>0){
                 $html.='
                 <tr data-otherrow="pastesection">
-                    <th colspan="4" class="sectionremove">Pasting Section</th>
+                    <th colspan="5" class="sectionremove">Pasting Section</th>
                 </tr>
                 ';
                 foreach($respondpaste->result() as $rowpaste){
@@ -288,20 +300,22 @@ class Materialallocationinfo extends CI_Model{
                         <td class="batchnolist"></td>
                         <td class="d-none">'.$rowpaste->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
+                        <td class="text-center">'.$rowpaste->measure_type.'</td>
                     </tr>
                     ';
 
-                    if($rowpaste->issueqty > $rowpaste->totqty){$warningstockstatus=1;$warningstocktext.=$rowpaste->materialname.', ';}
+                    if($rowpaste->issueqty > $rowpaste->totqty){$warningstockstatus=1;$warningstocktext.=$rowpaste->materialname.', ';$warningsection='pastesection';}
                 }
             }
         }
 
         //Rimming Section
         if($section==7){
-            $this->db->select('tbl_jobcard_bom_rimming.qty, tbl_jobcard_bom_rimming.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_rimming`.`qty`) AS `issueqty`');
+            $this->db->select('tbl_jobcard_bom_rimming.qty, tbl_jobcard_bom_rimming.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.materialname, SUM(tbl_print_stock.qty) AS `totqty`, CEIL("' . $issueqty . '"*`tbl_jobcard_bom_rimming`.`qty`) AS `issueqty`, `tbl_measurements`.`measure_type`');
             $this->db->from('tbl_jobcard_bom_rimming');
             $this->db->join('tbl_print_stock', 'tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_bom_rimming.tbl_print_material_info_idtbl_print_material_info', 'left');
             $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_bom_rimming.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_material_info.tbl_measurements_idtbl_measurements', 'left');
             $this->db->where('tbl_jobcard_bom_rimming.status', 1);
             $this->db->where('tbl_jobcard_bom_rimming.tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
             $this->db->group_by("tbl_jobcard_bom_rimming.tbl_print_material_info_idtbl_print_material_info");
@@ -311,7 +325,7 @@ class Materialallocationinfo extends CI_Model{
             if($respondrimming->num_rows()>0){
                 $html.='
                 <tr data-otherrow="rimmingsection">
-                    <th colspan="4" class="sectionremove">Rimming Section</th>
+                    <th colspan="5" class="sectionremove">Rimming Section</th>
                 </tr>
                 ';
                 foreach($respondrimming->result() as $rowrimming){
@@ -324,10 +338,11 @@ class Materialallocationinfo extends CI_Model{
                         <td class="batchnolist"></td>
                         <td class="d-none">'.$rowrimming->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
+                        <td class="text-center">'.$rowrimming->measure_type.'</td>
                     </tr>
                     ';
 
-                    if($rowrimming->issueqty > $rowrimming->totqty){$warningstockstatus=1;$warningstocktext.='Rimming Section, ';}
+                    if($rowrimming->issueqty > $rowrimming->totqty){$warningstockstatus=1;$warningstocktext.='Rimming Section, ';$warningsection='rimmingsection';}
                 }
             }
         }
@@ -372,6 +387,7 @@ class Materialallocationinfo extends CI_Model{
         $obj->tabledata=$html;
         $obj->warnstatus=$warningstockstatus;
         $obj->warntext=$warningstocktext;
+        $obj->warningsection=$warningsection;
 
         echo json_encode($obj);
     }

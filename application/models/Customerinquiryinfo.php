@@ -500,6 +500,20 @@ class Customerinquiryinfo extends CI_Model{
             $this->db->where('tbl_customerinquiry_idtbl_customerinquiry', $hiddenID);
             $this->db->update('tbl_customerinquiry_detail', $data);
 
+            $this->db->select('COUNT(DISTINCT tbl_print_invoice.idtbl_print_invoice) AS count');
+            $this->db->from('tbl_print_invoice');
+            $this->db->join('tbl_print_invoicedetail', 'tbl_print_invoicedetail.tbl_print_invoice_idtbl_print_invoice = tbl_print_invoice.idtbl_print_invoice');
+            $this->db->join('tbl_print_dispatch', 'tbl_print_dispatch.idtbl_print_dispatch = tbl_print_invoicedetail.tbl_print_dispatch_idtbl_print_dispatch');
+            $this->db->where('tbl_print_dispatch.tbl_customerinquiry_idtbl_customerinquiry', $hiddenID);
+            $this->db->where('tbl_print_invoice.approvestatus', 0);
+            $respondunconfirminvoice = $this->db->get();
+
+            $unconfirmedCount = $respondunconfirminvoice->row()->count;
+
+            if ($unconfirmedCount > 0) {
+                throw new Exception("You can't finish this job because there are $unconfirmedCount unapproved invoices.");
+            }
+
             $this->db->select('tbl_customerinquiry_detail.idtbl_customerinquiry_detail, tbl_customerinquiry.tbl_customer_idtbl_customer');
             $this->db->from('tbl_customerinquiry_detail');
             $this->db->join('tbl_customerinquiry', 'tbl_customerinquiry.idtbl_customerinquiry = tbl_customerinquiry_detail.tbl_customerinquiry_idtbl_customerinquiry');

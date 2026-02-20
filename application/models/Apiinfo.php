@@ -398,6 +398,7 @@ class Apiinfo extends CI_Model{
 
             $respondchart=$this->db->get();
 
+            $materialissuenettotal = 0;
             foreach($respondchart->result() as $rowrchartaccount):
                 if($rowrchartaccount->specialcate==39 && $materialissuenettotal>0):
                     $obj = new stdClass();

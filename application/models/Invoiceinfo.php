@@ -760,6 +760,26 @@ class Invoiceinfo extends CI_Model{
                 $invoiceamount = $respond->row(0)->total;
 
                 if ($finishJob == 1) {
+                    $this->db->select('tbl_customerinquiry_idtbl_customerinquiry');
+                    $this->db->from('tbl_customerinquiry_detail');
+                    $this->db->where('idtbl_customerinquiry_detail', $jobid);
+                    $respondcusinquiry = $this->db->get();
+
+                    $this->db->select('COUNT(DISTINCT tbl_print_invoice.idtbl_print_invoice) AS count');
+                    $this->db->from('tbl_print_invoice');
+                    $this->db->join('tbl_print_invoicedetail', 'tbl_print_invoicedetail.tbl_print_invoice_idtbl_print_invoice = tbl_print_invoice.idtbl_print_invoice');
+                    $this->db->join('tbl_print_dispatch', 'tbl_print_dispatch.idtbl_print_dispatch = tbl_print_invoicedetail.tbl_print_dispatch_idtbl_print_dispatch');
+                    $this->db->where('tbl_print_dispatch.tbl_customerinquiry_idtbl_customerinquiry', $respondcusinquiry->row(0)->tbl_customerinquiry_idtbl_customerinquiry);
+                    $this->db->where('tbl_print_invoice.approvestatus', 0);
+                    $this->db->where('tbl_print_invoice.idtbl_print_invoice !=', $recordID);
+                    $respondunconfirminvoice = $this->db->get();
+
+                    $unconfirmedCount = $respondunconfirminvoice->row()->count;
+
+                    if ($unconfirmedCount > 0) {
+                        throw new Exception("You can't finish this job because there are $unconfirmedCount unapproved invoices.");
+                    }
+
                     $jobFinishData = $this->Apiinfo->JobfinishApi($jobid);
                     
                     // Check if JobfinishApi returned empty data

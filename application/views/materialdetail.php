@@ -116,8 +116,7 @@ include "include/topnavbar.php";
                                         </div>
                                         <div class="col">
                                             <label class="small font-weight-bold">Re-order Level</label>
-                                            <input type="text" class="form-control form-control-sm" name="reorder"
-                                                id="reorder">
+                                            <input type="text" class="form-control form-control-sm" name="reorder" id="reorder">
                                         </div>
                                     </div>
                                     <div class="form-group mb-1">
@@ -125,12 +124,23 @@ include "include/topnavbar.php";
                                         <textarea class="form-control form-control-sm" name="comment"
                                             id="comment"></textarea>
                                     </div>
-                                    <div class="form-group mb-1">
-                                        <label class="small font-weight-bold">Account No*</label>
-                                        <select name="chartofdetailaccount" id="chartofdetailaccount" class="form-control form-control-sm" style="width: 100%;" required>
-                                            <option value="">Select</option>
-                                        </select>
-                                        <input type="hidden" name="hiddenaccounttype" id="hiddenaccounttype" value="">
+                                    <div class="form-row mb-1">
+                                        <div class="col">
+                                            <label class="small font-weight-bold">Measurement</label>
+                                            <select name="measurement" id="measurement" class="form-control form-control-sm" required>
+                                                <option value="">Select</option>
+                                                <?php foreach($measurement->result() as $rowmeasurement){ ?>
+                                                <option value="<?php echo $rowmeasurement->idtbl_mesurements ?>"><?php echo $rowmeasurement->measure_type ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                        <div class="col">
+                                            <label class="small font-weight-bold">Account No</label>
+                                            <select name="chartofdetailaccount" id="chartofdetailaccount" class="form-control form-control-sm" style="width: 100%;" required>
+                                                <option value="">Select</option>
+                                            </select>
+                                            <input type="hidden" name="hiddenaccounttype" id="hiddenaccounttype" value="">
+                                        </div>
                                     </div>
                                     <div class="form-group mt-3 text-right">
                                         <button type="submit" id="submitBtn" class="btn btn-primary btn-sm px-4"
@@ -446,6 +456,7 @@ $(document).ready(function() {
                     lastOption.data = { type: obj.accounttype };
                     $('#chartofdetailaccount').trigger('change');  
                     $('#hiddenaccounttype').val(obj.accounttype);
+                    $('#measurement').val(obj.idtbl_measurements);
 
                     $('#recordOption').val('2');
                     $('#submitBtn').html('<i class="far fa-save"></i>&nbsp;Update');
