@@ -133,6 +133,7 @@ include "include/topnavbar.php";
 									<th>Batch No</th>
 									<th class="d-none">MaterialID</th>
 									<th class="d-none">IssueReqQty</th>
+									<th class="text-center">Unit Type</th>
 								</tr>
 							</thead>
 							<tbody></tbody>
@@ -146,6 +147,7 @@ include "include/topnavbar.php";
 							</div>
 						</div>
 						<div id="warningdata"></div>
+						<input type="hidden" name="warningsection" id="warningsection">
 					</div>
 				</div>
 			</div>
@@ -421,8 +423,12 @@ $(document).ready(function () {
 									$('#tableissue > tbody').append(obj.tabledata);
 									if(obj.warnstatus==1){
 										$('#warningdata').html('<div class="alert alert-danger" role="alert">Some Product quantity not enough for you production. Please check stock in these material '+obj.warntext+' and production start again.</div>');
-										$('#submitBtn').prop('disabled', false);
+										$('#warningsection').val(obj.warningsection);
+										$('#submitBtn').prop('disabled', true);
 										$('#issueMaterialBtn').prop('disabled', true);
+										$('#alreadyissuedqty').val('');
+										$('#issueqty').val('');
+										$('#section').val('');
 									}
 									else{
 										$('#issueMaterialBtn').prop('disabled', false);
@@ -521,7 +527,14 @@ $(document).ready(function () {
 			const currentRow = $(this).closest('tr');
 			const rowClass = currentRow.attr('data-otherrow');
 			$('#tableissue tbody tr.'+rowClass).remove();	
-			currentRow.remove();		
+			currentRow.remove();	
+			var removesection = $('#warningsection').val();
+			
+			if(rowClass == removesection){
+				$('#submitBtn').prop('disabled', true);
+				$('#issueMaterialBtn').prop('disabled', false);
+				$('#warningdata').html('');
+			}
 		}
 	});
 	$('#btnsubmitbatch').click(function(){

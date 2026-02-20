@@ -109,6 +109,8 @@ class Materialdetailinfo extends CI_Model{
             $chartofdetailaccount=$chartofdetailaccount;
         }
 
+        $measurement=$this->input->post('measurement');
+
         $recordOption=$this->input->post('recordOption');
         if(!empty($this->input->post('recordID'))){$recordID=$this->input->post('recordID');}
 
@@ -132,7 +134,8 @@ class Materialdetailinfo extends CI_Model{
                 'tbl_supplier_idtbl_supplier'=> $supplier,
                 'tbl_material_group_idtbl_material_group'=> $materialgroup,
                 'tbl_account_idtbl_account'=> $chartofaccount,
-                'tbl_account_detail_idtbl_account_detail'=> $chartofdetailaccount
+                'tbl_account_detail_idtbl_account_detail'=> $chartofdetailaccount,
+                'tbl_measurements_idtbl_measurements'=> $measurement
             );
 
             $this->db->insert('tbl_print_material_info', $data);
@@ -188,7 +191,8 @@ class Materialdetailinfo extends CI_Model{
                 'tbl_supplier_idtbl_supplier'=> $supplier,
                 'tbl_material_group_idtbl_material_group'=> $materialgroup,
                 'tbl_account_idtbl_account'=> $chartofaccount,
-                'tbl_account_detail_idtbl_account_detail'=> $chartofdetailaccount
+                'tbl_account_detail_idtbl_account_detail'=> $chartofdetailaccount,
+                'tbl_measurements_idtbl_measurements'=> $measurement
             );
 
             $this->db->where('idtbl_print_material_info', $recordID);
@@ -543,6 +547,7 @@ class Materialdetailinfo extends CI_Model{
             $obj->account='';
             $obj->accounttype=0;
         }
+        $obj->idtbl_measurements=$respond->row(0)->tbl_measurements_idtbl_measurements; 
 
         echo json_encode($obj);
     }
