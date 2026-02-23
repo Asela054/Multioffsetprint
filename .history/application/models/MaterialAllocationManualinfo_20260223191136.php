@@ -648,7 +648,7 @@ class MaterialallocationManualinfo extends CI_Model{
                             'sectiontype'=> $type, 
                             'issuedate'=> $today, 
                             'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> '0',
+                            'reqissueqty'=> $reqissueqty,
                             'issueqty'=> $issueqty, 
                             'unitprice'=> $respondstock->row(0)->unitprice, 
                             'status'=> '1', 

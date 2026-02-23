@@ -98,8 +98,8 @@ include "include/topnavbar.php";
 							</div>
 						</div>
 					</div>
-					<hr>
-					<div class="row mt-3 mb-3 p-3">
+
+					<div class="row mt-3 mb-3">
 						<div class="col-12">
 							<div class="table-responsive">
 								<table class="table table-striped table-bordered table-sm small" id="dataTable">
@@ -173,11 +173,20 @@ include "include/topnavbar.php";
 					<div class="col-12">
 						<div id="showdata"></div>
 					</div>
+					<div class="col-12 text-right">
+						<hr>
+						<?php if($approvecheck==1){ ?>
+						<button id="btnapprovereject" class="btn btn-primary btn-sm px-3"><i class="fas fa-check mr-2"></i>Approve or Reject</button>
+						<?php } ?>
+						<?php if($checkstatus==1){ ?>
+                        <button id="btncheck" class="btn btn-info btn-sm px-3"><i class="fas fa-user-check mr-2"></i>Check By</button>
+                        <?php } ?>
+						<input type="hidden" name="jobcardid" id="jobcardid">
+					</div>
 					<div class="col-12 text-center">
 						<div id="alertdiv"></div>
 					</div>
 				</div>
-				<input type="hidden" name="jobcardid" id="jobcardid">
 			</div>
 		</div>
 	</div>
@@ -606,20 +615,20 @@ $(document).ready(function () {
 		],
 		"buttons": [{
 				extend: 'csv',
-				className: 'btn btn-success btn-sm mr-2',
+				className: 'btn btn-success btn-sm',
 				title: 'Manual Material Allocation Information',
 				text: '<i class="fas fa-file-csv mr-2"></i> CSV',
 			},
 			{
 				extend: 'pdf',
-				className: 'btn btn-danger btn-sm mr-2',
+				className: 'btn btn-danger btn-sm',
 				title: 'Manual Material Allocation Information',
 				text: '<i class="fas fa-file-pdf mr-2"></i> PDF',
 			},
 			{
 				extend: 'print',
 				title: 'Manual Material Allocation Information',
-				className: 'btn btn-primary btn-sm mr-2',
+				className: 'btn btn-primary btn-sm',
 				text: '<i class="fas fa-print mr-2"></i> Print',
 				customize: function (win) {
 					$(win.document.body).find('table')
@@ -672,6 +681,9 @@ $(document).ready(function () {
 					var button = '';
 
 					button+='<button type="button" class="btn btn-dark btn-sm btnViewAllocation mr-1" id="'+full['idtbl_jobcard_manual_issue']+'" data-toggle="tooltip" title="View Details"><i class="fas fa-eye"></i></button>';
+					if(deletecheck==1){
+						button+='<button type="button" data-url="MaterialAllocationManual/DeleteManualAllocation/'+full['idtbl_jobcard_manual_issue']+'" data-toggle="tooltip" title="Delete" data-actiontype="delete" class="btn btn-danger btn-sm text-light btntableactionnoreload"><i class="fas fa-trash-alt"></i></button>';
+					}
 					
 					return button;
 				}

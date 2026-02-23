@@ -196,19 +196,6 @@ class MaterialallocationManualinfo extends CI_Model{
 			$this->db->update('tbl_jobcard', $data);            
         }
 
-        $dataManualIssue = array(
-            'issuedate' => $today,
-            'status' => 1,
-            'insertdatetime' => $updatedatetime,
-            'tbl_user_idtbl_user' => $userID,
-            'tbl_jobcard_idtbl_jobcard' => $jobCardID,
-            'tbl_customer_idtbl_customer' => $customer,
-            'tbl_customerinquiry_idtbl_customerinquiry' => $cusinquiry
-        );
-
-        $this->db->insert('tbl_jobcard_manual_issue', $dataManualIssue);
-        $manualIssueID = $this->db->insert_id();
-
         foreach($tableData as $rowdatalist){
             $type=$rowdatalist['col_1'];
             $materialname=$rowdatalist['col_2'];
@@ -216,18 +203,6 @@ class MaterialallocationManualinfo extends CI_Model{
             $batchnolist=$rowdatalist['col_4'];
             $materialID=$rowdatalist['col_5'];
             $reqissueqty=$rowdatalist['col_6'];
-
-            $dataDetail = array(
-                'qty' => $issueqtydata,
-                'batchno' => $batchnolist,
-                'status' => 1,
-                'insertdatetime' => $updatedatetime,
-                'tbl_user_idtbl_user' => $userID,
-                'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue' => $manualIssueID,
-                'tbl_print_material_info_idtbl_print_material_info' => $materialID
-            );
-
-            $this->db->insert('tbl_jobcard_manual_issue_detail', $dataDetail);
 
             if($type==1){//Material Section
                 
@@ -238,8 +213,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID,
-                    'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue' => $manualIssueID
+                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
                 $this->db->insert('tbl_jobcard_material', $datamaterial);
@@ -275,7 +249,7 @@ class MaterialallocationManualinfo extends CI_Model{
                             'sectiontype'=> $type, 
                             'issuedate'=> $today, 
                             'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> '0', 
+                            'reqissueqty'=> $reqissueqty, 
                             'issueqty'=> $issueqty, 
                             'unitprice'=> $respondstock->row(0)->unitprice, 
                             'status'=> '1', 
@@ -299,8 +273,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'insertdatetime'=> $updatedatetime, 
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
-                    'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                    'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue' => $manualIssueID
+                    'tbl_print_material_info_idtbl_print_material_info'=> $materialID
                 );
        
                 $this->db->insert('tbl_jobcard_color', $datacolor);
@@ -336,7 +309,7 @@ class MaterialallocationManualinfo extends CI_Model{
                             'sectiontype'=> $type, 
                             'issuedate'=> $today, 
                             'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> '0',
+                            'reqissueqty'=> $reqissueqty,
                             'issueqty'=> $issueqty, 
                             'unitprice'=> $respondstock->row(0)->unitprice, 
                             'status'=> '1', 
@@ -361,8 +334,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
                     'tbl_varnish_idtbl_varnish'=> '', 
-                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID,
-                    'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue' => $manualIssueID
+                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
                 $this->db->insert('tbl_jobcard_varnish', $datavarnish);
@@ -398,7 +370,7 @@ class MaterialallocationManualinfo extends CI_Model{
                             'sectiontype'=> $type, 
                             'issuedate'=> $today, 
                             'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> '0',
+                            'reqissueqty'=> $reqissueqty,
                             'issueqty'=> $issueqty, 
                             'unitprice'=> $respondstock->row(0)->unitprice, 
                             'status'=> '1', 
@@ -423,8 +395,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
                     'tbl_foiling_idtbl_foiling'=> '', 
-                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID,
-                    'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue' => $manualIssueID
+                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
                 $this->db->insert('tbl_jobcard_foil', $datafoil);
@@ -460,7 +431,7 @@ class MaterialallocationManualinfo extends CI_Model{
                             'sectiontype'=> $type, 
                             'issuedate'=> $today, 
                             'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> '0',
+                            'reqissueqty'=> $reqissueqty,
                             'issueqty'=> $issueqty, 
                             'unitprice'=> $respondstock->row(0)->unitprice, 
                             'status'=> '1', 
@@ -485,8 +456,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
                     'tbl_lamination_idtbl_lamination'=> '', 
-                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID,
-                    'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue' => $manualIssueID
+                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
                 $this->db->insert('tbl_jobcard_lamination', $datalamination);
@@ -522,7 +492,7 @@ class MaterialallocationManualinfo extends CI_Model{
                             'sectiontype'=> $type, 
                             'issuedate'=> $today, 
                             'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> '0',
+                            'reqissueqty'=> $reqissueqty,
                             'issueqty'=> $issueqty, 
                             'unitprice'=> $respondstock->row(0)->unitprice, 
                             'status'=> '1', 
@@ -549,8 +519,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_machine_idtbl_machine'=> '', 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
-                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID,
-                    'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue' => $manualIssueID
+                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
                 $this->db->insert('tbl_jobcard_pasting', $datapasting);
@@ -586,7 +555,7 @@ class MaterialallocationManualinfo extends CI_Model{
                             'sectiontype'=> $type, 
                             'issuedate'=> $today, 
                             'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> '0',
+                            'reqissueqty'=> $reqissueqty,
                             'issueqty'=> $issueqty, 
                             'unitprice'=> $respondstock->row(0)->unitprice, 
                             'status'=> '1', 
@@ -611,8 +580,7 @@ class MaterialallocationManualinfo extends CI_Model{
                     'tbl_user_idtbl_user'=> $userID, 
                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
                     'tbl_rimming_idtbl_rimming'=> '', 
-                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID,
-                    'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue' => $manualIssueID
+                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID
                 );
        
                 $this->db->insert('tbl_jobcard_rimming', $datarimming);
@@ -648,7 +616,7 @@ class MaterialallocationManualinfo extends CI_Model{
                             'sectiontype'=> $type, 
                             'issuedate'=> $today, 
                             'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> '0',
+                            'reqissueqty'=> $reqissueqty,
                             'issueqty'=> $issueqty, 
                             'unitprice'=> $respondstock->row(0)->unitprice, 
                             'status'=> '1', 
@@ -2085,98 +2053,5 @@ class MaterialallocationManualinfo extends CI_Model{
 
             echo json_encode($obj);
         }
-    }
-
-    public function GetManualAllocationDetails(){
-        $recordID = $this->input->post('recordID');
-
-        // Get header information
-        $this->db->select('
-            u.idtbl_jobcard_manual_issue,
-            u.issuedate,
-            u.status,
-            jc.jobcardno,
-            jc.job_description,
-            cust.customer,
-            cust.telephone_no,
-            usr.name
-        ');
-        $this->db->from('tbl_jobcard_manual_issue as u');
-        $this->db->join('tbl_jobcard as jc', 'jc.idtbl_jobcard = u.tbl_jobcard_idtbl_jobcard', 'left');
-        $this->db->join('tbl_customer as cust', 'cust.idtbl_customer = u.tbl_customer_idtbl_customer', 'left');
-        $this->db->join('tbl_user as usr', 'usr.idtbl_user = u.tbl_user_idtbl_user', 'left');
-        $this->db->where('u.idtbl_jobcard_manual_issue', $recordID);
-        
-        $headerResult = $this->db->get();
-        
-        if($headerResult->num_rows() == 0) {
-            echo '<div class="alert alert-danger">Record not found</div>';
-            return;
-        }
-
-        $header = $headerResult->row();
-
-        // Get detail records
-        $this->db->select('
-            detail.qty,
-            detail.batchno,
-            detail.status,
-            detail.insertdatetime,
-            material.materialname
-        ');
-        $this->db->from('tbl_jobcard_manual_issue_detail as detail');
-        $this->db->join('tbl_print_material_info as material', 'material.idtbl_print_material_info = detail.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->where('detail.tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
-        $this->db->where('detail.status', 1);
-        
-        $detailResult = $this->db->get();
-
-        // Build HTML
-        $html = '';
-        $html .= '<div class="row small">';
-        $html .= '<div class="col-6">';
-        $html .= '<label class="small font-weight-bold text-dark mb-1">Issue Date:</label> ' . $header->issuedate . '<br>';
-        $html .= '<label class="small font-weight-bold text-dark mb-1">Job Card No:</label> ' . $header->jobcardno . '<br>';
-        $html .= '<label class="small font-weight-bold text-dark mb-1">Job Description:</label> ' . $header->job_description . '';
-        $html .= '</div>';
-        $html .= '<div class="col-6">';
-        $html .= '<label class="small font-weight-bold text-dark mb-1">Customer:</label> ' . $header->customer . '<br>';
-        $html .= '<label class="small font-weight-bold text-dark mb-1">Contact:</label> ' . $header->telephone_no . '<br>';
-        $html .= '<label class="small font-weight-bold text-dark mb-1">Issued By:</label> ' . $header->name . '';
-        $html .= '</div>';
-        $html .= '</div>';
-        $html .= '<hr class="border-dark">';
-        
-        $html .= '<h6 class="small"><i class="fas fa-list mr-2"></i>Issued Materials</h6>';
-        $html .= '<div class="table-responsive">';
-        $html .= '<table class="table table-striped table-bordered table-sm small">';
-        $html .= '<thead>';
-        $html .= '<tr class="bg-light">';
-        $html .= '<th>#</th>';
-        $html .= '<th>Material Name</th>';
-        $html .= '<th class="text-center">Quantity Issued</th>';
-        $html .= '<th>Batch No</th>';
-        $html .= '<th>Issue Date</th>';
-        $html .= '</tr>';
-        $html .= '</thead>';
-        $html .= '<tbody>';
-
-        $count = 1;
-        foreach($detailResult->result() as $row) {
-            $html .= '<tr>';
-            $html .= '<td>' . $count . '</td>';
-            $html .= '<td>' . $row->materialname . '</td>';
-            $html .= '<td class="text-center">' . $row->qty . '</td>';
-            $html .= '<td>' . $row->batchno . '</td>';
-            $html .= '<td>' . $row->insertdatetime . '</td>';
-            $html .= '</tr>';
-            $count++;
-        }
-
-        $html .= '</tbody>';
-        $html .= '</table>';
-        $html .= '</div>';
-
-        echo $html;
     }
 }
