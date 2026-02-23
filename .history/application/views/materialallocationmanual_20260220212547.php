@@ -173,11 +173,20 @@ include "include/topnavbar.php";
 					<div class="col-12">
 						<div id="showdata"></div>
 					</div>
+					<div class="col-12 text-right">
+						<hr>
+						<?php if($approvecheck==1){ ?>
+						<button id="btnapprovereject" class="btn btn-primary btn-sm px-3"><i class="fas fa-check mr-2"></i>Approve or Reject</button>
+						<?php } ?>
+						<?php if($checkstatus==1){ ?>
+                        <button id="btncheck" class="btn btn-info btn-sm px-3"><i class="fas fa-user-check mr-2"></i>Check By</button>
+                        <?php } ?>
+						<input type="hidden" name="jobcardid" id="jobcardid">
+					</div>
 					<div class="col-12 text-center">
 						<div id="alertdiv"></div>
 					</div>
 				</div>
-				<input type="hidden" name="jobcardid" id="jobcardid">
 			</div>
 		</div>
 	</div>
@@ -606,21 +615,21 @@ $(document).ready(function () {
 		],
 		"buttons": [{
 				extend: 'csv',
-				className: 'btn btn-success btn-sm mr-2',
+				className: 'btn btn-success btn-sm',
 				title: 'Manual Material Allocation Information',
-				text: '<i class="fas fa-file-csv mr-2"></i> CSV',
+				text: '<i class="fas fa-file-csv ml-2"></i> CSV',
 			},
 			{
 				extend: 'pdf',
-				className: 'btn btn-danger btn-sm mr-2',
+				className: 'btn btn-danger btn-sm',
 				title: 'Manual Material Allocation Information',
-				text: '<i class="fas fa-file-pdf mr-2"></i> PDF',
+				text: '<i class="fas fa-file-pdf ml-2"></i> PDF',
 			},
 			{
 				extend: 'print',
 				title: 'Manual Material Allocation Information',
-				className: 'btn btn-primary btn-sm mr-2',
-				text: '<i class="fas fa-print mr-2"></i> Print',
+				className: 'btn btn-primary btn-sm',
+				text: '<i class="fas fa-print ml-2"></i> Print',
 				customize: function (win) {
 					$(win.document.body).find('table')
 						.addClass('compact')

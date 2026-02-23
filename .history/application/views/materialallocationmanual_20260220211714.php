@@ -98,27 +98,31 @@ include "include/topnavbar.php";
 							</div>
 						</div>
 					</div>
-					<hr>
-					<div class="row mt-3 mb-3 p-3">
-						<div class="col-12">
-							<div class="table-responsive">
-								<table class="table table-striped table-bordered table-sm small" id="dataTable">
-									<thead>
-										<tr class="bg-light">
-											<th>#</th>
-											<th>Issue Date</th>
-											<th>Job Card No</th>
-											<th>Customer</th>
-											<th>Contact</th>
-											<th>Job Card Type</th>
-											<th>Job Description</th>
-											<th class="text-center">Action</th>
-										</tr>
-									</thead>
-									<tbody></tbody>
-								</table>
-							</div>
-						</div>
+				</div>
+
+				<!-- Manual Allocation List -->
+				<div class="card mt-4">
+					<div class="card-header bg-light">
+						<h6 class="mb-0"><i class="fas fa-list mr-2"></i>Manual Material Allocation List</h6>
+					</div>
+					<div class="card-body p-0">
+						<table class="table table-striped table-bordered table-sm small" id="dataTable">
+							<thead>
+								<tr class="bg-light">
+									<th>#</th>
+									<th>Issue Date</th>
+									<th>Job Card No</th>
+									<th>Customer</th>
+									<th>Contact</th>
+									<th>Job Card Type</th>
+									<th>Job Description</th>
+									<th>Status</th>
+									<th>Created By</th>
+									<th class="text-center">Action</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
 					</div>
 				</div>
 			</div>
@@ -173,11 +177,20 @@ include "include/topnavbar.php";
 					<div class="col-12">
 						<div id="showdata"></div>
 					</div>
+					<div class="col-12 text-right">
+						<hr>
+						<?php if($approvecheck==1){ ?>
+						<button id="btnapprovereject" class="btn btn-primary btn-sm px-3"><i class="fas fa-check mr-2"></i>Approve or Reject</button>
+						<?php } ?>
+						<?php if($checkstatus==1){ ?>
+                        <button id="btncheck" class="btn btn-info btn-sm px-3"><i class="fas fa-user-check mr-2"></i>Check By</button>
+                        <?php } ?>
+						<input type="hidden" name="jobcardid" id="jobcardid">
+					</div>
 					<div class="col-12 text-center">
 						<div id="alertdiv"></div>
 					</div>
 				</div>
-				<input type="hidden" name="jobcardid" id="jobcardid">
 			</div>
 		</div>
 	</div>
@@ -606,20 +619,20 @@ $(document).ready(function () {
 		],
 		"buttons": [{
 				extend: 'csv',
-				className: 'btn btn-success btn-sm mr-2',
-				title: 'Manual Material Allocation Information',
+				className: 'btn btn-success btn-sm',
+				title: 'Approved Customer Inquiry  Information',
 				text: '<i class="fas fa-file-csv mr-2"></i> CSV',
 			},
 			{
 				extend: 'pdf',
-				className: 'btn btn-danger btn-sm mr-2',
-				title: 'Manual Material Allocation Information',
+				className: 'btn btn-danger btn-sm',
+				title: 'Approved Customer Inquiry  Information',
 				text: '<i class="fas fa-file-pdf mr-2"></i> PDF',
 			},
 			{
 				extend: 'print',
-				title: 'Manual Material Allocation Information',
-				className: 'btn btn-primary btn-sm mr-2',
+				title: 'Approved Customer Inquiry  Information',
+				className: 'btn btn-primary btn-sm',
 				text: '<i class="fas fa-print mr-2"></i> Print',
 				customize: function (win) {
 					$(win.document.body).find('table')
@@ -627,17 +640,15 @@ $(document).ready(function () {
 						.css('font-size', 'inherit');
 				},
 			},
+			// 'copy', 'csv', 'excel', 'pdf', 'print'
 		],
 
 		ajax: {
-			url: "<?php echo base_url() ?>scripts/manualallocationlist.php",
-			type: "POST",
-			data: function(d) {
-				d.company_id = "<?php echo $_SESSION['company_id']; ?>";
-			}
+			url: "<?php echo base_url() ?>scripts/jobcardlist.php",
+			type: "POST", // you can use GET
 		},
 		"order": [
-			[1, "desc"]
+			[0, "desc"]
 		],
 		"columns": [
 			{
@@ -647,23 +658,41 @@ $(document).ready(function () {
                 }
             },
 			{
-				"data": "issuedate"
+				"data": "date"
 			},
 			{
-				"data": "jobcardno"
+				"data": "company"
+			},
+			{
+				"data": "branch"
 			},
 			{
 				"data": "customer"
 			},
 			{
-				"data": "telephone_no"
-			},
-			{
-				"data": "jobcardtype"
+				"data": "jobcardno"
 			},
 			{
 				"data": "job_description"
 			},
+			// {
+			// 	"data": "issueqty"
+			// },
+			// {
+            //     "targets": -1,
+            //     "className": 'text-right',
+            //     "data": null,
+            //     "render": function(data, type, full) {
+			// 		if (full['approvestatus'] == 1) {
+			// 			return '<span class="text-success font-weight-bold"><i class="fas fa-check-circle"></i> Inquiry Approved</span>';
+			// 		} 
+			// 		else if (full['approvestatus'] == 2) {
+			// 			return '<span class="text-danger font-weight-bold"><i class="fas fa-times-circle"></i> Inquiry Rejected</span>';
+			// 		} else {
+			// 			return '<span class="text-warning font-weight-bold"><i class="fas fa-redo"></i> Pending</span>';
+			// 		}
+            //     }
+            // },
 			{
 				"targets": -1,
 				"className": 'text-right',
@@ -671,65 +700,32 @@ $(document).ready(function () {
 				"render": function (data, type, full) {
 					var button = '';
 
-					button+='<button type="button" class="btn btn-dark btn-sm btnViewAllocation mr-1" id="'+full['idtbl_jobcard_manual_issue']+'" data-toggle="tooltip" title="View Details"><i class="fas fa-eye"></i></button>';
+					button+='<button type="button" class="btn btn-dark btn-sm btnView mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="View & Approve" data-approvestatus="'+full['approvestatus']+'" data-checkby="'+full['check_by']+'"><i class="fas fa-eye"></i></button>';
+					if(deletecheck==1 && full['approvestatus'] == 0){
+						button+='<button type="button" data-url="MaterialAllocationManual/Jobcardstatus/'+full['idtbl_jobcard']+'/3" data-toggle="tooltip" title="Delete" data-actiontype="3" class="btn btn-danger btn-sm text-light btntableactionnoreload"><i class="fas fa-trash-alt"></i></button>';
+					}
+					else if(full['approvestatus'] == 1){
+						button += '<a href="<?php echo base_url() ?>MaterialAllocationManual/jobCardPdf/' + full['idtbl_jobcard'] + '" data-toggle="tooltip" title="Job Card" target="_blank" class="btn btn-danger btn-sm"><i class="fas fa-file-pdf"></i></a>';
+					}
 					
 					return button;
 				}
 			}
 		],
 		createdRow: function( row, data, dataIndex){
-			if ( data['status']  == 1) {
+			if ( data['issuematerialstatus']  == 1) {
 				$(row).addClass('bg-success-soft');
+			}
+			else if(data['approvestatus']  == 1){
+				$(row).addClass('bg-primary-soft');
+			}
+			else if(data['approvestatus']  ==  2){
+				$(row).addClass('bg-danger-soft');
 			}
 		},
 		drawCallback: function (settings) {
 			$('[data-toggle="tooltip"]').tooltip();
 		}
-	});
-	$('#dataTable tbody').on('click', '.btnViewAllocation', async function() {
-		var id = $(this).attr('id');
-		$('#jobcardid').val(id);
-
-		Swal.fire({
-			title: '',
-			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-			allowOutsideClick: false,
-			showConfirmButton: false,
-			backdrop: `
-				rgba(255, 255, 255, 0.5) 
-			`,
-			customClass: {
-				popup: 'fullscreen-swal'
-			},
-			didOpen: () => {
-				document.body.style.overflow = 'hidden';
-
-				$.ajax({
-					type: "POST",
-					data: {
-						recordID: id
-					},
-					url: '<?php echo base_url() ?>MaterialAllocationManual/GetManualAllocationDetails',
-					success: function(result) {
-						Swal.close();
-						document.body.style.overflow = 'auto';
-
-						$('#showdata').html(result);
-						$('#viewJobCard').modal('show');
-					},
-					error: function(error) {
-						Swal.close();
-						document.body.style.overflow = 'auto';
-						
-						Swal.fire({
-							icon: 'error',
-							title: 'Error',
-							text: 'Something went wrong. Please try again later.'
-						});
-					}
-				});
-			}
-		}); 
 	});
 	$('#dataTable tbody').on('click', '.btnView', async function() {
 		var id = $(this).attr('id');

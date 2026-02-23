@@ -98,27 +98,31 @@ include "include/topnavbar.php";
 							</div>
 						</div>
 					</div>
-					<hr>
-					<div class="row mt-3 mb-3 p-3">
-						<div class="col-12">
-							<div class="table-responsive">
-								<table class="table table-striped table-bordered table-sm small" id="dataTable">
-									<thead>
-										<tr class="bg-light">
-											<th>#</th>
-											<th>Issue Date</th>
-											<th>Job Card No</th>
-											<th>Customer</th>
-											<th>Contact</th>
-											<th>Job Card Type</th>
-											<th>Job Description</th>
-											<th class="text-center">Action</th>
-										</tr>
-									</thead>
-									<tbody></tbody>
-								</table>
-							</div>
-						</div>
+				</div>
+
+				<!-- Manual Allocation List -->
+				<div class="card mt-4">
+					<div class="card-header bg-light">
+						<h6 class="mb-0"><i class="fas fa-list mr-2"></i>Manual Material Allocation List</h6>
+					</div>
+					<div class="card-body p-0">
+						<table class="table table-striped table-bordered table-sm small" id="dataTable">
+							<thead>
+								<tr class="bg-light">
+									<th>#</th>
+									<th>Issue Date</th>
+									<th>Job Card No</th>
+									<th>Customer</th>
+									<th>Contact</th>
+									<th>Job Card Type</th>
+									<th>Job Description</th>
+									<th>Status</th>
+									<th>Created By</th>
+									<th class="text-center">Action</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
 					</div>
 				</div>
 			</div>
@@ -173,11 +177,20 @@ include "include/topnavbar.php";
 					<div class="col-12">
 						<div id="showdata"></div>
 					</div>
+					<div class="col-12 text-right">
+						<hr>
+						<?php if($approvecheck==1){ ?>
+						<button id="btnapprovereject" class="btn btn-primary btn-sm px-3"><i class="fas fa-check mr-2"></i>Approve or Reject</button>
+						<?php } ?>
+						<?php if($checkstatus==1){ ?>
+                        <button id="btncheck" class="btn btn-info btn-sm px-3"><i class="fas fa-user-check mr-2"></i>Check By</button>
+                        <?php } ?>
+						<input type="hidden" name="jobcardid" id="jobcardid">
+					</div>
 					<div class="col-12 text-center">
 						<div id="alertdiv"></div>
 					</div>
 				</div>
-				<input type="hidden" name="jobcardid" id="jobcardid">
 			</div>
 		</div>
 	</div>
@@ -606,20 +619,20 @@ $(document).ready(function () {
 		],
 		"buttons": [{
 				extend: 'csv',
-				className: 'btn btn-success btn-sm mr-2',
+				className: 'btn btn-success btn-sm',
 				title: 'Manual Material Allocation Information',
 				text: '<i class="fas fa-file-csv mr-2"></i> CSV',
 			},
 			{
 				extend: 'pdf',
-				className: 'btn btn-danger btn-sm mr-2',
+				className: 'btn btn-danger btn-sm',
 				title: 'Manual Material Allocation Information',
 				text: '<i class="fas fa-file-pdf mr-2"></i> PDF',
 			},
 			{
 				extend: 'print',
 				title: 'Manual Material Allocation Information',
-				className: 'btn btn-primary btn-sm mr-2',
+				className: 'btn btn-primary btn-sm',
 				text: '<i class="fas fa-print mr-2"></i> Print',
 				customize: function (win) {
 					$(win.document.body).find('table')
@@ -665,6 +678,12 @@ $(document).ready(function () {
 				"data": "job_description"
 			},
 			{
+				"data": "status_display"
+			},
+			{
+				"data": "name"
+			},
+			{
 				"targets": -1,
 				"className": 'text-right',
 				"data": null,
@@ -672,6 +691,9 @@ $(document).ready(function () {
 					var button = '';
 
 					button+='<button type="button" class="btn btn-dark btn-sm btnViewAllocation mr-1" id="'+full['idtbl_jobcard_manual_issue']+'" data-toggle="tooltip" title="View Details"><i class="fas fa-eye"></i></button>';
+					if(deletecheck==1){
+						button+='<button type="button" data-url="MaterialAllocationManual/DeleteManualAllocation/'+full['idtbl_jobcard_manual_issue']+'" data-toggle="tooltip" title="Delete" data-actiontype="delete" class="btn btn-danger btn-sm text-light btntableactionnoreload"><i class="fas fa-trash-alt"></i></button>';
+					}
 					
 					return button;
 				}

@@ -173,11 +173,20 @@ include "include/topnavbar.php";
 					<div class="col-12">
 						<div id="showdata"></div>
 					</div>
+					<div class="col-12 text-right">
+						<hr>
+						<?php if($approvecheck==1){ ?>
+						<button id="btnapprovereject" class="btn btn-primary btn-sm px-3"><i class="fas fa-check mr-2"></i>Approve or Reject</button>
+						<?php } ?>
+						<?php if($checkstatus==1){ ?>
+                        <button id="btncheck" class="btn btn-info btn-sm px-3"><i class="fas fa-user-check mr-2"></i>Check By</button>
+                        <?php } ?>
+						<input type="hidden" name="jobcardid" id="jobcardid">
+					</div>
 					<div class="col-12 text-center">
 						<div id="alertdiv"></div>
 					</div>
 				</div>
-				<input type="hidden" name="jobcardid" id="jobcardid">
 			</div>
 		</div>
 	</div>
