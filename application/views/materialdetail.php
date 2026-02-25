@@ -127,7 +127,7 @@ include "include/topnavbar.php";
                                     <div class="form-row mb-1">
                                         <div class="col">
                                             <label class="small font-weight-bold">Measurement</label>
-                                            <select name="measurement" id="measurement" class="form-control form-control-sm" required>
+                                            <select name="measurement" id="measurement" class="form-control form-control-sm">
                                                 <option value="">Select</option>
                                                 <?php foreach($measurement->result() as $rowmeasurement){ ?>
                                                 <option value="<?php echo $rowmeasurement->idtbl_mesurements ?>"><?php echo $rowmeasurement->measure_type ?></option>
