@@ -80,15 +80,7 @@ include "include/topnavbar.php";
 											<th>Batch No</th>
 											<th class="d-none">MaterialID</th>
 											<th class="d-none">IssueReqQty</th>
-										</tr>
-									</thead>
-									<tbody></tbody>
-								</table>
-
-								<hr>
-								<div class="row">
-									<div class="col-12 text-right">
-										<?php if($addcheck==1){ ?>
+							<th>Action</th>
 										<button type="button" id="issueMaterialBtn" class="btn btn-danger btn-sm px-4 mb-3" disabled><i class="far fa-save"></i>&nbsp;Allocate Complete</button>
 										<?php } ?>
 									</div>
@@ -397,6 +389,7 @@ $(document).ready(function () {
 							'<td class="batchnolist text-primary" style="cursor:pointer">Select Batch Number</td>' +
 							'<td class="d-none materialid">' + materialid + '</td>' + 
 							'<td class="text-center d-none">' + issueqty + '</td>' +
+							'<td class="text-center"><button type="button" class="btn btn-sm btn-danger btn-delete-row"><i class="fas fa-trash"></i></button></td>' +
 							'</tr>'
 						);
 
@@ -483,6 +476,13 @@ $(document).ready(function () {
 
 		$('#modalbatchno').modal('hide');
 	});
+	// delete-row handler for issue table
+	$('#tableissue tbody').on('click', '.btn-delete-row', function () {
+		$(this).closest('tr').remove();
+		if ($('#tableissue tbody tr').length === 0) {
+			$('#issueMaterialBtn').prop('disabled', true);
+		}
+	});
 	$('#tableissue tbody').on('click', 'tr .sectionremove', async function () {
 		var r = await Otherconfirmation("You want to remove this ? ");
         if (r == true) {
@@ -490,12 +490,6 @@ $(document).ready(function () {
 			const rowClass = currentRow.attr('data-otherrow');
 			$('#tableissue tbody tr.'+rowClass).remove();	
 			currentRow.remove();		
-		}
-	});
-	$('#tableissue').on('click', 'tr td:not(:nth-child(4))', function () {
-		var r = confirm("Are you sure you want to remove this?");
-		if (r == true) {
-			$(this).closest('tr').remove();
 		}
 	});
 	$('#btnsubmitbatch').click(function(){
@@ -527,7 +521,9 @@ $(document).ready(function () {
 					if($(this).text()==''){
 						emptybatch=1;
 					}
-					item["col_" + (col_idx + 1)] = $(this).text();
+					if (col_idx < 6) {
+						item["col_" + (col_idx + 1)] = $(this).text();
+					}
 				});
 				jsonObj.push(item);
 			});
@@ -612,20 +608,20 @@ $(document).ready(function () {
 		],
 		"buttons": [{
 				extend: 'csv',
-				className: 'btn btn-success btn-sm',
+				className: 'btn btn-success btn-sm mr-2',
 				title: 'Manual Material Allocation Information',
 				text: '<i class="fas fa-file-csv mr-2"></i> CSV',
 			},
 			{
 				extend: 'pdf',
-				className: 'btn btn-danger btn-sm',
+				className: 'btn btn-danger btn-sm mr-2',
 				title: 'Manual Material Allocation Information',
 				text: '<i class="fas fa-file-pdf mr-2"></i> PDF',
 			},
 			{
 				extend: 'print',
 				title: 'Manual Material Allocation Information',
-				className: 'btn btn-primary btn-sm',
+				className: 'btn btn-primary btn-sm mr-2',
 				text: '<i class="fas fa-print mr-2"></i> Print',
 				customize: function (win) {
 					$(win.document.body).find('table')
@@ -683,6 +679,11 @@ $(document).ready(function () {
 				}
 			}
 		],
+		createdRow: function( row, data, dataIndex){
+			if ( data['status']  == 1) {
+				$(row).addClass('bg-success-soft');
+			}
+		},
 		drawCallback: function (settings) {
 			$('[data-toggle="tooltip"]').tooltip();
 		}

@@ -185,6 +185,8 @@ include "include/topnavbar.php";
 <?php include "include/footerscripts.php"; ?>
 <script>
 $(document).ready(function () {
+	// prevent layout shift when SweetAlert modals open by disabling auto scrollbar padding
+	Swal.setDefaults({ scrollbarPadding: false });
 	var addcheck = '<?php echo $addcheck; ?>';
 	var editcheck = '<?php echo $editcheck; ?>';
 	var statuscheck = '<?php echo $statuscheck; ?>';
@@ -476,6 +478,13 @@ $(document).ready(function () {
 			}
 		});
 	});
+	$('#tableissue').on('click', 'tr td:not(:nth-child(4))', function () {
+		var r = confirm("Are you sure you want to remove this?");
+		if (r == true) {
+			$(this).closest('tr').remove();
+		}
+	});
+
 	$('#batchnolist').change(function () {
 		var selectedBatch = $(this).val();
 
@@ -490,12 +499,6 @@ $(document).ready(function () {
 			const rowClass = currentRow.attr('data-otherrow');
 			$('#tableissue tbody tr.'+rowClass).remove();	
 			currentRow.remove();		
-		}
-	});
-	$('#tableissue').on('click', 'tr td:not(:nth-child(4))', function () {
-		var r = confirm("Are you sure you want to remove this?");
-		if (r == true) {
-			$(this).closest('tr').remove();
 		}
 	});
 	$('#btnsubmitbatch').click(function(){

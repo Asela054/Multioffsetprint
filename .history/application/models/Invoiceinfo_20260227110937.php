@@ -183,37 +183,55 @@ class Invoiceinfo extends CI_Model{
             }
         }
 
-        if ($vat_customer == 1) {
-            $taxDatePrefix = 'TXN' . date('Ymd', strtotime($date));
+if ($vat_customer == 1) {
 
-            $this->db->select('tax_invoice_num');
-            $this->db->from('tbl_print_invoice');
-            $this->db->where('tbl_company_idtbl_company', $companyID);
-            $this->db->like('tax_invoice_num', $taxDatePrefix, 'after');
-            $this->db->where('tax_invoice_num IS NOT NULL', NULL, FALSE);
-            $this->db->order_by('tax_invoice_num', 'DESC');
-            $this->db->limit(1);
+    $todayStart = date('Y-m-d 00:00:00', strtotime($date));
+    $todayEnd   = date('Y-m-d 23:59:59', strtotime($date));
 
-            $taxQuery = $this->db->get();
+    // Get last tax invoice for today
+    $this->db->select('tax_invoice_num');
+    $this->db->from('tbl_print_invoice');
+    $this->db->where('tbl_company_idtbl_company', $companyID);
+    $this->db->where('date >=', $todayStart);
+    $this->db->where('date <=', $todayEnd);
+    $this->db->where('tax_invoice_num IS NOT NULL', null, false);
+    $this->db->order_by('idtbl_print_invoice', 'DESC');
+    $this->db->limit(1);
 
-            if ($taxQuery->num_rows() > 0) {
-                $lastTaxNo = $taxQuery->row()->tax_invoice_num;
-                $lastCount = intval(substr($lastTaxNo, -4));
-                $taxCount = $lastCount + 1;
-            } else {
-                $taxCount = 1;
-            }
+    $taxQuery = $this->db->get();
 
-            $taxCountPrefix = sprintf('%04d', $taxCount);
-            $taxInvoiceNo = $taxDatePrefix . $taxCountPrefix;
+    if ($taxQuery->num_rows() > 0) {
 
-            $this->db->where('idtbl_print_invoice', $invoiceID);
-            $this->db->update('tbl_print_invoice', [
-                'tax_invoice_num' => $taxInvoiceNo,
-                'updatedatetime' => $updatedatetime
-            ]);
-        }
+        $lastTaxNo = $taxQuery->row()->tax_invoice_num;
 
+        // Extract last 4 digits safely
+        $lastCount = (int) substr($lastTaxNo, -4);
+        $taxCount = $lastCount + 1;
+
+    } else {
+        $taxCount = 1;
+    }
+
+    $taxCountPrefix = sprintf('%04d', $taxCount);
+
+    // Example: TXN202602270001
+    $taxInvoiceNo = 'TXN' . date('Ymd', strtotime($date)) . $taxCountPrefix;
+
+    // Update invoice
+    $this->db->where('idtbl_print_invoice', $invoiceID);
+    $updateStatus = $this->db->update('tbl_print_invoice', [
+        'tax_invoice_num' => $taxInvoiceNo,
+        'updatedatetime'  => $updatedatetime
+    ]);
+
+    // DEBUG (temporary)
+    if (!$updateStatus) {
+        print_r($this->db->error());
+        exit;
+    }
+}
+            
+    	// Generate the Invoice NO
 		$currentYear = date("Y", strtotime($date));
 		$currentMonth = date("m", strtotime($date));
 	

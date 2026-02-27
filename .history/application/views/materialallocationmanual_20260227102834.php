@@ -356,7 +356,7 @@ $(document).ready(function () {
 
 		Swal.fire({
 			title: '',
-			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+			// html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
 			allowOutsideClick: false,
 			showConfirmButton: false,
 			backdrop: 'rgba(255,255,255,0.5)',
@@ -431,7 +431,7 @@ $(document).ready(function () {
 
 		Swal.fire({
 			title: '',
-			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+			// html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
 			allowOutsideClick: false,
 			showConfirmButton: false,
 			backdrop: 'rgba(255,255,255,0.5)',
@@ -490,12 +490,6 @@ $(document).ready(function () {
 			const rowClass = currentRow.attr('data-otherrow');
 			$('#tableissue tbody tr.'+rowClass).remove();	
 			currentRow.remove();		
-		}
-	});
-	$('#tableissue').on('click', 'tr td:not(:nth-child(4))', function () {
-		var r = confirm("Are you sure you want to remove this?");
-		if (r == true) {
-			$(this).closest('tr').remove();
 		}
 	});
 	$('#btnsubmitbatch').click(function(){
@@ -612,20 +606,20 @@ $(document).ready(function () {
 		],
 		"buttons": [{
 				extend: 'csv',
-				className: 'btn btn-success btn-sm',
+				className: 'btn btn-success btn-sm mr-2',
 				title: 'Manual Material Allocation Information',
 				text: '<i class="fas fa-file-csv mr-2"></i> CSV',
 			},
 			{
 				extend: 'pdf',
-				className: 'btn btn-danger btn-sm',
+				className: 'btn btn-danger btn-sm mr-2',
 				title: 'Manual Material Allocation Information',
 				text: '<i class="fas fa-file-pdf mr-2"></i> PDF',
 			},
 			{
 				extend: 'print',
 				title: 'Manual Material Allocation Information',
-				className: 'btn btn-primary btn-sm',
+				className: 'btn btn-primary btn-sm mr-2',
 				text: '<i class="fas fa-print mr-2"></i> Print',
 				customize: function (win) {
 					$(win.document.body).find('table')
@@ -683,6 +677,11 @@ $(document).ready(function () {
 				}
 			}
 		],
+		createdRow: function( row, data, dataIndex){
+			if ( data['status']  == 1) {
+				$(row).addClass('bg-success-soft');
+			}
+		},
 		drawCallback: function (settings) {
 			$('[data-toggle="tooltip"]').tooltip();
 		}

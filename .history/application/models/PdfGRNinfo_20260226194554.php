@@ -42,10 +42,6 @@ class PdfGRNinfo extends CI_Model {
         $grn_vat = $query->row()->vatamount;
 
         foreach ($query->result() as $rowlist) {
-            if ($count % 3 == 0) {
-                $dataArray[$section] = [];
-            }
-        
             $itemcode = $rowlist->materialinfocode;
             $itemDescription = '';
 
@@ -58,7 +54,7 @@ class PdfGRNinfo extends CI_Model {
                 }
             }
         
-            $dataArray[$section][] = [
+            $dataArray[] = [
                 'itemcode' => $itemcode,
                 'itemDescription' => $itemDescription,
                 'ordered' => $rowlist->qty,
@@ -70,10 +66,6 @@ class PdfGRNinfo extends CI_Model {
             ];
         
             $count++;
-        
-            if ($count % 3 == 0) {
-                $section++;
-            }
         }        
 
         $this->load->library('pdf');
@@ -216,79 +208,71 @@ class PdfGRNinfo extends CI_Model {
             </table>
         </footer>
         ';
-        foreach ($dataArray as $index => $section) {
-			$html.='
-            <main>
-                <table style="width:100%;border-collapse: collapse;">
-                    <thead>
-                        <tr>
-                            <th rowspan="2" style="text-align:left;font-size: 12px;border: 1px thin solid;padding-left: 10px;">Item Code</th>
-                            <th rowspan="2" style="text-align:center;font-size: 12px;border: 1px thin solid;">Item Description</th>
-                            <th colspan="3" style="text-align:center;font-size: 12px;border: 1px thin solid;">Quanttity</th>
-                            <th rowspan="2" style="text-align:center;font-size: 12px;border: 1px thin solid;">Unit</th>
-                            <th rowspan="2" style="text-align:center;font-size: 12px;border: 1px thin solid;">Price</th>
-                            <th rowspan="2" style="text-align:center;font-size: 12px;border: 1px thin solid;">Total</th>
-                        </tr>
-                        <tr>
-                            <th style="text-align:center;font-size: 12px;border: 1px thin solid;">Ordered</th>
-                            <th style="text-align:center;font-size: 12px;border: 1px thin solid;">Prev</th>
-                            <th style="text-align:center;font-size: 12px;border: 1px thin solid;">Received</th>
-                        </tr>
-                    </thead>
-                    <tbody>';
-						foreach ($section as $row) {
-							$html .= '<tr>
-								<td style="font-size: 12px;border: 1px thin solid;padding-left: 10px;">' . htmlspecialchars($row['itemcode']) . '</td>
-								<td style="width: 35%;text-align:left;font-size: 12px;border: 1px thin solid;padding-left: 10px;">' . htmlspecialchars($row['itemDescription']) . '</td>
-								<td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['ordered']) . '</td>
-								<td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['prev']) . '</td>
-								<td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['received']) . '</td>
-								<td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['unit']) . '</td>
-								<td style="text-align:right;font-size: 12px;border: 1px thin solid;padding-right: 5px;">' . htmlspecialchars($row['price']) . '</td>
-								<td style="text-align:right;font-size: 12px;border: 1px thin solid;padding-right: 5px;">' . number_format(htmlspecialchars($row['total']), 2) . '</td>
-							</tr>';
-						}
-					$html.='</tbody>';
-                    if ($index === count($dataArray) - 1) {}
-                    else{
-                        $html .= '<tfoot>
-                            <tr>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Total (Ex)</th>
-                                <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($totalSum, 2).'</th>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Vat</th>
-                                <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($grn_vat, 2).'</th>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Total (Icl)</th>
-                                <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($grn_total, 2).'</th>
-                            </tr>
-                        </tfoot>';
+        $html.='
+        <main>
+            <table style="width:100%;border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="text-align:left;font-size: 12px;border: 1px thin solid;padding-left: 10px;">Item Code</th>
+                        <th rowspan="2" style="text-align:center;font-size: 12px;border: 1px thin solid;">Item Description</th>
+                        <th colspan="3" style="text-align:center;font-size: 12px;border: 1px thin solid;">Quanttity</th>
+                        <th rowspan="2" style="text-align:center;font-size: 12px;border: 1px thin solid;">Unit</th>
+                        <th rowspan="2" style="text-align:center;font-size: 12px;border: 1px thin solid;">Price</th>
+                        <th rowspan="2" style="text-align:center;font-size: 12px;border: 1px thin solid;">Total</th>
+                    </tr>
+                    <tr>
+                        <th style="text-align:center;font-size: 12px;border: 1px thin solid;">Ordered</th>
+                        <th style="text-align:center;font-size: 12px;border: 1px thin solid;">Prev</th>
+                        <th style="text-align:center;font-size: 12px;border: 1px thin solid;">Received</th>
+                    </tr>
+                </thead>
+                <tbody>';
+                    foreach ($dataArray as $row) {
+                        $html .= '<tr>
+                            <td style="font-size: 12px;border: 1px thin solid;padding-left: 10px;">' . htmlspecialchars($row['itemcode']) . '</td>
+                            <td style="width: 35%;text-align:left;font-size: 12px;border: 1px thin solid;padding-left: 10px;">' . htmlspecialchars($row['itemDescription']) . '</td>
+                            <td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['ordered']) . '</td>
+                            <td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['prev']) . '</td>
+                            <td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['received']) . '</td>
+                            <td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['unit']) . '</td>
+                            <td style="text-align:right;font-size: 12px;border: 1px thin solid;padding-right: 5px;">' . number_format(htmlspecialchars($row['price']), 2) . '</td>
+                            <td style="text-align:right;font-size: 12px;border: 1px thin solid;padding-right: 5px;">' . number_format(htmlspecialchars($row['total']), 2) . '</td>
+                        </tr>';
                     }
-                    $html .= '</table>
-                    </main>';
-
-                    if ($index < count($dataArray)) {
-                        $html .= '<div style="page-break-after: always;"></div>';
-                    }
-        }   
-            $html.='</body>
+                $html.='</tbody>
+                <tfoot>
+                    <tr>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Total (Ex)</th>
+                        <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($totalSum, 2).'</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Vat</th>
+                        <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($grn_vat, 2).'</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                        <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Total (Icl)</th>
+                        <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($grn_total, 2).'</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </main>
+        ';
+        $html.='</body>
         </html>
         '; 
         

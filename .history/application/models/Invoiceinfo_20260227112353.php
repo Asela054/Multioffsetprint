@@ -201,6 +201,7 @@ class Invoiceinfo extends CI_Model{
                 $lastCount = intval(substr($lastTaxNo, -4));
                 $taxCount = $lastCount + 1;
             } else {
+                // no existing tax invoice for today
                 $taxCount = 1;
             }
 
@@ -213,7 +214,8 @@ class Invoiceinfo extends CI_Model{
                 'updatedatetime' => $updatedatetime
             ]);
         }
-
+            
+    	// Generate the Invoice NO
 		$currentYear = date("Y", strtotime($date));
 		$currentMonth = date("m", strtotime($date));
 	

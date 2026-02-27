@@ -42,10 +42,6 @@ class PdfGRNinfo extends CI_Model {
         $grn_vat = $query->row()->vatamount;
 
         foreach ($query->result() as $rowlist) {
-            if ($count % 3 == 0) {
-                $dataArray[$section] = [];
-            }
-        
             $itemcode = $rowlist->materialinfocode;
             $itemDescription = '';
 
@@ -58,7 +54,7 @@ class PdfGRNinfo extends CI_Model {
                 }
             }
         
-            $dataArray[$section][] = [
+            $dataArray[] = [
                 'itemcode' => $itemcode,
                 'itemDescription' => $itemDescription,
                 'ordered' => $rowlist->qty,
@@ -70,10 +66,6 @@ class PdfGRNinfo extends CI_Model {
             ];
         
             $count++;
-        
-            if ($count % 3 == 0) {
-                $section++;
-            }
         }        
 
         $this->load->library('pdf');
@@ -244,7 +236,7 @@ class PdfGRNinfo extends CI_Model {
 								<td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['prev']) . '</td>
 								<td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['received']) . '</td>
 								<td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['unit']) . '</td>
-								<td style="text-align:right;font-size: 12px;border: 1px thin solid;padding-right: 5px;">' . htmlspecialchars($row['price']) . '</td>
+								<td style="text-align:right;font-size: 12px;border: 1px thin solid;padding-right: 5px;">' . number_format(htmlspecialchars($row['price']), 2) . '</td>
 								<td style="text-align:right;font-size: 12px;border: 1px thin solid;padding-right: 5px;">' . number_format(htmlspecialchars($row['total']), 2) . '</td>
 							</tr>';
 						}
@@ -281,12 +273,9 @@ class PdfGRNinfo extends CI_Model {
                             </tr>
                         </tfoot>';
                     }
-                    $html .= '</table>
-                    </main>';
-
-                    if ($index < count($dataArray)) {
-                        $html .= '<div style="page-break-after: always;"></div>';
-                    }
+                $html.='</table>
+            </main>
+            ';
         }   
             $html.='</body>
         </html>

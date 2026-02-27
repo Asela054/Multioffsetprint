@@ -625,7 +625,7 @@ $(document).ready(function () {
 			{
 				extend: 'print',
 				title: 'Manual Material Allocation Information',
-				className: 'btn btn-primary btn-sm',
+				className: 'btn btn-primary btn-sm mr-2',
 				text: '<i class="fas fa-print mr-2"></i> Print',
 				customize: function (win) {
 					$(win.document.body).find('table')

@@ -493,11 +493,11 @@ $(document).ready(function () {
 		}
 	});
 	$('#tableissue').on('click', 'tr td:not(:nth-child(4))', function () {
-		var r = confirm("Are you sure you want to remove this?");
-		if (r == true) {
-			$(this).closest('tr').remove();
-		}
-	});
+    var r = confirm("Are you sure you want to remove this product?");
+    if (r == true) {
+        $(this).closest('tr').remove();
+    }
+});
 	$('#btnsubmitbatch').click(function(){
 		if (!$("#formbatchno")[0].checkValidity()) {
 			// If the form is invalid, submit it. The form won't actually submit;
@@ -612,20 +612,20 @@ $(document).ready(function () {
 		],
 		"buttons": [{
 				extend: 'csv',
-				className: 'btn btn-success btn-sm',
+				className: 'btn btn-success btn-sm mr-2',
 				title: 'Manual Material Allocation Information',
 				text: '<i class="fas fa-file-csv mr-2"></i> CSV',
 			},
 			{
 				extend: 'pdf',
-				className: 'btn btn-danger btn-sm',
+				className: 'btn btn-danger btn-sm mr-2',
 				title: 'Manual Material Allocation Information',
 				text: '<i class="fas fa-file-pdf mr-2"></i> PDF',
 			},
 			{
 				extend: 'print',
 				title: 'Manual Material Allocation Information',
-				className: 'btn btn-primary btn-sm',
+				className: 'btn btn-primary btn-sm mr-2',
 				text: '<i class="fas fa-print mr-2"></i> Print',
 				customize: function (win) {
 					$(win.document.body).find('table')
@@ -683,6 +683,11 @@ $(document).ready(function () {
 				}
 			}
 		],
+		createdRow: function( row, data, dataIndex){
+			if ( data['status']  == 1) {
+				$(row).addClass('bg-success-soft');
+			}
+		},
 		drawCallback: function (settings) {
 			$('[data-toggle="tooltip"]').tooltip();
 		}
