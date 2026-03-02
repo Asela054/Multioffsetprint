@@ -289,8 +289,8 @@
 						$html .= '<tr>
 						<td>' . $productInfo . '</td>
 						<td>' . (!empty($roworderinfo->packetprice) 
-							? $roworderinfo->packetprice 
-							: $roworderinfo->costunitprice) . '</td>
+							? number_format($roworderinfo->packetprice, 2, '.', ',') 
+							: number_format($roworderinfo->costunitprice, 2, '.', ',')) . '</td>
 						<td class="text-center">' . $roworderinfo->qty . '</td>
 						<td class="text-center">' . $roworderinfo->measure_type . '</td>
 						<td class="text-center">' . $roworderinfo->unit_discount . '</td>
@@ -343,7 +343,9 @@
 						</tbody>
 					</table>
 
-					<p><b>Remark:</b> ' . (!empty($respond->row(0)->remark) ? nl2br($respond->row(0)->remark) : '') . '</p>
+					<hr style="border: 1px solid #000;">
+					<p style="font-weight: bold; margin-top: 15px;">Remark:</p>
+					<p style="margin-top: 5px; padding: 10px; background-color: #f5f5f5; border-left: 3px solid #007bff;">' . (!empty($respond->row(0)->remark) ? nl2br($respond->row(0)->remark) : '<em>No remark</em>') . '</p>
 
 					</body>
 					</html>';

@@ -184,14 +184,14 @@ class Invoiceinfo extends CI_Model{
         }
 
         if ($vat_customer == 1) {
-            $taxDatePrefix = 'TXN' . date('Ymd', strtotime($date));
 
+            $today = date('Y-m-d', strtotime($date));
             $this->db->select('tax_invoice_num');
             $this->db->from('tbl_print_invoice');
+            $this->db->where('DATE(date)', $today);
             $this->db->where('tbl_company_idtbl_company', $companyID);
-            $this->db->like('tax_invoice_num', $taxDatePrefix, 'after');
             $this->db->where('tax_invoice_num IS NOT NULL', NULL, FALSE);
-            $this->db->order_by('tax_invoice_num', 'DESC');
+            $this->db->order_by('idtbl_print_invoice', 'DESC');
             $this->db->limit(1);
 
             $taxQuery = $this->db->get();
@@ -205,15 +205,19 @@ class Invoiceinfo extends CI_Model{
             }
 
             $taxCountPrefix = sprintf('%04d', $taxCount);
-            $taxInvoiceNo = $taxDatePrefix . $taxCountPrefix;
 
+            // Format: TXN20260227-0001
+            $taxInvoiceNo = 'TXN' . date('Ymd', strtotime($date)) . '-' . $taxCountPrefix;
+
+            // Update invoice with tax number
             $this->db->where('idtbl_print_invoice', $invoiceID);
             $this->db->update('tbl_print_invoice', [
                 'tax_invoice_num' => $taxInvoiceNo,
                 'updatedatetime' => $updatedatetime
             ]);
         }
-
+            
+    	// Generate the Invoice NO
 		$currentYear = date("Y", strtotime($date));
 		$currentMonth = date("m", strtotime($date));
 	

@@ -1101,7 +1101,7 @@ $(document).ready(function() {
                     '</td><td class="text-center">' + uom +
                     '</td><td class="d-none">' + uomID +
                     '</td><td class="text-right">' +
-                    parseFloat(unitprice) + '</td><td class="edittotal d-none">' + total +
+                    parseFloat(unitprice + '</td><td class="edittotal d-none">' + total +
                     '</td><td class="text-right">' +
                     showtotal + '</td><td class="text-right d-none">' +
                     pieces + '</td></tr>');

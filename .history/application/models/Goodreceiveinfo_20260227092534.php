@@ -289,8 +289,8 @@
 						$html .= '<tr>
 						<td>' . $productInfo . '</td>
 						<td>' . (!empty($roworderinfo->packetprice) 
-							? $roworderinfo->packetprice 
-							: $roworderinfo->costunitprice) . '</td>
+							? number_format($roworderinfo->packetprice, 2, '.', ',') 
+							: number_format($roworderinfo->costunitprice, 2, '.', ',')) . '</td>
 						<td class="text-center">' . $roworderinfo->qty . '</td>
 						<td class="text-center">' . $roworderinfo->measure_type . '</td>
 						<td class="text-center">' . $roworderinfo->unit_discount . '</td>

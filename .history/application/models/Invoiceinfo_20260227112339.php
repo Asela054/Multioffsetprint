@@ -189,8 +189,10 @@ class Invoiceinfo extends CI_Model{
             $this->db->select('tax_invoice_num');
             $this->db->from('tbl_print_invoice');
             $this->db->where('tbl_company_idtbl_company', $companyID);
+            // only look at already generated tax numbers for the same day
             $this->db->like('tax_invoice_num', $taxDatePrefix, 'after');
             $this->db->where('tax_invoice_num IS NOT NULL', NULL, FALSE);
+            // sort by the actual invoice string so the highest suffix comes first
             $this->db->order_by('tax_invoice_num', 'DESC');
             $this->db->limit(1);
 
@@ -201,6 +203,7 @@ class Invoiceinfo extends CI_Model{
                 $lastCount = intval(substr($lastTaxNo, -4));
                 $taxCount = $lastCount + 1;
             } else {
+                // no existing tax invoice for today
                 $taxCount = 1;
             }
 
@@ -213,7 +216,8 @@ class Invoiceinfo extends CI_Model{
                 'updatedatetime' => $updatedatetime
             ]);
         }
-
+            
+    	// Generate the Invoice NO
 		$currentYear = date("Y", strtotime($date));
 		$currentMonth = date("m", strtotime($date));
 	

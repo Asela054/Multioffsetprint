@@ -674,7 +674,7 @@ $(document).ready(function() {
         var id = $(this).attr('id');
         $('#reqestid').val($(this).attr('request_id'));
         $('#job_id').val($(this).attr('job_id'));
-        $('#procode').html($(this).attr('inv_no'));
+        $('#procode').html(id);
         var statusid = $(this).attr('aproval_id');
 
         var approvestatus = $(this).attr('aproval_id');

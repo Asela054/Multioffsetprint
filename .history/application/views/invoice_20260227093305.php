@@ -631,7 +631,7 @@ $(document).ready(function() {
                             'check_by'] + '" request_id="' + full[
                             'tbl_print_dispatch_idtbl_print_dispatch'] + '" job_id="' + full[
                             'job_id'] + '" inv_no="' + full[
-                            'inv_no'] +
+                            'invoice_no'] +
                         '"><i class="fas fa-eye"></i></button>';
 
                     if (full['porderconfirm'] == 1) {
@@ -674,7 +674,7 @@ $(document).ready(function() {
         var id = $(this).attr('id');
         $('#reqestid').val($(this).attr('request_id'));
         $('#job_id').val($(this).attr('job_id'));
-        $('#procode').html($(this).attr('inv_no'));
+        $('#procode').html(id);
         var statusid = $(this).attr('aproval_id');
 
         var approvestatus = $(this).attr('aproval_id');

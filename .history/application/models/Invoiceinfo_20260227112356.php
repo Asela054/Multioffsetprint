@@ -213,7 +213,8 @@ class Invoiceinfo extends CI_Model{
                 'updatedatetime' => $updatedatetime
             ]);
         }
-
+            
+    	// Generate the Invoice NO
 		$currentYear = date("Y", strtotime($date));
 		$currentMonth = date("m", strtotime($date));
 	

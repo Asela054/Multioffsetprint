@@ -68,6 +68,21 @@ class Invoiceinfo extends CI_Model{
                 ->set_output(json_encode($response));
         }
     }
+
+    public function GetCustomerDetails($customer_id) {
+        $this->db->select('`idtbl_customer`, `customer`, `nic`, `ref_no`, `bus_reg_no`, `nbt_no`, `svat_no`, `telephone_no`, `fax_no`, `address_line1`, `address_line2`, `city`, `state`, `delivery_address_line1`, `delivery_address_line2`, `delivery_city`, `delivery_state`, `business_status`, `payment_method`, `postal_code`, `vat_no`, `vat_customer`, `imagepath`, `country`, `tbl_company_idtbl_company`, `tbl_company_branch_idtbl_company_branch`, `status`, `insertdatetime`, `updatedatetime`, `tbl_user_idtbl_user`, `tbl_account_idtbl_account`');
+        $this->db->from('tbl_customer');
+        $this->db->where('idtbl_customer', $customer_id);
+        $this->db->where('status', 1);
+        
+        $query = $this->db->get();
+        
+        if ($query->num_rows() > 0) {
+            return $query->row();
+        } else {
+            return null;
+        }
+    }
     
     public function Invoiceinsertupdate(){
         $this->db->trans_begin();
@@ -92,17 +107,6 @@ class Invoiceinfo extends CI_Model{
         $branch_id=$this->input->post('branch_id');
         $remark=$this->input->post('remark');
         $updatedatetime=date('Y-m-d H:i:s');
-
-        $this->db->select('vat_customer');
-        $this->db->from('tbl_customer');
-        $this->db->where('idtbl_customer', $customer);
-        $customerQuery = $this->db->get();
-
-        $vat_customer = 0;
-
-        if ($customerQuery->num_rows() > 0) {
-            $vat_customer = $customerQuery->row()->vat_customer;
-        }
 
         $data=array(
             'date'=> $date,
@@ -182,38 +186,8 @@ class Invoiceinfo extends CI_Model{
                 $this->db->insert('tbl_print_invoice_charge_detail', $dataone);
             }
         }
-
-        if ($vat_customer == 1) {
-            $taxDatePrefix = 'TXN' . date('Ymd', strtotime($date));
-
-            $this->db->select('tax_invoice_num');
-            $this->db->from('tbl_print_invoice');
-            $this->db->where('tbl_company_idtbl_company', $companyID);
-            $this->db->like('tax_invoice_num', $taxDatePrefix, 'after');
-            $this->db->where('tax_invoice_num IS NOT NULL', NULL, FALSE);
-            $this->db->order_by('tax_invoice_num', 'DESC');
-            $this->db->limit(1);
-
-            $taxQuery = $this->db->get();
-
-            if ($taxQuery->num_rows() > 0) {
-                $lastTaxNo = $taxQuery->row()->tax_invoice_num;
-                $lastCount = intval(substr($lastTaxNo, -4));
-                $taxCount = $lastCount + 1;
-            } else {
-                $taxCount = 1;
-            }
-
-            $taxCountPrefix = sprintf('%04d', $taxCount);
-            $taxInvoiceNo = $taxDatePrefix . $taxCountPrefix;
-
-            $this->db->where('idtbl_print_invoice', $invoiceID);
-            $this->db->update('tbl_print_invoice', [
-                'tax_invoice_num' => $taxInvoiceNo,
-                'updatedatetime' => $updatedatetime
-            ]);
-        }
-
+            
+    	// Generate the Invoice NO
 		$currentYear = date("Y", strtotime($date));
 		$currentMonth = date("m", strtotime($date));
 	
@@ -254,10 +228,43 @@ class Invoiceinfo extends CI_Model{
 
 		$reqno = 'INV' . $yearDigit . $countPrefix;
 
+		// Get customer VAT status and generate tax invoice number if applicable
+		$customerDetails = $this->GetCustomerDetails($customer);
+		$tax_invoice_num = null;
+
+		if ($customerDetails && $customerDetails->vat_customer == 1) {
+			// Generate tax invoice number for VAT customers
+			$this->db->select('tax_invoice_num');
+			$this->db->from('tbl_print_invoice');
+			$this->db->where('tbl_company_idtbl_company', $companyID);
+			$this->db->where("DATE(insertdatetime) >=", $fromyear);
+			$this->db->where("DATE(insertdatetime) <=", $toyear);
+			$this->db->where('tax_invoice_num IS NOT NULL');
+			$this->db->order_by('tax_invoice_num', 'DESC');
+			$this->db->limit(1);
+			$taxRespond = $this->db->get();
+
+			if ($taxRespond->num_rows() > 0) {
+				$last_tax_no = $taxRespond->row()->tax_invoice_num;
+				$tax_inv_no = intval(substr($last_tax_no, -4));
+				$taxCount = $tax_inv_no;
+			} else {
+				$taxCount = 0;
+			}
+
+			$taxCount++;
+			$taxCountPrefix = sprintf('%04d', $taxCount);
+			$tax_invoice_num = 'TAX' . $yearDigit . $taxCountPrefix;
+		}
+
 		$datadetail = array(
 			'inv_no'=> $reqno, 
 			'updatedatetime'=> $updatedatetime
 		);
+
+		if ($tax_invoice_num) {
+			$datadetail['tax_invoice_num'] = $tax_invoice_num;
+		}
 
 		$this->db->where('idtbl_print_invoice', $invoiceID);
 		$this->db->update('tbl_print_invoice', $datadetail);
@@ -302,6 +309,7 @@ class Invoiceinfo extends CI_Model{
             echo json_encode($obj);
         }
     }
+    
     
     public function Invoicestatus($x, $y) {
         $this->db->trans_begin();

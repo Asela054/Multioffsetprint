@@ -184,36 +184,47 @@ class Invoiceinfo extends CI_Model{
         }
 
         if ($vat_customer == 1) {
-            $taxDatePrefix = 'TXN' . date('Ymd', strtotime($date));
+
+            $todayStart = date('Y-m-d 00:00:00', strtotime($date));
+            $todayEnd   = date('Y-m-d 23:59:59', strtotime($date));
 
             $this->db->select('tax_invoice_num');
             $this->db->from('tbl_print_invoice');
             $this->db->where('tbl_company_idtbl_company', $companyID);
-            $this->db->like('tax_invoice_num', $taxDatePrefix, 'after');
-            $this->db->where('tax_invoice_num IS NOT NULL', NULL, FALSE);
-            $this->db->order_by('tax_invoice_num', 'DESC');
+            $this->db->where('date >=', $todayStart);
+            $this->db->where('date <=', $todayEnd);
+            $this->db->where('tax_invoice_num IS NOT NULL', null, false);
+            $this->db->order_by('idtbl_print_invoice', 'DESC');
             $this->db->limit(1);
 
             $taxQuery = $this->db->get();
 
             if ($taxQuery->num_rows() > 0) {
+
                 $lastTaxNo = $taxQuery->row()->tax_invoice_num;
-                $lastCount = intval(substr($lastTaxNo, -4));
+                $lastCount = (int) substr($lastTaxNo, -4);
                 $taxCount = $lastCount + 1;
+
             } else {
                 $taxCount = 1;
             }
 
             $taxCountPrefix = sprintf('%04d', $taxCount);
-            $taxInvoiceNo = $taxDatePrefix . $taxCountPrefix;
+            $taxInvoiceNo = 'TXN' . date('Ymd', strtotime($date)) . $taxCountPrefix;
 
             $this->db->where('idtbl_print_invoice', $invoiceID);
-            $this->db->update('tbl_print_invoice', [
+            $updateStatus = $this->db->update('tbl_print_invoice', [
                 'tax_invoice_num' => $taxInvoiceNo,
-                'updatedatetime' => $updatedatetime
+                'updatedatetime'  => $updatedatetime
             ]);
-        }
 
+            if (!$updateStatus) {
+                print_r($this->db->error());
+                exit;
+            }
+        }
+            
+    	// Generate the Invoice NO
 		$currentYear = date("Y", strtotime($date));
 		$currentMonth = date("m", strtotime($date));
 	
