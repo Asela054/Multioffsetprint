@@ -2195,12 +2195,16 @@ class MaterialallocationManualinfo extends CI_Model{
         $this->db->where('idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_manual_issue', $data);
 
+        // Update status to 3 in all related tables
+        // tbl_jobcard_manual_issue_detail
         $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_manual_issue_detail', $data);
 
+        // tbl_jobcard_material
         $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_material', $data);
 
+        // tbl_jobcard_color
         $data2 = array(
             'status' => 3,
             'updateuser' => $userID,
@@ -2209,18 +2213,23 @@ class MaterialallocationManualinfo extends CI_Model{
         $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_color', $data2);
 
+        // tbl_jobcard_varnish
         $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_varnish', $data);
 
+        // tbl_jobcard_foil
         $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_foil', $data);
 
+        // tbl_jobcard_lamination
         $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_lamination', $data);
 
+        // tbl_jobcard_pasting
         $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_pasting', $data);
 
+        // tbl_jobcard_rimming
         $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_rimming', $data);
 
@@ -2237,7 +2246,10 @@ class MaterialallocationManualinfo extends CI_Model{
             $actionObj->target = '_blank';
             $actionObj->type = 'danger';
 
-            echo json_encode(array('status' => 1, 'action' => json_encode($actionObj)));
+            $actionJSON = json_encode($actionObj);
+            
+            $this->session->set_flashdata('msg', $actionJSON);
+            echo json_encode(array('status' => 1, 'action' => $actionObj));
         } else {
             $this->db->trans_rollback();
 
@@ -2249,7 +2261,10 @@ class MaterialallocationManualinfo extends CI_Model{
             $actionObj->target = '_blank';
             $actionObj->type = 'danger';
 
-            echo json_encode(array('status' => 0, 'action' => json_encode($actionObj)));
+            $actionJSON = json_encode($actionObj);
+            
+            $this->session->set_flashdata('msg', $actionJSON);
+            echo json_encode(array('status' => 0, 'action' => $actionObj));
         }
     }
 }

@@ -161,7 +161,7 @@ include "include/topnavbar.php";
 	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="viewJobCardLabel">Manual Allocation Details</h5>
+				<h5 class="modal-title" id="viewJobCardLabel">Job Card Information</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -176,12 +176,6 @@ include "include/topnavbar.php";
 					</div>
 				</div>
 				<input type="hidden" name="jobcardid" id="jobcardid">
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
-				<?php if($deletecheck==1){ ?>
-				<button type="button" class="btn btn-danger btn-sm" id="btnDeleteManualIssueModal"><i class="fas fa-trash-alt mr-2"></i>Delete</button>
-				<?php } ?>
 			</div>
 		</div>
 	</div>
@@ -676,9 +670,6 @@ $(document).ready(function () {
 					var button = '';
 
 					button+='<button type="button" class="btn btn-dark btn-sm btnViewAllocation mr-1" id="'+full['idtbl_jobcard_manual_issue']+'" data-toggle="tooltip" title="View Details"><i class="fas fa-eye"></i></button>';
-					if(deletecheck==1){
-						button+='<button type="button" class="btn btn-danger btn-sm btnDeleteManualIssue" id="'+full['idtbl_jobcard_manual_issue']+'" data-toggle="tooltip" title="Delete Record"><i class="fas fa-trash-alt"></i></button>';
-					}
 					
 					return button;
 				}
@@ -829,17 +820,6 @@ $(document).ready(function () {
             } 
         });
     });   
-	// Delete Manual Issue Button Handler
-	$('#dataTable tbody').on('click', '.btnDeleteManualIssue', function() {
-		var id = $(this).attr('id');
-		deleteManualIssue(id);
-	});
-	// Delete Manual Issue Modal Button Handler
-	$('#btnDeleteManualIssueModal').click(function() {
-		var id = $('#jobcardid').val();
-		$('#viewJobCard').modal('hide');
-		deleteManualIssue(id);
-	});
 });
 
 function approvejob(confirmnot){
@@ -934,63 +914,6 @@ function checkjob(confirmnot){
                         icon: 'error',
                         title: 'Error',
                         text: 'Something went wrong. Please try again later.'
-                    });
-                }
-            });
-        }
-    });
-}
-// Delete Manual Issue Function
-function deleteManualIssue(recordID) {
-    Swal.fire({
-        title: "Are you sure?",
-        text: "You want to delete this manual allocation record?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, delete it!",
-        cancelButtonText: "Cancel"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: '',
-                html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                backdrop: 'rgba(255, 255, 255, 0.5)',
-                customClass: {
-                    popup: 'fullscreen-swal'
-                },
-                didOpen: () => {
-                    document.body.style.overflow = 'hidden';
-
-                    $.ajax({
-                        type: "POST",
-                        data: {
-                            recordID: recordID
-                        },
-                        url: '<?php echo base_url() ?>MaterialAllocationManual/DeleteManualIssue',
-                        success: function(result) {
-                            Swal.close();
-                            document.body.style.overflow = 'auto';
-                            var obj = JSON.parse(result);
-                            if(obj.status == 1) {
-                                actionreload(obj.action);
-                            } else {
-                                action(obj.action);
-                            }
-                        },
-                        error: function(error) {
-                            Swal.close();
-                            document.body.style.overflow = 'auto';
-                            
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Something went wrong. Please try again later.'
-                            });
-                        }
                     });
                 }
             });

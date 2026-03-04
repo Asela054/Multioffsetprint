@@ -2237,7 +2237,10 @@ class MaterialallocationManualinfo extends CI_Model{
             $actionObj->target = '_blank';
             $actionObj->type = 'danger';
 
-            echo json_encode(array('status' => 1, 'action' => json_encode($actionObj)));
+            $actionJSON = json_encode($actionObj);
+            
+            $this->session->set_flashdata('msg', $actionJSON);
+            echo json_encode(array('status' => 1, 'action' => $actionObj));
         } else {
             $this->db->trans_rollback();
 
@@ -2249,7 +2252,10 @@ class MaterialallocationManualinfo extends CI_Model{
             $actionObj->target = '_blank';
             $actionObj->type = 'danger';
 
-            echo json_encode(array('status' => 0, 'action' => json_encode($actionObj)));
+            $actionJSON = json_encode($actionObj);
+            
+            $this->session->set_flashdata('msg', $actionJSON);
+            echo json_encode(array('status' => 0, 'action' => $actionObj));
         }
     }
 }

@@ -829,17 +829,6 @@ $(document).ready(function () {
             } 
         });
     });   
-	// Delete Manual Issue Button Handler
-	$('#dataTable tbody').on('click', '.btnDeleteManualIssue', function() {
-		var id = $(this).attr('id');
-		deleteManualIssue(id);
-	});
-	// Delete Manual Issue Modal Button Handler
-	$('#btnDeleteManualIssueModal').click(function() {
-		var id = $('#jobcardid').val();
-		$('#viewJobCard').modal('hide');
-		deleteManualIssue(id);
-	});
 });
 
 function approvejob(confirmnot){
@@ -934,63 +923,6 @@ function checkjob(confirmnot){
                         icon: 'error',
                         title: 'Error',
                         text: 'Something went wrong. Please try again later.'
-                    });
-                }
-            });
-        }
-    });
-}
-// Delete Manual Issue Function
-function deleteManualIssue(recordID) {
-    Swal.fire({
-        title: "Are you sure?",
-        text: "You want to delete this manual allocation record?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, delete it!",
-        cancelButtonText: "Cancel"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: '',
-                html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                backdrop: 'rgba(255, 255, 255, 0.5)',
-                customClass: {
-                    popup: 'fullscreen-swal'
-                },
-                didOpen: () => {
-                    document.body.style.overflow = 'hidden';
-
-                    $.ajax({
-                        type: "POST",
-                        data: {
-                            recordID: recordID
-                        },
-                        url: '<?php echo base_url() ?>MaterialAllocationManual/DeleteManualIssue',
-                        success: function(result) {
-                            Swal.close();
-                            document.body.style.overflow = 'auto';
-                            var obj = JSON.parse(result);
-                            if(obj.status == 1) {
-                                actionreload(obj.action);
-                            } else {
-                                action(obj.action);
-                            }
-                        },
-                        error: function(error) {
-                            Swal.close();
-                            document.body.style.overflow = 'auto';
-                            
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Something went wrong. Please try again later.'
-                            });
-                        }
                     });
                 }
             });

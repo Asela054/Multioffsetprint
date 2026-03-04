@@ -829,17 +829,6 @@ $(document).ready(function () {
             } 
         });
     });   
-	// Delete Manual Issue Button Handler
-	$('#dataTable tbody').on('click', '.btnDeleteManualIssue', function() {
-		var id = $(this).attr('id');
-		deleteManualIssue(id);
-	});
-	// Delete Manual Issue Modal Button Handler
-	$('#btnDeleteManualIssueModal').click(function() {
-		var id = $('#jobcardid').val();
-		$('#viewJobCard').modal('hide');
-		deleteManualIssue(id);
-	});
 });
 
 function approvejob(confirmnot){

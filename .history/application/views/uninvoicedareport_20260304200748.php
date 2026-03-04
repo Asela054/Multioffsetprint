@@ -26,7 +26,7 @@
 								<div class="col-12">
 									<div class="form-row">
 										<div class="col-2">
-											<label class="small font-weight-bold">Customer</label>
+											<label class="small font-weight-bold">Customer*</label>
 											<select class="form-control form-control-sm selecter2 px-0" name="customer"
 												id="customer">
 												<option value="">Select</option>

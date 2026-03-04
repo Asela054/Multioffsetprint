@@ -26,9 +26,9 @@
 								<div class="col-12">
 									<div class="form-row">
 										<div class="col-2">
-											<label class="small font-weight-bold">Customer</label>
+											<label class="small font-weight-bold">Customer*</label>
 											<select class="form-control form-control-sm selecter2 px-0" name="customer"
-												id="customer">
+												id="customer" required>
 												<option value="">Select</option>
 												<option value="all">All</option>
 												<?php foreach ($getcustomer->result() as $rowgetcustomer) { ?>

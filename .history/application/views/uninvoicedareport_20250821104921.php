@@ -13,6 +13,7 @@
 					<div class="page-header-content py-3">
 						<h1 class="page-header-title">
 							<div class="page-header-icon"><i class="fas fa-file-alt"></i></div>
+							<!-- <span><b>Un Invoice Dispatch Report</b></span> -->
                             <span>&nbsp; Uninvoice Dispatch Report</span>
 						</h1>
 					</div>
@@ -25,10 +26,34 @@
 							<form id="searchunda">
 								<div class="col-12">
 									<div class="form-row">
+										<!-- <div class="col-2">
+											<label class="small font-weight-bold text-dark">Report Type*</label>
+											<div class="input-group input-group-sm">
+												<select class="form-control form-control-sm" name="report_type"
+													id="report_type">
+													<option value="0">Select</option>
+													<option value="1">Daily</option>
+													<option value="2">Weekly</option>
+													<option value="3">Monthly</option>
+													<option value="4">Date Range</option>
+													<option value="5">All GRN</option>
+												</select>
+											</div>
+										</div> -->
+
+										
+										<!-- <div class="col-2">
+                                            <label class="small font-weight-bold">Type*</label>
+                                            <select class="form-control form-control-sm" name="type" id="type" required>
+                                                <option value="">Select</option>
+                                                <option value="1">Material</option>
+                                                <option value="2">Machine</option>
+                                            </select>
+                                        </div> -->
 										<div class="col-2">
-											<label class="small font-weight-bold">Customer</label>
+											<label class="small font-weight-bold">Customer*</label>
 											<select class="form-control form-control-sm selecter2 px-0" name="customer"
-												id="customer">
+												id="customer" required>
 												<option value="">Select</option>
 												<option value="all">All</option>
 												<?php foreach ($getcustomer->result() as $rowgetcustomer) { ?>
@@ -37,21 +62,13 @@
 												<?php } ?>
 											</select>
 										</div>
-                                    <div class="col-2">
-                                            <label class="small font-weight-bold">Date From</label>
-                                            <input type="date" class="form-control form-control-sm" id="date_from" name="date_from">
-                                        </div>
-                                        <div class="col-2">
-                                            <label class="small font-weight-bold">Date To</label>
-                                            <input type="date" class="form-control form-control-sm" id="date_to" name="date_to">
-                                        </div>
-                                        <div class="col-2">
-                                            <label class="small font-weight-bold">Job / Job No</label>
-                                            <input type="text" class="form-control form-control-sm" id="job" name="job" placeholder="Job or number">
-                                        </div>
-                                        <div class="col-2"><br>
+                                    <div class="col-2"><br>
                                         <button type="submit" id="searchButton" class="btn btn-info mb-2"><span id="boot-icon" class="bi bi-search" style="font-size: 15px;">&nbsp;Search</span></button>
                                     </div>
+										<!-- <div class="col-1" style="display: none;" id="searchButton">&nbsp;<br>
+											<button type="submit"
+												class="btn btn-info btn-sm ml-auto w-25 mt-2 px-5">Search</button>
+										</div> -->
 									</div>
 									<input type="hidden" name="recordOption" id="recordOption" value="1">
 									<input type="hidden" name="recordID" id="recordID" value="">
@@ -117,7 +134,6 @@
 							"search_month": $("#month").val(),
 							"search_from_date": $("#date_from").val(),
 							"search_to_date": $("#date_to").val(),
-							"job": $("#job").val(),
 							"report_type": "5",
 							"customer": $("#customer").val(),
 						});

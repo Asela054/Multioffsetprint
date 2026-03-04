@@ -26,9 +26,9 @@
 								<div class="col-12">
 									<div class="form-row">
 										<div class="col-2">
-											<label class="small font-weight-bold">Customer</label>
+											<label class="small font-weight-bold">Customer*</label>
 											<select class="form-control form-control-sm selecter2 px-0" name="customer"
-												id="customer">
+												id="customer" required>
 												<option value="">Select</option>
 												<option value="all">All</option>
 												<?php foreach ($getcustomer->result() as $rowgetcustomer) { ?>
@@ -37,19 +37,7 @@
 												<?php } ?>
 											</select>
 										</div>
-                                    <div class="col-2">
-                                            <label class="small font-weight-bold">Date From</label>
-                                            <input type="date" class="form-control form-control-sm" id="date_from" name="date_from">
-                                        </div>
-                                        <div class="col-2">
-                                            <label class="small font-weight-bold">Date To</label>
-                                            <input type="date" class="form-control form-control-sm" id="date_to" name="date_to">
-                                        </div>
-                                        <div class="col-2">
-                                            <label class="small font-weight-bold">Job / Job No</label>
-                                            <input type="text" class="form-control form-control-sm" id="job" name="job" placeholder="Job or number">
-                                        </div>
-                                        <div class="col-2"><br>
+                                    <div class="col-2"><br>
                                         <button type="submit" id="searchButton" class="btn btn-info mb-2"><span id="boot-icon" class="bi bi-search" style="font-size: 15px;">&nbsp;Search</span></button>
                                     </div>
 									</div>
@@ -117,7 +105,6 @@
 							"search_month": $("#month").val(),
 							"search_from_date": $("#date_from").val(),
 							"search_to_date": $("#date_to").val(),
-							"job": $("#job").val(),
 							"report_type": "5",
 							"customer": $("#customer").val(),
 						});
