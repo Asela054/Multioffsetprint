@@ -501,6 +501,7 @@ else if($functionmenu=='Issuegoodreceive'){
     $statuscheck=checkprivilege($menuprivilegearray, 90, 3);
     $deletecheck=checkprivilege($menuprivilegearray, 90, 4);
     $approvecheck=checkprivilege($menuprivilegearray, 90, 5);
+    $checkstatus=checkprivilege($menuprivilegearray, 90, 6);
 }
 else if($functionmenu=='Stocktransfer'){
     $addcheck=checkprivilege($menuprivilegearray, 91, 1);
