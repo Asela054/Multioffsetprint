@@ -855,8 +855,8 @@
 			'left'
 		);
 
-		$this->db->join('tbl_material_group',
-			'tbl_material_group.idtbl_material_group = tbl_print_porder.tbl_material_group_idtbl_material_group',
+		$this->db->join('tbl_print_material_info',
+			'tbl_print_material_info.idtbl_print_material_info = tbl_print_porder_detail.tbl_material_id',
 			'left'
 		);
 

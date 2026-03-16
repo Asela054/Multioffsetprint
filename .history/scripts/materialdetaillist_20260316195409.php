@@ -37,8 +37,7 @@ $columns = array(
 	array( 'db' => '`u`.`unitprice`', 'dt' => 'unitprice', 'field' => 'unitprice' ),
 	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' ),
 	array( 'db' => '`ub`.`paper`', 'dt' => 'paper', 'field' => 'paper' ),
-	array( 'db' => '`uc`.`group`', 'dt' => 'group', 'field' => 'group' ),
-	array( 'db' => '`ud`.`measure_type`', 'dt' => 'measure_type', 'field' => 'measure_type' )
+	array( 'db' => '`uc`.`group`', 'dt' => 'group', 'field' => 'group' )
 );
 
 // SQL server connection information
@@ -62,7 +61,7 @@ $companyID = $_POST['company_id'];
 $joinQuery = "FROM `tbl_print_material_info` AS `u`
 LEFT JOIN `tbl_material_type` AS `ub` ON (`ub`.`idtbl_material_type` = `u`.`tbl_material_type_idtbl_material_type`)
 LEFT JOIN `tbl_material_group` AS `uc` ON (`uc`.`idtbl_material_group` = `u`.`tbl_material_group_idtbl_material_group`)
-LEFT JOIN `tbl_measurements` AS `ud` ON (`ud`.`idtbl_mesurements` = `u`.`tbl_measurements_idtbl_measurements`)";
+LEFT JOIN `tbl_measurements` AS `uc` ON (`uc`.`idtbl_mesurements` = `u`.`tbl_material_group_idtbl_material_group`)";
 
 $extraWhere = "`u`.`status` IN (1, 2) AND `u`.`tbl_company_idtbl_company`='$companyID'";
 

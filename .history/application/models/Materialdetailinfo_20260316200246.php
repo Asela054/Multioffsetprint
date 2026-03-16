@@ -233,125 +233,126 @@ class Materialdetailinfo extends CI_Model{
             }
         }
     }
-    public function UOMqtyinsert(){
+public function UOMqtyinsert(){
 
-        $this->db->trans_begin();
+    $this->db->trans_begin();
 
-        $userID = $_SESSION['userid'];
-        $hiddenmaterialID = $this->input->post('hiddenmaterialID');
-        $checked_uoms = $this->input->post('uom_options');
-        $all_uoms = explode(',', $this->input->post('all_uom_ids'));
+    $userID = $_SESSION['userid'];
+    $hiddenmaterialID = $this->input->post('hiddenmaterialID');
+    $checked_uoms = $this->input->post('uom_options');
+    $all_uoms = explode(',', $this->input->post('all_uom_ids'));
 
-        if(empty($checked_uoms)){
-            $checked_uoms = [];
-        }
-
-        $updatedatetime = date('Y-m-d H:i:s');
-
-        foreach ($all_uoms as $uom_id) {
-
-            $uom_details = $this->db->select('qty, main_uom, convert_uom')
-                ->where('idtbl_uom_conversions', $uom_id)
-                ->get('tbl_uom_conversions')
-                ->row_array();
-
-            if(!$uom_details){
-                continue;
-            }
-
-            // Check if record already exists
-            $existing = $this->db->select('muq.idtbl_material_uom_qty')
-                ->from('tbl_material_uom_qty muq')
-                ->join(
-                    'tbl_material_uom_qty_has_tbl_print_material_info rel',
-                    'rel.tbl_material_uom_qty_idtbl_material_uom_qty = muq.idtbl_material_uom_qty'
-                )
-                ->where('muq.measurement', $uom_details['convert_uom'])
-                ->where('muq.tbl_measurements_idtbl_mesurements', $uom_details['main_uom'])
-                ->where('rel.tbl_print_material_info_idtbl_print_material_info', $hiddenmaterialID)
-                ->get()
-                ->row_array();
-
-            // ✅ IF CHECKED
-            if(in_array($uom_id, $checked_uoms)){
-
-                if($existing){
-
-                    // Reactivate if previously removed
-                    $this->db->where('idtbl_material_uom_qty', $existing['idtbl_material_uom_qty']);
-                    $this->db->update('tbl_material_uom_qty', ['status' => 1]);
-
-                }else{
-
-                    // Insert new
-                    $material_qty_data = [
-                        'qty' => $uom_details['qty'],
-                        'measurement' => $uom_details['convert_uom'],
-                        'status' => 1,
-                        'insertdatetime' => $updatedatetime,
-                        'tbl_user_idtbl_user' => $userID,
-                        'tbl_measurements_idtbl_mesurements' => $uom_details['main_uom'],
-                    ];
-
-                    $this->db->insert('tbl_material_uom_qty', $material_qty_data);
-
-                    $material_uom_qty_id = $this->db->insert_id();
-
-                    $relation_data = [
-                        'tbl_material_uom_qty_idtbl_material_uom_qty' => $material_uom_qty_id,
-                        'tbl_print_material_info_idtbl_print_material_info' => $hiddenmaterialID,
-                    ];
-
-                    $this->db->insert('tbl_material_uom_qty_has_tbl_print_material_info', $relation_data);
-                }
-
-            }
-            else{
-
-                if($existing){
-
-                    $this->db->where('idtbl_material_uom_qty', $existing['idtbl_material_uom_qty']);
-                    $this->db->update('tbl_material_uom_qty', ['status' => 3]);
-
-                }
-
-            }
-
-        }
-
-        $this->db->trans_complete();
-
-        if ($this->db->trans_status() === TRUE) {
-
-            $this->db->trans_commit();
-
-            $actionObj = new stdClass();
-            $actionObj->icon = 'fas fa-save';
-            $actionObj->title = '';
-            $actionObj->message = 'Records Updated Successfully';
-            $actionObj->url = '';
-            $actionObj->target = '_blank';
-            $actionObj->type = 'success';
-
-            $this->session->set_flashdata('msg', json_encode($actionObj));
-            redirect('Materialdetail');
-
-        } else {
-
-            $this->db->trans_rollback();
-
-            $actionObj = new stdClass();
-            $actionObj->icon = 'fas fa-warning';
-            $actionObj->title = '';
-            $actionObj->message = 'Error Updating Records';
-            $actionObj->url = '';
-            $actionObj->target = '_blank';
-            $actionObj->type = 'danger';
-
-            $this->session->set_flashdata('msg', json_encode($actionObj));
-            redirect('Materialdetail');
-        }
+    if(empty($checked_uoms)){
+        $checked_uoms = [];
     }
+
+    $updatedatetime = date('Y-m-d H:i:s');
+
+    foreach ($all_uoms as $uom_id) {
+
+        $uom_details = $this->db->select('qty, main_uom, convert_uom')
+            ->where('idtbl_uom_conversions', $uom_id)
+            ->get('tbl_uom_conversions')
+            ->row_array();
+
+        if(!$uom_details){
+            continue;
+        }
+
+        // Check if record already exists
+        $existing = $this->db->select('muq.idtbl_material_uom_qty')
+            ->from('tbl_material_uom_qty muq')
+            ->join(
+                'tbl_material_uom_qty_has_tbl_print_material_info rel',
+                'rel.tbl_material_uom_qty_idtbl_material_uom_qty = muq.idtbl_material_uom_qty'
+            )
+            ->where('muq.measurement', $uom_details['convert_uom'])
+            ->where('muq.tbl_measurements_idtbl_mesurements', $uom_details['main_uom'])
+            ->where('rel.tbl_print_material_info_idtbl_print_material_info', $hiddenmaterialID)
+            ->get()
+            ->row_array();
+
+        // ✅ IF CHECKED
+        if(in_array($uom_id, $checked_uoms)){
+
+            if($existing){
+
+                // Reactivate if previously removed
+                $this->db->where('idtbl_material_uom_qty', $existing['idtbl_material_uom_qty']);
+                $this->db->update('tbl_material_uom_qty', ['status' => 1]);
+
+            }else{
+
+                // Insert new
+                $material_qty_data = [
+                    'qty' => $uom_details['qty'],
+                    'measurement' => $uom_details['convert_uom'],
+                    'status' => 1,
+                    'insertdatetime' => $updatedatetime,
+                    'tbl_user_idtbl_user' => $userID,
+                    'tbl_measurements_idtbl_mesurements' => $uom_details['main_uom'],
+                ];
+
+                $this->db->insert('tbl_material_uom_qty', $material_qty_data);
+
+                $material_uom_qty_id = $this->db->insert_id();
+
+                $relation_data = [
+                    'tbl_material_uom_qty_idtbl_material_uom_qty' => $material_uom_qty_id,
+                    'tbl_print_material_info_idtbl_print_material_info' => $hiddenmaterialID,
+                ];
+
+                $this->db->insert('tbl_material_uom_qty_has_tbl_print_material_info', $relation_data);
+            }
+
+        }
+        // ❌ IF UNCHECKED → REMOVE
+        else{
+
+            if($existing){
+
+                $this->db->where('idtbl_material_uom_qty', $existing['idtbl_material_uom_qty']);
+                $this->db->update('tbl_material_uom_qty', ['status' => 3]);
+
+            }
+
+        }
+
+    }
+
+    $this->db->trans_complete();
+
+    if ($this->db->trans_status() === TRUE) {
+
+        $this->db->trans_commit();
+
+        $actionObj = new stdClass();
+        $actionObj->icon = 'fas fa-save';
+        $actionObj->title = '';
+        $actionObj->message = 'Records Updated Successfully';
+        $actionObj->url = '';
+        $actionObj->target = '_blank';
+        $actionObj->type = 'success';
+
+        $this->session->set_flashdata('msg', json_encode($actionObj));
+        redirect('Materialdetail');
+
+    } else {
+
+        $this->db->trans_rollback();
+
+        $actionObj = new stdClass();
+        $actionObj->icon = 'fas fa-warning';
+        $actionObj->title = '';
+        $actionObj->message = 'Error Updating Records';
+        $actionObj->url = '';
+        $actionObj->target = '_blank';
+        $actionObj->type = 'danger';
+
+        $this->session->set_flashdata('msg', json_encode($actionObj));
+        redirect('Materialdetail');
+    }
+}
     
     public function Getadduomqty()
     {
@@ -376,7 +377,6 @@ class Materialdetailinfo extends CI_Model{
             $this->db->where('muq.measurement', $uom['convert_uom']);
             $this->db->where('muq.tbl_measurements_idtbl_mesurements', $uom['main_uom']);
             $this->db->where('rel.tbl_print_material_info_idtbl_print_material_info', $materialID);
-            $this->db->where('muq.status', 1);
             
             $query = $this->db->get();
             $is_checked = $query->num_rows() > 0 ? 1 : 0;

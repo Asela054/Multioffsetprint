@@ -306,6 +306,7 @@ class Materialdetailinfo extends CI_Model{
                 }
 
             }
+            // ❌ IF UNCHECKED → REMOVE
             else{
 
                 if($existing){
@@ -376,7 +377,6 @@ class Materialdetailinfo extends CI_Model{
             $this->db->where('muq.measurement', $uom['convert_uom']);
             $this->db->where('muq.tbl_measurements_idtbl_mesurements', $uom['main_uom']);
             $this->db->where('rel.tbl_print_material_info_idtbl_print_material_info', $materialID);
-            $this->db->where('muq.status', 1);
             
             $query = $this->db->get();
             $is_checked = $query->num_rows() > 0 ? 1 : 0;
