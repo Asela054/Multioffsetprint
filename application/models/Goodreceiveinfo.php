@@ -963,16 +963,17 @@
 		$recordID=$this->input->post('recordID');
 
 		if( !empty($recordID)) {
-			$this->db->select('tbl_supplier.`idtbl_supplier`, tbl_material_category.categorycode');
+			// $this->db->select('tbl_supplier.`idtbl_supplier`, tbl_material_category.categorycode');
+			$this->db->select('tbl_supplier.`idtbl_supplier`');
 			$this->db->from('tbl_supplier');
-			$this->db->join('tbl_supplier_has_tbl_material_category', 'tbl_supplier_has_tbl_material_category.tbl_supplier_idtbl_supplier = tbl_supplier.idtbl_supplier', 'left');
-			$this->db->join('tbl_material_category', 'tbl_material_category.idtbl_material_category = tbl_supplier_has_tbl_material_category.tbl_material_category_idtbl_material_category', 'left');
+			// $this->db->join('tbl_supplier_has_tbl_material_category', 'tbl_supplier_has_tbl_material_category.tbl_supplier_idtbl_supplier = tbl_supplier.idtbl_supplier', 'left');
+			// $this->db->join('tbl_material_category', 'tbl_material_category.idtbl_material_category = tbl_supplier_has_tbl_material_category.tbl_material_category_idtbl_material_category', 'left');
 			$this->db->where('tbl_supplier.idtbl_supplier', $recordID);
 			$this->db->where('tbl_supplier.status', 1);
 
 			$responddetail=$this->db->get();
 
-			$materialcode=$responddetail->row(0)->categorycode;
+			// $materialcode=$responddetail->row(0)->categorycode;
 			$supplierid=$responddetail->row(0)->idtbl_supplier;
 
 			$sql="SELECT COUNT(*) AS `count` FROM `tbl_print_grn`";
@@ -988,7 +989,8 @@
 				$batchno=date('dmY').$count;
 			}
 
-			echo $supplierid.$materialcode.$batchno;
+			// echo $supplierid.$materialcode.$batchno;
+			echo $supplierid.$batchno;
 		}
 
 		else {

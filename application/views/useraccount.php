@@ -37,12 +37,21 @@ include "include/topnavbar.php";
                                         <label class="small font-weight-bold">Password*</label>
                                         <input type="password" class="form-control form-control-sm" name="password" id="password" required>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group mb-1">
                                         <label class="small font-weight-bold">User Type*</label>
                                         <select class="form-control form-control-sm" name="usertype" id="usertype" required>
                                             <option value="">Select</option>
                                             <?php foreach ($usertype->result() as $rowusertype) { ?>
                                             <option value="<?php echo $rowusertype->idtbl_user_type ?>"><?php echo $rowusertype->type ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="small font-weight-bold">User Roles*</label>
+                                        <select class="form-control form-control-sm" name="userroles" id="userroles" required>
+                                            <option value="">Select</option>
+                                            <?php foreach ($userroles->result() as $rowuserroles) { ?>
+                                            <option value="<?php echo $rowuserroles->idtbl_roles ?>"><?php echo $rowuserroles->role ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
@@ -137,12 +146,13 @@ include "include/topnavbar.php";
                         recordID: id
                     },
                     url: '<?php echo base_url() ?>User/Useraccountedit',
-                    success: function(result) { //alert(result);
+                    success: function(result) { // alert(result);
                         var obj = JSON.parse(result);
                         $('#recordID').val(obj.id);
                         $('#accountname').val(obj.name); 
                         $('#username').val(obj.username); 
                         $('#usertype').val(obj.type);  
+                        $('#userroles').val(obj.roles);  
                         
                         $('#password').removeAttr("required");
 
