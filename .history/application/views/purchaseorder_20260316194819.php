@@ -742,7 +742,7 @@ $(document).ready(function() {
     						$('#hiddenporderreqid').val(obj.requestid);
     						$('#editorderdate').val(obj.orderdate);
     						$('#editsupplier').val(obj.supplier);
-                            $('#editordertype').val(obj.type);
+                            $('#editordertype').val(obj.supplier);
                             var ordertype = parseInt(obj.type, 10) || 0;
 
     						$('#edittableorder > tbody').empty();

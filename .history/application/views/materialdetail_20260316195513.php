@@ -158,7 +158,7 @@ include "include/topnavbar.php";
                                             <tr>
                                                 <th>#</th>
                                                 <th>Material Name</th>
-                                                <th>Unit</th>
+                                                <th>Material Name</th>
                                                 <th>Material Group</th>
                                                 <th>Code</th>
                                                 <th>Category</th>
@@ -227,7 +227,6 @@ include "include/topnavbar.php";
             </div>
             <div class="modal-body">
                 <form action="<?php echo base_url() ?>Materialdetail/UOMqtyinsert" method="post" autocomplete="off">
-                    <input type="hidden" id="all_uom_ids" name="all_uom_ids">
                     <div id="uomCheckboxes"></div>
 
                     <div class="form-group mt-3 text-right">
@@ -318,9 +317,6 @@ $(document).ready(function() {
                 },
             {
                 "data": "materialname"
-            },
-            {
-                "data": "measure_type"
             },
             {
                 "data": "group"
@@ -470,7 +466,6 @@ $(document).ready(function() {
         }
     });
     $('#dataTable tbody').on('click', '.btnview', function () {
-
         var id = $(this).attr('id');
         $('#hiddenmaterialID').val(id);
 
@@ -481,87 +476,54 @@ $(document).ready(function() {
                 id: id
             },
             dataType: 'json',
-
             success: function (response) {
-
                 if (response.status === 'success') {
-
                     $('#uomCheckboxes').empty();
-
-                    // Track unique UOM conversions
+                    
+                    // Use a Set to track unique conversion IDs
                     const uniqueUoms = new Set();
-
-                    // Store all UOM IDs
-                    let allUomIds = [];
-
+                    
                     response.uom_conversions.forEach(function (uom) {
-
-                        allUomIds.push(uom.idtbl_uom_conversions);
-
-                        // Skip duplicate conversions
+                        // Skip duplicates
                         if (uniqueUoms.has(uom.idtbl_uom_conversions)) {
                             return;
                         }
-
                         uniqueUoms.add(uom.idtbl_uom_conversions);
-
+                        
                         var checkedAttr = uom.is_checked == 1 ? 'checked' : '';
-
                         var checkbox = `
                             <div class="form-check p-2 border rounded bg-light mb-2 shadow-sm">
                                 <input 
-                                    class="form-check-input uomcheck"
-                                    type="checkbox"
-                                    name="uom_options[]"
-                                    value="${uom.idtbl_uom_conversions}"
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    name="uom_options[]" 
+                                    value="${uom.idtbl_uom_conversions}" 
                                     id="uomCheckbox_${uom.idtbl_uom_conversions}"
                                     ${checkedAttr}
                                     style="transform: scale(1.2); margin-right: 10px;">
-
                                 <label 
-                                    class="form-check-label text-dark font-weight-bold"
-                                    for="uomCheckbox_${uom.idtbl_uom_conversions}"
-                                    style="cursor:pointer;">
-
-                                    1 ${uom.main_uom} 
-                                    <span class="text-muted">to</span> 
-                                    ${uom.convert_uom}
-
-                                    <span class="badge badge-danger ml-2">
-                                        ${uom.qty}
-                                    </span>
-
+                                    class="form-check-label text-dark font-weight-bold" 
+                                    for="uomCheckbox_${uom.idtbl_uom_conversions}" 
+                                    style="cursor: pointer;">
+                                    1 ${uom.main_uom} <span class="text-muted">to</span> ${uom.convert_uom}
+                                    <span class="badge badge-danger ml-2">${uom.qty}</span>
                                 </label>
                             </div>
                         `;
-
                         $('#uomCheckboxes').append(checkbox);
-
                     });
 
-                    // Save all ids to hidden field
-                    $('#all_uom_ids').val(allUomIds.join(','));
-
-                    // Show modal
                     $('#materialinfomodal').modal('show');
-
                 } else {
-
                     alert(response.message);
-
                 }
             },
-
             error: function (xhr, status, error) {
-
                 console.error('AJAX Error:', error);
                 console.error('XHR Object:', xhr);
                 alert('Failed to retrieve data.');
-
             }
-
         });
-
     });
     $("#chartofdetailaccount").select2({
             // dropdownParent: $('#modalsegregation'),
