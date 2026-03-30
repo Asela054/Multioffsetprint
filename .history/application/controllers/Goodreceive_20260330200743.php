@@ -135,22 +135,4 @@ class Goodreceive extends CI_Controller {
         $this->load->model('PdfGRNinfo');
         $this->PdfGRNinfo->pdfgrnget($x);
     }
-	public function getPorderList() {
-		$this->load->model('Goodreceiveinfo');
-
-		$searchTerm = $this->input->post('searchTerm');
-		$result = $this->Goodreceiveinfo->Getporder($searchTerm);
-
-		$data = array();
-
-		if ($result && $result->num_rows() > 0) {
-			foreach ($result->result() as $row) {
-				$data[] = array(
-					"id" => $row->idtbl_print_porder,
-					"text" => $row->porder_no
-				);
-			}
-		}
-		echo json_encode($data);
-	}
 }

@@ -979,14 +979,17 @@ $(document).ready(function() {
     		var showtotal = addCommas(total.toFixed(2));
     		var showfinaltot = addCommas(finaltot.toFixed(2));
 
+    		// 🔥 BUILD ROW PROPERLY
     		var row = '<tr class="pointer">';
 
     		if (ordertype == 4) {
-    			row += '<td>' + product + '</td>';
-    			row += '<td>' + comment + '</td>';
+    			// ✅ Show Service Item + Product
+    			row += '<td>' + comment + '</td>'; // Service Item
+    			row += '<td>' + product + '</td>'; // Item Name
     		} else {
-    			row += '<td class="d-none"></td>';
-    			row += '<td>' + product + '</td>';
+    			// ✅ Hide Service Item but KEEP STRUCTURE
+    			row += '<td class="d-none"></td>'; // hidden Service column
+    			row += '<td>' + product + '</td>'; // Item Name
     		}
 
     		row += '<td class="d-none">' + productID + '</td>';

@@ -508,9 +508,10 @@
 
 			$html .= '<tr>';
 
+			// 🔥 ROW STRUCTURE CHANGE
 			if ($ordertype == 4) {
-				$html .= '<td>' . $material . '</td>'; 
-				$html .= '<td>' . $roworderinfo->comment . '</td>';
+				$html .= '<td>' . $roworderinfo->comment . '</td>'; // Service
+				$html .= '<td>' . $material . '</td>';              // Product
 			} else {
 				$html .= '<td>' . $material . '</td>';
 			}

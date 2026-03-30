@@ -982,11 +982,12 @@ $(document).ready(function() {
     		var row = '<tr class="pointer">';
 
     		if (ordertype == 4) {
-    			row += '<td>' + product + '</td>';
-    			row += '<td>' + comment + '</td>';
+    			row += '<td>' + comment + '</td>'; // Service Item
+    			row += '<td>' + product + '</td>'; // Item Name
     		} else {
-    			row += '<td class="d-none"></td>';
-    			row += '<td>' + product + '</td>';
+    			// ✅ Hide Service Item but KEEP STRUCTURE
+    			row += '<td class="d-none"></td>'; // hidden Service column
+    			row += '<td>' + product + '</td>'; // Item Name
     		}
 
     		row += '<td class="d-none">' + productID + '</td>';

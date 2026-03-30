@@ -393,11 +393,10 @@ $(document).ready(function() {
     
 
     $('#porder').select2({
-        dropdownParent: $('#staticBackdrop'),
         placeholder: "Select Purchase Order",
         width: '100%',
         ajax: {
-            url: '<?= base_url("Goodreceive/getPorderList") ?>',
+            url: '<?= base_url("YourController/getPorderList") ?>',
             type: 'post',
             dataType: 'json',
             delay: 250,

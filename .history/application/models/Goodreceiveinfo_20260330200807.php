@@ -33,22 +33,38 @@
 	}
 	
 	public function Getporder($searchTerm = null) {
+
 		$companyID = $_SESSION['company_id'];
 
-		$this->db->select('idtbl_print_porder, porder_no');
-		$this->db->from('tbl_print_porder');
-		$this->db->where('status', 1);
-		$this->db->where('confirmstatus', 1);
-		$this->db->where_in('grnconfirm', [0, 2]);
-		$this->db->where('tbl_company_idtbl_company', $companyID);
-		$this->db->order_by('idtbl_print_porder', 'DESC');
-		$this->db->limit(5);
+		$CI = get_instance();
+
+		$CI->db->select('idtbl_print_porder, porder_no');
+		$CI->db->from('tbl_print_porder');
+		$CI->db->where('status', 1);
+		$CI->db->where('confirmstatus', 1);
+		$CI->db->where_in('grnconfirm', [0, 2]);
+		$CI->db->where('tbl_company_idtbl_company', $companyID);
 
 		if (!empty($searchTerm)) {
-			$this->db->like('porder_no', $searchTerm, 'both');
+			$CI->db->like('porder_no', $searchTerm, 'both');
+		} else {
+			$CI->db->limit(5);
 		}
 
-		return $this->db->get();
+		$CI->db->order_by('idtbl_print_porder', 'DESC');
+
+		$respond = $CI->db->get();
+
+		$data = array();
+
+		foreach ($respond->result() as $row) {
+			$data[] = array(
+				"id" => $row->idtbl_print_porder,
+				"text" => $row->porder_no
+			);
+		}
+
+		echo json_encode($data);
 	}
 
 	public function Getproductaccosupplier() {

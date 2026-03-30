@@ -509,7 +509,7 @@
 			$html .= '<tr>';
 
 			if ($ordertype == 4) {
-				$html .= '<td>' . $material . '</td>'; 
+				
 				$html .= '<td>' . $roworderinfo->comment . '</td>';
 			} else {
 				$html .= '<td>' . $material . '</td>';
