@@ -10,8 +10,6 @@
 
 
 	public function Supplierinsertupdate() {
-		$this->db->trans_begin();
-
 		$userID=$_SESSION['userid'];
 
 		$supplier_name=$this->input->post('supplier_name');
@@ -45,87 +43,123 @@
 		$insertdatetime=date('Y-m-d H:i:s');
 
 		if($recordOption==1) {
-			$data=array(
-				'suppliername'=> $supplier_name,
-				'bus_reg_no'=> $business_regno,
-				'nbt_no'=> $nbtno,
-				'svat_no'=> $svatno,
-				'telephone_no'=> $telephoneno,
-				'fax_no'=> $faxno,
-				'address_line1'=> $line1,
-				'delivery_address_line1'=> $dline1,
-				'address_line2'=> $line2,
-				'delivery_address_line2'=> $dline2,
-				'city'=> $city,
-				'delivery_city'=> $dcity,
-				'state'=> $state,
-				'delivery_state'=> $dstate,
-				'vat_no'=> $vatno,
-				'business_status'=> $business_status,
-				'payment_method'=> $payementmethod,
-				'credit_days'=> $credit_days,
-				'tbl_supplier_type_idtbl_supplier_type'=> $suppliertype,
-				'tbl_company_idtbl_company'=> $company_id, 
-				'tbl_company_branch_idtbl_company_branch'=> $branch_id, 
-				'status'=> '1',
-				'insertdatetime'=> $insertdatetime,
-				'tbl_user_idtbl_user'=> $userID,
-			);
+			try {
+				$this->db->trans_begin();
 
-			$this->db->insert('tbl_supplier', $data);
+				$data=array(
+					'suppliername'=> $supplier_name,
+					'bus_reg_no'=> $business_regno,
+					'nbt_no'=> $nbtno,
+					'svat_no'=> $svatno,
+					'telephone_no'=> $telephoneno,
+					'fax_no'=> $faxno,
+					'address_line1'=> $line1,
+					'delivery_address_line1'=> $dline1,
+					'address_line2'=> $line2,
+					'delivery_address_line2'=> $dline2,
+					'city'=> $city,
+					'delivery_city'=> $dcity,
+					'state'=> $state,
+					'delivery_state'=> $dstate,
+					'vat_no'=> $vatno,
+					'business_status'=> $business_status,
+					'payment_method'=> $payementmethod,
+					'credit_days'=> $credit_days,
+					'tbl_supplier_type_idtbl_supplier_type'=> $suppliertype,
+					'tbl_company_idtbl_company'=> $company_id, 
+					'tbl_company_branch_idtbl_company_branch'=> $branch_id, 
+					'status'=> '1',
+					'insertdatetime'=> $insertdatetime,
+					'tbl_user_idtbl_user'=> $userID,
+				);
 
-			$insertId=$this->db->insert_id();
+				$this->db->insert('tbl_supplier', $data);
 
-			if ( !empty($_FILES['image']['name'])) {
-				$config1['upload_path']='./images/supplier_br_cetificate';
-				$config1['allowed_types']='gif|jpg|png|jpeg';
-				$config1['max_size']=10000;
-				$this->load->library('upload', $config1);
+				$insertId=$this->db->insert_id();
 
-				$this->upload->initialize($config1);
+				if ( !empty($_FILES['image']['name'])) {
+					$config1['upload_path']='./images/supplier_br_cetificate';
+					$config1['allowed_types']='gif|jpg|png|jpeg';
+					$config1['max_size']=10000;
+					$this->load->library('upload', $config1);
 
-				if ( !$this->upload->do_upload('image')) {
-					return false;
+					$this->upload->initialize($config1);
+
+					if ( !$this->upload->do_upload('image')) {
+						return false;
+					}
+
+					else {
+						$image1_data=$this->upload->data();
+						$filedata=array('imagepath'=> $image1_data['file_name'],
+						);
+						$this->db->where('idtbl_supplier', $insertId);
+						$this->db->update('tbl_supplier', $filedata);
+					}
 				}
 
-				else {
-					$image1_data=$this->upload->data();
-					$filedata=array('imagepath'=> $image1_data['file_name'],
-					);
-					$this->db->where('idtbl_supplier', $insertId);
-					$this->db->update('tbl_supplier', $filedata);
+
+				if (!empty($_FILES['cretificates']['name'])) {
+					$config2['upload_path']='./images/supplier_bill';
+					$config2['allowed_types'] = 'gif|jpg|png|jpeg';
+					$config2['max_size'] = 10000;
+					$this->load->library('upload', $config2);
+		
+					$this->upload->initialize($config2);
+					if (!$this->upload->do_upload('cretificates')) {
+						return false;
+					} else {
+						$image2_data = $this->upload->data();
+						$filedata = array(
+							'imagename' => $image2_data['file_name'],
+							'size' => '0',
+							'extention' => 'Jpeg',
+							'status' => '1',
+							'insertdatetime' => $insertdatetime,
+							'tbl_user_idtbl_user' => $userID,
+							'tbl_supplier_idtbl_supplier'=> $insertId,
+						);
+						$this->db->insert('tbl_supplier_cetificate_bill', $filedata);
+					}
 				}
-			}
 
+				$apiURL = $_SESSION['accountapiurl'].'Api/Createdetailaccount';
 
-			if (!empty($_FILES['cretificates']['name'])) {
-				$config2['upload_path']='./images/supplier_bill';
-				$config2['allowed_types'] = 'gif|jpg|png|jpeg';
-				$config2['max_size'] = 10000;
-				$this->load->library('upload', $config2);
-	
-				$this->upload->initialize($config2);
-				if (!$this->upload->do_upload('cretificates')) {
-					return false;
-				} else {
-					$image2_data = $this->upload->data();
-					$filedata = array(
-						'imagename' => $image2_data['file_name'],
-						'size' => '0',
-						'extention' => 'Jpeg',
-						'status' => '1',
-						'insertdatetime' => $insertdatetime,
-						'tbl_user_idtbl_user' => $userID,
-						'tbl_supplier_idtbl_supplier'=> $insertId,
-					);
-					$this->db->insert('tbl_supplier_cetificate_bill', $filedata);
+				// Use http_build_query for safer parameter encoding
+				$postData = http_build_query([
+					'userid' => $userID,
+					'company' => $company_id,
+					'branch' => $branch_id,
+					'optiontype' => '1',
+					'optionid' => $insertId,
+					'optiontext' => $supplier_name
+				]);
+
+				$ch = curl_init();
+				curl_setopt_array($ch, [
+					CURLOPT_URL => $apiURL,
+					CURLOPT_POST => true,
+					CURLOPT_POSTFIELDS => $postData,
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_TIMEOUT => 30,
+					CURLOPT_HTTPHEADER => [
+						'Content-Type: application/x-www-form-urlencoded',
+					]
+				]);
+				
+				$server_output = curl_exec($ch);
+				$curlError = curl_error($ch);
+				$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				curl_close($ch);
+
+				// Check both HTTP status and API response
+				$apiResponse = json_decode($server_output, true);
+
+				if ($httpCode != 200 || !isset($apiResponse['status']) || $apiResponse['status'] !== 'success') {
+					$errorMsg = $apiResponse['message'] ?? 'API request failed';
+					throw new Exception($errorMsg);
 				}
-			}
 
-
-			$this->db->trans_complete();
-
-			if ($this->db->trans_status()===TRUE) {
 				$this->db->trans_commit();
 
 				$actionObj=new stdClass();
@@ -141,8 +175,7 @@
 				$this->session->set_flashdata('msg', $actionJSON);
 				redirect('Supplier');
 			}
-
-			else {
+			catch (Exception $e) {
 				$this->db->trans_rollback();
 
 				$actionObj=new stdClass();
@@ -159,41 +192,76 @@
 				redirect('Supplier');
 			}
 		}
-
 		else {
-			$data=array('suppliername'=> $supplier_name,
-				'bus_reg_no'=> $business_regno,
-				'nbt_no'=> $nbtno,
-				'svat_no'=> $svatno,
-				'telephone_no'=> $telephoneno,
-				'fax_no'=> $faxno,
-				'address_line1'=> $line1,
-				'delivery_address_line1'=> $dline1,
-				'address_line2'=> $line2,
-				'delivery_address_line2'=> $dline2,
-				'city'=> $city,
-				'delivery_city'=> $dcity,
-				'state'=> $state,
-				'delivery_state'=> $dstate,
-				'vat_no'=> $vatno,
-				'business_status'=> $business_status,
-				'payment_method'=> $payementmethod,
-				'credit_days'=> $credit_days,
-				'tbl_supplier_type_idtbl_supplier_type'=> $suppliertype,
-				'tbl_company_idtbl_company'=> $company_id, 
-				'tbl_company_branch_idtbl_company_branch'=> $branch_id, 
-				'status'=> '1',
-				'updatedatetime'=> $insertdatetime,
-				'tbl_user_idtbl_user'=> $userID,
-			);
+			try {
+				$this->db->trans_begin();
 
-			$this->db->where('idtbl_supplier', $recordID);
-			$this->db->update('tbl_supplier', $data);
+				$data=array('suppliername'=> $supplier_name,
+					'bus_reg_no'=> $business_regno,
+					'nbt_no'=> $nbtno,
+					'svat_no'=> $svatno,
+					'telephone_no'=> $telephoneno,
+					'fax_no'=> $faxno,
+					'address_line1'=> $line1,
+					'delivery_address_line1'=> $dline1,
+					'address_line2'=> $line2,
+					'delivery_address_line2'=> $dline2,
+					'city'=> $city,
+					'delivery_city'=> $dcity,
+					'state'=> $state,
+					'delivery_state'=> $dstate,
+					'vat_no'=> $vatno,
+					'business_status'=> $business_status,
+					'payment_method'=> $payementmethod,
+					'credit_days'=> $credit_days,
+					'tbl_supplier_type_idtbl_supplier_type'=> $suppliertype,
+					'tbl_company_idtbl_company'=> $company_id, 
+					'tbl_company_branch_idtbl_company_branch'=> $branch_id, 
+					'status'=> '1',
+					'updatedatetime'=> $insertdatetime,
+					'tbl_user_idtbl_user'=> $userID,
+				);
 
+				$this->db->where('idtbl_supplier', $recordID);
+				$this->db->update('tbl_supplier', $data);
 
-			$this->db->trans_complete();
+				$apiURL = $_SESSION['accountapiurl'].'Api/Createdetailaccount';
 
-			if ($this->db->trans_status()===TRUE) {
+				// Use http_build_query for safer parameter encoding
+				$postData = http_build_query([
+					'userid' => $userID,
+					'company' => $company_id,
+					'branch' => $branch_id,
+					'optiontype' => '1',
+					'optionid' => $recordID,
+					'optiontext' => $supplier_name
+				]);
+
+				$ch = curl_init();
+				curl_setopt_array($ch, [
+					CURLOPT_URL => $apiURL,
+					CURLOPT_POST => true,
+					CURLOPT_POSTFIELDS => $postData,
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_TIMEOUT => 30,
+					CURLOPT_HTTPHEADER => [
+						'Content-Type: application/x-www-form-urlencoded',
+					]
+				]);
+				
+				$server_output = curl_exec($ch);
+				$curlError = curl_error($ch);
+				$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				curl_close($ch);
+
+				// Check both HTTP status and API response
+				$apiResponse = json_decode($server_output, true);
+
+				if ($httpCode != 200 || !isset($apiResponse['status']) || $apiResponse['status'] !== 'success') {
+					$errorMsg = $apiResponse['message'] ?? 'API request failed';
+					throw new Exception($errorMsg);
+				}
+
 				$this->db->trans_commit();
 
 				$actionObj=new stdClass();
@@ -209,8 +277,7 @@
 				$this->session->set_flashdata('msg', $actionJSON);
 				redirect('Supplier');
 			}
-
-			else {
+			catch (Exception $e) {
 				$this->db->trans_rollback();
 
 				$actionObj=new stdClass();

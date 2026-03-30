@@ -65,12 +65,21 @@ class Userinfo extends CI_Model{
 
         $respond2=$this->db->get();
 
+        $roleArray=array();
+        if(!empty($respond2->result())):
+            foreach($respond2->result() as $rowrespond2):
+                $objrole=new stdClass();
+                $objrole->roleID=$rowrespond2->tbl_roles_idtbl_roles;
+                array_push($roleArray, $objrole);
+            endforeach;
+        endif;
+
         $obj=new stdClass();
         $obj->id=$respond->row(0)->idtbl_user;
         $obj->name=$respond->row(0)->name;
         $obj->username=$respond->row(0)->username;
         $obj->type=$respond->row(0)->tbl_user_type_idtbl_user_type;
-        $obj->roles=$respond2->row(0)->tbl_roles_idtbl_roles;
+        $obj->roles=$roleArray;
 
         echo json_encode($obj);
     }
@@ -106,11 +115,16 @@ class Userinfo extends CI_Model{
 
             $lastID=$this->db->insert_id();
 
-            $data2 = array(
-                'tbl_user_idtbl_user'=>$lastID, 
-                'tbl_roles_idtbl_roles'=>$userroles
-            );
-            $this->db->insert('tbl_user_has_tbl_roles', $data2);
+            if(!empty($userroles)){
+                foreach($userroles as $rowuserroles){
+                    $data2 = array(
+                        'tbl_user_idtbl_user'=>$lastID, 
+                        'tbl_roles_idtbl_roles'=>$rowuserroles
+                    );
+    
+                    $this->db->insert('tbl_user_has_tbl_roles', $data2);
+                }
+            }
 
             $this->db->trans_complete();
 
@@ -176,11 +190,16 @@ class Userinfo extends CI_Model{
 
             $this->db->delete('tbl_user_has_tbl_roles', array('tbl_user_idtbl_user' => $recordID));
 
-            $data2 = array(
-                'tbl_user_idtbl_user'=>$recordID, 
-                'tbl_roles_idtbl_roles'=>$userroles
-            );
-            $this->db->insert('tbl_user_has_tbl_roles', $data2);
+            if(!empty($userroles)){
+                foreach($userroles as $rowuserroles){
+                    $data2 = array(
+                        'tbl_user_idtbl_user'=>$recordID, 
+                        'tbl_roles_idtbl_roles'=>$rowuserroles
+                    );
+    
+                    $this->db->insert('tbl_user_has_tbl_roles', $data2);
+                }
+            }
 
             $this->db->trans_complete();
 
@@ -1024,6 +1043,7 @@ class Userinfo extends CI_Model{
     public function Getpermissionlist(){
         $this->db->select('`idtbl_permissions`, `permission`, `guard_name`, `module`, `permission_type`');
         $this->db->from('tbl_permissions');
+        $this->db->where('guard_name', 'web-erp');
         $this->db->order_by('module', 'ASC');
 
         $respond=$this->db->get();
@@ -1050,7 +1070,9 @@ class Userinfo extends CI_Model{
             $data = array(
                 'role'=>$rolename,
                 'guard_name'=>'web-erp',
+                'status'=>'1',
                 'insertdatetime'=>$updatedatetime,
+                'tbl_user_idtbl_user'=>$userID
             );
 
             $this->db->insert('tbl_roles', $data);
@@ -1105,7 +1127,8 @@ class Userinfo extends CI_Model{
             $data = array(
                 'role'=>$rolename,
                 'guard_name'=>'web-erp',
-                'insertdatetime'=>$updatedatetime,
+                'updateuser'=>$updatedatetime,                
+                'updatedatetime'=>$updatedatetime               
             );
             $this->db->where('idtbl_roles', $recordID);
             $this->db->update('tbl_roles', $data);

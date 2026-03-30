@@ -54,7 +54,7 @@ require('ssp.customized.class.php' );
 
 $joinQuery = "FROM `tbl_permissions` AS `u`";
 
-$extraWhere = '';
+$extraWhere = 'u.guard_name="web-erp"';
 
 echo json_encode(
 	SSP::simple( $_POST, $sql_details, $table, $primaryKey, $columns, $joinQuery, $extraWhere)

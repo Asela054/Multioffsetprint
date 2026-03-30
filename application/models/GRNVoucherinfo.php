@@ -752,12 +752,12 @@ class GRNVoucherinfo extends CI_Model{
                 // GET API SEGREGATION DATA
                 $APIstatus = $this->load->model('Apiinfo');
                 $APIstatus = $this->Apiinfo->GRNApi($grnData->idtbl_print_grn);
-    
+                
                 $segregationdataencode = json_encode($APIstatus);
                 $supplier = $grnData->tbl_supplier_idtbl_supplier;
                 $invoice = $grnData->grn_no;
                 $invoiceamount = $grnData->grntotal;
-    
+
                 // Make API call
                 $apiURL = $_SESSION['accountapiurl'].'Api/Payablesegregationinsertupdate';
                 
@@ -789,9 +789,11 @@ class GRNVoucherinfo extends CI_Model{
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
 
+                // print_r($server_output);
+                // die();
                 // Check both HTTP status and API response
                 $apiResponse = json_decode($server_output, true);
-
+                
                 if ($httpCode != 200 || !isset($apiResponse['status']) || $apiResponse['status'] !== 'success') {
                     $errorMsg = $apiResponse['message'] ?? 'API request failed';
                     throw new Exception($errorMsg);
@@ -823,7 +825,11 @@ class GRNVoucherinfo extends CI_Model{
                 $this->db->where('idtbl_print_grn', $respond->row(0)->tbl_print_grn_idtbl_print_grn);
                 $this->db->update('tbl_print_grn', $dataupdategrn);
             }
-    
+
+            if ($this->db->trans_status() === FALSE) {
+                throw new Exception('Transaction failed');
+            }
+            
             $this->db->trans_commit();
     
             $actionObj->icon = 'fas fa-check-circle';

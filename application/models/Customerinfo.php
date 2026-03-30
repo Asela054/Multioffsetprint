@@ -1,7 +1,5 @@
 <?php class Customerinfo extends CI_Model {
 	public function Customerinsertupdate() {
-		$this->db->trans_begin();
-
 		$userID = $_SESSION['userid'];
 
 		$customer_name = $this->input->post('customer_name');
@@ -35,90 +33,127 @@
 		$insertdatetime = date('Y-m-d H:i:s');
 
 		if ($recordOption == 1) {
-			$data = array(
-				'customer' => $customer_name,
-				'ref_no' => $ref_no,
-				'bus_reg_no' => $business_regno,
-				'nbt_no' => $nbtno,
-				'svat_no' => $svatno,
-				'vat_customer' => $vat_customer,
-				'telephone_no' => $telephoneno,
-				'fax_no' => $faxno,
-				'address_line1' => $line1,
-				'delivery_address_line1' => $dline1,
-				'address_line2' => $line2,
-				'delivery_address_line2' => $dline2,
-				'city' => $city,
-				'delivery_city' => $dcity,
-				'state' => $state,
-				'delivery_state' => $dstate,
-				'vat_no' => $vatno,
-				'business_status' => $business_status,
-				'payment_method' => $payementmethod,
-				'tbl_company_idtbl_company'=> $company_id, 
-				'tbl_company_branch_idtbl_company_branch'=> $branch_id, 
-				'status' => '1',
-				'insertdatetime' => $insertdatetime,
-				'tbl_user_idtbl_user' => $userID,
-			);
-			$this->db->insert('tbl_customer', $data);
+			try {
+				$this->db->trans_begin();
 
-			$insertId = $this->db->insert_id();
+				$data = array(
+					'customer' => $customer_name,
+					'ref_no' => $ref_no,
+					'bus_reg_no' => $business_regno,
+					'nbt_no' => $nbtno,
+					'svat_no' => $svatno,
+					'vat_customer' => $vat_customer,
+					'telephone_no' => $telephoneno,
+					'fax_no' => $faxno,
+					'address_line1' => $line1,
+					'delivery_address_line1' => $dline1,
+					'address_line2' => $line2,
+					'delivery_address_line2' => $dline2,
+					'city' => $city,
+					'delivery_city' => $dcity,
+					'state' => $state,
+					'delivery_state' => $dstate,
+					'vat_no' => $vatno,
+					'business_status' => $business_status,
+					'payment_method' => $payementmethod,
+					'tbl_company_idtbl_company'=> $company_id, 
+					'tbl_company_branch_idtbl_company_branch'=> $branch_id, 
+					'status' => '1',
+					'insertdatetime' => $insertdatetime,
+					'tbl_user_idtbl_user' => $userID,
+				);
+				$this->db->insert('tbl_customer', $data);
 
-			if (!empty($_FILES['image']['name'])) {
-				// Configure upload settings for image1
-				$config['upload_path'] ='./images/cetificate'; // Set the upload path for image1
-				$config['allowed_types'] = 'gif|jpg|png|jpeg';
-				$config['max_size'] = 10000;
-				$this->load->library('upload', $config);
-			
-				// Upload image1
-				$this->upload->initialize($config);
-				if (!$this->upload->do_upload('image')) {
-					// Handle file upload error for image1
-					return false;
-				} else {
-					$image1_data = $this->upload->data();
-					$filedata = array(
-						'imagepath' => $image1_data['file_name'],
-					);
-					
-					// Assuming you have loaded the database library, execute the update query
-					$this->db->where('idtbl_customer', $insertId);
-					$this->db->update('tbl_customer', $filedata);
+				$insertId = $this->db->insert_id();
+
+				if (!empty($_FILES['image']['name'])) {
+					// Configure upload settings for image1
+					$config['upload_path'] ='./images/cetificate'; // Set the upload path for image1
+					$config['allowed_types'] = 'gif|jpg|png|jpeg';
+					$config['max_size'] = 10000;
+					$this->load->library('upload', $config);
+				
+					// Upload image1
+					$this->upload->initialize($config);
+					if (!$this->upload->do_upload('image')) {
+						// Handle file upload error for image1
+						return false;
+					} else {
+						$image1_data = $this->upload->data();
+						$filedata = array(
+							'imagepath' => $image1_data['file_name'],
+						);
+						
+						// Assuming you have loaded the database library, execute the update query
+						$this->db->where('idtbl_customer', $insertId);
+						$this->db->update('tbl_customer', $filedata);
+					}
 				}
-			}
-			
-			if (!empty($_FILES['cretificates']['name'])) {
-				// Configure upload settings for image2
-				$config2['upload_path'] = './images/bills';
-				$config2['allowed_types'] = 'gif|jpg|png|jpeg';
-				$config2['max_size'] = 10000;
-				$this->load->library('upload', $config2);
+				
+				if (!empty($_FILES['cretificates']['name'])) {
+					// Configure upload settings for image2
+					$config2['upload_path'] = './images/bills';
+					$config2['allowed_types'] = 'gif|jpg|png|jpeg';
+					$config2['max_size'] = 10000;
+					$this->load->library('upload', $config2);
 
-				// Upload image2
-				$this->upload->initialize($config2);
-				if (!$this->upload->do_upload('cretificates')) {
-					// Handle file upload error for image2
-					return false;
-				} else {
-					$image2_data = $this->upload->data();
-					$filedata = array(
-						'imagename' => $image2_data['file_name'],
-						'size' => '0',
-						'extention' => 'Jpeg',
-						'status' => '1',
-						'insertdatetime' => $insertdatetime,
-						'tbl_user_idtbl_user' => $userID,
-						'tbl_customer_idtbl_customer' => $insertId,
-					);
-					$this->db->insert('tbl_customer_cetificate_bill', $filedata);
+					// Upload image2
+					$this->upload->initialize($config2);
+					if (!$this->upload->do_upload('cretificates')) {
+						// Handle file upload error for image2
+						return false;
+					} else {
+						$image2_data = $this->upload->data();
+						$filedata = array(
+							'imagename' => $image2_data['file_name'],
+							'size' => '0',
+							'extention' => 'Jpeg',
+							'status' => '1',
+							'insertdatetime' => $insertdatetime,
+							'tbl_user_idtbl_user' => $userID,
+							'tbl_customer_idtbl_customer' => $insertId,
+						);
+						$this->db->insert('tbl_customer_cetificate_bill', $filedata);
+					}
 				}
-			}
 
-			$this->db->trans_complete();
+				$apiURL = $_SESSION['accountapiurl'].'Api/Createdetailaccount';
 
-			if ($this->db->trans_status()===TRUE) {
+				// Use http_build_query for safer parameter encoding
+				$postData = http_build_query([
+					'userid' => $userID,
+					'company' => $company_id,
+					'branch' => $branch_id,
+					'optiontype' => '2',
+					'optionid' => $insertId,
+					'optiontext' => $customer_name
+				]);
+
+				$ch = curl_init();
+				curl_setopt_array($ch, [
+					CURLOPT_URL => $apiURL,
+					CURLOPT_POST => true,
+					CURLOPT_POSTFIELDS => $postData,
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_TIMEOUT => 30,
+					CURLOPT_HTTPHEADER => [
+						'Content-Type: application/x-www-form-urlencoded',
+					]
+				]);
+				
+				$server_output = curl_exec($ch);
+				$curlError = curl_error($ch);
+				$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				curl_close($ch);
+
+				// Check both HTTP status and API response
+				$apiResponse = json_decode($server_output, true);
+
+				if ($httpCode != 200 || !isset($apiResponse['status']) || $apiResponse['status'] !== 'success') {
+					$errorMsg = $apiResponse['message'] ?? 'API request failed';
+					throw new Exception($errorMsg);
+				} 
+
 				$this->db->trans_commit();
 
 				$actionObj=new stdClass();
@@ -133,8 +168,8 @@
 
 				$this->session->set_flashdata('msg', $actionJSON);
 				redirect('Customer');
-			}
-			else {
+			}  
+			catch (Exception $e) {
 				$this->db->trans_rollback();
 
 				$actionObj=new stdClass();
@@ -149,91 +184,127 @@
 
 				$this->session->set_flashdata('msg', $actionJSON);
 				redirect('Customer');
-			}
+			}			
 		}
 		else {
-			$data=array('customer'=> $customer_name,
-				'ref_no' => $ref_no,
-				'bus_reg_no'=> $business_regno,
-				'nbt_no'=> $nbtno,
-				'svat_no'=> $svatno,
-				'vat_customer' => $vat_customer,
-				'telephone_no'=> $telephoneno,
-				'fax_no'=> $faxno,
-				'address_line1'=> $line1,
-				'delivery_address_line1'=> $dline1,
-				'address_line2'=> $line2,
-				'delivery_address_line2'=> $dline2,
-				'city'=> $city,
-				'delivery_city'=> $dcity,
-				'state'=> $state,
-				'delivery_state'=> $dstate,
-				'vat_no'=> $vatno,
-				'business_status'=> $business_status,
-				'payment_method'=> $payementmethod,
-				'tbl_company_idtbl_company'=> $company_id, 
-				'tbl_company_branch_idtbl_company_branch'=> $branch_id, 
-				'status'=> '1',
-				'updatedatetime'=> $insertdatetime,
-				'tbl_user_idtbl_user'=> $userID,
-			);
-			$this->db->where('idtbl_customer', $recordID);
-			$this->db->update('tbl_customer', $data);
+			try {
+				$this->db->trans_begin();
 
-			if (!empty($_FILES['image']['name'])) {
-				// Configure upload settings for image1
-				$config['upload_path'] ='./images/cetificate'; // Set the upload path for image1
-				$config['allowed_types'] = 'gif|jpg|png|jpeg';
-				$config['max_size'] = 10000;
-				$this->load->library('upload', $config);
-			
-				// Upload image1
-				$this->upload->initialize($config);
-				if (!$this->upload->do_upload('image')) {
-					// Handle file upload error for image1
-					return false;
-				} else {
-					$image1_data = $this->upload->data();
-					$filedata = array(
-						'imagepath' => $image1_data['file_name'],
-					);
-					
-					// Assuming you have loaded the database library, execute the update query
-					$this->db->where('idtbl_customer', $recordID);
-					$this->db->update('tbl_customer', $filedata);
+				$data=array('customer'=> $customer_name,
+					'ref_no' => $ref_no,
+					'bus_reg_no'=> $business_regno,
+					'nbt_no'=> $nbtno,
+					'svat_no'=> $svatno,
+					'vat_customer' => $vat_customer,
+					'telephone_no'=> $telephoneno,
+					'fax_no'=> $faxno,
+					'address_line1'=> $line1,
+					'delivery_address_line1'=> $dline1,
+					'address_line2'=> $line2,
+					'delivery_address_line2'=> $dline2,
+					'city'=> $city,
+					'delivery_city'=> $dcity,
+					'state'=> $state,
+					'delivery_state'=> $dstate,
+					'vat_no'=> $vatno,
+					'business_status'=> $business_status,
+					'payment_method'=> $payementmethod,
+					'tbl_company_idtbl_company'=> $company_id, 
+					'tbl_company_branch_idtbl_company_branch'=> $branch_id, 
+					'status'=> '1',
+					'updatedatetime'=> $insertdatetime,
+					'tbl_user_idtbl_user'=> $userID,
+				);
+				$this->db->where('idtbl_customer', $recordID);
+				$this->db->update('tbl_customer', $data);
+
+				if (!empty($_FILES['image']['name'])) {
+					// Configure upload settings for image1
+					$config['upload_path'] ='./images/cetificate'; // Set the upload path for image1
+					$config['allowed_types'] = 'gif|jpg|png|jpeg';
+					$config['max_size'] = 10000;
+					$this->load->library('upload', $config);
+				
+					// Upload image1
+					$this->upload->initialize($config);
+					if (!$this->upload->do_upload('image')) {
+						// Handle file upload error for image1
+						return false;
+					} else {
+						$image1_data = $this->upload->data();
+						$filedata = array(
+							'imagepath' => $image1_data['file_name'],
+						);
+						
+						// Assuming you have loaded the database library, execute the update query
+						$this->db->where('idtbl_customer', $recordID);
+						$this->db->update('tbl_customer', $filedata);
+					}
 				}
-			}
-			
-			if (!empty($_FILES['cretificates']['name'])) {
-				// Configure upload settings for image2
-				$config2['upload_path'] = './images/bills';
-				$config2['allowed_types'] = 'gif|jpg|png|jpeg';
-				$config2['max_size'] = 10000;
-				$this->load->library('upload', $config2);
+				
+				if (!empty($_FILES['cretificates']['name'])) {
+					// Configure upload settings for image2
+					$config2['upload_path'] = './images/bills';
+					$config2['allowed_types'] = 'gif|jpg|png|jpeg';
+					$config2['max_size'] = 10000;
+					$this->load->library('upload', $config2);
 
-				// Upload image2
-				$this->upload->initialize($config2);
-				if (!$this->upload->do_upload('cretificates')) {
-					// Handle file upload error for image2
-					return false;
-				} else {
-					$image2_data = $this->upload->data();
-					$filedata = array(
-						'imagename' => $image2_data['file_name'],
-						'size' => '0',
-						'extention' => 'Jpeg',
-						'status' => '1',
-						'insertdatetime' => $insertdatetime,
-						'tbl_user_idtbl_user' => $userID,
-						'tbl_customer_idtbl_customer' => $recordID,
-					);
-					$this->db->insert('tbl_customer_cetificate_bill', $filedata);
+					// Upload image2
+					$this->upload->initialize($config2);
+					if (!$this->upload->do_upload('cretificates')) {
+						// Handle file upload error for image2
+						return false;
+					} else {
+						$image2_data = $this->upload->data();
+						$filedata = array(
+							'imagename' => $image2_data['file_name'],
+							'size' => '0',
+							'extention' => 'Jpeg',
+							'status' => '1',
+							'insertdatetime' => $insertdatetime,
+							'tbl_user_idtbl_user' => $userID,
+							'tbl_customer_idtbl_customer' => $recordID,
+						);
+						$this->db->insert('tbl_customer_cetificate_bill', $filedata);
+					}
 				}
-			}
 
-			$this->db->trans_complete();
+				$apiURL = $_SESSION['accountapiurl'].'Api/Createdetailaccount';
 
-			if ($this->db->trans_status()===TRUE) {
+				// Use http_build_query for safer parameter encoding
+				$postData = http_build_query([
+					'userid' => $userID,
+					'company' => $company_id,
+					'branch' => $branch_id,
+					'optiontype' => '2',
+					'optionid' => $recordID,
+					'optiontext' => $customer_name
+				]);
+
+				$ch = curl_init();
+				curl_setopt_array($ch, [
+					CURLOPT_URL => $apiURL,
+					CURLOPT_POST => true,
+					CURLOPT_POSTFIELDS => $postData,
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_TIMEOUT => 30,
+					CURLOPT_HTTPHEADER => [
+						'Content-Type: application/x-www-form-urlencoded',
+					]
+				]);
+				
+				$server_output = curl_exec($ch);
+				$curlError = curl_error($ch);
+				$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				curl_close($ch);
+
+				// Check both HTTP status and API response
+				$apiResponse = json_decode($server_output, true);
+
+				if ($httpCode != 200 || !isset($apiResponse['status']) || $apiResponse['status'] !== 'success') {
+					$errorMsg = $apiResponse['message'] ?? 'API request failed';
+					throw new Exception($errorMsg);
+				} 
 				$this->db->trans_commit();
 
 				$actionObj=new stdClass();
@@ -249,7 +320,7 @@
 				$this->session->set_flashdata('msg', $actionJSON);
 				redirect('Customer');
 			}
-			else {
+			catch (Exception $e) {
 				$this->db->trans_rollback();
 
 				$actionObj=new stdClass();
