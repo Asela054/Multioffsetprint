@@ -48,7 +48,7 @@ include "include/topnavbar.php";
                                     </div>
                                     <div class="form-group">
                                         <label class="small font-weight-bold">User Roles*</label>
-                                        <select class="form-control form-control-sm" name="userroles" id="userroles" required>
+                                        <select class="form-control form-control-sm" name="userroles[]" id="userroles" multiple required>
                                             <option value="">Select</option>
                                             <?php foreach ($userroles->result() as $rowuserroles) { ?>
                                             <option value="<?php echo $rowuserroles->idtbl_roles ?>"><?php echo $rowuserroles->role ?></option>
@@ -70,6 +70,8 @@ include "include/topnavbar.php";
                                                 <th>#</th>
                                                 <th>NAME</th>
                                                 <th>Email</th>
+                                                <th>User Type</th>
+                                                <th>Roles</th>
                                                 <th class="text-right">&nbsp;</th>
                                             </tr>
                                         </thead>
@@ -92,6 +94,11 @@ include "include/topnavbar.php";
         var statuscheck='<?php echo $statuscheck; ?>';
         var deletecheck='<?php echo $deletecheck; ?>';
 
+        $('#userroles').select2({
+            placeholder: "Select User Roles",
+            allowClear: true
+        });
+
         $('#dataTable').DataTable({
             "destroy": true,
             "processing": true,
@@ -113,6 +120,12 @@ include "include/topnavbar.php";
                 },
                 {
                     "data": "username"
+                },
+                {
+                    "data": "type"
+                },
+                {
+                    "data": "role"
                 },
                 {
                     "targets": -1,
@@ -146,13 +159,21 @@ include "include/topnavbar.php";
                         recordID: id
                     },
                     url: '<?php echo base_url() ?>User/Useraccountedit',
-                    success: function(result) { // alert(result);
+                    success: function(result) { //alert(result);
                         var obj = JSON.parse(result);
                         $('#recordID').val(obj.id);
                         $('#accountname').val(obj.name); 
                         $('#username').val(obj.username); 
                         $('#usertype').val(obj.type);  
-                        $('#userroles').val(obj.roles);  
+
+                        var userroles = obj.roles;
+                        var userrolesoption = [];
+                        $.each(userroles, function(i, item) {
+                            userrolesoption.push(userroles[i].roleID);
+                        });
+                        console.log(userrolesoption);
+                        $('#userroles').val(userrolesoption);
+                        $('#userroles').trigger('change');
                         
                         $('#password').removeAttr("required");
 
