@@ -942,95 +942,98 @@ $(document).ready(function() {
         toggleServiceColumn();
     });
 
-    $("#formsubmit").click(function () {
+    $("#formsubmit").click(function() {
 
-    	if (!$("#createorderform")[0].checkValidity()) {
-    		$("#submitBtn").click();
+    if (!$("#createorderform")[0].checkValidity()) {
+    $("#submitBtn").click();
+    } else {
+
+    var productID = $('#product').val();
+    var comment = $('#comment').val();
+    var product = $("#product option:selected").text();
+    var unitprice = parseFloat($('#unitprice').val());
+    var vat = parseFloat($('#vat').val());
+    var discount = parseFloat($('#discount').val());
+    var newqty = parseFloat($('#newqty').val());
+    var uomID = $('#uom').val();
+    var pieces = parseFloat($('#piecesper_qty').val());
+    var uom = $("#uom option:selected").text();
+    var ordertype = $('#ordertype').val();
+
+    var newtotal, newprice;
+
+    if (pieces !== 0) {
+    newtotal = unitprice * pieces;
+    newprice = (unitprice * pieces) / newqty;
+    } else {
+    newtotal = unitprice * newqty;
+    newprice = 0;
+    }
+
+    var vatamount = ((newtotal - discount) / 100) * vat;
+    var finaltotal = (newtotal + vatamount) - discount;
+
+    var total = parseFloat(newtotal);
+    var finaltot = parseFloat(finaltotal);
+
+    var showtotal = addCommas(total.toFixed(2));
+    var showfinaltot = addCommas(finaltot.toFixed(2));
+
+    // 🔥 BUILD ROW PROPERLY
+    var row = '<tr class="pointer">';
+
+    	if (ordertype == 4) {
+    	// ✅ Show Service Item + Product
+    	row += '<td>' + comment + '</td>'; // Service Item
+    	row += '<td>' + product + '</td>'; // Item Name
     	} else {
-
-    		var productID = $('#product').val();
-    		var comment = $('#comment').val();
-    		var product = $("#product option:selected").text();
-    		var unitprice = parseFloat($('#unitprice').val());
-    		var vat = parseFloat($('#vat').val());
-    		var discount = parseFloat($('#discount').val());
-    		var newqty = parseFloat($('#newqty').val());
-    		var uomID = $('#uom').val();
-    		var pieces = parseFloat($('#piecesper_qty').val());
-    		var uom = $("#uom option:selected").text();
-    		var ordertype = $('#ordertype').val();
-
-    		var newtotal, newprice;
-
-    		if (pieces !== 0) {
-    			newtotal = unitprice * pieces;
-    			newprice = (unitprice * pieces) / newqty;
-    		} else {
-    			newtotal = unitprice * newqty;
-    			newprice = 0;
-    		}
-
-    		var vatamount = ((newtotal - discount) / 100) * vat;
-    		var finaltotal = (newtotal + vatamount) - discount;
-
-    		var total = parseFloat(newtotal);
-    		var finaltot = parseFloat(finaltotal);
-
-    		var showtotal = addCommas(total.toFixed(2));
-    		var showfinaltot = addCommas(finaltot.toFixed(2));
-
-    		var row = '<tr class="pointer">';
-
-    		if (ordertype == 4) {
-    			row += '<td>' + product + '</td>';
-    			row += '<td>' + comment + '</td>';
-    		} else {
-    			row += '<td class="d-none"></td>';
-    			row += '<td>' + product + '</td>';
-    		}
-
-    		row += '<td class="d-none">' + productID + '</td>';
-    		row += '<td class="text-center">' + newqty + '</td>';
-    		row += '<td class="text-center">' + uom + '</td>';
-    		row += '<td class="d-none">' + uomID + '</td>';
-    		row += '<td class="text-right">' + unitprice.toFixed(2) + '</td>';
-    		row += '<td class="text-right">' + newprice.toFixed(2) + '</td>';
-    		row += '<td class="total d-none">' + total + '</td>';
-    		row += '<td class="text-right">' + showtotal + '</td>';
-    		row += '<td class="text-right d-none">' + pieces + '</td>';
-    		row += '</tr>';
-
-    		$('#tableorder tbody').append(row);
-
-    		// 🔄 RESET FIELDS
-    		$('#product').val('').trigger('change');
-    		$('#unitprice').val('0');
-    		$('#saleprice').val('');
-    		$('#comment').val('');
-    		$('#uom').val('');
-    		$('#newqty').val('0');
-    		$('#discount').val('0');
-    		$('#piecesper_qty').val('0');
-    		$('#piecesper_qty_uom').val('');
-    		$('#porderrequest').prop('readonly', true).css('pointer-events', 'none');
-
-    		// 🔢 CALCULATIONS
-    		var sum = 0;
-    		$(".total").each(function () {
-    			sum += parseFloat($(this).text());
-    		});
-
-    		var showgrosstot = addCommas(sum.toFixed(2));
-
-    		$('#divgrosstotal').html(
-    			'<strong style="background-color: yellow;">Final Price</strong> &nbsp;&nbsp;<strong>Rs. ' +
-    			showgrosstot + '</strong>'
-    		);
-
-    		$('#hidegrosstotalorder').val(sum);
-
-    		$('#product').focus();
+    	// ✅ Hide Service Item but KEEP STRUCTURE
+    	row += '<td class="d-none"></td>'; // hidden Service column
+    	row += '<td>' + product + '</td>'; // Item Name
     	}
+
+    	row += '<td class="d-none">' + productID + '</td>';
+    	row += '<td class="text-center">' + newqty + '</td>';
+    	row += '<td class="text-center">' + uom + '</td>';
+    	row += '<td class="d-none">' + uomID + '</td>';
+    	row += '<td class="text-right">' + unitprice.toFixed(2) + '</td>';
+    	row += '<td class="text-right">' + newprice.toFixed(2) + '</td>';
+    	row += '<td class="total d-none">' + total + '</td>';
+    	row += '<td class="text-right">' + showtotal + '</td>';
+    	row += '<td class="text-right d-none">' + pieces + '</td>';
+    	row += '</tr>';
+
+    $('#tableorder tbody').append(row);
+
+    // 🔄 RESET FIELDS
+    $('#product').val('').trigger('change');
+    $('#unitprice').val('0');
+    $('#saleprice').val('');
+    $('#comment').val('');
+    $('#uom').val('');
+    $('#newqty').val('0');
+    $('#discount').val('0');
+    $('#piecesper_qty').val('0');
+    $('#piecesper_qty_uom').val('');
+    $('#porderrequest').prop('readonly', true).css('pointer-events', 'none');
+
+    // 🔢 CALCULATIONS
+    var sum = 0;
+    $(".total").each(function() {
+    sum += parseFloat($(this).text());
+    });
+
+    var showgrosstot = addCommas(sum.toFixed(2));
+
+    $('#divgrosstotal').html(
+    '<strong style="background-color: yellow;">Final Price</strong> &nbsp;&nbsp;<strong>Rs. ' +
+    	showgrosstot + '</strong>'
+    );
+
+    $('#hidegrosstotalorder').val(sum);
+
+    $('#product').focus();
+    }
     });
     $("#editformsubmit").click(function() {
         if (!$("#editcreateorderform")[0].checkValidity()) {

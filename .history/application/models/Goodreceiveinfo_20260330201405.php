@@ -32,24 +32,24 @@
 		return $respond=$this->db->get();
 	}
 	
-	public function Getporder($searchTerm = null) {
-		$companyID = $_SESSION['company_id'];
+public function Getporder($searchTerm = null) {
+    $companyID = $_SESSION['company_id'];
 
-		$this->db->select('idtbl_print_porder, porder_no');
-		$this->db->from('tbl_print_porder');
-		$this->db->where('status', 1);
-		$this->db->where('confirmstatus', 1);
-		$this->db->where_in('grnconfirm', [0, 2]);
-		$this->db->where('tbl_company_idtbl_company', $companyID);
-		$this->db->order_by('idtbl_print_porder', 'DESC');
-		$this->db->limit(5);
+    $this->db->select('idtbl_print_porder, porder_no');
+    $this->db->from('tbl_print_porder');
+    $this->db->where('status', 1);
+    $this->db->where('confirmstatus', 1);
+    $this->db->where_in('grnconfirm', [0, 2]);
+    $this->db->where('tbl_company_idtbl_company', $companyID);
+    $this->db->order_by('idtbl_print_porder', 'DESC');
+    $this->db->limit(5); // 🔹 Limit to 5 latest POs
 
-		if (!empty($searchTerm)) {
-			$this->db->like('porder_no', $searchTerm, 'both');
-		}
+    if (!empty($searchTerm)) {
+        $this->db->like('porder_no', $searchTerm, 'both');
+    }
 
-		return $this->db->get();
-	}
+    return $this->db->get(); // 🔹 Always return the query object
+}
 
 	public function Getproductaccosupplier() {
 		$recordID=$this->input->post('recordID');

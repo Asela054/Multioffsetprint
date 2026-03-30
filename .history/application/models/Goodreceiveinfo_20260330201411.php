@@ -48,7 +48,7 @@
 			$this->db->like('porder_no', $searchTerm, 'both');
 		}
 
-		return $this->db->get();
+		return $this->db->get(); // 🔹 Always return the query object
 	}
 
 	public function Getproductaccosupplier() {

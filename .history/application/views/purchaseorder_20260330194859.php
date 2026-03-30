@@ -982,11 +982,11 @@ $(document).ready(function() {
     		var row = '<tr class="pointer">';
 
     		if (ordertype == 4) {
-    			row += '<td>' + product + '</td>';
     			row += '<td>' + comment + '</td>';
+    			row += '<td>' + product + '</td>';
     		} else {
     			row += '<td class="d-none"></td>';
-    			row += '<td>' + product + '</td>';
+    			row += '<td>' + product + '</td>'; // Item Name
     		}
 
     		row += '<td class="d-none">' + productID + '</td>';

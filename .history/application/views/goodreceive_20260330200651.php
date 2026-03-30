@@ -390,30 +390,6 @@ $(document).ready(function() {
     $('#grntype').change(function() {
         toggleServiceMaterial();
     });
-    
-
-    $('#porder').select2({
-        dropdownParent: $('#staticBackdrop'),
-        placeholder: "Select Purchase Order",
-        width: '100%',
-        ajax: {
-            url: '<?= base_url("Goodreceive/getPorderList") ?>',
-            type: 'post',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    searchTerm: params.term 
-                };
-            },
-            processResults: function (response) {
-                return {
-                    results: response
-                };
-            },
-            cache: true
-        }
-    });
 
     function toggleServiceMaterial() {
         if ($('#grntype').val() == '4') {

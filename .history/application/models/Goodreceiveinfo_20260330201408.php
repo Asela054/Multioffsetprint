@@ -42,13 +42,13 @@
 		$this->db->where_in('grnconfirm', [0, 2]);
 		$this->db->where('tbl_company_idtbl_company', $companyID);
 		$this->db->order_by('idtbl_print_porder', 'DESC');
-		$this->db->limit(5);
+		$this->db->limit(5); // 🔹 Limit to 5 latest POs
 
 		if (!empty($searchTerm)) {
 			$this->db->like('porder_no', $searchTerm, 'both');
 		}
 
-		return $this->db->get();
+		return $this->db->get(); // 🔹 Always return the query object
 	}
 
 	public function Getproductaccosupplier() {

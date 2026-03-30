@@ -982,7 +982,7 @@ $(document).ready(function() {
     		var row = '<tr class="pointer">';
 
     		if (ordertype == 4) {
-    			row += '<td>' + product + '</td>';
+    			row += '<td>' +  + '</td>';
     			row += '<td>' + comment + '</td>';
     		} else {
     			row += '<td class="d-none"></td>';

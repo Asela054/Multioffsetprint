@@ -939,98 +939,124 @@ $(document).ready(function() {
     });
 
     $('#ordertype').on('change', function () {
-        toggleServiceColumn();
-    });
+            toggleServiceColumn();
+        });
 
-    $("#formsubmit").click(function () {
+    $("#formsubmit").click(function() {
+        if (!$("#createorderform")[0].checkValidity()) {
+            // If the form is invalid, submit it. The form won't actually submit;
+            // this will just cause the browser to display the native HTML5 error messages.
+            $("#submitBtn").click();
+        } else {
+            var productID = $('#product').val();
+            var comment = $('#comment').val();
+            var product = $("#product option:selected").text();
+            var unitprice = parseFloat($('#unitprice').val());
+            var vat = parseFloat($('#vat').val());
+            var discount = parseFloat($('#discount').val());
+            var newqty = parseFloat($('#newqty').val());
+            var uomID = $('#uom').val();
+            var pieces = parseFloat($('#piecesper_qty').val());
+            var uom = $("#uom option:selected").text();
+            var ordertype = $('#ordertype').val();
+            var newtotal;
+            var newprice;
+            
+            if (pieces !== 0) {
+                newtotal = unitprice * pieces;
+                newprice = unitprice * pieces / newqty;
+            } else {
+                newtotal = unitprice * newqty;
+                newprice = 0;
+            }
+            
+            var vatamount = parseFloat(((newtotal - discount) / 100) * vat);
+            var finaltotal = parseFloat((newtotal + vatamount) - discount);
 
-    	if (!$("#createorderform")[0].checkValidity()) {
-    		$("#submitBtn").click();
-    	} else {
+            var totdiscount = parseFloat(discount);
+            var totvat = parseFloat(vatamount);
+            var total = parseFloat(newtotal);
+            var finaltot = parseFloat(finaltotal);
+            var showfinaltot = addCommas(parseFloat(finaltot).toFixed(2));
+            var showtotal = addCommas(parseFloat(total).toFixed(2));
+            var showtotdiscount = addCommas(parseFloat(totdiscount).toFixed(2));
+            var showtotvat = addCommas(parseFloat(totvat).toFixed(2));
 
-    		var productID = $('#product').val();
-    		var comment = $('#comment').val();
-    		var product = $("#product option:selected").text();
-    		var unitprice = parseFloat($('#unitprice').val());
-    		var vat = parseFloat($('#vat').val());
-    		var discount = parseFloat($('#discount').val());
-    		var newqty = parseFloat($('#newqty').val());
-    		var uomID = $('#uom').val();
-    		var pieces = parseFloat($('#piecesper_qty').val());
-    		var uom = $("#uom option:selected").text();
-    		var ordertype = $('#ordertype').val();
+            // Determine what to show in the product column
+            var productDisplay = (ordertype == 4) ? comment : product;
 
-    		var newtotal, newprice;
+            $('#tableorder > tbody:last').append('<tr class="pointer"><td>' + productDisplay +
+                '</td><td class="d-none">' +
+                comment + '</td><td class="d-none">' + productID +
+                '</td><td class="text-center">' + newqty +
+                '</td><td class="text-center">' + uom +
+                '</td><td class="d-none">' + uomID +
+                '</td><td class="text-right">' +
+                parseFloat(unitprice) + '</td><td class="text-right">' +
+                parseFloat(newprice) + '</td><td class="total d-none">' + total +
+                '</td><td class="text-right">' +
+                showtotal + '</td><td class="text-right d-none">' +
+                pieces + '</td></tr>');
 
-    		if (pieces !== 0) {
-    			newtotal = unitprice * pieces;
-    			newprice = (unitprice * pieces) / newqty;
-    		} else {
-    			newtotal = unitprice * newqty;
-    			newprice = 0;
-    		}
+            $('#product').val('').trigger('change');
+            $('#unitprice').val('0');
+            $('#saleprice').val('');
+            $('#comment').val('');
+            $('#uom').val('');
+            $('#newqty').val('0');
+            $('#discount').val('0');
+            $('#piecesper_qty').val('0');
+            $('#piecesper_qty_uom').val('');
+            $('#porderrequest').prop('readonly', true).css('pointer-events', 'none');
 
-    		var vatamount = ((newtotal - discount) / 100) * vat;
-    		var finaltotal = (newtotal + vatamount) - discount;
+            var sum = 0;
+            $(".total").each(function() {
+                sum += parseFloat($(this).text());
+            });
 
-    		var total = parseFloat(newtotal);
-    		var finaltot = parseFloat(finaltotal);
+            var showgrosstot = addCommas(parseFloat(sum).toFixed(2));
 
-    		var showtotal = addCommas(total.toFixed(2));
-    		var showfinaltot = addCommas(finaltot.toFixed(2));
+            $('#divgrosstotal').html(
+                '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
+                showgrosstot);
+            $('#hidegrosstotalorder').val(sum);
+            $('#product').focus();
 
-    		var row = '<tr class="pointer">';
+            var sum = 0;
+            $(".total_vat").each(function() {
+                sum += parseFloat($(this).text());
+            });
 
-    		if (ordertype == 4) {
-    			row += '<td>' + product + '</td>';
-    			row += '<td>' + comment + '</td>';
-    		} else {
-    			row += '<td class="d-none"></td>';
-    			row += '<td>' + product + '</td>';
-    		}
+            var showtotvat = addCommas(parseFloat(sum).toFixed(2));
 
-    		row += '<td class="d-none">' + productID + '</td>';
-    		row += '<td class="text-center">' + newqty + '</td>';
-    		row += '<td class="text-center">' + uom + '</td>';
-    		row += '<td class="d-none">' + uomID + '</td>';
-    		row += '<td class="text-right">' + unitprice.toFixed(2) + '</td>';
-    		row += '<td class="text-right">' + newprice.toFixed(2) + '</td>';
-    		row += '<td class="total d-none">' + total + '</td>';
-    		row += '<td class="text-right">' + showtotal + '</td>';
-    		row += '<td class="text-right d-none">' + pieces + '</td>';
-    		row += '</tr>';
+            $('#divtotalvat').html('Vat Total &nbsp; &nbsp; Rs.' + showtotvat);
+            $('#hidevatlorder').val(sum);
+            $('#product').focus();
 
-    		$('#tableorder tbody').append(row);
+            var sum = 0;
+            $(".total_discount").each(function() {
+                sum += parseFloat($(this).text());
+            });
 
-    		// 🔄 RESET FIELDS
-    		$('#product').val('').trigger('change');
-    		$('#unitprice').val('0');
-    		$('#saleprice').val('');
-    		$('#comment').val('');
-    		$('#uom').val('');
-    		$('#newqty').val('0');
-    		$('#discount').val('0');
-    		$('#piecesper_qty').val('0');
-    		$('#piecesper_qty_uom').val('');
-    		$('#porderrequest').prop('readonly', true).css('pointer-events', 'none');
+            var showtotdiscount = addCommas(parseFloat(sum).toFixed(2));
 
-    		// 🔢 CALCULATIONS
-    		var sum = 0;
-    		$(".total").each(function () {
-    			sum += parseFloat($(this).text());
-    		});
+            $('#divtotaldiscount').html('Discount &nbsp; &nbsp; Rs.' + showtotdiscount);
+            $('#hidediscountlorder').val(sum);
+            $('#product').focus();
 
-    		var showgrosstot = addCommas(sum.toFixed(2));
+            var sum = 0;
+            $(".final_total").each(function() {
+                sum += parseFloat($(this).text());
+            });
 
-    		$('#divgrosstotal').html(
-    			'<strong style="background-color: yellow;">Final Price</strong> &nbsp;&nbsp;<strong>Rs. ' +
-    			showgrosstot + '</strong>'
-    		);
+            var showsum = addCommas(parseFloat(sum).toFixed(2));
 
-    		$('#hidegrosstotalorder').val(sum);
-
-    		$('#product').focus();
-    	}
+            $('#divtotal').html(
+                '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
+                showsum + '</strong>');
+            $('#hidetotalorder').val(sum);
+            $('#product').focus();
+        }
     });
     $("#editformsubmit").click(function() {
         if (!$("#editcreateorderform")[0].checkValidity()) {

@@ -393,7 +393,7 @@ $(document).ready(function() {
     
 
     $('#porder').select2({
-        dropdownParent: $('#staticBackdrop'),
+                dropdownParent: $('#staticBackdrop'),
         placeholder: "Select Purchase Order",
         width: '100%',
         ajax: {
