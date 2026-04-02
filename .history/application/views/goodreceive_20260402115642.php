@@ -713,6 +713,10 @@ $(document).ready(function() {
                         if (item.pieces) {
                             listItem += ' | Pieces: ' + item.pieces;
                         }
+                        if (item.comment && item.comment !== "") {
+                            listItem += '<br><em>(' + item.comment + ')</em>';
+                        }
+
                         listItem += '</li>';
 
                         $('#requestitem').append(listItem);

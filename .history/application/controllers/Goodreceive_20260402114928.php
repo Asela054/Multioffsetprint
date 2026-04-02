@@ -163,6 +163,6 @@ class Goodreceive extends CI_Controller {
 	}
 	public function Getporderdetails(){
 		$this->load->model('Goodreceiveinfo');
-        $result=$this->Goodreceiveinfo->Getporderdetails();
+        $result=$this->Goodreceiveinfo->Getporderreqdetails();
 	}
 }

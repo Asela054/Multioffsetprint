@@ -243,7 +243,7 @@ include "include/topnavbar.php";
 						</div>
                         <div class="row mt-5 col-12">
                         	<div class="form-row mb-1">
-                        		<div class="col-12">
+                        		<div class="col-12" id="productFields">
                         			<div class="form-group mb-1">
                         				<label class="small font-weight-bold text-dark">Requestion</label>
                         				<ul id="requestitem" class="list-group">

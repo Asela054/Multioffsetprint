@@ -689,40 +689,42 @@ $(document).ready(function() {
             }
         });
     });
-    $('#porder').change(function () {
-        var porderID = $(this).val();
+        $('#porderrequest').change(function () {
+    	var porderID = $(this).val();
 
-        $.ajax({
-            type: "POST",
-            data: {
-                recordID: porderID
-            },
-            url: 'Goodreceive/Getporderdetails',
-
-            success: function (response) {
-                var result = JSON.parse(response);
-                $('#requestitem').empty();
+    	$.ajax({
+    		type: "POST",
+    		data: {
+    			recordID: porderID
+    		},
+    		url: 'Purchaseorder/Getporderreqdetails',
+    		success: function (response) {
+    			var result = JSON.parse(response);
+    			$('#requestitem').empty();
 
                 if (result.length > 0) {
-
                     $.each(result, function (index, item) {
-
                         var listItem = '<li class="list-group-item bg-warning-soft">';
-                        listItem += '<strong>' + item.materialname + '</strong><br>';
-                        listItem += 'Qty: ' + item.qty + ' ' + item.measure_type;
-                        if (item.pieces) {
-                            listItem += ' | Pieces: ' + item.pieces;
+
+                        listItem += '<strong>' + item.requestname + '</strong> - ';
+
+                        listItem += item.qty + ' ' + item.measure_type;
+
+                        if (item.comment && item.comment !== "") {
+                            listItem += ' <em>(' + item.comment + ')</em>';
                         }
+
                         listItem += '</li>';
 
                         $('#requestitem').append(listItem);
-                    });
 
-                } else {
-                    $('#requestitem').append('<li class="list-group-item">No items found</li>');
+                        if (index === 0) {
+                            $('#requestordertype').val(item.order_type);
+                        }
+                    });
                 }
-            }
-        });
+    		},
+    	});
     });
     $('#dataTable tbody').on('click', '.btnview', function () {
     	var id = $(this).attr('id');

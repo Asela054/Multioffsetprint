@@ -689,41 +689,7 @@ $(document).ready(function() {
             }
         });
     });
-    $('#porder').change(function () {
-        var porderID = $(this).val();
-
-        $.ajax({
-            type: "POST",
-            data: {
-                recordID: porderID
-            },
-            url: 'Goodreceive/Getporderdetails',
-
-            success: function (response) {
-                var result = JSON.parse(response);
-                $('#requestitem').empty();
-
-                if (result.length > 0) {
-
-                    $.each(result, function (index, item) {
-
-                        var listItem = '<li class="list-group-item bg-warning-soft">';
-                        listItem += '<strong>' + item.materialname + '</strong><br>';
-                        listItem += 'Qty: ' + item.qty + ' ' + item.measure_type;
-                        if (item.pieces) {
-                            listItem += ' | Pieces: ' + item.pieces;
-                        }
-                        listItem += '</li>';
-
-                        $('#requestitem').append(listItem);
-                    });
-
-                } else {
-                    $('#requestitem').append('<li class="list-group-item">No items found</li>');
-                }
-            }
-        });
-    });
+    
     $('#dataTable tbody').on('click', '.btnview', function () {
     	var id = $(this).attr('id');
     	var grnno = $(this).attr('grn_no');

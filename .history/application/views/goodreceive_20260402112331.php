@@ -309,17 +309,6 @@ include "include/topnavbar.php";
                                     class="fas fa-save"></i>&nbsp;Create
                                 Good Receive Note</button>
                         </div>
-                        <div class="row mt-5 col-12">
-                        	<div class="form-row mb-1">
-                        		<div class="col-12">
-                        			<div class="form-group mb-1">
-                        				<label class="small font-weight-bold text-dark">PO Details</label>
-                        				<ul id="requestitem" class="list-group">
-                        				</ul>
-                        			</div>
-                        		</div>
-                        	</div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -615,115 +604,75 @@ $(document).ready(function() {
             }
     	});
     });
-    $('#submitBtnVatType').click(function () {
-        Swal.fire({
-            title: '',
-            html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-            allowOutsideClick: false,
-            showConfirmButton: false, // Hide the OK button
-            backdrop: `
-                rgba(255, 255, 255, 0.5) 
-            `,
-            customClass: {
-                popup: 'fullscreen-swal'
-            },
-            didOpen: () => {
-                document.body.style.overflow = 'hidden';
+$('#submitBtnVatType').click(function () {
 
-                if (!$("#addvattypeform")[0].checkValidity()) {
-                    $("#hidesubmitvattype").click();
-                } else {
-                    var vattype = $('#vattype').val();
-                    var hiddenID = $('#hiddengrnid').val();
+    if (!$("#addvattypeform")[0].checkValidity()) {
+        $("#hidesubmitvattype").click();
+        return;
+    }
 
-                    $.ajax({
-                        type: "POST",
-                        data: {
-                            vattype: vattype,
-                            hiddenID: hiddenID
+    var vattype = $('#vattype').val();
+    var hiddenID = $('#hiddengrnid').val();
 
-                        },
-                        url: '<?php echo base_url() ?>Goodreceive/Goodreceivevattype',
-                        success: function (result) {
-                            Swal.close();
-                            document.body.style.overflow = 'auto';
-
-                            var obj = JSON.parse(result);
-                            var action = JSON.parse(obj.action);
-
-                            if (obj.status == 1) {
-
-                                Swal.fire({
-                                    icon: action.type,
-                                    title: action.message,
-                                    showConfirmButton: false,
-                                    timer: 3000
-                                });
-
-                                setTimeout(function () {
-                                    location.reload();
-                                }, 3000);
-
-                            } else {
-
-                                Swal.fire({
-                                    icon: action.type,
-                                    title: action.message,
-                                    showConfirmButton: false,
-                                    timer: 3000
-                                });
-                            }
-                        },
-                        error: function(error) {
-                            Swal.close();
-                            document.body.style.overflow = 'auto';
-
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Something went wrong. Please try again later.'
-                            });
-                        }
-                    });
-                }
-            }
-        });
+    // 🔄 Show loading
+    Swal.fire({
+        title: 'Please wait...',
+        html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        backdrop: `rgba(255,255,255,0.5)`
     });
-    $('#porder').change(function () {
-        var porderID = $(this).val();
 
-        $.ajax({
-            type: "POST",
-            data: {
-                recordID: porderID
-            },
-            url: 'Goodreceive/Getporderdetails',
+    $.ajax({
+        type: "POST",
+        data: {
+            vattype: vattype,
+            hiddenID: hiddenID
+        },
+        url: '<?php echo base_url() ?>Goodreceive/Goodreceivevattype',
 
-            success: function (response) {
-                var result = JSON.parse(response);
-                $('#requestitem').empty();
+        success: function (result) {
+            Swal.close();
 
-                if (result.length > 0) {
+            var obj = JSON.parse(result);
+            var action = JSON.parse(obj.action);
 
-                    $.each(result, function (index, item) {
+            if (obj.status == 1) {
 
-                        var listItem = '<li class="list-group-item bg-warning-soft">';
-                        listItem += '<strong>' + item.materialname + '</strong><br>';
-                        listItem += 'Qty: ' + item.qty + ' ' + item.measure_type;
-                        if (item.pieces) {
-                            listItem += ' | Pieces: ' + item.pieces;
-                        }
-                        listItem += '</li>';
+                // ✅ Success Alert
+                Swal.fire({
+                    icon: action.type,
+                    title: 'Success',
+                    text: action.message,
+                    confirmButtonText: 'OK'
+                }).then(() => {
 
-                        $('#requestitem').append(listItem);
-                    });
+                    // 🔥 Reload page after OK
+                    location.reload();
+                });
 
-                } else {
-                    $('#requestitem').append('<li class="list-group-item">No items found</li>');
-                }
+            } else {
+
+                // ❌ Error Alert
+                Swal.fire({
+                    icon: action.type,
+                    title: 'Error',
+                    text: action.message
+                });
             }
-        });
+        },
+
+        error: function () {
+            Swal.close();
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Something went wrong. Please try again.'
+            });
+        }
     });
+});
     $('#dataTable tbody').on('click', '.btnview', function () {
     	var id = $(this).attr('id');
     	var grnno = $(this).attr('grn_no');

@@ -155,14 +155,10 @@ class Goodreceive extends CI_Controller {
 	}
 	public function Getvattype(){
 		$this->load->model('Goodreceiveinfo');
-        $result=$this->Goodreceiveinfo->Getvattype();
+        $result=$this->Goodreceiveinfo->Getvattype();Customerinquiryfinish
 	}
-	public function Goodreceivevattype(){
+		public function Getvattype(){
 		$this->load->model('Goodreceiveinfo');
-        $result=$this->Goodreceiveinfo->Goodreceivevattype();
-	}
-	public function Getporderdetails(){
-		$this->load->model('Goodreceiveinfo');
-        $result=$this->Goodreceiveinfo->Getporderdetails();
+        $result=$this->Goodreceiveinfo->Getvattype();Customerinquiryfinish
 	}
 }

@@ -689,41 +689,70 @@ $(document).ready(function() {
             }
         });
     });
-    $('#porder').change(function () {
-        var porderID = $(this).val();
+   $('#porder').change(function () {
+    var porderID = $(this).val();
 
-        $.ajax({
-            type: "POST",
-            data: {
-                recordID: porderID
-            },
-            url: 'Goodreceive/Getporderdetails',
+    $.ajax({
+        type: "POST",
+        data: {
+            recordID: porderID
+        },
+        url: 'Goodreceive/Getporderdetails',
 
-            success: function (response) {
-                var result = JSON.parse(response);
-                $('#requestitem').empty();
+        success: function (response) {
+            var result = JSON.parse(response);
+            $('#requestitem').empty();
 
-                if (result.length > 0) {
+            if (result.length > 0) {
 
-                    $.each(result, function (index, item) {
+                $.each(result, function (index, item) {
 
-                        var listItem = '<li class="list-group-item bg-warning-soft">';
-                        listItem += '<strong>' + item.materialname + '</strong><br>';
-                        listItem += 'Qty: ' + item.qty + ' ' + item.measure_type;
-                        if (item.pieces) {
-                            listItem += ' | Pieces: ' + item.pieces;
-                        }
-                        listItem += '</li>';
+                    var listItem = '<li class="list-group-item bg-warning-soft">';
 
-                        $('#requestitem').append(listItem);
-                    });
+                    // 🔹 Material Name
+                    listItem += '<strong>' + item.materialname + '</strong><br>';
 
-                } else {
-                    $('#requestitem').append('<li class="list-group-item">No items found</li>');
-                }
+                    // 🔹 Quantity + Measurement
+                    listItem += 'Qty: ' + item.qty + ' ' + item.measure_type;
+
+                    // 🔹 Pieces & Actual Qty
+                    if (item.pieces) {
+                        listItem += ' | Pieces: ' + item.pieces;
+                    }
+                    if (item.actual_qty) {
+                        listItem += ' | Actual: ' + item.actual_qty;
+                    }
+
+                    listItem += '<br>';
+
+                    // 🔹 Prices
+                    listItem += 'Unit Price: ' + item.unitprice + 
+                                ' | Net: ' + item.netprice;
+
+                    // 🔹 VAT & Discount
+                    if (item.vat) {
+                        listItem += ' | VAT: ' + item.vat + '%';
+                    }
+                    if (item.discount) {
+                        listItem += ' | Discount: ' + item.discount;
+                    }
+
+                    // 🔹 Comment
+                    if (item.comment && item.comment !== "") {
+                        listItem += '<br><em>(' + item.comment + ')</em>';
+                    }
+
+                    listItem += '</li>';
+
+                    $('#requestitem').append(listItem);
+                });
+
+            } else {
+                $('#requestitem').append('<li class="list-group-item">No items found</li>');
             }
-        });
+        }
     });
+});
     $('#dataTable tbody').on('click', '.btnview', function () {
     	var id = $(this).attr('id');
     	var grnno = $(this).attr('grn_no');

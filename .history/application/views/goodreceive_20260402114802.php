@@ -689,41 +689,43 @@ $(document).ready(function() {
             }
         });
     });
-    $('#porder').change(function () {
-        var porderID = $(this).val();
+        $('#porderrequest').change(function () {
+        	var porderID = $(this).val();
 
-        $.ajax({
-            type: "POST",
-            data: {
-                recordID: porderID
-            },
-            url: 'Goodreceive/Getporderdetails',
+        	$.ajax({
+        		type: "POST",
+        		data: {
+        			recordID: porderID
+        		},
+        		url: 'Purchaseorder/Getporderreqdetails',
+        		success: function (response) {
+        			var result = JSON.parse(response);
+        			$('#requestitem').empty();
 
-            success: function (response) {
-                var result = JSON.parse(response);
-                $('#requestitem').empty();
+        			if (result.length > 0) {
+        				$.each(result, function (index, item) {
+        					var listItem = '<li class="list-group-item bg-warning-soft">';
 
-                if (result.length > 0) {
+        					listItem += '<strong>' + item.requestname + '</strong> - ';
 
-                    $.each(result, function (index, item) {
+        					listItem += item.qty + ' ' + item.measure_type;
 
-                        var listItem = '<li class="list-group-item bg-warning-soft">';
-                        listItem += '<strong>' + item.materialname + '</strong><br>';
-                        listItem += 'Qty: ' + item.qty + ' ' + item.measure_type;
-                        if (item.pieces) {
-                            listItem += ' | Pieces: ' + item.pieces;
-                        }
-                        listItem += '</li>';
+        					if (item.comment && item.comment !== "") {
+        						listItem += ' <em>(' + item.comment + ')</em>';
+        					}
 
-                        $('#requestitem').append(listItem);
-                    });
+        					listItem += '</li>';
 
-                } else {
-                    $('#requestitem').append('<li class="list-group-item">No items found</li>');
-                }
-            }
+        					$('#requestitem').append(listItem);
+
+        					if (index === 0) {
+        						$('#requestordertype').val(item.order_type);
+        					}
+        				});
+        			}
+        		},
+        	});
         });
-    });
     $('#dataTable tbody').on('click', '.btnview', function () {
     	var id = $(this).attr('id');
     	var grnno = $(this).attr('grn_no');

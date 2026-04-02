@@ -788,27 +788,27 @@
 			]);
 		}
 	}
-	public function Getporderdetails() {
-		$recordID = $this->input->post('recordID');
+public function Getporderdetails() {
+    $recordID = $this->input->post('recordID');
 
-		$this->db->select('m.materialname, d.qty, d.pieces, d.actual_qty, meas.measure_type, d.unitprice, d.packetprice, d.discount, d.vat, d.vatamount, d.grossprice, d.netprice, d.comment');
-		$this->db->from('tbl_print_porder_detail d');
+    $this->db->select('m.materialname, d.qty, d.pieces, d.actual_qty, meas.measure_type, d.unitprice, d.packetprice, d.discount, d.vat, d.vatamount, d.grossprice, d.netprice, d.comment');
+    $this->db->from('tbl_print_porder_detail d');
 
-		$this->db->join('tbl_print_porder p', 'p.idtbl_print_porder = d.tbl_print_porder_idtbl_print_porder', 'left');
-		$this->db->join('tbl_print_material_info m', 'm.idtbl_print_material_info = d.tbl_material_id', 'left');
-		$this->db->join('tbl_measurements meas', 'meas.idtbl_mesurements = d.tbl_measurements_idtbl_measurements', 'left');
+    $this->db->join('tbl_print_porder p', 'p.idtbl_print_porder = d.tbl_print_porder_idtbl_print_porder', 'left');
+    $this->db->join('tbl_print_material_info m', 'm.idtbl_print_material_info = d.tbl_material_id', 'left');
+    $this->db->join('tbl_measurements meas', 'meas.idtbl_mesurements = d.tbl_measurements_idtbl_measurements', 'left');
 
-		$this->db->where('d.status', 1);
-		$this->db->where('d.tbl_print_porder_idtbl_print_porder', $recordID);
+    $this->db->where('d.status', 1);
+    $this->db->where('d.tbl_print_porder_idtbl_print_porder', $recordID);
 
-		$response = $this->db->get();
+    $response = $this->db->get();
 
-		if ($response->num_rows() > 0) {
-			echo json_encode($response->result());
-		} else {
-			echo json_encode([]);
-		}
-	}
+    if ($response->num_rows() > 0) {
+        echo json_encode($response->result());
+    } else {
+        echo json_encode([]);
+    }
+}
 	public function Getservicematerials() {
 		$recordID = $this->input->post('recordID');
 		$porderID = $this->input->post('porderID');

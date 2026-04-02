@@ -713,6 +713,7 @@ $(document).ready(function() {
                         if (item.pieces) {
                             listItem += ' | Pieces: ' + item.pieces;
                         }
+
                         listItem += '</li>';
 
                         $('#requestitem').append(listItem);

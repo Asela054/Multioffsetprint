@@ -710,9 +710,34 @@ $(document).ready(function() {
                         var listItem = '<li class="list-group-item bg-warning-soft">';
                         listItem += '<strong>' + item.materialname + '</strong><br>';
                         listItem += 'Qty: ' + item.qty + ' ' + item.measure_type;
+
+                        // 🔹 Pieces & Actual Qty
                         if (item.pieces) {
                             listItem += ' | Pieces: ' + item.pieces;
                         }
+                        if (item.actual_qty) {
+                            listItem += ' | Actual: ' + item.actual_qty;
+                        }
+
+                        listItem += '<br>';
+
+                        // 🔹 Prices
+                        listItem += 'Unit Price: ' + item.unitprice +
+                            ' | Net: ' + item.netprice;
+
+                        // 🔹 VAT & Discount
+                        if (item.vat) {
+                            listItem += ' | VAT: ' + item.vat + '%';
+                        }
+                        if (item.discount) {
+                            listItem += ' | Discount: ' + item.discount;
+                        }
+
+                        // 🔹 Comment
+                        if (item.comment && item.comment !== "") {
+                            listItem += '<br><em>(' + item.comment + ')</em>';
+                        }
+
                         listItem += '</li>';
 
                         $('#requestitem').append(listItem);

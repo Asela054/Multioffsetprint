@@ -713,6 +713,23 @@ $(document).ready(function() {
                         if (item.pieces) {
                             listItem += ' | Pieces: ' + item.pieces;
                         }
+                        if (item.actual_qty) {
+                            listItem += ' | Actual: ' + item.actual_qty;
+                        }
+
+                        listItem += '<br>';
+                        listItem += 'Unit Price: ' + item.unitprice +
+                            ' | Net: ' + item.netprice;
+                        if (item.vat) {
+                            listItem += ' | VAT: ' + item.vat + '%';
+                        }
+                        if (item.discount) {
+                            listItem += ' | Discount: ' + item.discount;
+                        }
+                        if (item.comment && item.comment !== "") {
+                            listItem += '<br><em>(' + item.comment + ')</em>';
+                        }
+
                         listItem += '</li>';
 
                         $('#requestitem').append(listItem);

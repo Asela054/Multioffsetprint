@@ -788,23 +788,31 @@
 			]);
 		}
 	}
-	public function Getporderdetails() {
+	public function Getporderreqdetails() {
 		$recordID = $this->input->post('recordID');
-
-		$this->db->select('m.materialname, d.qty, d.pieces, d.actual_qty, meas.measure_type, d.unitprice, d.packetprice, d.discount, d.vat, d.vatamount, d.grossprice, d.netprice, d.comment');
-		$this->db->from('tbl_print_porder_detail d');
-
-		$this->db->join('tbl_print_porder p', 'p.idtbl_print_porder = d.tbl_print_porder_idtbl_print_porder', 'left');
-		$this->db->join('tbl_print_material_info m', 'm.idtbl_print_material_info = d.tbl_material_id', 'left');
-		$this->db->join('tbl_measurements meas', 'meas.idtbl_mesurements = d.tbl_measurements_idtbl_measurements', 'left');
-
-		$this->db->where('d.status', 1);
-		$this->db->where('d.tbl_print_porder_idtbl_print_porder', $recordID);
-
+		
+		$this->db->select('requestname, qty, measure_type, comment, group');
+		$this->db->from('tbl_print_porder_req_detail');
+		$this->db->join('tbl_print_porder_req', 'tbl_print_porder_req.idtbl_print_porder_req = tbl_print_porder_req_detail.tbl_print_porder_req_idtbl_print_porder_req', 'left');
+		$this->db->join('tbl_material_group', 'tbl_material_group.idtbl_material_group = tbl_print_porder_req.tbl_material_group_idtbl_material_group', 'left');
+		$this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_porder_req_detail.tbl_measurements_idtbl_measurements', 'left');
+		$this->db->where('tbl_print_porder_req_detail.status', 1);
+		$this->db->where('tbl_print_porder_req_idtbl_print_porder_req', $recordID);
+		
 		$response = $this->db->get();
-
+		
 		if ($response->num_rows() > 0) {
-			echo json_encode($response->result());
+			$result = [];
+			foreach ($response->result() as $row) {
+				$result[] = [
+					'requestname' => $row->requestname,
+					'qty' => $row->qty,
+					'measure_type' => $row->measure_type,
+					'comment' => $row->comment,
+					'order_type' => $row->group
+				];
+			}
+			echo json_encode($result);
 		} else {
 			echo json_encode([]);
 		}

@@ -309,17 +309,6 @@ include "include/topnavbar.php";
                                     class="fas fa-save"></i>&nbsp;Create
                                 Good Receive Note</button>
                         </div>
-                        <div class="row mt-5 col-12">
-                        	<div class="form-row mb-1">
-                        		<div class="col-12">
-                        			<div class="form-group mb-1">
-                        				<label class="small font-weight-bold text-dark">PO Details</label>
-                        				<ul id="requestitem" class="list-group">
-                        				</ul>
-                        			</div>
-                        		</div>
-                        	</div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -363,46 +352,11 @@ include "include/topnavbar.php";
         </div>
     </div>
 </div>
-<!-- Modal Add Remarks -->
-<div class="modal fade" id="updatevattypemodal" data-backdrop="static" data-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="staticBackdropLabel"><i class="fas fa-marker"></i> Change VAT Type</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-12">
-                        <form id="addvattypeform" autocomplete="off">
-                            <div class="form-group mb-1">
-                                <input type="hidden" class="form-control form-control-sm" id="hiddengrnid" name="hiddengrnid">
-                            </div>
-                            <div class="form-group mb-1">
-                                <label class="small font-weight-bold text-dark">Vat Type*</label>
-                                <select class="form-control form-control-sm" name="vattype" id="vattype" required>
-                                    <option value="">Select Vat Type</option>
-                                    <option value="1">Inclusive</option>
-                                    <option value="2">Exclusive</option>
-                                </select>
-                            </div>
-                            <div class="form-group mt-2 text-right">
-                                <button type="button" id="submitBtnVatType" class="btn btn-primary btn-sm px-4"><i class="far fa-save"></i>&nbsp;Update</button>
-                                <input type="submit" class="d-none" id="hidesubmitvattype" value="">
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 <?php include "include/footerscripts.php"; ?>
 
 <script>
+
 $(document).ready(function() {
 
         $('#f_company_id').val('<?php echo ($_SESSION['company_id']); ?>');
@@ -591,138 +545,12 @@ $(document).ready(function() {
             $('[data-toggle="tooltip"]').tooltip();
         }
     });
-    $('#dataTable tbody').on('click', '.btnUpdatevattype', function () {
+    $('#datatable tbody').on('click', '.btnUpdatevattype', function () {
         var id = $(this).attr('id');
         $("#hiddengrnid").val(id);
-    	$.ajax({
-    		type: "POST",
-    		data: {
-    			recordID: id
-    		},
-    		url: 'Goodreceive/Getvattype',
-    		success: function (result) {
-                $('#updatevattypemodal').modal('show');
-                $('#vattype').empty();
 
-                if (result) {
-                    var data = JSON.parse(result);
+        $('#updatemodal').modal('show');
 
-                    $('#vattype').append('<option value="1">Inclusive</option>');
-                    $('#vattype').append('<option value="2">Exclusive</option>');
-
-                    $('#vattype').val(data.vat_type);
-                }
-            }
-    	});
-    });
-    $('#submitBtnVatType').click(function () {
-        Swal.fire({
-            title: '',
-            html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-            allowOutsideClick: false,
-            showConfirmButton: false, // Hide the OK button
-            backdrop: `
-                rgba(255, 255, 255, 0.5) 
-            `,
-            customClass: {
-                popup: 'fullscreen-swal'
-            },
-            didOpen: () => {
-                document.body.style.overflow = 'hidden';
-
-                if (!$("#addvattypeform")[0].checkValidity()) {
-                    $("#hidesubmitvattype").click();
-                } else {
-                    var vattype = $('#vattype').val();
-                    var hiddenID = $('#hiddengrnid').val();
-
-                    $.ajax({
-                        type: "POST",
-                        data: {
-                            vattype: vattype,
-                            hiddenID: hiddenID
-
-                        },
-                        url: '<?php echo base_url() ?>Goodreceive/Goodreceivevattype',
-                        success: function (result) {
-                            Swal.close();
-                            document.body.style.overflow = 'auto';
-
-                            var obj = JSON.parse(result);
-                            var action = JSON.parse(obj.action);
-
-                            if (obj.status == 1) {
-
-                                Swal.fire({
-                                    icon: action.type,
-                                    title: action.message,
-                                    showConfirmButton: false,
-                                    timer: 3000
-                                });
-
-                                setTimeout(function () {
-                                    location.reload();
-                                }, 3000);
-
-                            } else {
-
-                                Swal.fire({
-                                    icon: action.type,
-                                    title: action.message,
-                                    showConfirmButton: false,
-                                    timer: 3000
-                                });
-                            }
-                        },
-                        error: function(error) {
-                            Swal.close();
-                            document.body.style.overflow = 'auto';
-
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Something went wrong. Please try again later.'
-                            });
-                        }
-                    });
-                }
-            }
-        });
-    });
-    $('#porder').change(function () {
-        var porderID = $(this).val();
-
-        $.ajax({
-            type: "POST",
-            data: {
-                recordID: porderID
-            },
-            url: 'Goodreceive/Getporderdetails',
-
-            success: function (response) {
-                var result = JSON.parse(response);
-                $('#requestitem').empty();
-
-                if (result.length > 0) {
-
-                    $.each(result, function (index, item) {
-
-                        var listItem = '<li class="list-group-item bg-warning-soft">';
-                        listItem += '<strong>' + item.materialname + '</strong><br>';
-                        listItem += 'Qty: ' + item.qty + ' ' + item.measure_type;
-                        if (item.pieces) {
-                            listItem += ' | Pieces: ' + item.pieces;
-                        }
-                        listItem += '</li>';
-
-                        $('#requestitem').append(listItem);
-                    });
-
-                } else {
-                    $('#requestitem').append('<li class="list-group-item">No items found</li>');
-                }
-            }
-        });
     });
     $('#dataTable tbody').on('click', '.btnview', function () {
     	var id = $(this).attr('id');

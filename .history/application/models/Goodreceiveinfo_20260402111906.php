@@ -184,8 +184,8 @@
 		$this->db->select('grn_no');
 		$this->db->from('tbl_print_grn');
 		$this->db->where('tbl_company_idtbl_company', $companyID);
-        $this->db->where("DATE(grndate) >=", $fromyear);
-        $this->db->where("DATE(grndate) <=", $toyear);
+        $this->db->where("DATE(insertdatetime) >=", $fromyear);
+        $this->db->where("DATE(insertdatetime) <=", $toyear);
 		$this->db->order_by('grn_no', 'DESC');
 		$this->db->limit(1);
 		$respond = $this->db->get();
@@ -746,68 +746,63 @@
 			echo json_encode([]);
 		}
 	}
-	public function Goodreceivevattype() {
+	public function Goodreceivecheckstatus() {
 		$this->db->trans_begin();
 
-		$vattype = $this->input->post('vattype');
-		$hiddenID = $this->input->post('hiddenID');
+        $recordID=$this->input->post('requestid');
+		$confirmnot=$this->input->post('confirmnot');
+		$userID=$_SESSION['userid'];
+		$updatedatetime=date('Y-m-d H:i:s');
 
-		$data = array(
-			'vat_type' => $vattype
-		);
+			$data=array(
+				'check_by'=> $userID);
 
-		$this->db->where('idtbl_print_grn', $hiddenID);
-		$this->db->update('tbl_print_grn', $data);
+			$this->db->where('idtbl_print_grn', $recordID);
+			$this->db->update('tbl_print_grn', $data);
 
-		if ($this->db->trans_status() === TRUE) {
-			$this->db->trans_commit();
 
-			$actionObj = new stdClass();
-			$actionObj->icon = 'fas fa-check';
-			$actionObj->title = 'Success';
-			$actionObj->message = 'VAT Type Updated Successfully';
-			$actionObj->type = 'success';
+			$this->db->trans_complete();
 
-			echo json_encode([
-				'status' => 1,
-				'action' => json_encode($actionObj)
-			]);
+			if ($this->db->trans_status()===TRUE) {
+				$this->db->trans_commit();
 
-		} else {
-			$this->db->trans_rollback();
+				$actionObj=new stdClass();
+				$actionObj->icon='fas fa-check';
+				$actionObj->title='';
+				if($confirmnot==1){$actionObj->message='Record Checked Successfully';}
+				else{$actionObj->message='Record Rejected Successfully';}
+				$actionObj->url='';
+				$actionObj->target='_blank';
+				$actionObj->type='success';
 
-			$actionObj = new stdClass();
-			$actionObj->icon = 'fas fa-warning';
-			$actionObj->title = 'Error';
-			$actionObj->message = 'Record Error';
-			$actionObj->type = 'error';
+				$actionJSON=json_encode($actionObj);
 
-			echo json_encode([
-				'status' => 2,
-				'action' => json_encode($actionObj)
-			]);
-		}
-	}
-	public function Getporderdetails() {
-		$recordID = $this->input->post('recordID');
+				$obj=new stdClass();
+				$obj->status=1;
+				$obj->action=$actionJSON;
 
-		$this->db->select('m.materialname, d.qty, d.pieces, d.actual_qty, meas.measure_type, d.unitprice, d.packetprice, d.discount, d.vat, d.vatamount, d.grossprice, d.netprice, d.comment');
-		$this->db->from('tbl_print_porder_detail d');
+				echo json_encode($obj);
+			}
 
-		$this->db->join('tbl_print_porder p', 'p.idtbl_print_porder = d.tbl_print_porder_idtbl_print_porder', 'left');
-		$this->db->join('tbl_print_material_info m', 'm.idtbl_print_material_info = d.tbl_material_id', 'left');
-		$this->db->join('tbl_measurements meas', 'meas.idtbl_mesurements = d.tbl_measurements_idtbl_measurements', 'left');
+			else {
+				$this->db->trans_rollback();
 
-		$this->db->where('d.status', 1);
-		$this->db->where('d.tbl_print_porder_idtbl_print_porder', $recordID);
+				$actionObj=new stdClass();
+				$actionObj->icon='fas fa-warning';
+				$actionObj->title='';
+				$actionObj->message='Record Error';
+				$actionObj->url='';
+				$actionObj->target='_blank';
+				$actionObj->type='danger';
 
-		$response = $this->db->get();
+				$actionJSON=json_encode($actionObj);
 
-		if ($response->num_rows() > 0) {
-			echo json_encode($response->result());
-		} else {
-			echo json_encode([]);
-		}
+				$obj=new stdClass();
+				$obj->status=2;
+				$obj->action=$actionJSON;
+
+				echo json_encode($obj);
+			}
 	}
 	public function Getservicematerials() {
 		$recordID = $this->input->post('recordID');

@@ -153,16 +153,8 @@ class Goodreceive extends CI_Controller {
 		}
 		echo json_encode($data);
 	}
-	public function Getvattype(){
+		public function Getservicematerialsprices(){
 		$this->load->model('Goodreceiveinfo');
-        $result=$this->Goodreceiveinfo->Getvattype();
-	}
-	public function Goodreceivevattype(){
-		$this->load->model('Goodreceiveinfo');
-        $result=$this->Goodreceiveinfo->Goodreceivevattype();
-	}
-	public function Getporderdetails(){
-		$this->load->model('Goodreceiveinfo');
-        $result=$this->Goodreceiveinfo->Getporderdetails();
+        $result=$this->Goodreceiveinfo->Getservicematerialsprices();
 	}
 }

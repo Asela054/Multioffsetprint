@@ -309,17 +309,6 @@ include "include/topnavbar.php";
                                     class="fas fa-save"></i>&nbsp;Create
                                 Good Receive Note</button>
                         </div>
-                        <div class="row mt-5 col-12">
-                        	<div class="form-row mb-1">
-                        		<div class="col-12">
-                        			<div class="form-group mb-1">
-                        				<label class="small font-weight-bold text-dark">PO Details</label>
-                        				<ul id="requestitem" class="list-group">
-                        				</ul>
-                        			</div>
-                        		</div>
-                        	</div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -647,30 +636,26 @@ $(document).ready(function() {
                         success: function (result) {
                             Swal.close();
                             document.body.style.overflow = 'auto';
-
                             var obj = JSON.parse(result);
-                            var action = JSON.parse(obj.action);
-
-                            if (obj.status == 1) {
+                                            if (obj.status == 1) {
 
                                 Swal.fire({
-                                    icon: action.type,
+                                    icon: 'success',
                                     title: action.message,
                                     showConfirmButton: false,
-                                    timer: 3000
+                                    timer: 1500
                                 });
 
                                 setTimeout(function () {
                                     location.reload();
-                                }, 3000);
+                                }, 1500);
 
                             } else {
-
                                 Swal.fire({
-                                    icon: action.type,
+                                    icon: 'error',
                                     title: action.message,
                                     showConfirmButton: false,
-                                    timer: 3000
+                                    timer: 2000
                                 });
                             }
                         },
@@ -685,41 +670,6 @@ $(document).ready(function() {
                             });
                         }
                     });
-                }
-            }
-        });
-    });
-    $('#porder').change(function () {
-        var porderID = $(this).val();
-
-        $.ajax({
-            type: "POST",
-            data: {
-                recordID: porderID
-            },
-            url: 'Goodreceive/Getporderdetails',
-
-            success: function (response) {
-                var result = JSON.parse(response);
-                $('#requestitem').empty();
-
-                if (result.length > 0) {
-
-                    $.each(result, function (index, item) {
-
-                        var listItem = '<li class="list-group-item bg-warning-soft">';
-                        listItem += '<strong>' + item.materialname + '</strong><br>';
-                        listItem += 'Qty: ' + item.qty + ' ' + item.measure_type;
-                        if (item.pieces) {
-                            listItem += ' | Pieces: ' + item.pieces;
-                        }
-                        listItem += '</li>';
-
-                        $('#requestitem').append(listItem);
-                    });
-
-                } else {
-                    $('#requestitem').append('<li class="list-group-item">No items found</li>');
                 }
             }
         });

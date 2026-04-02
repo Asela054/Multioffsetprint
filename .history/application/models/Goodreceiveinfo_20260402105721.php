@@ -184,8 +184,8 @@
 		$this->db->select('grn_no');
 		$this->db->from('tbl_print_grn');
 		$this->db->where('tbl_company_idtbl_company', $companyID);
-        $this->db->where("DATE(grndate) >=", $fromyear);
-        $this->db->where("DATE(grndate) <=", $toyear);
+        $this->db->where("DATE(insertdatetime) >=", $fromyear);
+        $this->db->where("DATE(insertdatetime) <=", $toyear);
 		$this->db->order_by('grn_no', 'DESC');
 		$this->db->limit(1);
 		$respond = $this->db->get();
@@ -717,98 +717,29 @@
 		}
 	}
 
-	public function Getvattype() {
+		public function Getsupplier() {
 		$recordID = $this->input->post('recordID');
 
-		$this->db->select('idtbl_print_grn, vat_type');
-		$this->db->from('tbl_print_grn');
-		$this->db->where('tbl_print_grn.status', 1);
-		$this->db->where('tbl_print_grn.idtbl_print_grn', $recordID);
-
+		$this->db->select('tbl_supplier.idtbl_supplier, tbl_supplier.suppliername');
+		$this->db->from('tbl_print_porder');
+		$this->db->join('tbl_supplier', 'tbl_supplier.idtbl_supplier = tbl_print_porder.tbl_supplier_idtbl_supplier');
+		$this->db->where('tbl_print_porder.status', 1);
+		$this->db->where('tbl_print_porder.idtbl_print_porder', $recordID);
+	
 		$response = $this->db->get();
-
+	
 		if ($response->num_rows() > 0) {
-			$row = $response->row();
-
-			if ($row->vat_type == 1) {
-				$vat_name = 'Inclusive';
-			} elseif ($row->vat_type == 2) {
-				$vat_name = 'Exclusive';
-			} else {
-				$vat_name = 'Unknown';
-			}
-
+			$supplier = $response->row();
+			
 			echo json_encode([
-				'id' => $row->idtbl_print_grn,
-				'vat_type' => $row->vat_type
+				'id' => $supplier->idtbl_supplier,
+				'name' => $supplier->suppliername
 			]);
 		} else {
 			echo json_encode([]);
 		}
 	}
-	public function Goodreceivevattype() {
-		$this->db->trans_begin();
 
-		$vattype = $this->input->post('vattype');
-		$hiddenID = $this->input->post('hiddenID');
-
-		$data = array(
-			'vat_type' => $vattype
-		);
-
-		$this->db->where('idtbl_print_grn', $hiddenID);
-		$this->db->update('tbl_print_grn', $data);
-
-		if ($this->db->trans_status() === TRUE) {
-			$this->db->trans_commit();
-
-			$actionObj = new stdClass();
-			$actionObj->icon = 'fas fa-check';
-			$actionObj->title = 'Success';
-			$actionObj->message = 'VAT Type Updated Successfully';
-			$actionObj->type = 'success';
-
-			echo json_encode([
-				'status' => 1,
-				'action' => json_encode($actionObj)
-			]);
-
-		} else {
-			$this->db->trans_rollback();
-
-			$actionObj = new stdClass();
-			$actionObj->icon = 'fas fa-warning';
-			$actionObj->title = 'Error';
-			$actionObj->message = 'Record Error';
-			$actionObj->type = 'error';
-
-			echo json_encode([
-				'status' => 2,
-				'action' => json_encode($actionObj)
-			]);
-		}
-	}
-	public function Getporderdetails() {
-		$recordID = $this->input->post('recordID');
-
-		$this->db->select('m.materialname, d.qty, d.pieces, d.actual_qty, meas.measure_type, d.unitprice, d.packetprice, d.discount, d.vat, d.vatamount, d.grossprice, d.netprice, d.comment');
-		$this->db->from('tbl_print_porder_detail d');
-
-		$this->db->join('tbl_print_porder p', 'p.idtbl_print_porder = d.tbl_print_porder_idtbl_print_porder', 'left');
-		$this->db->join('tbl_print_material_info m', 'm.idtbl_print_material_info = d.tbl_material_id', 'left');
-		$this->db->join('tbl_measurements meas', 'meas.idtbl_mesurements = d.tbl_measurements_idtbl_measurements', 'left');
-
-		$this->db->where('d.status', 1);
-		$this->db->where('d.tbl_print_porder_idtbl_print_porder', $recordID);
-
-		$response = $this->db->get();
-
-		if ($response->num_rows() > 0) {
-			echo json_encode($response->result());
-		} else {
-			echo json_encode([]);
-		}
-	}
 	public function Getservicematerials() {
 		$recordID = $this->input->post('recordID');
 		$porderID = $this->input->post('porderID');
