@@ -10,6 +10,8 @@ class Apiinfo extends CI_Model{
 
         try {
             $this->db->trans_begin();
+
+            $supplierID=0;
             
             //Insert GRN expense details
             $sql="SELECT `total` AS `amount`, `totalcost` AS `invamount`, `tbl_supplier_idtbl_supplier` AS `supplierid`, `grndate` AS `expdate`, `idtbl_print_grn` AS `grnid`, CASE WHEN `grntype` = 1 THEN 'SPR' WHEN `grntype` = 4 THEN 'MAC' ELSE 'GRN' END AS `expcode`, '1' AS `exptype`, `tbl_print_grn`.`grn_no` FROM `tbl_print_grn` WHERE `idtbl_print_grn`=? AND `tbl_company_idtbl_company`=? AND `tbl_company_branch_idtbl_company_branch`=?
@@ -35,6 +37,8 @@ class Apiinfo extends CI_Model{
                     );
                     $this->db->insert('tbl_expence_info', $dataexpence);
                     $grnno=$row->grn_no;
+
+                    $supplierID=$row->supplierid;
                 }
             }
 
@@ -88,15 +92,29 @@ class Apiinfo extends CI_Model{
             //Get Creditor Account
             $creditortotalvalue = 0;
 
+            // $this->db->where('tbl_account_allocation.companybank', $companyID);
+            // $this->db->where('tbl_account_allocation.branchcompanybank', $branchID);
+            // $this->db->where('tbl_account.specialcate', 34);
+            // $this->db->where('tbl_account.status', 1);
+            // $this->db->where('tbl_account_allocation.status', 1);
+            // $this->db->where('tbl_account_allocation.tbl_account_idtbl_account is NOT NULL', NULL, FALSE);
+            // $this->db->select('`tbl_account`.`idtbl_account`, `tbl_account`.`accountno`, `tbl_account`.`accountname`');
+            // $this->db->from('tbl_account');
+            // $this->db->join('tbl_account_allocation', 'tbl_account_allocation.tbl_account_idtbl_account = tbl_account.idtbl_account', 'left');
+
             $this->db->where('tbl_account_allocation.companybank', $companyID);
             $this->db->where('tbl_account_allocation.branchcompanybank', $branchID);
-            $this->db->where('tbl_account.specialcate', 34);
-            $this->db->where('tbl_account.status', 1);
+            $this->db->where('tbl_account_detail_other.tbl_company_idtbl_company', $companyID);
+            $this->db->where('tbl_account_detail_other.tbl_company_branch_idtbl_company_branch', $branchID);
+            $this->db->where('tbl_account_detail.status', 1);
             $this->db->where('tbl_account_allocation.status', 1);
-            $this->db->where('tbl_account_allocation.tbl_account_idtbl_account is NOT NULL', NULL, FALSE);
-            $this->db->select('`tbl_account`.`idtbl_account`, `tbl_account`.`accountno`, `tbl_account`.`accountname`');
-            $this->db->from('tbl_account');
-            $this->db->join('tbl_account_allocation', 'tbl_account_allocation.tbl_account_idtbl_account = tbl_account.idtbl_account', 'left');
+            $this->db->where('tbl_account_detail_other.otheroptiontype', 1);
+            $this->db->where('tbl_account_detail_other.otheroption', $supplierID);
+            $this->db->where('tbl_account_allocation.tbl_account_detail_idtbl_account_detail is NOT NULL', NULL, FALSE);
+            $this->db->select('`tbl_account_detail`.`idtbl_account_detail`, `tbl_account_detail`.`accountno`, `tbl_account_detail`.`accountname`');
+            $this->db->from('tbl_account_detail');
+            $this->db->join('tbl_account_allocation', 'tbl_account_allocation.tbl_account_detail_idtbl_account_detail = tbl_account_detail.idtbl_account_detail', 'left');
+            $this->db->join('tbl_account_detail_other', 'tbl_account_detail_other.tbl_account_detail_idtbl_account_detail = tbl_account_detail.idtbl_account_detail', 'left');
 
             $respondcreditor=$this->db->get();
 
@@ -147,8 +165,8 @@ class Apiinfo extends CI_Model{
                 $obj = new stdClass();
                 $obj->amount = str_replace(",", "", $creditortotalvalue);
                 $obj->narration = 'Costing for GRN No: ' . $grnno;
-                $obj->detailaccount = 0;
-                $obj->chartaccount = $respondcreditor->row()->idtbl_account;
+                $obj->detailaccount = $respondcreditor->row()->idtbl_account_detail;
+                $obj->chartaccount = 0;
                 $obj->crder = 'C';
                 $segregationdata[] = $obj;
             }
@@ -184,6 +202,8 @@ class Apiinfo extends CI_Model{
                     $segregationdata[] = $obj;
                 }
             }
+
+            $this->db->trans_commit();
         } catch (Exception $e) {
             $this->db->trans_rollback();
             $segregationdata = array();
@@ -211,6 +231,7 @@ class Apiinfo extends CI_Model{
         
             $respond=$this->db->get();
             
+            $customerID = $respond->row(0)->tbl_customer_idtbl_customer;
             if($respond->row(0)->vat_customer==1):$vatstatus = 1;elseif($respond->row(0)->vat_customer==2):$svatstatus = 1;endif;
 
             $dataexpence = array(
@@ -245,6 +266,23 @@ class Apiinfo extends CI_Model{
             $this->db->join('tbl_account_allocation', 'tbl_account_allocation.tbl_account_idtbl_account = tbl_account.idtbl_account', 'left');
 
             $respondchart=$this->db->get();
+
+            //Debtor account check using customer ID
+            $this->db->where('tbl_account_allocation.companybank', $companyID);
+            $this->db->where('tbl_account_allocation.branchcompanybank', $branchID);
+            $this->db->where('tbl_account_detail_other.tbl_company_idtbl_company', $companyID);
+            $this->db->where('tbl_account_detail_other.tbl_company_branch_idtbl_company_branch', $branchID);
+            $this->db->where('tbl_account_detail.status', 1);
+            $this->db->where('tbl_account_allocation.status', 1);
+            $this->db->where('tbl_account_detail_other.otheroptiontype', 2);
+            $this->db->where('tbl_account_detail_other.otheroption', $customerID);
+            $this->db->where('tbl_account_allocation.tbl_account_detail_idtbl_account_detail is NOT NULL', NULL, FALSE);
+            $this->db->select('`tbl_account_detail`.`idtbl_account_detail`, `tbl_account_detail`.`accountno`, `tbl_account_detail`.`accountname`');
+            $this->db->from('tbl_account_detail');
+            $this->db->join('tbl_account_allocation', 'tbl_account_allocation.tbl_account_detail_idtbl_account_detail = tbl_account_detail.idtbl_account_detail', 'left');
+            $this->db->join('tbl_account_detail_other', 'tbl_account_detail_other.tbl_account_detail_idtbl_account_detail = tbl_account_detail.idtbl_account_detail', 'left');
+
+            $responddebtor=$this->db->get();
 
             $detailspecialcate = array('1', '2');
             $this->db->where('tbl_account_allocation.companybank', $companyID);
@@ -312,16 +350,41 @@ class Apiinfo extends CI_Model{
                     $obj->chartaccount = $rowrchartaccount->idtbl_account;
                     $obj->crder = 'C';
                     $segregationdata[] = $obj;
-                elseif($rowrchartaccount->specialcate==35):
+                endif;
+                // elseif($rowrchartaccount->specialcate==35):
+                //     $obj = new stdClass();
+                //     $obj->amount = str_replace(",", "", $respond->row(0)->total);
+                //     $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
+                //     $obj->detailaccount = '0';
+                //     $obj->chartaccount = $rowrchartaccount->idtbl_account;
+                //     $obj->crder = 'D';
+                //     $segregationdata[] = $obj;
+                // endif;
+            endforeach; 
+
+            if(!empty($responddebtor->result())): 
+                foreach($responddebtor->result() as $rowdebtoraccount):
                     $obj = new stdClass();
                     $obj->amount = str_replace(",", "", $respond->row(0)->total);
                     $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
-                    $obj->detailaccount = '0';
-                    $obj->chartaccount = $rowrchartaccount->idtbl_account;
+                    $obj->detailaccount = $rowdebtoraccount->idtbl_account_detail;
+                    $obj->chartaccount = '0';
                     $obj->crder = 'D';
                     $segregationdata[] = $obj;
-                endif;
-            endforeach; 
+                endforeach;
+            else:
+                foreach($respondchart->result() as $rowrchartaccount):
+                    if($rowrchartaccount->specialcate==35):
+                        $obj = new stdClass();
+                        $obj->amount = str_replace(",", "", $respond->row(0)->total);
+                        $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
+                        $obj->detailaccount = '0';
+                        $obj->chartaccount = $rowrchartaccount->idtbl_account;
+                        $obj->crder = 'D';
+                        $segregationdata[] = $obj;   
+                    endif;
+                endforeach;
+            endif;
 
             $this->db->trans_commit();
         } catch (Exception $e) {

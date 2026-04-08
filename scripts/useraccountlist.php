@@ -32,7 +32,9 @@ $columns = array(
 	array( 'db' => '`u`.`idtbl_user`', 'dt' => 'idtbl_user', 'field' => 'idtbl_user' ),
 	array( 'db' => '`u`.`name`', 'dt' => 'name', 'field' => 'name' ),
 	array( 'db' => '`u`.`username`', 'dt' => 'username', 'field' => 'username' ),
-	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' )
+	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' ),
+	array( 'db' => '`ua`.`type`', 'dt' => 'type', 'field' => 'type' ),
+	array( 'db' => 'GROUP_CONCAT(`r`.`role`)', 'dt' => 'role', 'field' => 'role', 'as' => 'role' )
 );
 
 // SQL server connection information
@@ -52,7 +54,7 @@ $sql_details = array(
 // require( 'ssp.class.php' );
 require('ssp.customized.class.php' );
 
-$joinQuery = "FROM `tbl_user` AS `u` ";
+$joinQuery = "FROM `tbl_user` AS `u` JOIN `tbl_user_type` AS `ua` ON (`ua`.`idtbl_user_type` = `u`.`tbl_user_type_idtbl_user_type`) LEFT JOIN `tbl_user_has_tbl_roles` AS `ur` ON (`ur`.`tbl_user_idtbl_user` = `u`.`idtbl_user`) LEFT JOIN `tbl_roles` AS `r` ON (`r`.`idtbl_roles` = `ur`.`tbl_roles_idtbl_roles`)";
 
 if($_POST['userID']==1){
     $extraWhere = "`u`.`status` IN (1, 2)";
@@ -61,6 +63,8 @@ else{
     $extraWhere = "`u`.`status` IN (1, 2) AND `u`.`idtbl_user`>1";
 }
 
+$groupBy = "`u`.`idtbl_user`";
+
 echo json_encode(
-	SSP::simple( $_POST, $sql_details, $table, $primaryKey, $columns, $joinQuery, $extraWhere)
+	SSP::simple( $_POST, $sql_details, $table, $primaryKey, $columns, $joinQuery, $extraWhere, $groupBy)
 );
