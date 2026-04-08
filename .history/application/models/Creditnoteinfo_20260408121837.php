@@ -412,7 +412,7 @@ class Creditnoteinfo extends CI_Model {
     public function Getinvoiceprintdetail(){
         $recordID = $this->input->post('recordID');
 
-        $this->db->select('cn.*, c.customer, c.telephone_no, c.address_line1, c.address_line2, c.city, c.state, c.svat_no, co.company, co.mobile, co.email, co.address1 as company_address1, co.address2 as company_address2');
+        $this->db->select('cn.*, c.customer, c.telephone_no, c.address_line1, c.address_line2, c.city, c.state, c.svat_no, co.company, co.mobile, co.fax, co.email, co.address_line1 as company_address1, co.address_line2 as company_address2, co.city as company_city');
         $this->db->from('tbl_credit_note cn');
         $this->db->join('tbl_print_invoice pi', 'pi.idtbl_print_invoice = cn.tbl_print_invoice_idtbl_print_invoice', 'left');
         $this->db->join('tbl_customer c', 'c.idtbl_customer = pi.tbl_customer_idtbl_customer', 'left');
@@ -426,11 +426,12 @@ class Creditnoteinfo extends CI_Model {
             
             // Header
             $html .= '<div style="margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">';
-            $html .= '<h2 style="margin: 0; font-size: 18px; color: #333;">' . htmlspecialchars($creditnote->company) . '</h2>';
+            $html .= '<h2 style="margin: 0; font-size: 18px; color: #333;">' . htmlspecialchars($creditnote->company_name) . '</h2>';
             $html .= '<p style="margin: 5px 0; font-size: 11px; color: #666;">' . htmlspecialchars($creditnote->company_address1) . '</p>';
             $html .= '<p style="margin: 5px 0; font-size: 11px; color: #666;">';
             if($creditnote->company_address2) $html .= htmlspecialchars($creditnote->company_address2) . ', ';
-            $html .= '<p style="margin: 5px 0; font-size: 11px; color: #666;">Tel: ' . htmlspecialchars($creditnote->mobile) . ' | Email: ' . htmlspecialchars($creditnote->email) . '</p>';
+            $html .= htmlspecialchars($creditnote->company_city) . '</p>';
+            $html .= '<p style="margin: 5px 0; font-size: 11px; color: #666;">Tel: ' . htmlspecialchars($creditnote->mobile) . ' | Fax: ' . htmlspecialchars($creditnote->fax) . ' | Email: ' . htmlspecialchars($creditnote->email) . '</p>';
             $html .= '</div>';
 
             // Title

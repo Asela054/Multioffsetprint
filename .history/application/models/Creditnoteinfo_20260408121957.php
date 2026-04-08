@@ -426,10 +426,11 @@ class Creditnoteinfo extends CI_Model {
             
             // Header
             $html .= '<div style="margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">';
-            $html .= '<h2 style="margin: 0; font-size: 18px; color: #333;">' . htmlspecialchars($creditnote->company) . '</h2>';
+            $html .= '<h2 style="margin: 0; font-size: 18px; color: #333;">' . htmlspecialchars($creditnote->company_name) . '</h2>';
             $html .= '<p style="margin: 5px 0; font-size: 11px; color: #666;">' . htmlspecialchars($creditnote->company_address1) . '</p>';
             $html .= '<p style="margin: 5px 0; font-size: 11px; color: #666;">';
             if($creditnote->company_address2) $html .= htmlspecialchars($creditnote->company_address2) . ', ';
+            $html .= htmlspecialchars($creditnote->company_city) . '</p>';
             $html .= '<p style="margin: 5px 0; font-size: 11px; color: #666;">Tel: ' . htmlspecialchars($creditnote->mobile) . ' | Email: ' . htmlspecialchars($creditnote->email) . '</p>';
             $html .= '</div>';
 

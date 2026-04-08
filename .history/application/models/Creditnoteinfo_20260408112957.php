@@ -252,7 +252,7 @@ class Creditnoteinfo extends CI_Model {
     public function GetCreditNoteDetails(){
         $recordID = $this->input->post('recordID');
 
-        $this->db->select('cn.*, c.customer, c.telephone_no, c.address_line1, c.address_line2, c.city, c.state');
+        $this->db->select('cn.*, c.customer, c.telephone_no, c.address1, c.address2, c.city, c.state');
         $this->db->from('tbl_credit_note cn');
         $this->db->join('tbl_print_invoice pi', 'pi.idtbl_print_invoice = cn.tbl_print_invoice_idtbl_print_invoice', 'left');
         $this->db->join('tbl_customer c', 'c.idtbl_customer = pi.tbl_customer_idtbl_customer', 'left');
@@ -263,9 +263,9 @@ class Creditnoteinfo extends CI_Model {
         if($creditnote){
             echo '<script>
                 document.getElementById("creditnotecustomername").innerHTML = "' . addslashes($creditnote->customer) . '";
-                document.getElementById("creditnotecustomercontact").innerHTML = "' . addslashes($creditnote->telephone_no) . '";
-                document.getElementById("creditnoteaddress1").innerHTML = "' . addslashes($creditnote->address_line1) . '";
-                document.getElementById("creditnoteaddress2").innerHTML = "' . addslashes($creditnote->address_line2) . '";
+                document.getElementById("creditnotecustomercontact").innerHTML = "' . addslashes($creditnote->contact) . '";
+                document.getElementById("creditnoteaddress1").innerHTML = "' . addslashes($creditnote->address1) . '";
+                document.getElementById("creditnoteaddress2").innerHTML = "' . addslashes($creditnote->address2) . '";
                 document.getElementById("creditnotecity").innerHTML = "' . addslashes($creditnote->city) . '";
                 document.getElementById("creditnotestate").innerHTML = "' . addslashes($creditnote->state) . '";
             </script>';
@@ -325,41 +325,10 @@ class Creditnoteinfo extends CI_Model {
         $this->db->update('tbl_credit_note', $data);
 
         if($this->db->affected_rows() > 0){
-            $actionObj = new stdClass();
-            $actionObj->icon = 'fas fa-check';
-            $actionObj->title = '';
-            if($status == 1){
-                $actionObj->message = 'Credit Note Approved Successfully';
-            } else {
-                $actionObj->message = 'Credit Note Rejected Successfully';
-            }
-            $actionObj->url = '';
-            $actionObj->target = '_blank';
-            $actionObj->type = 'success';
-
-            $actionJSON = json_encode($actionObj);
-
-            $obj = new stdClass();
-            $obj->status = 1;
-            $obj->action = $actionJSON;
-
-            echo json_encode($obj);
+            $message = $status == 1 ? 'Credit Note Approved Successfully' : 'Credit Note Rejected Successfully';
+            echo json_encode(array('status' => 1, 'message' => $message));
         } else {
-            $actionObj = new stdClass();
-            $actionObj->icon = 'fas fa-warning';
-            $actionObj->title = '';
-            $actionObj->message = 'Failed to update status';
-            $actionObj->url = '';
-            $actionObj->target = '_blank';
-            $actionObj->type = 'danger';
-
-            $actionJSON = json_encode($actionObj);
-
-            $obj = new stdClass();
-            $obj->status = 0;
-            $obj->action = $actionJSON;
-
-            echo json_encode($obj);
+            echo json_encode(array('status' => 0, 'message' => 'Failed to update status'));
         }
     }
 
@@ -375,159 +344,9 @@ class Creditnoteinfo extends CI_Model {
         $this->db->update('tbl_credit_note', $data);
 
         if($this->db->affected_rows() > 0){
-            $actionObj = new stdClass();
-            $actionObj->icon = 'fas fa-check';
-            $actionObj->title = '';
-            $actionObj->message = 'Credit Note Checked Successfully';
-            $actionObj->url = '';
-            $actionObj->target = '_blank';
-            $actionObj->type = 'success';
-
-            $actionJSON = json_encode($actionObj);
-
-            $obj = new stdClass();
-            $obj->status = 1;
-            $obj->action = $actionJSON;
-
-            echo json_encode($obj);
+            echo json_encode(array('status' => 1, 'message' => 'Credit Note Checked Successfully'));
         } else {
-            $actionObj = new stdClass();
-            $actionObj->icon = 'fas fa-warning';
-            $actionObj->title = '';
-            $actionObj->message = 'Failed to check credit note';
-            $actionObj->url = '';
-            $actionObj->target = '_blank';
-            $actionObj->type = 'danger';
-
-            $actionJSON = json_encode($actionObj);
-
-            $obj = new stdClass();
-            $obj->status = 0;
-            $obj->action = $actionJSON;
-
-            echo json_encode($obj);
-        }
-    }
-
-    public function Getinvoiceprintdetail(){
-        $recordID = $this->input->post('recordID');
-
-        $this->db->select('cn.*, c.customer, c.telephone_no, c.address_line1, c.address_line2, c.city, c.state, c.svat_no, co.company, co.mobile, co.email, co.address1 as company_address1, co.address2 as company_address2');
-        $this->db->from('tbl_credit_note cn');
-        $this->db->join('tbl_print_invoice pi', 'pi.idtbl_print_invoice = cn.tbl_print_invoice_idtbl_print_invoice', 'left');
-        $this->db->join('tbl_customer c', 'c.idtbl_customer = pi.tbl_customer_idtbl_customer', 'left');
-        $this->db->join('tbl_company co', 'co.idtbl_company = pi.tbl_company_idtbl_company', 'left');
-        $this->db->where('cn.idtbl_credit_note', $recordID);
-        $query = $this->db->get();
-        $creditnote = $query->row();
-
-        if($creditnote){
-            $html = '<div style="font-family: Arial, sans-serif; font-size: 12px; padding: 20px;">';
-            
-            // Header
-            $html .= '<div style="margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">';
-            $html .= '<h2 style="margin: 0; font-size: 18px; color: #333;">' . htmlspecialchars($creditnote->company) . '</h2>';
-            $html .= '<p style="margin: 5px 0; font-size: 11px; color: #666;">' . htmlspecialchars($creditnote->company_address1) . '</p>';
-            $html .= '<p style="margin: 5px 0; font-size: 11px; color: #666;">';
-            if($creditnote->company_address2) $html .= htmlspecialchars($creditnote->company_address2) . ', ';
-            $html .= '<p style="margin: 5px 0; font-size: 11px; color: #666;">Tel: ' . htmlspecialchars($creditnote->mobile) . ' | Email: ' . htmlspecialchars($creditnote->email) . '</p>';
-            $html .= '</div>';
-
-            // Title
-            $html .= '<h3 style="text-align: center; margin: 20px 0 15px 0; font-size: 16px; color: #333; text-decoration: underline;">CREDIT NOTE</h3>';
-
-            // Invoice Info
-            $html .= '<div style="margin-bottom: 15px;">';
-            $html .= '<table style="width: 100%; font-size: 11px;">';
-            $html .= '<tr>';
-            $html .= '<td style="width: 50%;"><strong>Credit Note #:</strong> ' . htmlspecialchars($creditnote->idtbl_credit_note) . '</td>';
-            $html .= '<td style="width: 50%; text-align: right;"><strong>Date:</strong> ' . htmlspecialchars($creditnote->date) . '</td>';
-            $html .= '</tr>';
-            $html .= '</table>';
-            $html .= '</div>';
-
-            // Customer Info
-            $html .= '<div style="margin-bottom: 15px;">';
-            $html .= '<strong style="font-size: 12px;">Bill To:</strong>';
-            $html .= '<p style="margin: 5px 0; font-size: 11px;">' . htmlspecialchars($creditnote->customer) . '</p>';
-            if($creditnote->address_line1) $html .= '<p style="margin: 5px 0; font-size: 11px;">' . htmlspecialchars($creditnote->address_line1) . '</p>';
-            if($creditnote->address_line2) $html .= '<p style="margin: 5px 0; font-size: 11px;">' . htmlspecialchars($creditnote->address_line2) . '</p>';
-            if($creditnote->city) $html .= '<p style="margin: 5px 0; font-size: 11px;">' . htmlspecialchars($creditnote->city);
-            if($creditnote->state) $html .= ', ' . htmlspecialchars($creditnote->state);
-            $html .= '</p>';
-            if($creditnote->telephone_no) $html .= '<p style="margin: 5px 0; font-size: 11px;">Tel: ' . htmlspecialchars($creditnote->telephone_no) . '</p>';
-            if($creditnote->svat_no) $html .= '<p style="margin: 5px 0; font-size: 11px;">Tax ID: ' . htmlspecialchars($creditnote->svat_no) . '</p>';
-            $html .= '</div>';
-
-            // Items Table
-            $html .= '<table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 11px;">';
-            $html .= '<thead>';
-            $html .= '<tr style="background-color: #f0f0f0; border: 1px solid #ddd;">';
-            $html .= '<th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Job / Description</th>';
-            $html .= '<th style="border: 1px solid #ddd; padding: 8px; text-align: center; width: 60px;">Qty</th>';
-            $html .= '<th style="border: 1px solid #ddd; padding: 8px; text-align: right; width: 80px;">Unit Price</th>';
-            $html .= '<th style="border: 1px solid #ddd; padding: 8px; text-align: right; width: 80px;">Amount</th>';
-            $html .= '</tr>';
-            $html .= '</thead>';
-            $html .= '<tbody>';
-
-            $this->db->select('cnd.*, pid.job');
-            $this->db->from('tbl_credit_note_detail cnd');
-            $this->db->join('tbl_print_invoicedetail pid', 'pid.tbl_print_dispatch_idtbl_print_dispatch = cnd.dispatch_id', 'left');
-            $this->db->where('cnd.tbl_credit_note_idtbl_credit_note', $recordID);
-            $details = $this->db->get()->result();
-
-            foreach($details as $detail){
-                $html .= '<tr style="border: 1px solid #ddd;">';
-                $html .= '<td style="border: 1px solid #ddd; padding: 8px;">' . htmlspecialchars($detail->job) . '</td>';
-                $html .= '<td style="border: 1px solid #ddd; padding: 8px; text-align: center;">' . htmlspecialchars($detail->qty) . '</td>';
-                $html .= '<td style="border: 1px solid #ddd; padding: 8px; text-align: right;">Rs. ' . number_format($detail->unitprice, 2) . '</td>';
-                $html .= '<td style="border: 1px solid #ddd; padding: 8px; text-align: right;">Rs. ' . number_format($detail->total, 2) . '</td>';
-                $html .= '</tr>';
-            }
-
-            $html .= '</tbody>';
-            $html .= '</table>';
-
-            // Summary Section
-            $html .= '<div style="margin-top: 20px;">';
-            $html .= '<div style="float: right; width: 300px; font-size: 11px;">';
-            $html .= '<table style="width: 100%; border-collapse: collapse;">';
-            $html .= '<tr>';
-            $html .= '<td style="text-align: right; padding: 5px;"><strong>Subtotal:</strong></td>';
-            $html .= '<td style="text-align: right; padding: 5px; width: 100px;">Rs. ' . number_format($creditnote->subtotal, 2) . '</td>';
-            $html .= '</tr>';
-            $html .= '<tr>';
-            $html .= '<td style="text-align: right; padding: 5px;"><strong>VAT:</strong></td>';
-            $html .= '<td style="text-align: right; padding: 5px;">Rs. ' . number_format($creditnote->vat_amount, 2) . '</td>';
-            $html .= '</tr>';
-            $html .= '<tr style="border-top: 2px solid #333;">';
-            $html .= '<td style="text-align: right; padding: 5px;"><strong>Total:</strong></td>';
-            $html .= '<td style="text-align: right; padding: 5px;"><strong>Rs. ' . number_format($creditnote->total, 2) . '</strong></td>';
-            $html .= '</tr>';
-            $html .= '</table>';
-            $html .= '</div>';
-
-            if($creditnote->remark){
-                $html .= '<p style="margin: 0; font-size: 11px;"><strong>Remark:</strong> ' . htmlspecialchars($creditnote->remark) . '</p>';
-            }
-
-            $html .= '</div>';
-
-            // Signature Section
-            $html .= '<div style="clear: both; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ccc;">';
-            $html .= '<table style="width: 100%; font-size: 10px;">';
-            $html .= '<tr>';
-            $html .= '<td style="text-align: center; width: 33%; padding: 20px 0 0 0;">_________________<br>Prepared By</td>';
-            $html .= '<td style="text-align: center; width: 33%; padding: 20px 0 0 0;">_________________<br>Authorized By</td>';
-            $html .= '<td style="text-align: center; width: 33%; padding: 20px 0 0 0;">_________________<br>Received By</td>';
-            $html .= '</tr>';
-            $html .= '</table>';
-            $html .= '</div>';
-
-            $html .= '</div>';
-
-            echo $html;
+            echo json_encode(array('status' => 0, 'message' => 'Failed to check credit note'));
         }
     }
 }

@@ -26,29 +26,9 @@ class Creditnote extends CI_Controller {
 		$this->load->model('Creditnoteinfo');
         $result=$this->Creditnoteinfo->Returninvoiceinsertupdate();
 	}
-	public function Getretruninvoicedetails(){
+	    public function Returninvoiceinsertupdate(){
 		$this->load->model('Creditnoteinfo');
-        $result=$this->Creditnoteinfo->Getretruninvoicedetails();
-	}
-
-	public function GetCreditNoteDetails(){
-		$this->load->model('Creditnoteinfo');
-        $result=$this->Creditnoteinfo->GetCreditNoteDetails();
-	}
-
-	public function Creditnotestatus(){
-		$this->load->model('Creditnoteinfo');
-        $result=$this->Creditnoteinfo->Creditnotestatus();
-	}
-
-	public function Creditnotecheckstatus(){
-		$this->load->model('Creditnoteinfo');
-        $result=$this->Creditnoteinfo->Creditnotecheckstatus();
-	}
-
-	public function Getinvoiceprint(){
-		$this->load->model('Creditnoteinfo');
-		$result=$this->Creditnoteinfo->Getinvoiceprintdetail();
+        $result=$this->Creditnoteinfo->Returninvoiceinsertupdate();
 	}
     
 }

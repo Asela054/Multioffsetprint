@@ -644,61 +644,39 @@
 		}
 
 		$(document).on("click", "#btncreditnotecheck", function () {
+			var creditnoteid = $('#creditnoteid').val();
 			Swal.fire({
-				title: "Do you want to check this Credit Note?",
-				showDenyButton: true,
-				showCancelButton: false,
-				confirmButtonText: "Check"
+				title: 'Check Credit Note',
+				text: 'Are you sure you want to check this credit note?',
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonText: 'Yes',
+				cancelButtonText: 'No'
 			}).then((result) => {
 				if (result.isConfirmed) {
-					var confirmnot = 1;
-					checkcreditnote(confirmnot);
-				}
-			});
-		});
-
-		function checkcreditnote(confirmnot) {
-			Swal.fire({
-				title: '',
-				html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-				allowOutsideClick: false,
-				showConfirmButton: false,
-				backdrop: 'rgba(255, 255, 255, 0.5)',
-				customClass: {
-					popup: 'fullscreen-swal'
-				},
-				didOpen: () => {
-					document.body.style.overflow = 'hidden';
-
 					$.ajax({
 						type: "POST",
 						data: {
-							creditnoteid: $('#creditnoteid').val()
+							creditnoteid: creditnoteid
 						},
 						url: '<?php echo base_url() ?>Creditnote/Creditnotecheckstatus',
-						success: function (result) {
-							Swal.close();
-							document.body.style.overflow = 'auto';
-							var obj = JSON.parse(result);
-							if (obj.status == 1) {
-								actionreload(obj.action);
+						success: function (response) {
+							var data = JSON.parse(response);
+							if (data.status == 1) {
+								$('#btncreditnotecheck').addClass('d-none').prop('disabled', true);
+								$('#creditnotecheckalertdiv').html('<div class="alert alert-secondary" role="alert"><i class="fas fa-check-circle mr-2"></i> Credit Note checked</div>');
+								setTimeout(function() {
+									$('#creditnoteviewmodal').modal('hide');
+									location.reload();
+								}, 2000);
 							} else {
-								action(obj.action);
+								$('#creditnotecheckalertdiv').html('<div class="alert alert-danger">' + data.message + '</div>');
 							}
-						},
-						error: function () {
-							Swal.close();
-							document.body.style.overflow = 'auto';
-							Swal.fire({
-								icon: "error",
-								title: "Error",
-								text: "Something went wrong. Please try again later.",
-							});
 						}
 					});
 				}
 			});
-		}
+		});
 
 		document.getElementById('btnreceiptprint').addEventListener("click", print);
 
@@ -834,8 +812,8 @@
     								$('#modalReturninvoice').modal('hide');
     								Swal.fire({
     									icon: "success",
-    									title: "Credit Note Created!",
-    									text: "Credit Note successfully!",
+    									title: "Dispatch Note Created!",
+    									text: "Dispatch Note successfully!",
     									timer: 2000,
     									showConfirmButton: false
     								}).then(() => {
@@ -937,26 +915,6 @@
             targetStyles: ['*']
         })
     }
-
-	function printJS(config) {
-		var printWindow = window.open('', '_blank');
-		var printContent = document.getElementById(config.printable).innerHTML;
-		printWindow.document.write('<html><head><title>Print Credit Note</title>');
-		printWindow.document.write('<style>');
-		printWindow.document.write('body { font-family: Arial, sans-serif; font-size: 12px; margin: 0; padding: 10px; }');
-		printWindow.document.write('table { width: 100%; border-collapse: collapse; margin: 10px 0; }');
-		printWindow.document.write('th, td { border: 1px solid #333; padding: 8px; text-align: left; }');
-		printWindow.document.write('th { background-color: #f0f0f0; font-weight: bold; }');
-		printWindow.document.write('tr:nth-child(even) { background-color: #fbfbfb; }');
-		printWindow.document.write('.text-right { text-align: right; }');
-		printWindow.document.write('.text-center { text-align: center; }');
-		printWindow.document.write('@media print { body { margin: 0; padding: 5px; } }');
-		printWindow.document.write('</style></head><body>');
-		printWindow.document.write(printContent);
-		printWindow.document.write('</body></html>');
-		printWindow.document.close();
-		setTimeout(function() { printWindow.print(); }, 100);
-	}
 
     function addCommas(nStr) {
     	nStr += '';

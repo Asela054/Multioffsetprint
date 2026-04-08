@@ -47,8 +47,8 @@ class Creditnote extends CI_Controller {
 	}
 
 	public function Getinvoiceprint(){
-		$this->load->model('Creditnoteinfo');
-		$result=$this->Creditnoteinfo->Getinvoiceprintdetail();
+		$this->load->model('Pdfreturninvoiceinfo');
+        $result=$this->Pdfreturninvoiceinfo->Getinvoiceprint();
 	}
     
 }

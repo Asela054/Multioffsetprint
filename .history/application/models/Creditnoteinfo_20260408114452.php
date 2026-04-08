@@ -308,8 +308,261 @@ class Creditnoteinfo extends CI_Model {
                 </div>
             </div>';
 
-            echo $html;
+}
+    }
+
+    public function GetCreditNotePrint(){
+        $recordID = $this->input->post('recordID');
+
+        // Get credit note details
+        $this->db->select('cn.*, pi.inv_no, pi.date as invoice_date, c.customer, c.contact, c.address1, c.address2, c.city, c.state');
+        $this->db->from('tbl_credit_note cn');
+        $this->db->join('tbl_print_invoice pi', 'pi.idtbl_print_invoice = cn.tbl_print_invoice_idtbl_print_invoice', 'left');
+        $this->db->join('tbl_customer c', 'c.idtbl_customer = pi.tbl_customer_idtbl_customer', 'left');
+        $this->db->where('cn.idtbl_credit_note', $recordID);
+        $creditnote = $this->db->get()->row();
+
+        // Get company details
+        $this->db->select('comp.company, comp.address1, comp.address2, comp.mobile, comp.phone, comp.email, comp.logo, branch.branch');
+        $this->db->from('tbl_company comp');
+        $this->db->join('tbl_company_branch branch', 'branch.idtbl_company_branch = comp.idtbl_company', 'left');
+        $this->db->where('comp.idtbl_company', $_SESSION['company_id']);
+        $company = $this->db->get()->row();
+
+        // Get credit note details
+        $this->db->select('cnd.*, pid.job, pid.dispatch_no');
+        $this->db->from('tbl_credit_note_detail cnd');
+        $this->db->join('tbl_print_invoicedetail pid', 'pid.tbl_print_dispatch_idtbl_print_dispatch = cnd.dispatch_id', 'left');
+        $this->db->where('cnd.tbl_credit_note_idtbl_credit_note', $recordID);
+        $details = $this->db->get()->result();
+
+        $html = '
+        <style>
+            @page {
+                size: A4;
+                margin: 1cm;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+                line-height: 1.4;
+                color: #333;
+            }
+            .header {
+                border-bottom: 3px solid #007bff;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+            .company-info {
+                float: left;
+                width: 60%;
+            }
+            .credit-note-title {
+                float: right;
+                width: 40%;
+                text-align: center;
+                background-color: #007bff;
+                color: white;
+                padding: 15px;
+                border-radius: 5px;
+                font-size: 24px;
+                font-weight: bold;
+            }
+            .clear {
+                clear: both;
+            }
+            .customer-info {
+                background-color: #f8f9fa;
+                padding: 15px;
+                border-radius: 5px;
+                margin-bottom: 20px;
+            }
+            .info-row {
+                margin-bottom: 5px;
+            }
+            .info-label {
+                font-weight: bold;
+                display: inline-block;
+                width: 120px;
+            }
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+            .table th {
+                background-color: #007bff;
+                color: white;
+                padding: 10px;
+                text-align: left;
+                border: 1px solid #dee2e6;
+            }
+            .table td {
+                padding: 8px;
+                border: 1px solid #dee2e6;
+            }
+            .table tbody tr:nth-child(even) {
+                background-color: #f8f9fa;
+            }
+            .total-section {
+                text-align: right;
+                margin-top: 20px;
+            }
+            .total-row {
+                margin-bottom: 5px;
+            }
+            .total-label {
+                display: inline-block;
+                width: 150px;
+                font-weight: bold;
+            }
+            .total-amount {
+                display: inline-block;
+                width: 120px;
+                text-align: right;
+                font-weight: bold;
+                font-size: 14px;
+            }
+            .footer {
+                margin-top: 50px;
+                border-top: 1px solid #dee2e6;
+                padding-top: 20px;
+            }
+            .signature-section {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 40px;
+            }
+            .signature-box {
+                width: 200px;
+                text-align: center;
+            }
+            .signature-line {
+                border-bottom: 1px solid #333;
+                margin-top: 40px;
+            }
+        </style>
+
+        <div class="header">
+            <div class="company-info">
+                <h2 style="margin: 0; color: #007bff;">'.$company->company.'</h2>
+                <p style="margin: 5px 0;">'.$company->address1.'</p>
+                '.($company->address2 ? '<p style="margin: 5px 0;">'.$company->address2.'</p>' : '').'
+                <p style="margin: 5px 0;">'.$company->mobile.($company->phone ? ' / '.$company->phone : '').'</p>
+                <p style="margin: 5px 0;">'.$company->email.'</p>
+                <p style="margin: 5px 0;"><strong>Branch:</strong> '.$company->branch.'</p>
+            </div>
+            <div class="credit-note-title">
+                CREDIT NOTE
+            </div>
+            <div class="clear"></div>
+        </div>
+
+        <div class="customer-info">
+            <div class="info-row">
+                <span class="info-label">Customer:</span>
+                <span>'.$creditnote->customer.'</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Contact:</span>
+                <span>'.$creditnote->contact.'</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Address:</span>
+                <span>'.$creditnote->address1.($creditnote->address2 ? ', '.$creditnote->address2 : '').'</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">City/State:</span>
+                <span>'.$creditnote->city.($creditnote->state ? ', '.$creditnote->state : '').'</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Invoice No:</span>
+                <span>'.$creditnote->inv_no.'</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Credit Note Date:</span>
+                <span>'.date('d-m-Y', strtotime($creditnote->date)).'</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Invoice Date:</span>
+                <span>'.date('d-m-Y', strtotime($creditnote->invoice_date)).'</span>
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 40%;">Job Description</th>
+                    <th style="width: 15%;">Dispatch No</th>
+                    <th style="width: 15%; text-align: center;">Quantity</th>
+                    <th style="width: 15%; text-align: right;">Unit Price</th>
+                    <th style="width: 10%; text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody>';
+
+        $counter = 1;
+        $subtotal = 0;
+        foreach($details as $detail){
+            $total = $detail->qty * $detail->unitprice;
+            $subtotal += $total;
+            $html .= '
+                <tr>
+                    <td>'.$counter.'</td>
+                    <td>'.$detail->job.'</td>
+                    <td>'.$detail->dispatch_no.'</td>
+                    <td style="text-align: center;">'.$detail->qty.'</td>
+                    <td style="text-align: right;">'.number_format($detail->unitprice, 2).'</td>
+                    <td style="text-align: right;">'.number_format($total, 2).'</td>
+                </tr>';
+            $counter++;
         }
+
+        $vat_amount = $creditnote->vat_amount;
+        $grand_total = $creditnote->subtotal;
+
+        $html .= '
+            </tbody>
+        </table>
+
+        <div class="total-section">
+            <div class="total-row">
+                <span class="total-label">Subtotal:</span>
+                <span class="total-amount">Rs. '.number_format($subtotal, 2).'</span>
+            </div>
+            <div class="total-row">
+                <span class="total-label">VAT Amount:</span>
+                <span class="total-amount">Rs. '.number_format($vat_amount, 2).'</span>
+            </div>
+            <div class="total-row" style="font-size: 16px; border-top: 2px solid #007bff; padding-top: 10px; margin-top: 10px;">
+                <span class="total-label" style="font-size: 16px;">Total Amount:</span>
+                <span class="total-amount" style="font-size: 16px; color: #007bff;">Rs. '.number_format($grand_total, 2).'</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="signature-section">
+                <div class="signature-box">
+                    <div class="signature-line"></div>
+                    <p><strong>Prepared By</strong></p>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-line"></div>
+                    <p><strong>Checked By</strong></p>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-line"></div>
+                    <p><strong>Approved By</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px; font-size: 10px; color: #666;">
+            <p>This is a computer generated credit note and does not require signature.</p>
+        </div>';
+
+        echo $html;
     }
 
     public function Creditnotestatus(){
@@ -406,128 +659,6 @@ class Creditnoteinfo extends CI_Model {
             $obj->action = $actionJSON;
 
             echo json_encode($obj);
-        }
-    }
-
-    public function Getinvoiceprintdetail(){
-        $recordID = $this->input->post('recordID');
-
-        $this->db->select('cn.*, c.customer, c.telephone_no, c.address_line1, c.address_line2, c.city, c.state, c.svat_no, co.company, co.mobile, co.email, co.address1 as company_address1, co.address2 as company_address2');
-        $this->db->from('tbl_credit_note cn');
-        $this->db->join('tbl_print_invoice pi', 'pi.idtbl_print_invoice = cn.tbl_print_invoice_idtbl_print_invoice', 'left');
-        $this->db->join('tbl_customer c', 'c.idtbl_customer = pi.tbl_customer_idtbl_customer', 'left');
-        $this->db->join('tbl_company co', 'co.idtbl_company = pi.tbl_company_idtbl_company', 'left');
-        $this->db->where('cn.idtbl_credit_note', $recordID);
-        $query = $this->db->get();
-        $creditnote = $query->row();
-
-        if($creditnote){
-            $html = '<div style="font-family: Arial, sans-serif; font-size: 12px; padding: 20px;">';
-            
-            // Header
-            $html .= '<div style="margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">';
-            $html .= '<h2 style="margin: 0; font-size: 18px; color: #333;">' . htmlspecialchars($creditnote->company) . '</h2>';
-            $html .= '<p style="margin: 5px 0; font-size: 11px; color: #666;">' . htmlspecialchars($creditnote->company_address1) . '</p>';
-            $html .= '<p style="margin: 5px 0; font-size: 11px; color: #666;">';
-            if($creditnote->company_address2) $html .= htmlspecialchars($creditnote->company_address2) . ', ';
-            $html .= '<p style="margin: 5px 0; font-size: 11px; color: #666;">Tel: ' . htmlspecialchars($creditnote->mobile) . ' | Email: ' . htmlspecialchars($creditnote->email) . '</p>';
-            $html .= '</div>';
-
-            // Title
-            $html .= '<h3 style="text-align: center; margin: 20px 0 15px 0; font-size: 16px; color: #333; text-decoration: underline;">CREDIT NOTE</h3>';
-
-            // Invoice Info
-            $html .= '<div style="margin-bottom: 15px;">';
-            $html .= '<table style="width: 100%; font-size: 11px;">';
-            $html .= '<tr>';
-            $html .= '<td style="width: 50%;"><strong>Credit Note #:</strong> ' . htmlspecialchars($creditnote->idtbl_credit_note) . '</td>';
-            $html .= '<td style="width: 50%; text-align: right;"><strong>Date:</strong> ' . htmlspecialchars($creditnote->date) . '</td>';
-            $html .= '</tr>';
-            $html .= '</table>';
-            $html .= '</div>';
-
-            // Customer Info
-            $html .= '<div style="margin-bottom: 15px;">';
-            $html .= '<strong style="font-size: 12px;">Bill To:</strong>';
-            $html .= '<p style="margin: 5px 0; font-size: 11px;">' . htmlspecialchars($creditnote->customer) . '</p>';
-            if($creditnote->address_line1) $html .= '<p style="margin: 5px 0; font-size: 11px;">' . htmlspecialchars($creditnote->address_line1) . '</p>';
-            if($creditnote->address_line2) $html .= '<p style="margin: 5px 0; font-size: 11px;">' . htmlspecialchars($creditnote->address_line2) . '</p>';
-            if($creditnote->city) $html .= '<p style="margin: 5px 0; font-size: 11px;">' . htmlspecialchars($creditnote->city);
-            if($creditnote->state) $html .= ', ' . htmlspecialchars($creditnote->state);
-            $html .= '</p>';
-            if($creditnote->telephone_no) $html .= '<p style="margin: 5px 0; font-size: 11px;">Tel: ' . htmlspecialchars($creditnote->telephone_no) . '</p>';
-            if($creditnote->svat_no) $html .= '<p style="margin: 5px 0; font-size: 11px;">Tax ID: ' . htmlspecialchars($creditnote->svat_no) . '</p>';
-            $html .= '</div>';
-
-            // Items Table
-            $html .= '<table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 11px;">';
-            $html .= '<thead>';
-            $html .= '<tr style="background-color: #f0f0f0; border: 1px solid #ddd;">';
-            $html .= '<th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Job / Description</th>';
-            $html .= '<th style="border: 1px solid #ddd; padding: 8px; text-align: center; width: 60px;">Qty</th>';
-            $html .= '<th style="border: 1px solid #ddd; padding: 8px; text-align: right; width: 80px;">Unit Price</th>';
-            $html .= '<th style="border: 1px solid #ddd; padding: 8px; text-align: right; width: 80px;">Amount</th>';
-            $html .= '</tr>';
-            $html .= '</thead>';
-            $html .= '<tbody>';
-
-            $this->db->select('cnd.*, pid.job');
-            $this->db->from('tbl_credit_note_detail cnd');
-            $this->db->join('tbl_print_invoicedetail pid', 'pid.tbl_print_dispatch_idtbl_print_dispatch = cnd.dispatch_id', 'left');
-            $this->db->where('cnd.tbl_credit_note_idtbl_credit_note', $recordID);
-            $details = $this->db->get()->result();
-
-            foreach($details as $detail){
-                $html .= '<tr style="border: 1px solid #ddd;">';
-                $html .= '<td style="border: 1px solid #ddd; padding: 8px;">' . htmlspecialchars($detail->job) . '</td>';
-                $html .= '<td style="border: 1px solid #ddd; padding: 8px; text-align: center;">' . htmlspecialchars($detail->qty) . '</td>';
-                $html .= '<td style="border: 1px solid #ddd; padding: 8px; text-align: right;">Rs. ' . number_format($detail->unitprice, 2) . '</td>';
-                $html .= '<td style="border: 1px solid #ddd; padding: 8px; text-align: right;">Rs. ' . number_format($detail->total, 2) . '</td>';
-                $html .= '</tr>';
-            }
-
-            $html .= '</tbody>';
-            $html .= '</table>';
-
-            // Summary Section
-            $html .= '<div style="margin-top: 20px;">';
-            $html .= '<div style="float: right; width: 300px; font-size: 11px;">';
-            $html .= '<table style="width: 100%; border-collapse: collapse;">';
-            $html .= '<tr>';
-            $html .= '<td style="text-align: right; padding: 5px;"><strong>Subtotal:</strong></td>';
-            $html .= '<td style="text-align: right; padding: 5px; width: 100px;">Rs. ' . number_format($creditnote->subtotal, 2) . '</td>';
-            $html .= '</tr>';
-            $html .= '<tr>';
-            $html .= '<td style="text-align: right; padding: 5px;"><strong>VAT:</strong></td>';
-            $html .= '<td style="text-align: right; padding: 5px;">Rs. ' . number_format($creditnote->vat_amount, 2) . '</td>';
-            $html .= '</tr>';
-            $html .= '<tr style="border-top: 2px solid #333;">';
-            $html .= '<td style="text-align: right; padding: 5px;"><strong>Total:</strong></td>';
-            $html .= '<td style="text-align: right; padding: 5px;"><strong>Rs. ' . number_format($creditnote->total, 2) . '</strong></td>';
-            $html .= '</tr>';
-            $html .= '</table>';
-            $html .= '</div>';
-
-            if($creditnote->remark){
-                $html .= '<p style="margin: 0; font-size: 11px;"><strong>Remark:</strong> ' . htmlspecialchars($creditnote->remark) . '</p>';
-            }
-
-            $html .= '</div>';
-
-            // Signature Section
-            $html .= '<div style="clear: both; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ccc;">';
-            $html .= '<table style="width: 100%; font-size: 10px;">';
-            $html .= '<tr>';
-            $html .= '<td style="text-align: center; width: 33%; padding: 20px 0 0 0;">_________________<br>Prepared By</td>';
-            $html .= '<td style="text-align: center; width: 33%; padding: 20px 0 0 0;">_________________<br>Authorized By</td>';
-            $html .= '<td style="text-align: center; width: 33%; padding: 20px 0 0 0;">_________________<br>Received By</td>';
-            $html .= '</tr>';
-            $html .= '</table>';
-            $html .= '</div>';
-
-            $html .= '</div>';
-
-            echo $html;
         }
     }
 }

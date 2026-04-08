@@ -224,26 +224,6 @@
 		</div>
 	</div>
 </div>
-<!-- Modal Return Invoice -->
-<div class="modal fade" id="modalprintinvoice" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-	aria-hidden="true" data-backdrop="static">
-	<div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h6 class="modal-title" id="dailycompletemodaldropLabel">Print Credit Note</h6>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-                <div id="viewreceiptprint"></div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger btn-sm fa-pull-right" id="btnreceiptprint"><i class="fas fa-print"></i>&nbsp;Print Receipt</button>
-            </div>
-		</div>
-	</div>
-</div>
 <!-- Modal -->
 <div id="creditnoteview">
 	<div class="modal fade" id="creditnoteviewmodal" data-backdrop="static" data-keyboard="false" tabindex="-1"
@@ -563,23 +543,7 @@
         	});
         });
 
-		$(document).on("click", ".btnprintReturn", function () {
-			var id = $(this).attr('id');
 
-			$('#modalprintinvoice').modal('show');
-			$('#viewreceiptprint').html('<div class="card border-0 shadow-none bg-transparent"><div class="card-body text-center"><img src="images/spinner.gif" alt="" srcset=""></div></div>');
-
-			$.ajax({
-				type: "POST",
-				data: {
-					recordID: id
-				},
-				url: "<?php echo base_url() ?>Creditnote/Getinvoiceprint",
-				success: function (result) { //alert(result);
-					$('#viewreceiptprint').html(result);
-				}
-			});
-		});
 
 		$(document).on("click", "#btncreditnoteapprovereject", function () {
 			Swal.fire({
@@ -700,7 +664,7 @@
 			});
 		}
 
-		document.getElementById('btnreceiptprint').addEventListener("click", print);
+
 
 
         $("#formsubmit").click(function () {
@@ -937,26 +901,6 @@
             targetStyles: ['*']
         })
     }
-
-	function printJS(config) {
-		var printWindow = window.open('', '_blank');
-		var printContent = document.getElementById(config.printable).innerHTML;
-		printWindow.document.write('<html><head><title>Print Credit Note</title>');
-		printWindow.document.write('<style>');
-		printWindow.document.write('body { font-family: Arial, sans-serif; font-size: 12px; margin: 0; padding: 10px; }');
-		printWindow.document.write('table { width: 100%; border-collapse: collapse; margin: 10px 0; }');
-		printWindow.document.write('th, td { border: 1px solid #333; padding: 8px; text-align: left; }');
-		printWindow.document.write('th { background-color: #f0f0f0; font-weight: bold; }');
-		printWindow.document.write('tr:nth-child(even) { background-color: #fbfbfb; }');
-		printWindow.document.write('.text-right { text-align: right; }');
-		printWindow.document.write('.text-center { text-align: center; }');
-		printWindow.document.write('@media print { body { margin: 0; padding: 5px; } }');
-		printWindow.document.write('</style></head><body>');
-		printWindow.document.write(printContent);
-		printWindow.document.write('</body></html>');
-		printWindow.document.close();
-		setTimeout(function() { printWindow.print(); }, 100);
-	}
 
     function addCommas(nStr) {
     	nStr += '';

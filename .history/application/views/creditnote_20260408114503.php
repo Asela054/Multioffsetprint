@@ -276,6 +276,7 @@
 					<div id="creditnoteviewhtml"></div>
                     <div class="col-12 text-right">
                         <hr>
+                        <button id="btnprintcreditnote" class="btn btn-info btn-sm px-3 mb-2 mr-2"><i class="fas fa-print mr-2"></i>Print Credit Note</button>
                         <?php if($approvecheck==1){ ?>
                         <button id="btncreditnoteapprovereject" class="btn btn-primary btn-sm px-3 mb-2"><i class="fas fa-check mr-2"></i>Approve or Reject</button>
                         <?php } ?>
@@ -937,26 +938,6 @@
             targetStyles: ['*']
         })
     }
-
-	function printJS(config) {
-		var printWindow = window.open('', '_blank');
-		var printContent = document.getElementById(config.printable).innerHTML;
-		printWindow.document.write('<html><head><title>Print Credit Note</title>');
-		printWindow.document.write('<style>');
-		printWindow.document.write('body { font-family: Arial, sans-serif; font-size: 12px; margin: 0; padding: 10px; }');
-		printWindow.document.write('table { width: 100%; border-collapse: collapse; margin: 10px 0; }');
-		printWindow.document.write('th, td { border: 1px solid #333; padding: 8px; text-align: left; }');
-		printWindow.document.write('th { background-color: #f0f0f0; font-weight: bold; }');
-		printWindow.document.write('tr:nth-child(even) { background-color: #fbfbfb; }');
-		printWindow.document.write('.text-right { text-align: right; }');
-		printWindow.document.write('.text-center { text-align: center; }');
-		printWindow.document.write('@media print { body { margin: 0; padding: 5px; } }');
-		printWindow.document.write('</style></head><body>');
-		printWindow.document.write(printContent);
-		printWindow.document.write('</body></html>');
-		printWindow.document.close();
-		setTimeout(function() { printWindow.print(); }, 100);
-	}
 
     function addCommas(nStr) {
     	nStr += '';

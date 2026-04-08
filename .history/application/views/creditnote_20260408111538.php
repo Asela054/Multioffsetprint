@@ -244,61 +244,6 @@
 		</div>
 	</div>
 </div>
-<!-- Modal -->
-<div id="creditnoteview">
-	<div class="modal fade" id="creditnoteviewmodal" data-backdrop="static" data-keyboard="false" tabindex="-1"
-		aria-labelledby="staticBackdropLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered modal-lg">
-
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="staticBackdropLabel">View Credit Note</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<div class="row">
-
-						<div class="col-12">
-							<p style="margin-bottom: 2px;" class="text-left"><span id="creditnotecustomername"></span>
-							</P>
-							<p style="margin-bottom: 2px;" class="text-left"><span id="creditnotecustomercontact"></span>
-							</p>
-							<p style="margin-bottom: 2px;" class="text-left"><span id="creditnoteaddress1"></span>
-							</p>
-							<p style="margin-bottom: 2px;" class="text-left"><span id="creditnoteaddress2"></span>
-							</p>
-							<p style="margin-bottom: 2px;" class="text-left"><span id="creditnotecity"></span></p>
-							<p style="margin-bottom: 2px;" class="text-left"><span id="creditnotestate"></span></p>
-						</div>
-					</div>
-					<div id="creditnoteviewhtml"></div>
-                    <div class="col-12 text-right">
-                        <hr>
-                        <?php if($approvecheck==1){ ?>
-                        <button id="btncreditnoteapprovereject" class="btn btn-primary btn-sm px-3 mb-2"><i class="fas fa-check mr-2"></i>Approve or Reject</button>
-                        <?php } ?>
-                        <input type="hidden" name="creditnoteid" id="creditnoteid">
-                        <?php if($checkstatus==1){ ?>
-                        <button id="btncreditnotecheck" class="btn btn-success btn-sm px-3 mb-2"><i class="fas fa-user-check mr-2"></i>Check By</button>
-                        <?php } ?>
-                    </div>
-                    <div class="col-12 text-center">
-                        <div id="creditnotealertdiv"></div>
-                    </div> 
-                    <div class="col-12 text-center">
-                        <div id="creditnotecheckalertdiv"></div>
-                    </div>
-
-				</div>
-			</div>
-			<input type="hidden" class="form-control form-control-sm" name="tableId" id="tableId" required readonly>
-
-		</div>
-	</div>
-</div>
-
 <?php include "include/footerscripts.php"; ?>
 
 <script>
@@ -359,7 +304,7 @@
                         "render": function(data, type, full) {
                             var button = '';
                                 button+='<button data-toggle="tooltip" data-placement="bottom" title="Return Invoice"  class="btn btn-dark btn-sm btnReturn mr-1 ';if(editcheck!=1){button+='d-none';}button+='" id="'+full['idtbl_print_invoice']+'"><i class="fas fa-undo-alt"></i></button>';
-							button+='<button data-toggle="tooltip" data-placement="bottom" title="View Credit Notes" class="btn btn-danger btn-sm btnreturnviewList mr-1 ';if(editcheck!=1){button+='d-none';}button+='" id="'+full['idtbl_print_invoice']+'"><i class="fas fa-file-alt"></i></button>';
+								button+='<button data-toggle="tooltip" data-placement="bottom" title="Print Credit Note" class="btn btn-danger btn-sm btnreturnviewList mr-1 ';if(editcheck!=1){button+='d-none';}button+='" id="'+full['idtbl_print_invoice']+'"><i class="fas fa-file-alt"></i></button>';
                             return button;
                         }
                     }
@@ -521,48 +466,6 @@
         	});
         });
 
-		$(document).on("click", ".btnviewCreditNote", function () {
-        	var id = $(this).attr('id');
-        	var approvestatus = $(this).data('approvestatus');
-        	var checkstatus = $(this).data('checkstatus');
-        	$('#creditnoteviewmodal').modal('show');
-        	$('#creditnoteid').val(id);
-        	$.ajax({
-        		type: "POST",
-        		data: {
-        			recordID: id
-        		},
-        		url: '<?php echo base_url() ?>Creditnote/GetCreditNoteDetails',
-        		success: function (result) { //alert(result);
-
-        			$('#creditnoteviewhtml').html(result);
-
-        			if (approvestatus > 0) {
-        				$('#btncreditnoteapprovereject').addClass('d-none').prop('disabled', true);
-        				if (approvestatus == 1) {
-        					$('#creditnotealertdiv').html('<div class="alert alert-success" role="alert"><i class="fas fa-check-circle mr-2"></i> Credit Note approved</div>');
-        				} else if (approvestatus == 2) {
-        					$('#creditnotealertdiv').html('<div class="alert alert-danger" role="alert"><i class="fas fa-times-circle mr-2"></i> Credit Note rejected</div>');
-        				}
-        			} else {
-        				if (checkstatus == 0) {
-        					$('#btncreditnoteapprovereject').addClass('d-none').prop('disabled', true);
-        				} else {
-        					$('#btncreditnoteapprovereject').removeClass('d-none').prop('disabled', false);
-        					$('#btncreditnotecheck').addClass('d-none').prop('disabled', true);
-        				}
-        			}
-
-        			if(checkstatus > 0){
-        				$('#btncreditnotecheck').addClass('d-none').prop('disabled', true);
-        				if(checkstatus == 1){
-        					$('#creditnotecheckalertdiv').html('<div class="alert alert-secondary" role="alert"><i class="fas fa-check-circle mr-2"></i> Credit Note checked</div>');
-        				}
-        			}
-        		}
-        	});
-        });
-
 		$(document).on("click", ".btnprintReturn", function () {
 			var id = $(this).attr('id');
 
@@ -580,126 +483,6 @@
 				}
 			});
 		});
-
-		$(document).on("click", "#btncreditnoteapprovereject", function () {
-			Swal.fire({
-				title: "Do you want to approve this Credit Note?",
-				showDenyButton: true,
-				showCancelButton: true,
-				confirmButtonText: "Approve",
-				denyButtonText: "Reject"
-			}).then((result) => {
-				if (result.isConfirmed) {
-					var confirmnot = 1;
-					approvecreditnote(confirmnot);
-				} else if (result.isDenied) {
-					var confirmnot = 2;
-					approvecreditnote(confirmnot);
-				}
-			});
-		});
-
-		function approvecreditnote(confirmnot) {
-			Swal.fire({
-				title: '',
-				html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-				allowOutsideClick: false,
-				showConfirmButton: false,
-				backdrop: 'rgba(255, 255, 255, 0.5)',
-				customClass: {
-					popup: 'fullscreen-swal'
-				},
-				didOpen: () => {
-					document.body.style.overflow = 'hidden';
-
-					$.ajax({
-						type: "POST",
-						data: {
-							creditnoteid: $('#creditnoteid').val(),
-							status: confirmnot
-						},
-						url: '<?php echo base_url() ?>Creditnote/Creditnotestatus',
-						success: function (result) {
-							Swal.close();
-							document.body.style.overflow = 'auto';
-							var obj = JSON.parse(result);
-							if (obj.status == 1) {
-								actionreload(obj.action);
-							} else {
-								action(obj.action);
-							}
-						},
-						error: function () {
-							Swal.close();
-							document.body.style.overflow = 'auto';
-							Swal.fire({
-								icon: "error",
-								title: "Error",
-								text: "Something went wrong. Please try again later.",
-							});
-						}
-					});
-				}
-			});
-		}
-
-		$(document).on("click", "#btncreditnotecheck", function () {
-			Swal.fire({
-				title: "Do you want to check this Credit Note?",
-				showDenyButton: true,
-				showCancelButton: false,
-				confirmButtonText: "Check"
-			}).then((result) => {
-				if (result.isConfirmed) {
-					var confirmnot = 1;
-					checkcreditnote(confirmnot);
-				}
-			});
-		});
-
-		function checkcreditnote(confirmnot) {
-			Swal.fire({
-				title: '',
-				html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-				allowOutsideClick: false,
-				showConfirmButton: false,
-				backdrop: 'rgba(255, 255, 255, 0.5)',
-				customClass: {
-					popup: 'fullscreen-swal'
-				},
-				didOpen: () => {
-					document.body.style.overflow = 'hidden';
-
-					$.ajax({
-						type: "POST",
-						data: {
-							creditnoteid: $('#creditnoteid').val()
-						},
-						url: '<?php echo base_url() ?>Creditnote/Creditnotecheckstatus',
-						success: function (result) {
-							Swal.close();
-							document.body.style.overflow = 'auto';
-							var obj = JSON.parse(result);
-							if (obj.status == 1) {
-								actionreload(obj.action);
-							} else {
-								action(obj.action);
-							}
-						},
-						error: function () {
-							Swal.close();
-							document.body.style.overflow = 'auto';
-							Swal.fire({
-								icon: "error",
-								title: "Error",
-								text: "Something went wrong. Please try again later.",
-							});
-						}
-					});
-				}
-			});
-		}
-
 		document.getElementById('btnreceiptprint').addEventListener("click", print);
 
 
@@ -834,8 +617,8 @@
     								$('#modalReturninvoice').modal('hide');
     								Swal.fire({
     									icon: "success",
-    									title: "Credit Note Created!",
-    									text: "Credit Note successfully!",
+    									title: "Dispatch Note Created!",
+    									text: "Dispatch Note successfully!",
     									timer: 2000,
     									showConfirmButton: false
     								}).then(() => {
@@ -920,13 +703,6 @@
         	$(this).find('.is-valid').removeClass('is-valid');
         	$(this).find('textarea').val('');
         });
-
-        $('#creditnoteviewmodal').on('hidden.bs.modal', function () {
-        	$('#creditnotealertdiv').html('');
-        	$('#creditnotecheckalertdiv').html('');
-        	$('#btncreditnoteapprovereject').removeClass('d-none').prop('disabled', false);
-        	$('#btncreditnotecheck').removeClass('d-none').prop('disabled', false);
-        });
 	});
 	
 	function print() {
@@ -937,26 +713,6 @@
             targetStyles: ['*']
         })
     }
-
-	function printJS(config) {
-		var printWindow = window.open('', '_blank');
-		var printContent = document.getElementById(config.printable).innerHTML;
-		printWindow.document.write('<html><head><title>Print Credit Note</title>');
-		printWindow.document.write('<style>');
-		printWindow.document.write('body { font-family: Arial, sans-serif; font-size: 12px; margin: 0; padding: 10px; }');
-		printWindow.document.write('table { width: 100%; border-collapse: collapse; margin: 10px 0; }');
-		printWindow.document.write('th, td { border: 1px solid #333; padding: 8px; text-align: left; }');
-		printWindow.document.write('th { background-color: #f0f0f0; font-weight: bold; }');
-		printWindow.document.write('tr:nth-child(even) { background-color: #fbfbfb; }');
-		printWindow.document.write('.text-right { text-align: right; }');
-		printWindow.document.write('.text-center { text-align: center; }');
-		printWindow.document.write('@media print { body { margin: 0; padding: 5px; } }');
-		printWindow.document.write('</style></head><body>');
-		printWindow.document.write(printContent);
-		printWindow.document.write('</body></html>');
-		printWindow.document.close();
-		setTimeout(function() { printWindow.print(); }, 100);
-	}
 
     function addCommas(nStr) {
     	nStr += '';
