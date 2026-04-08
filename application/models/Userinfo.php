@@ -17,7 +17,6 @@ class Userinfo extends CI_Model{
         // $this->db->where('status', 1);
         
         $respond=$this->db->get();
-        // print_r($this->db->last_query());
 
         $hash_password = password_verify($password, $respond->row(0)->password);
 		if($hash_password === true) {          
