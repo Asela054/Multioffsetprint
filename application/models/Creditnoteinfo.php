@@ -188,6 +188,119 @@ class Creditnoteinfo extends CI_Model {
         }
     }
 
+    public function Creditnoteapprove(){
+        $recordID=1;
+        $userID = $_SESSION['userid'];
+        $company = $_SESSION['company_id'];
+        $branch = $_SESSION['branch_id'];
+        $confirmnot=1;
+        $updatedatetime = date('Y-m-d H:i:s');
+
+        $obj = new stdClass();
+        $actionObj = new stdClass();
+
+        try {
+            $this->db->trans_begin();
+            if ($confirmnot == 1) {
+                // UPDATE APPROVE STATUS
+                $data = array(
+                    'approvestatus' => 1,
+                    'tbl_user_idtbl_user' => $userID
+                );
+                $this->db->where('idtbl_credit_note', $recordID);
+                $this->db->update('tbl_credit_note', $data);
+
+                // GET API SEGREGATION DATA
+                $this->db->select('tbl_credit_note.idtbl_credit_note, tbl_credit_note.date, tbl_credit_note.total, tbl_credit_note.vat_amount, tbl_credit_note.subtotal, tbl_credit_note.creditnoteno, tbl_print_invoice.tbl_customer_idtbl_customer');
+                $this->db->from('tbl_credit_note');
+                $this->db->join('tbl_print_invoice', 'tbl_print_invoice.idtbl_print_invoice = tbl_credit_note.tbl_print_invoice_idtbl_print_invoice', 'left');
+                $this->db->where('tbl_credit_note.idtbl_credit_note', $recordID);
+                $this->db->where('tbl_credit_note.status', 1);
+                $respond=$this->db->get();
+
+                $APIstatus = $this->load->model('Apiinfo');
+                $APIstatus = $this->Apiinfo->CreditnoteApi($recordID);
+
+                if (empty($APIstatus)) {
+                    throw new Exception("Invoice API configuration error: Missing chart of accounts for one or more items.");
+                }
+
+                $fullnarration = 'Costing for Internal Issue Note ID: ' . $respond->row(0)->idtbl_credit_note;
+                $apiurljobfinish = $_SESSION['accountapiurl'].'Api/Creditnoteprocess';
+
+                $postDataList = http_build_query([
+                    'userid' => $userID,
+                    'company' => $company,
+                    'branch' => $branch,
+                    'fullnarration' => $fullnarration,
+                    'fulltotal' => $respond->row(0)->subtotal,
+                    'jurnalentrydata' => json_encode($APIstatus)
+                ]);
+
+                $ch = curl_init();
+                curl_setopt_array($ch, [
+                    CURLOPT_URL => $apiurljobfinish,
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => $postDataList,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTPHEADER => [
+                        'Content-Type: application/x-www-form-urlencoded',
+                    ]
+                ]);
+                
+                $server_output = curl_exec($ch);
+                $curlError = curl_error($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+
+                // Check both HTTP status and API response
+                $apiResponsejobfinish = json_decode($server_output, true);
+
+                if ($httpCode != 200 || !isset($apiResponsejobfinish['status']) || $apiResponsejobfinish['status'] !== 'success') {
+                    $errorMsg = $apiResponsejobfinish['message'] ?? 'API request failed in jobfinish';
+                    throw new Exception($errorMsg);
+                }
+            }
+            else{
+                $data = array(
+                    'approvestatus' => 2,
+                    'tbl_user_idtbl_user' => $userID
+                );
+                $this->db->where('idtbl_credit_note', $recordID);
+                $this->db->update('tbl_credit_note', $data);
+            }
+
+            $this->db->trans_commit();
+    
+            $actionObj->icon = 'fas fa-check-circle';
+            $actionObj->title = '';
+            $actionObj->message = ($confirmnot == 1) ? 'Invoice Confirmed Successfully' : 'Record Rejected Successfully';
+            $actionObj->url = '';
+            $actionObj->target = '_blank';
+            $actionObj->type = 'success';
+    
+            $obj->status = 1;
+            $obj->action = json_encode($actionObj);
+        } catch (Exception $e) {
+            $this->db->trans_rollback();
+            
+            error_log("GRNVoucherapprove Error: " . $e->getMessage());
+            
+            $actionObj->icon = 'fas fa-exclamation-triangle';
+            $actionObj->title = '';
+            $actionObj->message = 'Operation Failed: ' . $e->getMessage();
+            $actionObj->url = '';
+            $actionObj->target = '_blank';
+            $actionObj->type = 'danger';
+    
+            $obj->status = 0;
+            $obj->action = json_encode($actionObj);
+        }
+
+        echo json_encode($obj);
+    }   
+
     public function Getretruninvoicedetails(){
         $html = '';
 

@@ -46,7 +46,7 @@ class Apiinfo extends CI_Model{
             $respondmaterialaccount = $this->db->query($sqlmaterialaccount, array($grnID, $companyID, $branchID, 1));
 
             $sqlmaterial="SELECT `tbl_print_grndetail`.`qty`, `tbl_print_grndetail`.`unitprice`, (`tbl_print_grndetail`.`qty`*`tbl_print_grndetail`.`unitprice`) AS `grncosttotal`, `tbl_print_grndetail`.`costunitprice`, `tbl_print_grndetail`.`total` As `costtotal`, `tbl_account_detail`.`idtbl_account_detail`, `tbl_account_detail`.`accountno`, `tbl_account_detail`.`accountname`, `tbl_print_material_info`.`materialname`, `tbl_print_grn`.`tbl_material_group_idtbl_material_group`, `tbl_print_material_info`.`idtbl_print_material_info` FROM `tbl_print_grndetail` LEFT JOIN `tbl_print_grn` ON `tbl_print_grn`.`idtbl_print_grn` = `tbl_print_grndetail`.`tbl_print_grn_idtbl_print_grn` LEFT JOIN `tbl_print_material_info` ON `tbl_print_material_info`.`idtbl_print_material_info` = `tbl_print_grndetail`.`tbl_print_material_info_idtbl_print_material_info` LEFT JOIN `tbl_account_detail` ON `tbl_account_detail`.`special_cate_sub` = `tbl_print_material_info`.`tbl_material_type_idtbl_material_type` AND `tbl_account_detail`.`status`=? AND `tbl_account_detail`.`special_cate_detail`=? WHERE `tbl_print_grndetail`.`tbl_print_grn_idtbl_print_grn`=? AND `tbl_print_grndetail`.`status`=?";
-            $respondmaterial = $this->db->query($sqlmaterial, array(1, 2, $grnID, 1));       
+            $respondmaterial = $this->db->query($sqlmaterial, array(1, 2, $grnID, 1));     
             
             if ($respondmaterial->num_rows() > 0) {
                 $materiltotalvalue = 0;
@@ -88,7 +88,7 @@ class Apiinfo extends CI_Model{
                     // }
                 }
             }
-
+            
             //Get Creditor Account
             $creditortotalvalue = 0;
 
@@ -183,8 +183,8 @@ class Apiinfo extends CI_Model{
                 $obj->crder = 'D';
                 $segregationdata[] = $obj;
             }
-
-            if ($respondvat->num_rows() > 0) {
+            
+            if ($respondvat->num_rows() > 0 && $respondvat->row()->vatamount > 0) {
                 if($respondvataccount->num_rows() == 0) {
                     throw new Exception("No VAT account found.");
                 }
@@ -202,13 +202,13 @@ class Apiinfo extends CI_Model{
                     $segregationdata[] = $obj;
                 }
             }
-
+            
             $this->db->trans_commit();
         } catch (Exception $e) {
             $this->db->trans_rollback();
             $segregationdata = array();
         }
-
+        
         return $segregationdata;
     }
     public function InvoiceApi($invoiceID){
@@ -816,6 +816,159 @@ class Apiinfo extends CI_Model{
         }
         catch (Exception $e) {
             $this->db->trans_rollback();
+            $segregationdata = array();
+        }
+
+        return $segregationdata;
+    }
+    public function CreditnoteApi($recordID){
+        $userID = $_SESSION['userid'];
+        $companyID = $_SESSION['company_id'];
+        $branchID = $_SESSION['branch_id'];
+        $updatedatetime = date('Y-m-d H:i:s');
+        $segregationdata = array();
+
+        try {
+            $this->db->select('tbl_credit_note.idtbl_credit_note, tbl_credit_note.date, tbl_credit_note.total, tbl_credit_note.vat_amount, tbl_credit_note.subtotal, tbl_credit_note.creditnoteno, tbl_print_invoice.tbl_customer_idtbl_customer');
+            $this->db->from('tbl_credit_note');
+            $this->db->join('tbl_print_invoice', 'tbl_print_invoice.idtbl_print_invoice = tbl_credit_note.tbl_print_invoice_idtbl_print_invoice', 'left');
+            $this->db->where('tbl_credit_note.idtbl_credit_note', $recordID);
+            $this->db->where('tbl_credit_note.status', 1);
+            $respond=$this->db->get();
+
+            $chartspecialcate = array('35', '13', '18');
+            $this->db->where('tbl_account_allocation.companybank', $companyID);
+            $this->db->where('tbl_account_allocation.branchcompanybank', $branchID);
+            $this->db->where_in('tbl_account.specialcate', $chartspecialcate);
+            $this->db->where('tbl_account.status', 1);
+            $this->db->where('tbl_account_allocation.status', 1);
+            $this->db->where('tbl_account_allocation.tbl_account_idtbl_account is NOT NULL', NULL, FALSE);
+            $this->db->select('`tbl_account`.`idtbl_account`, `tbl_account`.`accountno`, `tbl_account`.`accountname`, `tbl_account`.`specialcate`');
+            $this->db->from('tbl_account');
+            $this->db->join('tbl_account_allocation', 'tbl_account_allocation.tbl_account_idtbl_account = tbl_account.idtbl_account', 'left');
+
+            $respondchart=$this->db->get();
+
+            //Debtor account check using customer ID
+            $this->db->where('tbl_account_allocation.companybank', $companyID);
+            $this->db->where('tbl_account_allocation.branchcompanybank', $branchID);
+            $this->db->where('tbl_account_detail_other.tbl_company_idtbl_company', $companyID);
+            $this->db->where('tbl_account_detail_other.tbl_company_branch_idtbl_company_branch', $branchID);
+            $this->db->where('tbl_account_detail.status', 1);
+            $this->db->where('tbl_account_allocation.status', 1);
+            $this->db->where('tbl_account_detail_other.otheroptiontype', 2);
+            $this->db->where('tbl_account_detail_other.otheroption', $respond->row(0)->tbl_customer_idtbl_customer);
+            $this->db->where('tbl_account_allocation.tbl_account_detail_idtbl_account_detail is NOT NULL', NULL, FALSE);
+            $this->db->select('`tbl_account_detail`.`idtbl_account_detail`, `tbl_account_detail`.`accountno`, `tbl_account_detail`.`accountname`');
+            $this->db->from('tbl_account_detail');
+            $this->db->join('tbl_account_allocation', 'tbl_account_allocation.tbl_account_detail_idtbl_account_detail = tbl_account_detail.idtbl_account_detail', 'left');
+            $this->db->join('tbl_account_detail_other', 'tbl_account_detail_other.tbl_account_detail_idtbl_account_detail = tbl_account_detail.idtbl_account_detail', 'left');
+
+            $responddebtor=$this->db->get();
+
+            $detailspecialcate = array('1', '2');
+            $this->db->where('tbl_account_allocation.companybank', $companyID);
+            $this->db->where('tbl_account_allocation.branchcompanybank', $branchID);
+            $this->db->where('tbl_account_detail.special_cate_detail', '3');
+            $this->db->where_in('tbl_account_detail.special_cate_sub', $detailspecialcate);
+            $this->db->where('tbl_account_detail.status', 1);
+            $this->db->where('tbl_account_allocation.status', 1);
+            $this->db->where('tbl_account_allocation.tbl_account_detail_idtbl_account_detail is NOT NULL', NULL, FALSE);
+            $this->db->select('`tbl_account_detail`.`idtbl_account_detail`, `tbl_account_detail`.`accountno`, `tbl_account_detail`.`accountname`, `tbl_account_detail`.`special_cate_sub`');
+            $this->db->from('tbl_account_detail');
+            $this->db->join('tbl_account_allocation', 'tbl_account_allocation.tbl_account_detail_idtbl_account_detail = tbl_account_detail.idtbl_account_detail', 'left');
+
+            $respondotherdetail=$this->db->get();
+
+            if(!empty($respondotherdetail->result())): 
+                foreach($respondotherdetail->result() as $rowdetailaccount):
+                    if(($companyID==1 || $companyID==2) && $rowdetailaccount->special_cate_sub==2):
+                        $obj = new stdClass();
+                        $obj->amount = str_replace(",", "", $respond->row(0)->total);
+                        $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                        $obj->detailaccount = $rowdetailaccount->idtbl_account_detail;
+                        $obj->chartaccount = '0';
+                        $obj->crder = 'D';
+                        $segregationdata[] = $obj;
+                        break;
+                    else:
+                        $obj = new stdClass();
+                        $obj->amount = str_replace(",", "", $respond->row(0)->total);
+                        $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                        $obj->detailaccount = $rowdetailaccount->idtbl_account_detail;
+                        $obj->chartaccount = '0';
+                        $obj->crder = 'D';
+                        $segregationdata[] = $obj;
+                        break;
+                    endif;
+                endforeach;
+            else: 
+                if($respondchart->num_rows() == 0) {
+                    throw new Exception("No chart accounts found for special categories 35, 13, or 18.");
+                }
+                foreach($respondchart->result() as $rowrchartaccount):
+                    if($rowrchartaccount->specialcate==18):
+                        $obj = new stdClass();
+                        $obj->amount = str_replace(",", "", $respond->row(0)->total);
+                        $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                        $obj->detailaccount = '0';
+                        $obj->chartaccount = $rowrchartaccount->idtbl_account;
+                        $obj->crder = 'D';
+                        $segregationdata[] = $obj;
+                    endif;
+                endforeach;            
+            endif;
+
+            if($respondchart->num_rows() == 0) {
+                throw new Exception("No chart accounts found for special categories 35, 13, or 18.");
+            }
+
+            foreach($respondchart->result() as $rowrchartaccount):
+                if($rowrchartaccount->specialcate==13 && $respond->row(0)->vat_amount>0):
+                    $obj = new stdClass();
+                    $obj->amount = str_replace(",", "", $respond->row(0)->vat_amount);
+                    $obj->narration = 'VAT Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                    $obj->detailaccount = '0';
+                    $obj->chartaccount = $rowrchartaccount->idtbl_account;
+                    $obj->crder = 'D';
+                    $segregationdata[] = $obj;
+                endif;
+                // elseif($rowrchartaccount->specialcate==35):
+                //     $obj = new stdClass();
+                //     $obj->amount = str_replace(",", "", $respond->row(0)->total);
+                //     $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                //     $obj->detailaccount = '0';
+                //     $obj->chartaccount = $rowrchartaccount->idtbl_account;
+                //     $obj->crder = 'D';
+                //     $segregationdata[] = $obj;
+                // endif;
+            endforeach; 
+
+            if(!empty($responddebtor->result())): 
+                foreach($responddebtor->result() as $rowdebtoraccount):
+                    $obj = new stdClass();
+                    $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
+                    $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                    $obj->detailaccount = $rowdebtoraccount->idtbl_account_detail;
+                    $obj->chartaccount = '0';
+                    $obj->crder = 'D';
+                    $segregationdata[] = $obj;
+                endforeach;
+            else:
+                foreach($respondchart->result() as $rowrchartaccount):
+                    if($rowrchartaccount->specialcate==35):
+                        $obj = new stdClass();
+                        $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
+                        $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                        $obj->detailaccount = '0';
+                        $obj->chartaccount = $rowrchartaccount->idtbl_account;
+                        $obj->crder = 'D';
+                        $segregationdata[] = $obj;   
+                    endif;
+                endforeach;
+            endif;
+        }
+        catch (Exception $e) {
             $segregationdata = array();
         }
 
