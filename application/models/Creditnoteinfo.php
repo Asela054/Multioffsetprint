@@ -189,11 +189,11 @@ class Creditnoteinfo extends CI_Model {
     }
 
     public function Creditnoteapprove(){
-        $recordID=1;
+        $recordID=$this->input->post('recordID');
         $userID = $_SESSION['userid'];
         $company = $_SESSION['company_id'];
         $branch = $_SESSION['branch_id'];
-        $confirmnot=1;
+        $confirmnot=$this->input->post('confirmnot');
         $updatedatetime = date('Y-m-d H:i:s');
 
         $obj = new stdClass();
