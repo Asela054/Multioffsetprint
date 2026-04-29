@@ -26,5 +26,10 @@ class Creditnote extends CI_Controller {
 		$this->load->model('Creditnoteinfo');
         $result=$this->Creditnoteinfo->Returninvoiceinsertupdate();
 	}
+
+    public function Creditnoteapprove(){
+		$this->load->model('Creditnoteinfo');
+        $result=$this->Creditnoteinfo->Creditnoteapprove();
+	}
     
 }
