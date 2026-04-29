@@ -615,8 +615,8 @@
 					$.ajax({
 						type: "POST",
 						data: {
-							creditnoteid: $('#creditnoteid').val(),
-							status: confirmnot
+							recordID: $('#creditnoteid').val(),
+							confirmnot: confirmnot
 						},
 						url: '<?php echo base_url() ?>Creditnote/Creditnotestatus',
 						success: function (result) {
