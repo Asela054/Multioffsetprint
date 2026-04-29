@@ -46,7 +46,7 @@ class Apiinfo extends CI_Model{
             $respondmaterialaccount = $this->db->query($sqlmaterialaccount, array($grnID, $companyID, $branchID, 1));
 
             $sqlmaterial="SELECT `tbl_print_grndetail`.`qty`, `tbl_print_grndetail`.`unitprice`, (`tbl_print_grndetail`.`qty`*`tbl_print_grndetail`.`unitprice`) AS `grncosttotal`, `tbl_print_grndetail`.`costunitprice`, `tbl_print_grndetail`.`total` As `costtotal`, `tbl_account_detail`.`idtbl_account_detail`, `tbl_account_detail`.`accountno`, `tbl_account_detail`.`accountname`, `tbl_print_material_info`.`materialname`, `tbl_print_grn`.`tbl_material_group_idtbl_material_group`, `tbl_print_material_info`.`idtbl_print_material_info` FROM `tbl_print_grndetail` LEFT JOIN `tbl_print_grn` ON `tbl_print_grn`.`idtbl_print_grn` = `tbl_print_grndetail`.`tbl_print_grn_idtbl_print_grn` LEFT JOIN `tbl_print_material_info` ON `tbl_print_material_info`.`idtbl_print_material_info` = `tbl_print_grndetail`.`tbl_print_material_info_idtbl_print_material_info` LEFT JOIN `tbl_account_detail` ON `tbl_account_detail`.`special_cate_sub` = `tbl_print_material_info`.`tbl_material_type_idtbl_material_type` AND `tbl_account_detail`.`status`=? AND `tbl_account_detail`.`special_cate_detail`=? WHERE `tbl_print_grndetail`.`tbl_print_grn_idtbl_print_grn`=? AND `tbl_print_grndetail`.`status`=?";
-            $respondmaterial = $this->db->query($sqlmaterial, array(1, 2, $grnID, 1));       
+            $respondmaterial = $this->db->query($sqlmaterial, array(1, 2, $grnID, 1));     
             
             if ($respondmaterial->num_rows() > 0) {
                 $materiltotalvalue = 0;
@@ -88,7 +88,7 @@ class Apiinfo extends CI_Model{
                     // }
                 }
             }
-
+            
             //Get Creditor Account
             $creditortotalvalue = 0;
 
@@ -183,8 +183,8 @@ class Apiinfo extends CI_Model{
                 $obj->crder = 'D';
                 $segregationdata[] = $obj;
             }
-
-            if ($respondvat->num_rows() > 0) {
+            
+            if ($respondvat->num_rows() > 0 && $respondvat->row()->vatamount > 0) {
                 if($respondvataccount->num_rows() == 0) {
                     throw new Exception("No VAT account found.");
                 }
@@ -202,13 +202,13 @@ class Apiinfo extends CI_Model{
                     $segregationdata[] = $obj;
                 }
             }
-
+            
             $this->db->trans_commit();
         } catch (Exception $e) {
             $this->db->trans_rollback();
             $segregationdata = array();
         }
-
+        
         return $segregationdata;
     }
     public function InvoiceApi($invoiceID){
