@@ -260,7 +260,7 @@
 		$sql="SELECT `u`.*, `ua`.`suppliername`, `ua`.`telephone_no`, `ua`.`address_line1`, `ub`.`branch`, `ub`.`phone`, `ub`.`address1`, `ub`.`address2`, `ub`.`mobile`, `ub`.`email` AS `locemail`, `uc`.`company` FROM `tbl_print_grn` AS `u` LEFT JOIN `tbl_supplier` AS `ua` ON (`ua`.`idtbl_supplier` = `u`.`tbl_supplier_idtbl_supplier`) LEFT JOIN `tbl_company_branch` AS `ub` ON (`ub`.`idtbl_company_branch` = `u`.`tbl_company_branch_idtbl_company_branch`) LEFT JOIN `tbl_company` AS `uc` ON (`uc`.`idtbl_company` = `u`.`tbl_company_idtbl_company`) WHERE `u`.`status`=? AND `u`.`idtbl_print_grn`=?";
 		$respond=$this->db->query($sql, array(1, $recordID));
 
-		$this->db->select('tbl_print_grndetail.*,tbl_print_grn.grndate,tbl_print_grn.grn_no,tbl_print_grn.tbl_material_group_idtbl_material_group, tbl_print_material_info.materialinfocode, tbl_print_material_info.materialname,tbl_measurements.measure_type');
+		$this->db->select('tbl_print_grndetail.*,tbl_print_grn.invoicenum,tbl_print_grn.grndate,tbl_print_grn.grn_no,tbl_print_grn.tbl_material_group_idtbl_material_group, tbl_print_material_info.materialinfocode, tbl_print_material_info.materialname,tbl_measurements.measure_type');
 		$this->db->from('tbl_print_grndetail');
 		$this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info', 'left');
 		$this->db->join('tbl_print_grn', 'tbl_print_grn.idtbl_print_grn = tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', 'left');
@@ -275,7 +275,7 @@
 		$html.='
 		<div class="row">
             <div class="col-6 small"><label class="small font-weight-bold text-dark mb-1">Date:</label> '.$responddetail->row(0)->grndate.'<br><label class="small font-weight-bold text-dark mb-1">PO No:</label> '.$responddetail->row(0)->grn_no.'<br><label class="small font-weight-bold text-dark mb-1">Customer:</label> '.$respond->row(0)->suppliername.'</div>
-            <div class="col-6 small"><label class="small font-weight-bold text-dark mb-1">Company:</label> '.$respond->row(0)->company.'<br><label class="small font-weight-bold text-dark mb-1">Branch:</label> '.$respond->row(0)->branch.'</div>
+            <div class="col-6 small"><label class="small font-weight-bold text-dark mb-1">Company:</label> '.$respond->row(0)->company.'<br><label class="small font-weight-bold text-dark mb-1">Branch:</label> '.$respond->row(0)->branch.'<br><label class="small font-weight-bold text-dark mb-1">Invoice No:</label> '.$respond->row(0)->invoicenum.'</div>
         </div>
         <hr class="border-dark"> <table class="table table-striped table-bordered table-sm"> <thead> <tr> <th>Material Info</th> <th>Unit Price</th> <th class="text-center">Qty</th><th class="text-center">Uom</th> <th class="text-center">Discount</th> <th class="text-right">Total</th> </tr> </thead> <tbody>';
 		foreach($responddetail->result() as $roworderinfo) {

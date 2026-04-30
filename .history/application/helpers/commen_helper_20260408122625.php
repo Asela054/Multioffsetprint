@@ -296,3 +296,97 @@ function SearchJobList($searchTerm){
     }   
     echo json_encode($data);
 }
+
+function tr_batch_num($prefix, $branch){
+		$CI = get_instance();
+		//start the transaction
+		$CI->db->trans_begin();
+		$flag = true;
+		
+		
+		/*
+		begin-process-to-generate-new-gatepasscode
+		*/
+		$new_ref = ''; //NULL; // purposely-breaking-gatepass-creation-process-without-valid-refnum
+		
+		$res_callback = 0; // get-updated-result-of-ref-num
+		
+		/*
+		locking-and-generating-with-update-
+		assuming-the-most-frequent-operation
+		*/
+		$CI->db->where('idtbl_batch_num_register', $prefix);
+		$CI->db->where('tbl_company_branch_idtbl_company_branch', $branch);
+		$CI->db->where('acq_locked', '0');
+		$CI->db->set('ref_no', 'ref_no+1', FALSE);
+		
+		$update = $CI->db->update('tbl_batch_num_register', array('acq_locked'=>1));
+		
+		$affectedRowCnt = $CI->db->affected_rows();
+		
+		if($affectedRowCnt!=1){
+			/*
+			fallback-generating-with-insert-where-update-is-refused-
+			leaving-primary-key-to-prevent-duplicates-as-less-frequent-incident
+			
+			*/
+			$insert = $CI->db->insert('tbl_batch_num_register', 
+										array('idtbl_batch_num_register'=>$prefix, 
+									'tbl_company_branch_idtbl_company_branch'=>$branch)
+									);
+			$affectedRowCnt = $CI->db->affected_rows();
+			$res_callback = 1; // set-newly-inserted-value
+		}	
+		
+		if($affectedRowCnt==1){
+			if($res_callback==0){
+				/*read-the-locked-and-generated-number*/
+				$resQuery = $CI->db->get_where('tbl_batch_num_register', 
+												 array('idtbl_batch_num_register'=>$prefix,
+													   'tbl_company_branch_idtbl_company_branch'=>$branch,
+													   'acq_locked'=>1)
+										)->row();
+				
+				//var_dump($resQuery);
+				
+				if(!empty($resQuery)){
+					$res_callback = $resQuery->ref_no;
+				}
+				
+				
+				/*release-the-locked-number*/
+				$CI->db->where('idtbl_batch_num_register', $prefix);
+				$CI->db->where('tbl_company_branch_idtbl_company_branch', $branch);
+				$CI->db->where('acq_locked', '1');
+				$ResultOut = $CI->db->update('tbl_batch_num_register', array('acq_locked'=>0));
+				
+				if(!$ResultOut){
+					$flag = false;
+				}
+			}
+			
+			if($res_callback>0){
+				$str_callback = '000000'.$res_callback;
+				$new_ref = $prefix.substr($str_callback, strlen($str_callback)-6, strlen($str_callback));
+			}
+		}else{
+			$flag = false;
+		}
+		
+		/*end-process-new-ref-number*/
+		
+		$CI->db->trans_complete();
+		//check if transaction status TRUE or FALSE
+		if(($CI->db->trans_status()===FALSE)||($flag==FALSE)){
+			//if something went wrong, rollback everything
+			$CI->db->trans_rollback();
+			$importmsg = 'Transaction error';//.$detailData['order_qty']
+			$msgclass = 'bg-warning text-white';
+		}else{
+			//if everything went right, commit the data to the database
+			$CI->db->trans_commit();
+			$msgclass = 'bg-success text-white';
+		}
+		
+		return $new_ref;
+	}
