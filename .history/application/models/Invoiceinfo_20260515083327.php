@@ -476,25 +476,20 @@ class Invoiceinfo extends CI_Model{
         $branchID = $this->input->post('branchID');
         $companyID = $this->input->post('companyID');
         
-        $this->db->select('tbl_print_dispatchdetail.*, tbl_print_dispatch.dispatch_no, COALESCE(SUM(cnd.qty), 0) as credit_qty');
+        $this->db->select('tbl_print_dispatchdetail.*, tbl_print_dispatch.dispatch_no');
 		$this->db->from('tbl_print_dispatchdetail');
         $this->db->join('tbl_print_dispatch', 'tbl_print_dispatchdetail.tbl_print_dispatch_idtbl_print_dispatch = tbl_print_dispatch.idtbl_print_dispatch');
         $this->db->join('tbl_print_invoicedetail', 'tbl_print_dispatchdetail.tbl_print_dispatch_idtbl_print_dispatch = tbl_print_invoicedetail.tbl_print_dispatch_idtbl_print_dispatch', 'left');
-        $this->db->join('tbl_credit_note_detail cnd', 'cnd.dispatch_id = tbl_print_dispatchdetail.tbl_print_dispatch_idtbl_print_dispatch AND cnd.job_id = tbl_print_dispatchdetail.job_id', 'left');
-        $this->db->join('tbl_credit_note cn', 'cn.idtbl_credit_note = cnd.tbl_credit_note_idtbl_credit_note AND cn.approvestatus = 1 AND cn.status = 1', 'left');
         $this->db->where('tbl_print_dispatch.status', 1);
 		$this->db->where('tbl_print_dispatchdetail.status', 1);
         $this->db->where('tbl_print_dispatch.approvestatus', 1);
         $this->db->where('tbl_print_dispatch.invoice_status', 0);
 
-        // $this->db->where('(tbl_print_invoicedetail.status = 3 OR tbl_print_invoicedetail.tbl_print_dispatch_idtbl_print_dispatch IS NULL)');
+        $this->db->where('(tbl_print_invoicedetail.status = 3 OR tbl_print_invoicedetail.tbl_print_dispatch_idtbl_print_dispatch IS NULL)');
 
         $this->db->where('tbl_print_dispatch.tbl_company_idtbl_company', $companyID);
         $this->db->where('tbl_print_dispatch.tbl_company_branch_idtbl_company_branch', $branchID);
 		$this->db->where('tbl_print_dispatchdetail.job_id', $recordID);
-        
-        $this->db->group_by('tbl_print_dispatchdetail.idtbl_print_dispatchdetail');
-        $this->db->having('tbl_print_dispatchdetail.qty > COALESCE(SUM(cnd.qty), 0)');
         
         $respond = $this->db->get();
         
