@@ -115,6 +115,29 @@ class Creditnoteinfo extends CI_Model {
             $this->db->insert('tbl_credit_note_detail', $dataone);
         
             if ($returnType == 2) {
+                $this->db->select('qty');
+                $this->db->from('tbl_print_dispatchdetail');
+                $this->db->where('tbl_print_dispatch_idtbl_print_dispatch', $dispatchID);
+                $this->db->where('job_id', $jobID);
+                $currentQtyResult = $this->db->get()->row();
+        
+                if ($currentQtyResult) {
+                    $currentQty = $currentQtyResult->qty;
+        
+                    $newQty = $currentQty - $qty;
+                    if ($newQty < 0) {
+                        $newQty = 0;
+                    }
+        
+                    $data = array(
+                        'qty' => $newQty,
+                    );
+        
+                    $this->db->where('tbl_print_dispatch_idtbl_print_dispatch', $dispatchID);
+                    $this->db->where('job_id', $jobID);
+                    $this->db->update('tbl_print_dispatchdetail', $data);
+                }
+        
                 $data = array(
                     'invoice_status' => '0',
                 );
@@ -187,57 +210,57 @@ class Creditnoteinfo extends CI_Model {
                 $this->db->where('idtbl_credit_note', $recordID);
                 $this->db->update('tbl_credit_note', $data);
 
-                // GET API SEGREGATION DATA
-                $this->db->select('tbl_credit_note.idtbl_credit_note, tbl_credit_note.date, tbl_credit_note.total, tbl_credit_note.vat_amount, tbl_credit_note.subtotal, tbl_credit_note.creditnoteno, tbl_print_invoice.tbl_customer_idtbl_customer');
-                $this->db->from('tbl_credit_note');
-                $this->db->join('tbl_print_invoice', 'tbl_print_invoice.idtbl_print_invoice = tbl_credit_note.tbl_print_invoice_idtbl_print_invoice', 'left');
-                $this->db->where('tbl_credit_note.idtbl_credit_note', $recordID);
-                $this->db->where('tbl_credit_note.status', 1);
-                $respond=$this->db->get();
+                // // GET API SEGREGATION DATA
+                // $this->db->select('tbl_credit_note.idtbl_credit_note, tbl_credit_note.date, tbl_credit_note.total, tbl_credit_note.vat_amount, tbl_credit_note.subtotal, tbl_credit_note.creditnoteno, tbl_print_invoice.tbl_customer_idtbl_customer');
+                // $this->db->from('tbl_credit_note');
+                // $this->db->join('tbl_print_invoice', 'tbl_print_invoice.idtbl_print_invoice = tbl_credit_note.tbl_print_invoice_idtbl_print_invoice', 'left');
+                // $this->db->where('tbl_credit_note.idtbl_credit_note', $recordID);
+                // $this->db->where('tbl_credit_note.status', 1);
+                // $respond=$this->db->get();
 
-                $APIstatus = $this->load->model('Apiinfo');
-                $APIstatus = $this->Apiinfo->CreditnoteApi($recordID);
+                // $APIstatus = $this->load->model('Apiinfo');
+                // $APIstatus = $this->Apiinfo->CreditnoteApi($recordID);
 
-                if (empty($APIstatus)) {
-                    throw new Exception("Invoice API configuration error: Missing chart of accounts for one or more items.");
-                }
+                // if (empty($APIstatus)) {
+                //     throw new Exception("Invoice API configuration error: Missing chart of accounts for one or more items.");
+                // }
 
-                $fullnarration = 'Costing for Internal Issue Note ID: ' . $respond->row(0)->idtbl_credit_note;
-                $apiurljobfinish = $_SESSION['accountapiurl'].'Api/Creditnoteprocess';
+                // $fullnarration = 'Costing for Internal Issue Note ID: ' . $respond->row(0)->idtbl_credit_note;
+                // $apiurljobfinish = $_SESSION['accountapiurl'].'Api/Creditnoteprocess';
 
-                $postDataList = http_build_query([
-                    'userid' => $userID,
-                    'company' => $company,
-                    'branch' => $branch,
-                    'fullnarration' => $fullnarration,
-                    'fulltotal' => $respond->row(0)->subtotal,
-                    'jurnalentrydata' => json_encode($APIstatus)
-                ]);
+                // $postDataList = http_build_query([
+                //     'userid' => $userID,
+                //     'company' => $company,
+                //     'branch' => $branch,
+                //     'fullnarration' => $fullnarration,
+                //     'fulltotal' => $respond->row(0)->subtotal,
+                //     'jurnalentrydata' => json_encode($APIstatus)
+                // ]);
 
-                $ch = curl_init();
-                curl_setopt_array($ch, [
-                    CURLOPT_URL => $apiurljobfinish,
-                    CURLOPT_POST => true,
-                    CURLOPT_POSTFIELDS => $postDataList,
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_TIMEOUT => 30,
-                    CURLOPT_HTTPHEADER => [
-                        'Content-Type: application/x-www-form-urlencoded',
-                    ]
-                ]);
+                // $ch = curl_init();
+                // curl_setopt_array($ch, [
+                //     CURLOPT_URL => $apiurljobfinish,
+                //     CURLOPT_POST => true,
+                //     CURLOPT_POSTFIELDS => $postDataList,
+                //     CURLOPT_RETURNTRANSFER => true,
+                //     CURLOPT_TIMEOUT => 30,
+                //     CURLOPT_HTTPHEADER => [
+                //         'Content-Type: application/x-www-form-urlencoded',
+                //     ]
+                // ]);
                 
-                $server_output = curl_exec($ch);
-                $curlError = curl_error($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
+                // $server_output = curl_exec($ch);
+                // $curlError = curl_error($ch);
+                // $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                // curl_close($ch);
 
-                // Check both HTTP status and API response
-                $apiResponsejobfinish = json_decode($server_output, true);
+                // // Check both HTTP status and API response
+                // $apiResponsejobfinish = json_decode($server_output, true);
 
-                if ($httpCode != 200 || !isset($apiResponsejobfinish['status']) || $apiResponsejobfinish['status'] !== 'success') {
-                    $errorMsg = $apiResponsejobfinish['message'] ?? 'API request failed in jobfinish';
-                    throw new Exception($errorMsg);
-                }
+                // if ($httpCode != 200 || !isset($apiResponsejobfinish['status']) || $apiResponsejobfinish['status'] !== 'success') {
+                //     $errorMsg = $apiResponsejobfinish['message'] ?? 'API request failed in jobfinish';
+                //     throw new Exception($errorMsg);
+                // }
             }
             else{
                 $data = array(

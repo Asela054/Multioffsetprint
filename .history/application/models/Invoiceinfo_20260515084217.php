@@ -487,7 +487,7 @@ class Invoiceinfo extends CI_Model{
         $this->db->where('tbl_print_dispatch.approvestatus', 1);
         $this->db->where('tbl_print_dispatch.invoice_status', 0);
 
-        // $this->db->where('(tbl_print_invoicedetail.status = 3 OR tbl_print_invoicedetail.tbl_print_dispatch_idtbl_print_dispatch IS NULL)');
+        $this->db->where('(tbl_print_invoicedetail.status = 3 OR tbl_print_invoicedetail.tbl_print_dispatch_idtbl_print_dispatch IS NULL)');
 
         $this->db->where('tbl_print_dispatch.tbl_company_idtbl_company', $companyID);
         $this->db->where('tbl_print_dispatch.tbl_company_branch_idtbl_company_branch', $branchID);

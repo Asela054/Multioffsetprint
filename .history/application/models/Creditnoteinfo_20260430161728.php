@@ -115,6 +115,29 @@ class Creditnoteinfo extends CI_Model {
             $this->db->insert('tbl_credit_note_detail', $dataone);
         
             if ($returnType == 2) {
+                $this->db->select('qty');
+                $this->db->from('tbl_print_dispatchdetail');
+                $this->db->where('tbl_print_dispatch_idtbl_print_dispatch', $dispatchID);
+                $this->db->where('job_id', $jobID);
+                $currentQtyResult = $this->db->get()->row();
+        
+                if ($currentQtyResult) {
+                    $currentQty = $currentQtyResult->qty;
+        
+                    $newQty = $currentQty - $qty;
+                    if ($newQty < 0) {
+                        $newQty = 0;
+                    }
+        
+                    $data = array(
+                        'qty' => $newQty,
+                    );
+        
+                    $this->db->where('tbl_print_dispatch_idtbl_print_dispatch', $dispatchID);
+                    $this->db->where('job_id', $jobID);
+                    $this->db->update('tbl_print_dispatchdetail', $data);
+                }
+        
                 $data = array(
                     'invoice_status' => '0',
                 );
