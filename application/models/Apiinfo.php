@@ -974,4 +974,122 @@ class Apiinfo extends CI_Model{
 
         return $segregationdata;
     }
+    public function insertStockWebhook($data){
+        $stocks = $data['stocks'] ?? [];
+
+        if(empty($stocks)) return false;
+
+        $updatedatetime = date('Y-m-d H:i:s');
+
+        try {
+            $this->db->trans_begin();
+
+            foreach($stocks as $rowtransactiondata){
+                $companyID   = $rowtransactiondata['companyID'];
+                $branchID    = $rowtransactiondata['branchID'];
+                $plusminus   = $rowtransactiondata['plusminus'];
+                $qtyin       = $rowtransactiondata['qtyin'];
+                $qtyout      = $rowtransactiondata['qtyout'];
+                $unitcost    = $rowtransactiondata['unitcost'];
+                $materialid  = $rowtransactiondata['materialid'];
+                $uom_id      = $rowtransactiondata['uom_id'];
+                $supplier_id = $rowtransactiondata['supplier_id'];
+                $grndate     = $rowtransactiondata['grndate'];
+                $batchno     = $rowtransactiondata['batchno'];
+                $type        = $rowtransactiondata['type']; // 'update' or 'insert'
+                $userid        = $rowtransactiondata['userid'];
+
+                if($type == 'update'){
+                    // Update existing stock
+                    if($plusminus == 1){
+                        $this->db->set('qty', "(`qty` + '$qtyin')", FALSE);
+                    } elseif($plusminus == 2){
+                        $this->db->set('qty', "(`qty` - '$qtyout')", FALSE);
+                    }
+                    $this->db->set('updateuser', $userid);
+                    $this->db->set('updatedatetime', $updatedatetime);
+                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialid);
+                    $this->db->where('tbl_company_idtbl_company', $companyID);
+                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                    $this->db->update('tbl_print_stock');
+
+                } else {
+                    // Insert new stock
+                    $stocktotal = $qtyin * $unitcost;
+
+                    $datastock = array(
+                        'batchno'                                           => $batchno,
+                        'grndate'                                           => $grndate,
+                        'supplier_id'                                       => $supplier_id,
+                        'qty'                                               => $qtyin,
+                        'measure_type_id'                                   => $uom_id,
+                        'unitprice'                                         => $unitcost,
+                        'total'                                             => $stocktotal,
+                        'status'                                            => '1',
+                        'insertdatetime'                                    => $updatedatetime,
+                        'tbl_print_material_info_idtbl_print_material_info' => $materialid,
+                        'tbl_company_idtbl_company'                         => $companyID,
+                        'tbl_company_branch_idtbl_company_branch'           => $branchID,
+                        'tbl_user_idtbl_user'                               => $userid,
+                    );
+                    $this->db->insert('tbl_print_stock', $datastock);
+                }
+            }
+
+            $this->db->trans_commit();
+            return true;
+        }
+        catch (Exception $e) {
+            $this->db->trans_rollback();
+            return false;
+        }
+    }
+    // public function insertStockWebhook($data){
+    //     $this->db->insert('tbl_stock_webhook', $data);
+
+    //     foreach($respond->result() as $rowtransactiondata){
+    //         if(!empty($rowtransactiondata->plusminus>0)){
+    //             //Update already in stock
+    //             $materialBatchno = $rowtransactiondata->materialbatch;
+                
+    //             if($rowtransactiondata->plusminus==1):
+    //                 $stocktotal = $rowtransactiondata->qtyin * $rowtransactiondata->unitcost;
+    //                 $this->db->set('qty', "(`qty` + '$rowtransactiondata->qtyin')", FALSE);
+    //             elseif($rowtransactiondata->plusminus==2):
+    //                 $stocktotal = $rowtransactiondata->qtyout * $rowtransactiondata->unitcost;
+    //                 $this->db->set('qty', "(`qty` - '$rowtransactiondata->qtyout')", FALSE);
+    //             endif;
+    //             $this->db->where('tbl_print_material_info_idtbl_print_material_info', $rowtransactiondata->tbl_print_material_info_idtbl_print_material_info);
+    //             $this->db->where('tbl_company_idtbl_company', $companyID);
+    //             $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+    //             $this->db->update('tbl_print_stock');
+
+    //             $totaltransactionamount += $stocktotal;
+    //         }
+    //         else{
+    //             //New stock insert
+    //             $materialBatchno = generate_batch_no($rowtransactiondata->tbl_print_material_info_idtbl_print_material_info);
+    //             $stocktotal = $rowtransactiondata->qtyin * $rowtransactiondata->unitcost;
+    //             $totaltransactionamount += $stocktotal;
+
+    //             // Insert the stock in the transaction data
+    //             $datastock = array(
+    //                 'batchno' => $materialBatchno, 
+    //                 'grndate' => $today, 
+    //                 'supplier_id' => $rowtransactiondata->grnsupplierid, 
+    //                 'qty' => $rowtransactiondata->qtyin, 
+    //                 'measure_type_id' => $rowtransactiondata->uom_id, 
+    //                 'unitprice' => $rowtransactiondata->unitcost, 
+    //                 'total' => $stocktotal, 
+    //                 'status' => '1', 
+    //                 'insertdatetime' => $updatedatetime,
+    //                 'tbl_user_idtbl_user' => $userID, 
+    //                 'tbl_print_material_info_idtbl_print_material_info' => $rowtransactiondata->tbl_print_material_info_idtbl_print_material_info, 
+    //                 'tbl_company_idtbl_company' => $companyID, 
+    //                 'tbl_company_branch_idtbl_company_branch' => $branchID,
+    //             );
+    //             $this->db->insert('tbl_print_stock', $datastock);
+    //         }
+    //     }
+    // }
 }
