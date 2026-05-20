@@ -60,7 +60,7 @@ class Creditnoteinfo extends CI_Model {
 
         $userID=$_SESSION['userid'];
 
-        $creditnotedate=$this->input->post('cndate');
+        $creditnotedate=date('Y-m-d');
         $tableData=$this->input->post('tableData');
         $hideinvoiceID=$this->input->post('hideinvoiceID');
         $total=$this->input->post('total');
@@ -586,7 +586,7 @@ class Creditnoteinfo extends CI_Model {
 
             // Summary Section
             $html .= '<div style="margin-top: 20px;">';
-            $html .= '<div style="float: right; width: 200px; font-size: 11px;">';
+            $html .= '<div style="float: right; width: 300px; font-size: 11px;">';
             $html .= '<table style="width: 100%; border-collapse: collapse;">';
             $html .= '<tr>';
             $html .= '<td style="text-align: right; padding: 5px;"><strong>Subtotal:</strong></td>';

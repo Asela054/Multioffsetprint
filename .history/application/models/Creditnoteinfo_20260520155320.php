@@ -60,7 +60,7 @@ class Creditnoteinfo extends CI_Model {
 
         $userID=$_SESSION['userid'];
 
-        $creditnotedate=$this->input->post('cndate');
+        $creditnotedate=$this->input->post('tableData');
         $tableData=$this->input->post('tableData');
         $hideinvoiceID=$this->input->post('hideinvoiceID');
         $total=$this->input->post('total');

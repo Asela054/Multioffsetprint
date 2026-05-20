@@ -98,9 +98,9 @@
 							<input type="hidden" name="f_branch_id" id="f_branch_id">
 							<div class="form-row mb-1">
                                 <div class="col">
-                                    <label class="small font-weight-bold text-dark">Date*</label>
-                                    <input type="date" id="cndate" name="cndate" class="form-control form-control-sm"
-                                        value="<?php echo date('Y-m-d') ?>" required>
+                                    <label class="small font-weight-bold text-dark" hidden>MF Date*</label>
+                                    <input type="date" id="mfdate" name="mfdate" class="form-control form-control-sm"
+                                        value="<?php echo date('Y-m-d') ?>" required hidden>
                                 </div>
                             </div>
 							<div class="form-row mb-1">
@@ -800,7 +800,6 @@
     			});
 
     			var hideinvoiceID = $('#hideinvoiceid').val();
-				var cndate = $('#cndate').val();
     			var remark = $('#remark').val();
     			var total = $('#hidetotalorder').val();
     			var tax = $('#txtShowtaxAmount').val();
@@ -830,7 +829,6 @@
     							totalwithtax: totalwithtax,
     							f_company_id: f_company_id,
     							f_branch_id: f_branch_id,
-    							cndate: cndate,
     							remark: remark
     						},
     						url: 'Creditnote/Returninvoiceinsertupdate',

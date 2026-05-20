@@ -60,7 +60,7 @@ class Creditnoteinfo extends CI_Model {
 
         $userID=$_SESSION['userid'];
 
-        $creditnotedate=$this->input->post('cndate');
+        $creditnotedate=date('Y-m-d');
         $tableData=$this->input->post('tableData');
         $hideinvoiceID=$this->input->post('hideinvoiceID');
         $total=$this->input->post('total');
@@ -299,9 +299,9 @@ class Creditnoteinfo extends CI_Model {
                 <tr>
                 <th scope="col">#</th>
                 <th scope="col">Date</th>
-                <th scope="col">Sub Total</th>
+                <th scope="col">Total</th>
                 <th scope="col">VAT Amount</th>
-                <th scope="col">Net Total</th>
+                <th scope="col">Sub Total</th>
                 <th scope="col">Approve Status</th>
                 <th scope="col">Checked By</th>
                 <th scope="col">Actions</th>
@@ -330,7 +330,7 @@ class Creditnoteinfo extends CI_Model {
                             <td>' . $invoicelist->date . '</td>
                             <td>' . number_format($invoicelist->subtotal, 2, '.', ',') . '</td>
                             <td>' . number_format($invoicelist->vat_amount, 2, '.', ',') . '</td>
-                            <td>' . number_format($invoicelist->nettotal, 2, '.', ',') . '</td>
+                            <td>' . number_format($invoicelist->total, 2, '.', ',') . '</td>
                             <td>' . $approveStatus . '</td>
                             <td>' . $checkedBy . '</td>
                             <td>
@@ -397,9 +397,9 @@ class Creditnoteinfo extends CI_Model {
                     <strong>Remark:</strong> ' . $creditnote->remark . '
                 </div>
                 <div class="col-6 text-right">
-                    <strong>Sub Total:</strong> Rs. ' . number_format($creditnote->subtotal, 2) . '<br>
+                    <strong>Total:</strong> Rs. ' . number_format($creditnote->total, 2) . '<br>
                     <strong>VAT:</strong> Rs. ' . number_format($creditnote->vat_amount, 2) . '<br>
-                    <strong>Net Total:</strong> Rs. ' . number_format($creditnote->nettotal, 2) . '
+                    <strong>Subtotal:</strong> Rs. ' . number_format($creditnote->subtotal, 2) . '
                 </div>
             </div>';
 
@@ -586,7 +586,7 @@ class Creditnoteinfo extends CI_Model {
 
             // Summary Section
             $html .= '<div style="margin-top: 20px;">';
-            $html .= '<div style="float: right; width: 200px; font-size: 11px;">';
+            $html .= '<div style="float: right; width: 300px; font-size: 11px;">';
             $html .= '<table style="width: 100%; border-collapse: collapse;">';
             $html .= '<tr>';
             $html .= '<td style="text-align: right; padding: 5px;"><strong>Subtotal:</strong></td>';
@@ -598,7 +598,7 @@ class Creditnoteinfo extends CI_Model {
             $html .= '</tr>';
             $html .= '<tr style="border-top: 2px solid #333;">';
             $html .= '<td style="text-align: right; padding: 5px;"><strong>Total:</strong></td>';
-            $html .= '<td style="text-align: right; padding: 5px;"><strong>Rs. ' . number_format($creditnote->nettotal, 2) . '</strong></td>';
+            $html .= '<td style="text-align: right; padding: 5px;"><strong>Rs. ' . number_format($creditnote->total, 2) . '</strong></td>';
             $html .= '</tr>';
             $html .= '</table>';
             $html .= '</div>';

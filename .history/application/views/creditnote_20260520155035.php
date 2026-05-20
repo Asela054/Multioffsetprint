@@ -800,7 +800,6 @@
     			});
 
     			var hideinvoiceID = $('#hideinvoiceid').val();
-				var cndate = $('#cndate').val();
     			var remark = $('#remark').val();
     			var total = $('#hidetotalorder').val();
     			var tax = $('#txtShowtaxAmount').val();
@@ -830,7 +829,6 @@
     							totalwithtax: totalwithtax,
     							f_company_id: f_company_id,
     							f_branch_id: f_branch_id,
-    							cndate: cndate,
     							remark: remark
     						},
     						url: 'Creditnote/Returninvoiceinsertupdate',

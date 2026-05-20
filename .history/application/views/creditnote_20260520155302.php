@@ -830,7 +830,6 @@
     							totalwithtax: totalwithtax,
     							f_company_id: f_company_id,
     							f_branch_id: f_branch_id,
-    							cndate: cndate,
     							remark: remark
     						},
     						url: 'Creditnote/Returninvoiceinsertupdate',
