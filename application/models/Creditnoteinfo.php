@@ -74,7 +74,15 @@ class Creditnoteinfo extends CI_Model {
         $today=date('Y-m-d');
         $batchnodate=date('Ymd');
 
-        $financialYear = substr(date("Y", strtotime($creditnotedate)), -2);
+        $calendarYear = date("Y", strtotime($creditnotedate));
+        $month        = date("m", strtotime($creditnotedate));
+        if ($month >= 1 && $month <= 3) {
+            $financialYear = $calendarYear - 1;
+        } else {
+            $financialYear = $calendarYear;
+        }
+        
+        $financialYear = substr($financialYear, -2);
         $creditnoteno = tr_batch_num('CRN' . $financialYear, $branch_id);
         $creditnoteno = preg_replace('/^(.{5})000/', '$1', $creditnoteno);
 
@@ -193,7 +201,7 @@ class Creditnoteinfo extends CI_Model {
                 $this->db->update('tbl_credit_note', $data);
 
                 // GET API SEGREGATION DATA
-                $this->db->select('tbl_credit_note.idtbl_credit_note, tbl_credit_note.date, tbl_credit_note.nettotal, tbl_credit_note.vat_amount, tbl_credit_note.subtotal, tbl_credit_note.creditnoteno, tbl_print_invoice.tbl_customer_idtbl_customer');
+                $this->db->select('tbl_credit_note.idtbl_credit_note, tbl_credit_note.creditnoteno, tbl_credit_note.date, tbl_credit_note.nettotal, tbl_credit_note.vat_amount, tbl_credit_note.subtotal, tbl_credit_note.creditnoteno, tbl_print_invoice.tbl_customer_idtbl_customer');
                 $this->db->from('tbl_credit_note');
                 $this->db->join('tbl_print_invoice', 'tbl_print_invoice.idtbl_print_invoice = tbl_credit_note.tbl_print_invoice_idtbl_print_invoice', 'left');
                 $this->db->where('tbl_credit_note.idtbl_credit_note', $recordID);
@@ -207,7 +215,7 @@ class Creditnoteinfo extends CI_Model {
                     throw new Exception("Invoice API configuration error: Missing chart of accounts for one or more items.");
                 }
 
-                $fullnarration = 'Costing for Internal Issue Note ID: ' . $respond->row(0)->idtbl_credit_note;
+                $fullnarration = 'Costing for Credit Note No: ' . $respond->row(0)->creditnoteno;
                 $apiurljobfinish = $_SESSION['accountapiurl'].'Api/Creditnoteprocess';
 
                 $postDataList = http_build_query([

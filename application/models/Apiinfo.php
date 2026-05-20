@@ -903,8 +903,8 @@ class Apiinfo extends CI_Model{
                 foreach($respondotherdetail->result() as $rowdetailaccount):
                     if(($companyID==1 || $companyID==2) && $rowdetailaccount->special_cate_sub==2):
                         $obj = new stdClass();
-                        $obj->amount = str_replace(",", "", $respond->row(0)->nettotal);
-                        $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                        $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
+                        $obj->narration = 'Costing for credit note: ' . $respond->row(0)->creditnoteno;
                         $obj->detailaccount = $rowdetailaccount->idtbl_account_detail;
                         $obj->chartaccount = '0';
                         $obj->crder = 'D';
@@ -912,8 +912,8 @@ class Apiinfo extends CI_Model{
                         break;
                     else:
                         $obj = new stdClass();
-                        $obj->amount = str_replace(",", "", $respond->row(0)->nettotal);
-                        $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                        $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
+                        $obj->narration = 'Costing for credit note: ' . $respond->row(0)->creditnoteno;
                         $obj->detailaccount = $rowdetailaccount->idtbl_account_detail;
                         $obj->chartaccount = '0';
                         $obj->crder = 'D';
@@ -928,8 +928,8 @@ class Apiinfo extends CI_Model{
                 foreach($respondchart->result() as $rowrchartaccount):
                     if($rowrchartaccount->specialcate==18):
                         $obj = new stdClass();
-                        $obj->amount = str_replace(",", "", $respond->row(0)->nettotal);
-                        $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                        $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
+                        $obj->narration = 'Costing for credit note: ' . $respond->row(0)->creditnoteno;
                         $obj->detailaccount = '0';
                         $obj->chartaccount = $rowrchartaccount->idtbl_account;
                         $obj->crder = 'D';
@@ -946,7 +946,7 @@ class Apiinfo extends CI_Model{
                 if($rowrchartaccount->specialcate==13 && $respond->row(0)->vat_amount>0):
                     $obj = new stdClass();
                     $obj->amount = str_replace(",", "", $respond->row(0)->vat_amount);
-                    $obj->narration = 'VAT Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                    $obj->narration = 'VAT Costing for credit note: ' . $respond->row(0)->creditnoteno;
                     $obj->detailaccount = '0';
                     $obj->chartaccount = $rowrchartaccount->idtbl_account;
                     $obj->crder = 'D';
@@ -955,7 +955,7 @@ class Apiinfo extends CI_Model{
                 // elseif($rowrchartaccount->specialcate==35):
                 //     $obj = new stdClass();
                 //     $obj->amount = str_replace(",", "", $respond->row(0)->nettotal);
-                //     $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                //     $obj->narration = 'Costing for credit note: ' . $respond->row(0)->creditnoteno;
                 //     $obj->detailaccount = '0';
                 //     $obj->chartaccount = $rowrchartaccount->idtbl_account;
                 //     $obj->crder = 'D';
@@ -966,22 +966,22 @@ class Apiinfo extends CI_Model{
             if(!empty($responddebtor->result())): 
                 foreach($responddebtor->result() as $rowdebtoraccount):
                     $obj = new stdClass();
-                    $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
-                    $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                    $obj->amount = str_replace(",", "", $respond->row(0)->nettotal);
+                    $obj->narration = 'Costing for credit note: ' . $respond->row(0)->creditnoteno;
                     $obj->detailaccount = $rowdebtoraccount->idtbl_account_detail;
                     $obj->chartaccount = '0';
-                    $obj->crder = 'D';
+                    $obj->crder = 'C';
                     $segregationdata[] = $obj;
                 endforeach;
             else:
                 foreach($respondchart->result() as $rowrchartaccount):
                     if($rowrchartaccount->specialcate==35):
                         $obj = new stdClass();
-                        $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
-                        $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
+                        $obj->amount = str_replace(",", "", $respond->row(0)->nettotal);
+                        $obj->narration = 'Costing for credit note: ' . $respond->row(0)->creditnoteno;
                         $obj->detailaccount = '0';
                         $obj->chartaccount = $rowrchartaccount->idtbl_account;
-                        $obj->crder = 'D';
+                        $obj->crder = 'C';
                         $segregationdata[] = $obj;   
                     endif;
                 endforeach;

@@ -541,7 +541,7 @@
         		},
         		url: '<?php echo base_url() ?>Creditnote/GetCreditNoteDetails',
         		success: function (result) { //alert(result);
-
+					console.log(approvestatus+'-->'+checkstatus);
         			$('#creditnoteviewhtml').html(result);
 
         			if (approvestatus > 0) {
@@ -554,6 +554,7 @@
         			} else {
         				if (checkstatus == 0) {
         					$('#btncreditnoteapprovereject').addClass('d-none').prop('disabled', true);
+							$('#btncreditnotecheck').removeClass('d-none').prop('disabled', false);
         				} else {
         					$('#btncreditnoteapprovereject').removeClass('d-none').prop('disabled', false);
         					$('#btncreditnotecheck').addClass('d-none').prop('disabled', true);
@@ -625,7 +626,7 @@
 							recordID: $('#creditnoteid').val(),
 							confirmnot: confirmnot
 						},
-						url: '<?php echo base_url() ?>Creditnote/Creditnotestatus',
+						url: '<?php echo base_url() ?>Creditnote/Creditnoteapprove',
 						success: function (result) {
 							Swal.close();
 							document.body.style.overflow = 'auto';
