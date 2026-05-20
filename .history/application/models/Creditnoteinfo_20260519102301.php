@@ -78,7 +78,7 @@ class Creditnoteinfo extends CI_Model {
             'date'=> $today,
             'subtotal'=> $total, 
             'vat_amount'=> $tax, 
-            'nettotal'=> $totalwithtax, 
+            'subtotal'=> $totalwithtax, 
             'remark'=> $remark, 
             'status'=> '1', 
             'insertdatetime'=> $updatedatetime, 
