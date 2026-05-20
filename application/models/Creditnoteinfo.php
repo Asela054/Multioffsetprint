@@ -60,6 +60,7 @@ class Creditnoteinfo extends CI_Model {
 
         $userID=$_SESSION['userid'];
 
+        $creditnotedate=date('Y-m-d');
         $tableData=$this->input->post('tableData');
         $hideinvoiceID=$this->input->post('hideinvoiceID');
         $total=$this->input->post('total');
@@ -69,13 +70,17 @@ class Creditnoteinfo extends CI_Model {
         $company_id=$this->input->post('f_company_id');
         $branch_id=$this->input->post('f_branch_id');
 
-
         $updatedatetime=date('Y-m-d H:i:s');
         $today=date('Y-m-d');
         $batchnodate=date('Ymd');
 
+        $financialYear = substr(date("Y", strtotime($creditnotedate)), -2);
+        $creditnoteno = tr_batch_num('CRN' . $financialYear, $branch_id);
+        $creditnoteno = preg_replace('/^(.{5})000/', '$1', $creditnoteno);
+
         $data = array(
-            'date'=> $today,
+            'creditnoteno'=> $creditnoteno,
+            'date'=> $creditnotedate,
             'subtotal'=> $total, 
             'vat_amount'=> $tax, 
             'nettotal'=> $totalwithtax, 

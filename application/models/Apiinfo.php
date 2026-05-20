@@ -829,12 +829,31 @@ class Apiinfo extends CI_Model{
         $segregationdata = array();
 
         try {
-            $this->db->select('tbl_credit_note.idtbl_credit_note, tbl_credit_note.date, tbl_credit_note.total, tbl_credit_note.vat_amount, tbl_credit_note.subtotal, tbl_credit_note.creditnoteno, tbl_print_invoice.tbl_customer_idtbl_customer');
+            $this->db->select('tbl_credit_note.idtbl_credit_note, tbl_credit_note.creditnoteno, tbl_credit_note.date, tbl_credit_note.nettotal, tbl_credit_note.vat_amount, tbl_credit_note.subtotal, tbl_credit_note.creditnoteno, tbl_print_invoice.tbl_customer_idtbl_customer, tbl_customer.vat_customer');
             $this->db->from('tbl_credit_note');
             $this->db->join('tbl_print_invoice', 'tbl_print_invoice.idtbl_print_invoice = tbl_credit_note.tbl_print_invoice_idtbl_print_invoice', 'left');
+            $this->db->join('tbl_customer', 'tbl_customer.idtbl_customer = tbl_print_invoice.tbl_customer_idtbl_customer', 'left');
             $this->db->where('tbl_credit_note.idtbl_credit_note', $recordID);
             $this->db->where('tbl_credit_note.status', 1);
             $respond=$this->db->get();
+
+            if ($respond->num_rows() > 0) {
+                $datacreditnote = array(
+                    'creditnoteno' => $respond->row(0)->creditnoteno,
+                    'date' => date('Y-m-d'),
+                    'nettotal' => $respond->row(0)->nettotal,
+                    'vatstatus' => $respond->row(0)->vat_customer,
+                    'status' => 1,
+                    'insertdatetime' => $updatedatetime,
+                    'tbl_user_idtbl_user' => $userID,
+                    'tbl_company_idtbl_company' => $companyID,
+                    'tbl_company_branch_idtbl_company_branch' => $branchID,
+                    'tbl_credit_note_idtbl_credit_note' => $respond->row(0)->idtbl_credit_note,
+                    'tbl_customer_idtbl_customer' => $respond->row(0)->tbl_customer_idtbl_customer
+                );
+
+                $this->db->insert('tbl_account_creditnote', $datacreditnote);
+            }
 
             $chartspecialcate = array('35', '13', '18');
             $this->db->where('tbl_account_allocation.companybank', $companyID);
@@ -884,7 +903,7 @@ class Apiinfo extends CI_Model{
                 foreach($respondotherdetail->result() as $rowdetailaccount):
                     if(($companyID==1 || $companyID==2) && $rowdetailaccount->special_cate_sub==2):
                         $obj = new stdClass();
-                        $obj->amount = str_replace(",", "", $respond->row(0)->total);
+                        $obj->amount = str_replace(",", "", $respond->row(0)->nettotal);
                         $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
                         $obj->detailaccount = $rowdetailaccount->idtbl_account_detail;
                         $obj->chartaccount = '0';
@@ -893,7 +912,7 @@ class Apiinfo extends CI_Model{
                         break;
                     else:
                         $obj = new stdClass();
-                        $obj->amount = str_replace(",", "", $respond->row(0)->total);
+                        $obj->amount = str_replace(",", "", $respond->row(0)->nettotal);
                         $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
                         $obj->detailaccount = $rowdetailaccount->idtbl_account_detail;
                         $obj->chartaccount = '0';
@@ -909,7 +928,7 @@ class Apiinfo extends CI_Model{
                 foreach($respondchart->result() as $rowrchartaccount):
                     if($rowrchartaccount->specialcate==18):
                         $obj = new stdClass();
-                        $obj->amount = str_replace(",", "", $respond->row(0)->total);
+                        $obj->amount = str_replace(",", "", $respond->row(0)->nettotal);
                         $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
                         $obj->detailaccount = '0';
                         $obj->chartaccount = $rowrchartaccount->idtbl_account;
@@ -935,7 +954,7 @@ class Apiinfo extends CI_Model{
                 endif;
                 // elseif($rowrchartaccount->specialcate==35):
                 //     $obj = new stdClass();
-                //     $obj->amount = str_replace(",", "", $respond->row(0)->total);
+                //     $obj->amount = str_replace(",", "", $respond->row(0)->nettotal);
                 //     $obj->narration = 'Costing for cost no: ' . $respond->row(0)->creditnoteno;
                 //     $obj->detailaccount = '0';
                 //     $obj->chartaccount = $rowrchartaccount->idtbl_account;
