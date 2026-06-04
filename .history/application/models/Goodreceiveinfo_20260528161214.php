@@ -534,10 +534,10 @@
 				$this->db->update('tbl_print_porder', $dataporder);
 			}
 
-			$this->db->select('tbl_print_grn.batchno, tbl_print_grn.tbl_material_group_idtbl_material_group, tbl_print_grn.tbl_company_idtbl_company, tbl_print_grn.tbl_company_branch_idtbl_company_branch, tbl_print_grn.grntype, tbl_print_grn.tbl_location_idtbl_location, tbl_print_grn.tbl_supplier_idtbl_supplier, tbl_print_grn.grndate, tbl_print_grndetail.qty, tbl_print_grndetail.pieces, tbl_print_grndetail.total, tbl_print_grndetail.unitprice, tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.tbl_measurements_idtbl_measurements as material_measure_type, tbl_print_grn.tbl_print_porder_idtbl_print_porder');
+			$this->db->select('tbl_print_grn.batchno, tbl_print_grn.tbl_material_group_idtbl_material_group, tbl_print_grn.tbl_company_idtbl_company, tbl_print_grn.tbl_company_branch_idtbl_company_branch, tbl_print_grn.grntype, tbl_print_grn.tbl_location_idtbl_location, tbl_print_grn.tbl_supplier_idtbl_supplier, tbl_print_grn.grndate, tbl_print_grndetail.qty, tbl_print_grndetail.pieces, tbl_print_grndetail.total, tbl_print_grndetail.tbl_measurements_idtbl_mesurements, tbl_print_grndetail.unitprice, tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info, tbl_print_grn.tbl_print_porder_idtbl_print_porder');
 			$this->db->from('tbl_print_grn');
 			$this->db->join('tbl_print_grndetail', 'tbl_print_grn.idtbl_print_grn = tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', 'left');
-			$this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info', 'left');
+			$this->db->join('tbl_print_material', 'tbl_print_grn.idtbl_print_grn = tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', 'left');
 			$this->db->where('tbl_print_grn.status', 1);
 			$this->db->where('tbl_print_grn.idtbl_print_grn', $approveID);
 			$respond = $this->db->get();
@@ -554,7 +554,7 @@
 					$grndate = $row->grndate;
 					$qty = $row->qty;
 					$pieces = $row->pieces;
-					$measure_type = !empty($row->material_measure_type) ? $row->material_measure_type : $row->tbl_measurements_idtbl_mesurements;
+					$measure_type = $row->tbl_measurements_idtbl_mesurements;
 					$unitprice = $row->unitprice;
 					$total = $row->total;
 					$materialID = $row->tbl_print_material_info_idtbl_print_material_info;
