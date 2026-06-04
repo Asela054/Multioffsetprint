@@ -32,7 +32,7 @@ $columns = array(
 	array( 'db' => '`u`.`idtbl_print_grn`', 'dt' => 'idtbl_print_grn', 'field' => 'idtbl_print_grn' ),
 	array( 'db' => '`u`.`batchno`', 'dt' => 'batchno', 'field' => 'batchno' ),
 	array( 'db' => '`u`.`grndate`', 'dt' => 'grndate', 'field' => 'grndate' ),
-	array( 'db' => '`u`.`total`', 'dt' => 'total', 'field' => 'total' ),
+	array( 'db' => '`u`.`totalcost`', 'dt' => 'totalcost', 'field' => 'totalcost' ),
 	array( 'db' => '`u`.`grn_no`', 'dt' => 'grn_no', 'field' => 'grn_no' ),
 	array( 'db' => '`u`.`approvestatus`', 'dt' => 'approvestatus', 'field' => 'approvestatus' ),
 	array( 'db' => '`ua`.`suppliername`', 'dt' => 'suppliername', 'field' => 'suppliername' ),
