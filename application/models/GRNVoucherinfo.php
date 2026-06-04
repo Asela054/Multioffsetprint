@@ -690,7 +690,7 @@ class GRNVoucherinfo extends CI_Model{
     
             if ($confirmnot == 1) {
                  // Get GRN details
-                $this->db->select('`tbl_print_grn`.`vat`, `tbl_print_grn`.`idtbl_print_grn`, `tbl_print_grn`.`grn_no`, `tbl_print_grn`.`grntype`, `tbl_print_grn`.`grndate`, `tbl_print_grn`.`tbl_supplier_idtbl_supplier`, `tbl_print_grn`.`vatamount`, `tbl_print_grn`.`total`, `tbl_supplier`.`suppliername`, `tbl_grn_vouchar_import_cost`.`grnsubtotal`, `tbl_grn_vouchar_import_cost`.`grndiscount`, `tbl_grn_vouchar_import_cost`.`grnvatamount`, `tbl_grn_vouchar_import_cost`.`grntotal`');
+                $this->db->select('`tbl_print_grn`.`batchno`, `tbl_print_grn`.`vat`, `tbl_print_grn`.`idtbl_print_grn`, `tbl_print_grn`.`grn_no`, `tbl_print_grn`.`grntype`, `tbl_print_grn`.`grndate`, `tbl_print_grn`.`tbl_supplier_idtbl_supplier`, `tbl_print_grn`.`vatamount`, `tbl_print_grn`.`total`, `tbl_supplier`.`suppliername`, `tbl_grn_vouchar_import_cost`.`grnsubtotal`, `tbl_grn_vouchar_import_cost`.`grndiscount`, `tbl_grn_vouchar_import_cost`.`grnvatamount`, `tbl_grn_vouchar_import_cost`.`grntotal`');
                 $this->db->from('tbl_grn_vouchar_import_cost');
                 $this->db->join('tbl_print_grn', 'tbl_print_grn.idtbl_print_grn = tbl_grn_vouchar_import_cost.tbl_print_grn_idtbl_print_grn', 'left');
                 $this->db->join('tbl_supplier', 'tbl_supplier.idtbl_supplier = tbl_print_grn.tbl_supplier_idtbl_supplier', 'left');
@@ -734,6 +734,18 @@ class GRNVoucherinfo extends CI_Model{
                     $this->db->update('tbl_print_grndetail', $dataupdategrndetail);
     
                     $newnettotal += $rowaftercostdata->total;
+
+                    $dataupdatestock = array(
+                        'unitprice' => $rowaftercostdata->costunitprice,
+                        'total' => $rowaftercostdata->total,
+                        'updateuser' => $userID,
+                        'updatedatetime' => $updatedatetime
+                    );
+                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $rowaftercostdata->tbl_print_material_info_idtbl_print_material_info);
+                    $this->db->where('tbl_company_idtbl_company', $company);
+                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branch);
+                    $this->db->where('batchno', $grnData->batchno);
+                    $this->db->update('tbl_print_stock', $dataupdatestock);
                 }
     
                 // Update GRN with cost details

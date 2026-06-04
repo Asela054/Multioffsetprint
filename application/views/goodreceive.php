@@ -544,7 +544,7 @@ $(document).ready(function() {
                 "className": 'text-right',
                 "data": null,
                 "render": function(data, type, full) {
-                    return addCommas(parseFloat(full['total']).toFixed(2));
+                    return addCommas(parseFloat(full['totalcost']).toFixed(2));
                 }
             },
             {
