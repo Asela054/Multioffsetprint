@@ -74,7 +74,15 @@ class Creditnoteinfo extends CI_Model {
         $today=date('Y-m-d');
         $batchnodate=date('Ymd');
 
-        $financialYear = substr(date("Y", strtotime($creditnotedate)), -2);
+        $calendarYear = date("Y", strtotime($creditnotedate));
+        $month        = date("m", strtotime($creditnotedate));
+        if ($month >= 1 && $month <= 3) {
+            $financialYear = $calendarYear - 1;
+        } else {
+            $financialYear = $calendarYear;
+        }
+        
+        $financialYear = substr($financialYear, -2);
         $creditnoteno = tr_batch_num('CRN' . $financialYear, $branch_id);
         $creditnoteno = preg_replace('/^(.{5})000/', '$1', $creditnoteno);
 
