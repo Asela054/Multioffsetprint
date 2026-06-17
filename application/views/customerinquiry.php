@@ -208,10 +208,14 @@ include "include/topnavbar.php";
                                 <input type="hidden" class="form-control form-control-sm" id="hiddeninquiryid" name="hiddeninquiryid">
                             </div>
                             <div class="form-group mb-1">
-                                        <label class="small font-weight-bold text-dark">Finish Reason*</label><br>
-                                        <textarea rows="6" cols="50" type="text" class="form-control form-control-sm" id="finishreason" name="finishreason" required></textarea>
-                                    </div>
-                            <div class="form-group mt-2 text-right">
+                                <label class="small font-weight-bold text-dark">Finish Reason*</label><br>
+                                <textarea rows="6" cols="50" type="text" class="form-control form-control-sm" id="finishreason" name="finishreason" required></textarea>
+                            </div>
+                            <div class="form-group mb-1">
+                                <label class="small font-weight-bold text-dark">Job Finished Date*</label><br>
+                                <input type="date" class="form-control form-control-sm" id="completionDate" name="completion_date" required>
+                            </div>
+                            <div class="form-group mt-3 text-right">
                                 <button type="button" id="submitBtnRemark" class="btn btn-primary btn-sm px-4"><i class="far fa-save"></i>&nbsp;Finish</button>
                                 <input type="submit" class="d-none" id="hidesubmitremark" value="">
                             </div>
@@ -629,12 +633,14 @@ $(document).ready(function() {
                     $("#hidesubmitremark").click();
                 } else {
                     var finishreason = $('#finishreason').val();
+                    var completionDate = $('#completionDate').val();
                     var hiddenID = $('#hiddeninquiryid').val();
 
                     $.ajax({
                         type: "POST",
                         data: {
                             finishreason: finishreason,
+                            completionDate: completionDate,
                             hiddenID: hiddenID
 
                         },

@@ -107,15 +107,44 @@ class MaterialallocationManualinfo extends CI_Model{
         $companyID=$_SESSION['company_id'];
         $branchID=$_SESSION['branch_id'];
 
-        $this->db->select('`batchno`, `qty`, `unitprice`');
-        $this->db->from('tbl_print_stock');
-        $this->db->where('status', 1);
-        $this->db->where('qty >', 0);
-        $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-        $this->db->where('tbl_company_idtbl_company', $companyID);
-        $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+        // $this->db->select('`tbl_print_stock`.`batchno`, `tbl_print_stock`.`qty`, `tbl_print_stock`.`unitprice`');
+        // $this->db->from('tbl_print_stock');
+        // $this->db->where('tbl_print_stock.status', 1);
+        // $this->db->where('tbl_print_stock.qty >', 0);
+        // $this->db->where('tbl_print_stock.tbl_print_material_info_idtbl_print_material_info', $materialID);
+        // $this->db->where('tbl_print_stock.tbl_company_idtbl_company', $companyID);
+        // $this->db->where('tbl_print_stock.tbl_company_branch_idtbl_company_branch', $branchID);
 
-        $respond=$this->db->get();
+        // $respond=$this->db->get();
+
+        $this->db->select('
+            tbl_print_stock.batchno, 
+            tbl_print_stock.unitprice,
+            (tbl_print_stock.qty - COALESCE(SUM(tbl_jobcard_issue_meterial.issueqty), 0)) AS qty
+        ');
+        $this->db->from('tbl_print_stock');
+        $this->db->join(
+            'tbl_jobcard_issue_meterial',
+            'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_print_stock.tbl_print_material_info_idtbl_print_material_info 
+            AND tbl_jobcard_issue_meterial.batchno = tbl_print_stock.batchno
+            AND tbl_jobcard_issue_meterial.status = 1',
+            'left'
+        );
+        $this->db->join(
+            'tbl_jobcard',
+            'tbl_jobcard.idtbl_jobcard = tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard
+            AND tbl_jobcard.tbl_company_idtbl_company = ' . $companyID . '
+            AND tbl_jobcard.tbl_company_branch_idtbl_company_branch = ' . $branchID,
+            'left'
+        );
+        $this->db->where('tbl_print_stock.status', 1);
+        $this->db->where('tbl_print_stock.qty >', 0);
+        $this->db->where('tbl_print_stock.tbl_print_material_info_idtbl_print_material_info', $materialID);
+        $this->db->where('tbl_print_stock.tbl_company_idtbl_company', $companyID);
+        $this->db->where('tbl_print_stock.tbl_company_branch_idtbl_company_branch', $branchID);
+        $this->db->group_by('tbl_print_stock.batchno, tbl_print_stock.qty, tbl_print_stock.unitprice');
+
+        $respond = $this->db->get();
 
         echo json_encode($respond->result());
     }
@@ -126,6 +155,7 @@ class MaterialallocationManualinfo extends CI_Model{
         $cusinquiry=$this->input->post('cusinquiry');
         $issueqty=$this->input->post('issueqty');
         $jobcardtype=$this->input->post('jobcardtype');
+        $allocationdate=$this->input->post('allocationdate');
         $tableData=$this->input->post('tableData');
         
         $companyID=$_SESSION['company_id'];
@@ -133,7 +163,7 @@ class MaterialallocationManualinfo extends CI_Model{
         $userID=$_SESSION['userid'];
 
         $updatedatetime=date('Y-m-d H:i:s');
-        $today=date('Y-m-d');
+        $today=$allocationdate;
 
         $this->db->select('`idtbl_jobcard`');
         $this->db->from('tbl_jobcard');
@@ -142,6 +172,34 @@ class MaterialallocationManualinfo extends CI_Model{
         $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
 
         $respondcheckjobcard=$this->db->get();
+
+        $this->db->select('COUNT(*) as notissuecount');
+        $this->db->from('tbl_jobcard_issue_meterial');
+        $this->db->where('issuedate !=', $allocationdate);
+        $this->db->where('tbl_jobcard_idtbl_jobcard', $respondcheckjobcard->row(0)->idtbl_jobcard);
+        $this->db->where('status !=', 2);
+
+        $respondnotissue = $this->db->get();
+
+        if($respondnotissue->row(0)->notissuecount > 0){
+            $actionObj=new stdClass();
+            $actionObj->icon='fas fa-exclamation-triangle';
+            $actionObj->title='Record Error';
+            $actionObj->message='Kindly resolve the pending issue note associated with this customer inquiry as a priority';
+            $actionObj->url='';
+            $actionObj->target='_blank';
+            $actionObj->type='danger';
+
+            $actionJSON=json_encode($actionObj);
+
+            $obj=new stdClass();
+            $obj->status=0;          
+            $obj->action=$actionJSON;  
+            
+            echo json_encode($obj);
+
+            return;
+        }
 
         if(empty($respondcheckjobcard->row(0)->idtbl_jobcard)){
             $this->db->select('COUNT(`idtbl_jobcard`) AS `count`');
@@ -283,7 +341,8 @@ class MaterialallocationManualinfo extends CI_Model{
                             'tbl_user_idtbl_user'=> $userID, 
                             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
                             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
+                            'jobcard_other_id'=> $jobcardotherID,
+                            'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue'=> $manualIssueID
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
@@ -344,7 +403,8 @@ class MaterialallocationManualinfo extends CI_Model{
                             'tbl_user_idtbl_user'=> $userID, 
                             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
                             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
+                            'jobcard_other_id'=> $jobcardotherID,
+                            'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue'=> $manualIssueID
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
@@ -406,7 +466,8 @@ class MaterialallocationManualinfo extends CI_Model{
                             'tbl_user_idtbl_user'=> $userID, 
                             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
                             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
+                            'jobcard_other_id'=> $jobcardotherID,
+                            'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue'=> $manualIssueID
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
@@ -468,7 +529,8 @@ class MaterialallocationManualinfo extends CI_Model{
                             'tbl_user_idtbl_user'=> $userID, 
                             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
                             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
+                            'jobcard_other_id'=> $jobcardotherID,
+                            'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue'=> $manualIssueID
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
@@ -530,7 +592,8 @@ class MaterialallocationManualinfo extends CI_Model{
                             'tbl_user_idtbl_user'=> $userID, 
                             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
                             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
+                            'jobcard_other_id'=> $jobcardotherID,
+                            'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue'=> $manualIssueID
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
@@ -594,7 +657,8 @@ class MaterialallocationManualinfo extends CI_Model{
                             'tbl_user_idtbl_user'=> $userID, 
                             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
                             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
+                            'jobcard_other_id'=> $jobcardotherID,
+                            'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue'=> $manualIssueID
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
@@ -656,7 +720,8 @@ class MaterialallocationManualinfo extends CI_Model{
                             'tbl_user_idtbl_user'=> $userID, 
                             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
                             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
+                            'jobcard_other_id'=> $jobcardotherID,
+                            'tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue'=> $manualIssueID
                         );
             
                         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
@@ -1292,15 +1357,22 @@ class MaterialallocationManualinfo extends CI_Model{
     
         echo json_encode($obj);
     }
-    public function Jobcardstatus($x, $y){
-        $this->db->trans_begin();
-
+    public function Jobcardstatus($x, $y){       
         $userID=$_SESSION['userid'];
-        $recordID=$x;
+        $recordmanualID=$x;
         $type=$y;
         $updatedatetime=date('Y-m-d H:i:s');
 
+        $this->db->select('tbl_jobcard_idtbl_jobcard');
+        $this->db->from('tbl_jobcard_manual_issue');
+        $this->db->where('idtbl_jobcard_manual_issue', $recordmanualID);
+        $respond=$this->db->get();
+
+        $recordID=$respond->row(0)->tbl_jobcard_idtbl_jobcard;
+
         if($type==3){
+            $this->db->trans_begin();
+
             // Jobcard Delete Process
             $data = array(
                 'status' => '3',
@@ -1308,41 +1380,33 @@ class MaterialallocationManualinfo extends CI_Model{
                 'updatedatetime'=> $updatedatetime
             );
 
-            $this->db->where('idtbl_jobcard', $recordID);
-            $this->db->update('tbl_jobcard', $data);
-
             // Jobcard Material Delete Process
-            $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
+            $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
             $this->db->update('tbl_jobcard_material', $data);
 
             // Jobcard Varnish Delete Process
-            $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
+            $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
             $this->db->update('tbl_jobcard_varnish', $data);
 
             // Jobcard Lamination Delete Process
-            $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
+            $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
             $this->db->update('tbl_jobcard_lamination', $data);
 
             // Jobcard Rimming Delete Process
-            $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
+            $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
             $this->db->update('tbl_jobcard_rimming', $data);
 
-            // Jobcard Diecutting Delete Process
-            $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
-            $this->db->update('tbl_jobcard_diecutting', $data);
-
-            // Jobcard Color Delete Process
             $data2 = array(
                 'status' => '3',
                 'updateuser'=> $userID, 
                 'updatedatetime'=> $updatedatetime
             );
-
-            $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
+            
+            $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
             $this->db->update('tbl_jobcard_color', $data2);
 
             // Jobcard Issue Material Delete Process
-            $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
+            $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
             $this->db->update('tbl_jobcard_issue_meterial', $data2);
 
             $this->db->trans_complete();
@@ -2148,10 +2212,10 @@ class MaterialallocationManualinfo extends CI_Model{
         $html .= '<hr class="border-dark">';
         
         $html .= '<h6 class="small"><i class="fas fa-list mr-2"></i>Issued Materials</h6>';
-        $html .= '<div class="table-responsive">';
+        // $html .= '<div class="table-responsive">';
         $html .= '<table class="table table-striped table-bordered table-sm small">';
         $html .= '<thead>';
-        $html .= '<tr class="bg-light">';
+        $html .= '<tr>';
         $html .= '<th>#</th>';
         $html .= '<th>Material Name</th>';
         $html .= '<th class="text-center">Quantity Issued</th>';
@@ -2168,14 +2232,14 @@ class MaterialallocationManualinfo extends CI_Model{
             $html .= '<td>' . $row->materialname . '</td>';
             $html .= '<td class="text-center">' . $row->qty . '</td>';
             $html .= '<td>' . $row->batchno . '</td>';
-            $html .= '<td>' . $row->insertdatetime . '</td>';
+            $html .= '<td>' . $header->issuedate . '</td>';
             $html .= '</tr>';
             $count++;
         }
 
         $html .= '</tbody>';
         $html .= '</table>';
-        $html .= '</div>';
+        // $html .= '</div>';
 
         echo $html;
     }
@@ -2198,31 +2262,34 @@ class MaterialallocationManualinfo extends CI_Model{
         $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_manual_issue_detail', $data);
 
+        // Jobcard Material Delete Process
         $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_material', $data);
 
-        $data2 = array(
-            'status' => 3,
-            'updateuser' => $userID,
-            'updatedatetime' => $updatedatetime
-        );
-        $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
-        $this->db->update('tbl_jobcard_color', $data2);
-
+        // Jobcard Varnish Delete Process
         $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_varnish', $data);
 
-        $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
-        $this->db->update('tbl_jobcard_foil', $data);
-
+        // Jobcard Lamination Delete Process
         $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_lamination', $data);
 
-        $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
-        $this->db->update('tbl_jobcard_pasting', $data);
-
+        // Jobcard Rimming Delete Process
         $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
         $this->db->update('tbl_jobcard_rimming', $data);
+
+        $data2 = array(
+            'status' => '3',
+            'updateuser'=> $userID, 
+            'updatedatetime'=> $updatedatetime
+        );
+        
+        $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
+        $this->db->update('tbl_jobcard_color', $data2);
+
+        // Jobcard Issue Material Delete Process
+        $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordID);
+        $this->db->update('tbl_jobcard_issue_meterial', $data2);
 
         $this->db->trans_complete();
 

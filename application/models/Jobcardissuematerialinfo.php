@@ -519,10 +519,11 @@ class Jobcardissuematerialinfo extends CI_Model {
             }
 
             // Get material value
-            $this->db->select('SUM(`tbl_jobcard_issue_meterial`.`issueqty`*`tbl_jobcard_issue_meterial`.`unitprice`) AS `issuematerialvalue`');
+            $this->db->select('SUM(`tbl_jobcard_issue_meterial`.`issueqty`*`tbl_jobcard_issue_meterial`.`unitprice`) AS `issuematerialvalue`, GROUP_CONCAT(`tbl_print_material_info`.`tbl_supplier_idtbl_supplier`) AS `suppliers`');
             $this->db->from('tbl_jobcard_issue_meterial');
-            $this->db->where('status', 1);
-            $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
+            $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->where('tbl_jobcard_issue_meterial.status', 1);
+            $this->db->where('tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard', $recordID);
             $respond = $this->db->get();
             
             // Get job description
@@ -534,6 +535,7 @@ class Jobcardissuematerialinfo extends CI_Model {
 
             $tradate = date('Y-m-d');
             $traamount = $respond->row(0)->issuematerialvalue;
+            $suppliersArray = explode(',', $respond->row(0)->suppliers);
             $narrationcr = $respondjobcard->row(0)->job_description.' Material Issued on '.$tradate;
             $narrationdr = $respondjobcard->row(0)->job_description.' Material Issued on '.$tradate;
 
@@ -558,51 +560,58 @@ class Jobcardissuematerialinfo extends CI_Model {
                 endif;
             endforeach;
 
+            $isSupplierPartyOnly = false;
+
             if($traamount <= 0){
-                throw new Exception('Material value is zero, cannot proceed with accounting entry.');
+                if($companyID == 1){$supplierbypartyID = 64;}
+                else if($companyID == 3){$supplierbypartyID = 81;}
+                else{$supplierbypartyID = 0;} 
+
+                $suppliersArray = array_filter(array_unique(explode(',', $respond->row(0)->suppliers)));
+                $isSupplierPartyOnly = (count($suppliersArray) === 1 && intval(reset($suppliersArray)) === $supplierbypartyID);
+
+                if(!$isSupplierPartyOnly){
+                    throw new Exception('Material value is zero, cannot proceed with accounting entry.');
+                }
             }
-            // Make API call
-            $apiURL = $_SESSION['accountapiurl'].'Api/Issuematerialprocess';
 
-            $postData = http_build_query([
-                'userid' => $userID,
-                'company' => $companyID,
-                'branch' => $branchID,
-                'tradate' => $tradate,
-                'traamount' => $traamount,
-                'accountcrno' => $accountcrno,
-                'narrationcr' => $narrationcr,
-                'accountdrno' => $accountdrno,
-                'narrationdr' => $narrationdr,
-            ]);
-            
-            $ch = curl_init();
-            curl_setopt_array($ch, [
-                CURLOPT_URL => $apiURL,
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => $postData,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/x-www-form-urlencoded',
-                ]
-            ]);
-            
-            $server_output = curl_exec($ch);
-            $curlError = curl_error($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            if($traamount > 0 || !$isSupplierPartyOnly){  // ← only this line changed
+                // Make API call
+                $apiURL = $_SESSION['accountapiurl'].'Api/Issuematerialprocess';
 
-            // Check both HTTP status and API response
-            $apiResponse = json_decode($server_output, true);
-            // echo "<pre>";
-            // print_r($apiResponse); // or use var_dump($apiResponse) for data types
-            // echo "</pre>";
-            // die();
-            if ($httpCode != 200 || !isset($apiResponse['status']) || $apiResponse['status'] !== 'success') {
-                $errorMsg = $apiResponse['message'] ?? 'API request failed';
-                throw new Exception($errorMsg);
-            }   
+                $postData = http_build_query([
+                    'userid'      => $userID,
+                    'company'     => $companyID,
+                    'branch'      => $branchID,
+                    'tradate'     => $tradate,
+                    'traamount'   => $traamount,
+                    'accountcrno' => $accountcrno,
+                    'narrationcr' => $narrationcr,
+                    'accountdrno' => $accountdrno,
+                    'narrationdr' => $narrationdr,
+                ]);
+                
+                $ch = curl_init();
+                curl_setopt_array($ch, [
+                    CURLOPT_URL            => $apiURL,
+                    CURLOPT_POST           => true,
+                    CURLOPT_POSTFIELDS     => $postData,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT        => 30,
+                    CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
+                ]);
+                
+                $server_output = curl_exec($ch);
+                $curlError     = curl_error($ch);
+                $httpCode      = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+
+                $apiResponse = json_decode($server_output, true);
+                if ($httpCode != 200 || !isset($apiResponse['status']) || $apiResponse['status'] !== 'success') {
+                    $errorMsg = $apiResponse['message'] ?? 'API request failed';
+                    throw new Exception($errorMsg);
+                }   
+            }
 
             // Update issue material status
             $dataissue = array(
