@@ -72,6 +72,10 @@ include "include/topnavbar.php";
 					<div class="col-3">
 						<form id="formbommaterialinfo" method="post" autocomplete="off">
 							<div class="form-group mb-1">
+								<label class="small font-weight-bold text-dark">Allocation Date *</label>
+								<input type="date" id="allocationdate" name="allocationdate" class="form-control form-control-sm" max="<?php echo date('Y-m-d') ?>">
+							</div>
+							<div class="form-group mb-1">
 								<label class="small font-weight-bold text-dark"> Customer *</label>
 								<select class="form-control form-control-sm px-0" name="customer" id="customer" style="width: 100%;" required>
 									<option value="">Select</option>
@@ -554,6 +558,7 @@ $(document).ready(function () {
 		var cusinquiry = $('#cusinquiry').val();
 		var bominfo = $('#bominfo').val();
 		var issueqty = $('#issueqty').val();
+		var allocationdate = $('#allocationdate').val();
 		var jobcardtype = 0;
 
 		var emptybatch = 0;
@@ -603,6 +608,7 @@ $(document).ready(function () {
 							bominfo: bominfo,
 							issueqty: issueqty,
 							jobcardtype: jobcardtype,
+							allocationdate: allocationdate,
 							tableData: jsonObj
 						},
 						url: '<?php echo base_url() ?>MaterialAllocation/Issuematerialinsertupdate',

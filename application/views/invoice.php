@@ -754,21 +754,38 @@ $(document).ready(function() {
                         Do you want to finish this job?
                     </label>
                 </div>
+                <div id="dateInputContainer" style="text-align:center; margin-top:15px;">
+                    <label for="completionDate" style="display:block;">Job Finished Date:</label>
+                    <input type="date" id="completionDate" class="swal2-input w-50 form-control-sm" style="margin: 0 auto; display:block;" />
+                </div>
             `,
             showDenyButton: true,
             showCancelButton: true,
             confirmButtonText: "Approve",
             denyButtonText: "Reject",
             preConfirm: () => {
+                // return {
+                //     finishJob: $('#finishJob').is(':checked') ? 1 : 0
+                // };
+                const isFinished = $('#finishJob').is(':checked');
+                const completionDate = $('#completionDate').val();
+
+                // Validation: If checkbox is checked, date is REQUIRED
+                if (isFinished && !completionDate) {
+                    Swal.showValidationMessage('Please select a completion date to finish the job.');
+                    return false; // Prevents the modal from closing
+                }
+
                 return {
-                    finishJob: $('#finishJob').is(':checked') ? 1 : 0
+                    finishJob: isFinished ? 1 : 0,
+                    completionDate: completionDate || null
                 };
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                approvejob(1, result.value.finishJob);
+                approvejob(1, result.value.finishJob, result.value.completionDate);
             } else if (result.isDenied) {
-                approvejob(2, 0);
+                approvejob(2, 0, null);
             }
         });
     });
@@ -1257,56 +1274,6 @@ function addCommas(nStr) {
     return x1 + x2;
 }
 
-function action(data) { //alert(data);
-    var obj = JSON.parse(data);
-    $.notify({
-        // options
-        icon: obj.icon,
-        title: obj.title,
-        message: obj.message,
-        url: obj.url,
-        target: obj.target
-    }, {
-        // settings
-        element: 'body',
-        position: null,
-        type: obj.type,
-        allow_dismiss: true,
-        newest_on_top: false,
-        showProgressbar: false,
-        placement: {
-            from: "top",
-            align: "center"
-        },
-        offset: 100,
-        spacing: 10,
-        z_index: 1031,
-        delay: 5000,
-        timer: 1000,
-        url_target: '_blank',
-        mouse_over: null,
-        animate: {
-            enter: 'animated fadeInDown',
-            exit: 'animated fadeOutUp'
-        },
-        onShow: null,
-        onShown: null,
-        onClose: null,
-        onClosed: null,
-        icon_type: 'class',
-        template: '<div data-notify="container" class="col-xs-11 col-sm-3 alert alert-{0}" role="alert">' +
-            '<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>' +
-            '<span data-notify="icon"></span> ' +
-            '<span data-notify="title">{1}</span> ' +
-            '<span data-notify="message">{2}</span>' +
-            '<div class="progress" data-notify="progressbar">' +
-            '<div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>' +
-            '</div>' +
-            '<a href="{3}" target="{4}" data-notify="url"></a>' +
-            '</div>'
-    });
-}
-
 $(document).ready(function() {
     $('input[type="checkbox"]').change(function() {
         var isChecked = $(this).prop('checked');
@@ -1319,7 +1286,7 @@ $(document).ready(function() {
     });
 });
 
-function approvejob(confirmnot, finishJob) {
+function approvejob(confirmnot, finishJob, completionDate) {
 	Swal.fire({
 		title: '',
 		html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
@@ -1351,13 +1318,27 @@ function approvejob(confirmnot, finishJob) {
 					hiddenjobid: $('#job_id').val(),
 					confirmnot: confirmnot,
 					finish_job: finishJob,
+					completion_date: completionDate,
 					tableData: jsonObj
 				},
 				success: function (result) {
 					Swal.close();
+                    document.body.style.overflow = 'auto';
 					var obj = JSON.parse(result);
 					obj.status == 1 ? actionreload(obj.action) : action(obj.action);
-				}
+				},
+                error: function(error) {
+                    // Close the SweetAlert on error
+                    Swal.close();
+                    document.body.style.overflow = 'auto';
+                    
+                    // Show an error alert
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong. Please try again later.'
+                    });
+                }
 			});
 		}
 	});

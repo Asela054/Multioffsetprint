@@ -238,11 +238,16 @@ class Apiinfo extends CI_Model{
                 'saletype'=> '1', 
                 'salecode'=> 'INV', 
                 'invno'=> $respond->row(0)->inv_no,  
+                'manual_invno'=> '',  
                 'invdate'=> $respond->row(0)->date,
                 'sub_total'=> $respond->row(0)->subtotal, 
                 'vat'=> $respond->row(0)->vat_amount, 
                 'amount'=> $respond->row(0)->subtotal, 
                 'invamount'=> $respond->row(0)->total, 
+                'paystatus'=> '0',
+                'poststatus'=> '0',
+                'editstatus'=> '0',
+                'remark'=> '',
                 'svat_status'=> $svatstatus, 
                 'vat_status'=> $vatstatus, 
                 'status'=> '1', 
@@ -391,7 +396,7 @@ class Apiinfo extends CI_Model{
             $this->db->trans_rollback();
             $segregationdata = array();
         }
-
+        
         return $segregationdata;
     }
     public function JobfinishApi($customerinquerydetailID){
@@ -409,7 +414,7 @@ class Apiinfo extends CI_Model{
             $customerinqueryID = $respondinquery->row(0)->tbl_customerinquiry_idtbl_customerinquiry;
             $customerjobno = $respondinquery->row(0)->job_no;
 
-            $this->db->select('SUM(tbl_direct_invoicedetail.issueqty) AS totalqty', FALSE);
+            $this->db->select('SUM(tbl_jobcard_issue_meterial.issueqty) AS totalqty', FALSE);
             $this->db->select('SUM(tbl_jobcard_issue_meterial.issueqty * tbl_jobcard_issue_meterial.unitprice) AS issuetotal', FALSE);
             $this->db->select('tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info');
             $this->db->select('tbl_jobcard.tbl_customerinquiry_idtbl_customerinquiry');
@@ -461,7 +466,6 @@ class Apiinfo extends CI_Model{
 
             $respondchart=$this->db->get();
 
-            $materialissuenettotal = 0;
             foreach($respondchart->result() as $rowrchartaccount):
                 if($rowrchartaccount->specialcate==39 && $materialissuenettotal>0):
                     $obj = new stdClass();
@@ -480,7 +484,7 @@ class Apiinfo extends CI_Model{
         } catch (Exception $e) {
             $segregationdata = array();
         }
-
+        
         return $segregationdata;
     }
     public function InternalIssueApi($issuenoteID){
@@ -705,11 +709,16 @@ class Apiinfo extends CI_Model{
                 'saletype'=> '1', 
                 'salecode'=> 'INV', 
                 'invno'=> $respond->row(0)->inv_no,  
+                'manual_invno'=> '', 
                 'invdate'=> $respond->row(0)->date,
                 'sub_total'=> $respond->row(0)->subtotal, 
                 'vat'=> $respond->row(0)->vat_amount, 
                 'amount'=> $respond->row(0)->subtotal, 
                 'invamount'=> $respond->row(0)->total, 
+                'paystatus'=> '0',
+                'poststatus'=> '0',
+                'editstatus'=> '0',
+                'remark'=> '',
                 'svat_status'=> $svatstatus, 
                 'vat_status'=> $vatstatus, 
                 'status'=> '1', 

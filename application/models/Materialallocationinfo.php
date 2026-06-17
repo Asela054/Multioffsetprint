@@ -416,6 +416,7 @@ class Materialallocationinfo extends CI_Model{
         $bominfo=$this->input->post('bominfo');
         $issueqty=$this->input->post('issueqty');
         $jobcardtype=$this->input->post('jobcardtype');
+        $allocationdate=$this->input->post('allocationdate');
         $tableData=$this->input->post('tableData');
         
         $companyID=$_SESSION['company_id'];
@@ -423,7 +424,7 @@ class Materialallocationinfo extends CI_Model{
         $userID=$_SESSION['userid'];
 
         $updatedatetime=date('Y-m-d H:i:s');
-        $today=date('Y-m-d');
+        $today=$allocationdate;
 
         $this->db->select('`idtbl_jobcard`');
         $this->db->from('tbl_jobcard');
@@ -432,6 +433,34 @@ class Materialallocationinfo extends CI_Model{
         $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
 
         $respondcheckjobcard=$this->db->get();
+
+        $this->db->select('COUNT(*) as notissuecount');
+        $this->db->from('tbl_jobcard_issue_meterial');
+        $this->db->where('issuedate !=', $allocationdate);
+        $this->db->where('tbl_jobcard_idtbl_jobcard', $respondcheckjobcard->row(0)->idtbl_jobcard);
+        $this->db->where('status !=', 2);
+
+        $respondnotissue = $this->db->get();
+
+        if($respondnotissue->row(0)->notissuecount > 0){
+            $actionObj=new stdClass();
+            $actionObj->icon='fas fa-exclamation-triangle';
+            $actionObj->title='Record Error';
+            $actionObj->message='Kindly resolve the pending issue note associated with this customer inquiry as a priority';
+            $actionObj->url='';
+            $actionObj->target='_blank';
+            $actionObj->type='danger';
+
+            $actionJSON=json_encode($actionObj);
+
+            $obj=new stdClass();
+            $obj->status=0;          
+            $obj->action=$actionJSON;  
+            
+            echo json_encode($obj);
+
+            return;
+        }
 
         if(empty($respondcheckjobcard->row(0)->idtbl_jobcard)){
             $this->db->select('COUNT(`idtbl_jobcard`) AS `count`');
@@ -1214,6 +1243,7 @@ class Materialallocationinfo extends CI_Model{
 		$this->db->from('tbl_jobcard_diecutting');
 		$this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
 		$this->db->where('status', 1);
+		$this->db->where('qty >', 0);
 
 		$responddiecut=$this->db->get();
 

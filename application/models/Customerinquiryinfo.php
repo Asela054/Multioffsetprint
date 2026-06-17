@@ -482,6 +482,7 @@ class Customerinquiryinfo extends CI_Model{
         $company = $_SESSION['company_id'];
         $branch = $_SESSION['branch_id'];
         $finishreason=$this->input->post('finishreason');
+        $completionDate = $this->input->post('completionDate');
         $hiddenID=$this->input->post('hiddenID');
         $updatedatetime=date('Y-m-d H:i:s');
 
@@ -540,6 +541,7 @@ class Customerinquiryinfo extends CI_Model{
                 'branch' => $branch,
                 'customer' => $customer,
                 'jobid' => $jobid,
+                'jobfinishdate' => $completionDate,
                 'jobfinishdata' => json_encode($jobFinishData)
             ]);
 

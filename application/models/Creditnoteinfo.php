@@ -224,6 +224,7 @@ class Creditnoteinfo extends CI_Model {
                     'branch' => $branch,
                     'fullnarration' => $fullnarration,
                     'fulltotal' => $respond->row(0)->nettotal,
+                    'creditnotedate' => $respond->row(0)->date,
                     'jurnalentrydata' => json_encode($APIstatus)
                 ]);
 

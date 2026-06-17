@@ -768,6 +768,7 @@ class GRNVoucherinfo extends CI_Model{
                 $segregationdataencode = json_encode($APIstatus);
                 $supplier = $grnData->tbl_supplier_idtbl_supplier;
                 $invoice = $grnData->grn_no;
+                $invoicedate = $grnData->grn_date;
                 $invoiceamount = $grnData->grntotal;
 
                 // Make API call
@@ -780,6 +781,7 @@ class GRNVoucherinfo extends CI_Model{
                     'branch' => $branch,
                     'supplier' => $supplier,
                     'invoice' => $invoice,
+                    'invoicedate' => $invoicedate,
                     'invoiceamount' => $invoiceamount,
                     'segregationdata' => $segregationdataencode
                 ]);

@@ -747,7 +747,7 @@ class Invoiceinfo extends CI_Model{
         $confirmnot=$this->input->post('confirmnot');
         $updatedatetime = date('Y-m-d H:i:s');
         $finishJob = $this->input->post('finish_job');
-
+        $jobfinishdate = $this->input->post('completion_date');
 
         $obj = new stdClass();
         $actionObj = new stdClass();
@@ -807,7 +807,7 @@ class Invoiceinfo extends CI_Model{
                 $this->db->where('tbl_print_invoice.status', 1);
                 $this->db->where('tbl_print_invoice.idtbl_print_invoice', $recordID);
                 $respond = $this->db->get();
-
+                
                 // GET API SEGREGATION DATA
                 $APIstatus = $this->load->model('Apiinfo');
                 $APIstatus = $this->Apiinfo->InvoiceApi($recordID);
@@ -819,6 +819,7 @@ class Invoiceinfo extends CI_Model{
                 $segregationdataencode = json_encode($APIstatus);
                 $customer = $respond->row(0)->tbl_customer_idtbl_customer;
                 $invoice = $respond->row(0)->inv_no;
+                $invoicedate = $respond->row(0)->date;
                 $invoiceamount = $respond->row(0)->total;
 
                 if ($finishJob == 1) {
@@ -859,6 +860,7 @@ class Invoiceinfo extends CI_Model{
                         'branch' => $branch,
                         'customer' => $customer,
                         'jobid' => $jobid,
+                        'jobfinishdate' => $jobfinishdate,
                         'jobfinishdata' => json_encode($jobFinishData)
                     ]);
 
@@ -898,10 +900,11 @@ class Invoiceinfo extends CI_Model{
                     'branch' => $branch,
                     'customer' => $customer,
                     'invoice' => $invoice,
+                    'invoicedate' => $invoicedate,
                     'invoiceamount' => $invoiceamount,
                     'segregationdata' => $segregationdataencode
                 ]);
-
+                
                 $ch = curl_init();
                 curl_setopt_array($ch, [
                     CURLOPT_URL => $apiURL,
@@ -952,7 +955,7 @@ class Invoiceinfo extends CI_Model{
         } catch (Exception $e) {
             $this->db->trans_rollback();
             
-            error_log("GRNVoucherapprove Error: " . $e->getMessage());
+            error_log("Invoice Approve Error: " . $e->getMessage());
             
             $actionObj->icon = 'fas fa-exclamation-triangle';
             $actionObj->title = '';

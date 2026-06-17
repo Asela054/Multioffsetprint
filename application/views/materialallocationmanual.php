@@ -26,6 +26,10 @@ include "include/topnavbar.php";
 							<div class="col-3">
 								<form id="formbommaterialinfo" method="post" autocomplete="off">
 									<div class="form-group mb-1">
+										<label class="small font-weight-bold text-dark">Allocation Date *</label>
+										<input type="date" id="allocationdate" name="allocationdate" class="form-control form-control-sm" max="<?php echo date('Y-m-d') ?>" required>
+									</div>
+									<div class="form-group mb-1">
 										<label class="small font-weight-bold text-dark"> Customer *</label>
 										<select class="form-control form-control-sm px-0" name="customer" id="customer" style="width: 100%;" required>
 											<option value="">Select</option>
@@ -101,10 +105,10 @@ include "include/topnavbar.php";
 					<hr>
 					<div class="row mt-3 mb-3 p-3">
 						<div class="col-12">
-							<div class="table-responsive">
+							<div class="scrollbar pb-3" id="style-2">
 								<table class="table table-striped table-bordered table-sm small" id="dataTable">
 									<thead>
-										<tr class="bg-light">
+										<tr>
 											<th>#</th>
 											<th>Issue Date</th>
 											<th>Job Card No</th>
@@ -331,18 +335,25 @@ $(document).ready(function () {
 		var balqty = parseFloat(inquiryqty) - parseFloat(issueqty);
 
 		var typeIDs = [];
+		var materialIDs = [];
+
 		$('#tableissue tbody tr').each(function () {
 			var typeID = $(this).find('td:eq(0)').text().trim();
+			var materialID = $(this).find('td:eq(4)').text().trim();
+
 			if (typeID && $.inArray(typeID, typeIDs) === -1) {
 				typeIDs.push(typeID);
 			}
+			if (materialID && $.inArray(materialID, materialIDs) === -1) {
+				materialIDs.push(materialID);
+			}
 		});
 
-		if ($.inArray(section, typeIDs) !== -1) {
+		if ($.inArray(section, typeIDs) !== -1 && $.inArray(materialid, materialIDs) !== -1) {
 			Swal.fire({
 				icon: 'error',
 				title: 'Error',
-				text: 'You selected section already set to issue table.'
+				text: 'You selected section and material already set to issue table.'
 			});
 			$('#submitBtn').prop('disabled', false);
 			return;
@@ -519,6 +530,7 @@ $(document).ready(function () {
 		var cusinquiry = $('#cusinquiry').val();
 		var bominfo = $('#bominfo').val();
 		var issueqty = $('#issueqty').val();
+		var allocationdate = $('#allocationdate').val();
 		var jobcardtype = 1;
 
 		var emptybatch = 0;
@@ -568,6 +580,7 @@ $(document).ready(function () {
 							bominfo: bominfo,
 							issueqty: issueqty,
 							jobcardtype: jobcardtype,
+							allocationdate: allocationdate,
 							tableData: jsonObj
 						},
 						url: '<?php echo base_url() ?>MaterialAllocationManual/Issuematerialinsertupdate',
@@ -692,19 +705,19 @@ $(document).ready(function () {
 		var id = $(this).attr('id');
 		$('#jobcardid').val(id);
 
-		Swal.fire({
-			title: '',
-			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
-			allowOutsideClick: false,
-			showConfirmButton: false,
-			backdrop: `
-				rgba(255, 255, 255, 0.5) 
-			`,
-			customClass: {
-				popup: 'fullscreen-swal'
-			},
-			didOpen: () => {
-				document.body.style.overflow = 'hidden';
+		// Swal.fire({
+		// 	title: '',
+		// 	html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+		// 	allowOutsideClick: false,
+		// 	showConfirmButton: false,
+		// 	backdrop: `
+		// 		rgba(255, 255, 255, 0.5) 
+		// 	`,
+		// 	customClass: {
+		// 		popup: 'fullscreen-swal'
+		// 	},
+		// 	didOpen: () => {
+		// 		document.body.style.overflow = 'hidden';
 
 				$.ajax({
 					type: "POST",
@@ -713,25 +726,26 @@ $(document).ready(function () {
 					},
 					url: '<?php echo base_url() ?>MaterialAllocationManual/GetManualAllocationDetails',
 					success: function(result) {
-						Swal.close();
-						document.body.style.overflow = 'auto';
+						// Swal.close();
+						// document.body.style.overflow = 'auto';
 
 						$('#showdata').html(result);
 						$('#viewJobCard').modal('show');
-					},
-					error: function(error) {
-						Swal.close();
-						document.body.style.overflow = 'auto';
-						
-						Swal.fire({
-							icon: 'error',
-							title: 'Error',
-							text: 'Something went wrong. Please try again later.'
-						});
 					}
+					//,
+					// error: function(error) {
+					// 	Swal.close();
+					// 	document.body.style.overflow = 'auto';
+						
+					// 	Swal.fire({
+					// 		icon: 'error',
+					// 		title: 'Error',
+					// 		text: 'Something went wrong. Please try again later.'
+					// 	});
+					// }
 				});
-			}
-		}); 
+		// 	}
+		// }); 
 	});
 	$('#dataTable tbody').on('click', '.btnView', async function() {
 		var id = $(this).attr('id');
@@ -815,6 +829,7 @@ $(document).ready(function () {
 	$('#viewJobCard').on('hidden.bs.modal', function (event) {
         $('#alertdiv').html('');
 		$('#btnapprovereject').removeClass('d-none').prop('disabled', false);
+		// $('body').css('padding-right', '');
     });
 	$('#btncheck').click(function(){
         Swal.fire({
