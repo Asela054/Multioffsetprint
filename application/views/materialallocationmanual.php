@@ -491,13 +491,13 @@ $(document).ready(function () {
 			}
 		});
 	});
-	$('#batchnolist').change(function () {
-		var selectedBatch = $(this).val();
+	// $('#batchnolist').change(function () {
+	// 	var selectedBatch = $(this).val();
 
-		$('#tableissue tbody tr').eq(rowID).find('td:eq(3)').text(selectedBatch);
+	// 	$('#tableissue tbody tr').eq(rowID).find('td:eq(3)').text(selectedBatch);
 
-		$('#modalbatchno').modal('hide');
-	});
+	// 	$('#modalbatchno').modal('hide');
+	// });
 	$('#tableissue tbody').on('click', 'tr .sectionremove', async function () {
 		var r = await Otherconfirmation("You want to remove this ? ");
         if (r == true) {
@@ -519,7 +519,7 @@ $(document).ready(function () {
 			// this will just cause the browser to display the native HTML5 error messages.
 			$("#hidesubmitbatch").click();
 		} else {
-			$('#tableissue').find('tr').eq(rowID).find('td:eq(4)').text($('#batchnolist').val());
+			$('#tableissue tbody').find('tr').eq(rowID).find('td:eq(3)').text($('#batchnolist').val());
 			$('#batchnolist').empty().trigger('change');
 			$('#modalbatchno').modal('hide');
 		}

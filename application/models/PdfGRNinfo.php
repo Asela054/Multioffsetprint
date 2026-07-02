@@ -151,31 +151,31 @@ class PdfGRNinfo extends CI_Model {
                                 <p style="margin:0px;font-size: 13px;">'. $query->row()->delivery_city .',</p>
                                 <p style="margin:0px;font-size: 13px;">'. $query->row()->delivery_state .'</p>
                             </td>
-                            <td width="30%" style="vertical-align: top;text-align: left;font-size: 18px;font-weight: bold;"><u>Good Receive Note</u></td>
-                            <td width="30%" style="vertical-align: top;">
+                            <td width="25%" style="vertical-align: top;text-align: left;font-size: 18px;font-weight: bold;"><u>Good Receive Note</u></td>
+                            <td width="35%" style="vertical-align: top;">
                                 <table style="width:100%;border-collapse: collapse;">
                                     <tr>
-                                        <td style="font-size: 13px;font-weight: bold;" width="50%">GRN No</td>
+                                        <td style="font-size: 13px;font-weight: bold;" width="40%">GRN No</td>
                                         <td style="font-size: 13px;font-weight: bold;" width="5%">:</td>
                                         <td style="font-size: 13px;">' . $prefix . '/'. $query->row()->grn_no .'</td>
                                     </tr>
                                     <tr>
-                                        <td style="font-size: 13px;font-weight: bold;" width="50%">Date</td>
+                                        <td style="font-size: 13px;font-weight: bold;" width="40%">Date</td>
                                         <td style="font-size: 13px;font-weight: bold;" width="5%">:</td>
                                         <td style="font-size: 13px;">'. $query->row()->grndate .'</td>
                                     </tr>
                                     <tr>
-                                        <td style="font-size: 13px;font-weight: bold;" width="50%">Invoice Number</td>
+                                        <td style="font-size: 13px;font-weight: bold;" width="40%">Invoice Number</td>
                                         <td style="font-size: 13px;font-weight: bold;" width="5%">:</td>
                                         <td style="font-size: 13px;">'. $query->row()->invoicenum .'</td>
                                     </tr>
                                     <tr>
-                                        <td style="font-size: 13px;font-weight: bold;" width="50%">Batch Number</td>
+                                        <td style="font-size: 13px;font-weight: bold;" width="40%">Batch Number</td>
                                         <td style="font-size: 13px;font-weight: bold;" width="5%">:</td>
                                         <td style="font-size: 13px;">'. $query->row()->batchno .'</td>
                                     </tr>
                                     <tr>
-                                        <td style="font-size: 13px;font-weight: bold;" width="50%">Location</td>
+                                        <td style="font-size: 13px;font-weight: bold;" width="40%">Location</td>
                                         <td style="font-size: 13px;font-weight: bold;" width="5%">:</td>
                                         <td style="font-size: 13px;">'. $query->row()->location .'</td>
                                     </tr>
