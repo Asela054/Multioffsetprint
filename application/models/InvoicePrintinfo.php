@@ -185,7 +185,7 @@ class InvoicePrintinfo extends CI_Model{
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="2" style="padding-top: -20px;">
+                        <td colspan="2" style="padding-top: -5px;">
                             <p style="margin:0px;font-size:13px;">Atten ....................................................</p>
                         </td>
                     </tr>

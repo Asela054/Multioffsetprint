@@ -173,32 +173,34 @@ class MaterialallocationManualinfo extends CI_Model{
 
         $respondcheckjobcard=$this->db->get();
 
-        $this->db->select('COUNT(*) as notissuecount');
-        $this->db->from('tbl_jobcard_issue_meterial');
-        $this->db->where('issuedate !=', $allocationdate);
-        $this->db->where('tbl_jobcard_idtbl_jobcard', $respondcheckjobcard->row(0)->idtbl_jobcard);
-        $this->db->where('status !=', 2);
+        if(!empty($respondcheckjobcard->result())){
+            $this->db->select('COUNT(*) as notissuecount');
+            $this->db->from('tbl_jobcard_issue_meterial');
+            $this->db->where('issuedate !=', $allocationdate);
+            $this->db->where('tbl_jobcard_idtbl_jobcard', $respondcheckjobcard->row(0)->idtbl_jobcard);
+            $this->db->where('status !=', 2);
 
-        $respondnotissue = $this->db->get();
+            $respondnotissue = $this->db->get();
 
-        if($respondnotissue->row(0)->notissuecount > 0){
-            $actionObj=new stdClass();
-            $actionObj->icon='fas fa-exclamation-triangle';
-            $actionObj->title='Record Error';
-            $actionObj->message='Kindly resolve the pending issue note associated with this customer inquiry as a priority';
-            $actionObj->url='';
-            $actionObj->target='_blank';
-            $actionObj->type='danger';
+            if($respondnotissue->row(0)->notissuecount > 0){
+                $actionObj=new stdClass();
+                $actionObj->icon='fas fa-exclamation-triangle';
+                $actionObj->title='Record Error';
+                $actionObj->message='Kindly resolve the pending issue note associated with this customer inquiry as a priority';
+                $actionObj->url='';
+                $actionObj->target='_blank';
+                $actionObj->type='danger';
 
-            $actionJSON=json_encode($actionObj);
+                $actionJSON=json_encode($actionObj);
 
-            $obj=new stdClass();
-            $obj->status=0;          
-            $obj->action=$actionJSON;  
-            
-            echo json_encode($obj);
+                $obj=new stdClass();
+                $obj->status=0;          
+                $obj->action=$actionJSON;  
+                
+                echo json_encode($obj);
 
-            return;
+                return;
+            }
         }
 
         if(empty($respondcheckjobcard->row(0)->idtbl_jobcard)){
@@ -309,15 +311,35 @@ class MaterialallocationManualinfo extends CI_Model{
                 $balqty=$issueqtydata;
 
                 foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
+                    $this->db->select('
+                        tbl_print_stock.batchno, 
+                        tbl_print_stock.unitprice,
+                        (tbl_print_stock.qty - COALESCE(SUM(tbl_jobcard_issue_meterial.issueqty), 0)) AS qty
+                    ');
                     $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                    $this->db->join(
+                        'tbl_jobcard_issue_meterial',
+                        'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_print_stock.tbl_print_material_info_idtbl_print_material_info 
+                        AND tbl_jobcard_issue_meterial.batchno = tbl_print_stock.batchno
+                        AND tbl_jobcard_issue_meterial.status = 1',
+                        'left'
+                    );
+                    $this->db->join(
+                        'tbl_jobcard',
+                        'tbl_jobcard.idtbl_jobcard = tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard
+                        AND tbl_jobcard.tbl_company_idtbl_company = ' . $companyID . '
+                        AND tbl_jobcard.tbl_company_branch_idtbl_company_branch = ' . $branchID,
+                        'left'
+                    );
+                    $this->db->where('tbl_print_stock.status', 1);
+                    $this->db->where('tbl_print_stock.qty >', 0);
+                    $this->db->where('tbl_print_stock.tbl_print_material_info_idtbl_print_material_info', $materialID);
+                    $this->db->where('tbl_print_stock.batchno', $rowbatchno);
+                    $this->db->where('tbl_print_stock.tbl_company_idtbl_company', $companyID);
+                    $this->db->where('tbl_print_stock.tbl_company_branch_idtbl_company_branch', $branchID);
+                    $this->db->group_by('tbl_print_stock.batchno, tbl_print_stock.qty, tbl_print_stock.unitprice');
 
-                    $respondstock=$this->db->get();
+                    $respondstock = $this->db->get();
 
                     if($balqty>0){
                         if($respondstock->row(0)->qty>=$balqty){
@@ -371,15 +393,35 @@ class MaterialallocationManualinfo extends CI_Model{
                 $balqty=$issueqtydata;
 
                 foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
+                    $this->db->select('
+                        tbl_print_stock.batchno, 
+                        tbl_print_stock.unitprice,
+                        (tbl_print_stock.qty - COALESCE(SUM(tbl_jobcard_issue_meterial.issueqty), 0)) AS qty
+                    ');
                     $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                    $this->db->join(
+                        'tbl_jobcard_issue_meterial',
+                        'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_print_stock.tbl_print_material_info_idtbl_print_material_info 
+                        AND tbl_jobcard_issue_meterial.batchno = tbl_print_stock.batchno
+                        AND tbl_jobcard_issue_meterial.status = 1',
+                        'left'
+                    );
+                    $this->db->join(
+                        'tbl_jobcard',
+                        'tbl_jobcard.idtbl_jobcard = tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard
+                        AND tbl_jobcard.tbl_company_idtbl_company = ' . $companyID . '
+                        AND tbl_jobcard.tbl_company_branch_idtbl_company_branch = ' . $branchID,
+                        'left'
+                    );
+                    $this->db->where('tbl_print_stock.status', 1);
+                    $this->db->where('tbl_print_stock.qty >', 0);
+                    $this->db->where('tbl_print_stock.tbl_print_material_info_idtbl_print_material_info', $materialID);
+                    $this->db->where('tbl_print_stock.batchno', $rowbatchno);
+                    $this->db->where('tbl_print_stock.tbl_company_idtbl_company', $companyID);
+                    $this->db->where('tbl_print_stock.tbl_company_branch_idtbl_company_branch', $branchID);
+                    $this->db->group_by('tbl_print_stock.batchno, tbl_print_stock.qty, tbl_print_stock.unitprice');
 
-                    $respondstock=$this->db->get();
+                    $respondstock = $this->db->get();
 
                     if($balqty>0){
                         if($respondstock->row(0)->qty>=$balqty){
@@ -434,15 +476,35 @@ class MaterialallocationManualinfo extends CI_Model{
                 $balqty=$issueqtydata;
 
                 foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
+                    $this->db->select('
+                        tbl_print_stock.batchno, 
+                        tbl_print_stock.unitprice,
+                        (tbl_print_stock.qty - COALESCE(SUM(tbl_jobcard_issue_meterial.issueqty), 0)) AS qty
+                    ');
                     $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                    $this->db->join(
+                        'tbl_jobcard_issue_meterial',
+                        'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_print_stock.tbl_print_material_info_idtbl_print_material_info 
+                        AND tbl_jobcard_issue_meterial.batchno = tbl_print_stock.batchno
+                        AND tbl_jobcard_issue_meterial.status = 1',
+                        'left'
+                    );
+                    $this->db->join(
+                        'tbl_jobcard',
+                        'tbl_jobcard.idtbl_jobcard = tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard
+                        AND tbl_jobcard.tbl_company_idtbl_company = ' . $companyID . '
+                        AND tbl_jobcard.tbl_company_branch_idtbl_company_branch = ' . $branchID,
+                        'left'
+                    );
+                    $this->db->where('tbl_print_stock.status', 1);
+                    $this->db->where('tbl_print_stock.qty >', 0);
+                    $this->db->where('tbl_print_stock.tbl_print_material_info_idtbl_print_material_info', $materialID);
+                    $this->db->where('tbl_print_stock.batchno', $rowbatchno);
+                    $this->db->where('tbl_print_stock.tbl_company_idtbl_company', $companyID);
+                    $this->db->where('tbl_print_stock.tbl_company_branch_idtbl_company_branch', $branchID);
+                    $this->db->group_by('tbl_print_stock.batchno, tbl_print_stock.qty, tbl_print_stock.unitprice');
 
-                    $respondstock=$this->db->get();
+                    $respondstock = $this->db->get();
 
                     if($balqty>0){
                         if($respondstock->row(0)->qty>=$balqty){
@@ -497,15 +559,35 @@ class MaterialallocationManualinfo extends CI_Model{
                 $balqty=$issueqtydata;
 
                 foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
+                    $this->db->select('
+                        tbl_print_stock.batchno, 
+                        tbl_print_stock.unitprice,
+                        (tbl_print_stock.qty - COALESCE(SUM(tbl_jobcard_issue_meterial.issueqty), 0)) AS qty
+                    ');
                     $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                    $this->db->join(
+                        'tbl_jobcard_issue_meterial',
+                        'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_print_stock.tbl_print_material_info_idtbl_print_material_info 
+                        AND tbl_jobcard_issue_meterial.batchno = tbl_print_stock.batchno
+                        AND tbl_jobcard_issue_meterial.status = 1',
+                        'left'
+                    );
+                    $this->db->join(
+                        'tbl_jobcard',
+                        'tbl_jobcard.idtbl_jobcard = tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard
+                        AND tbl_jobcard.tbl_company_idtbl_company = ' . $companyID . '
+                        AND tbl_jobcard.tbl_company_branch_idtbl_company_branch = ' . $branchID,
+                        'left'
+                    );
+                    $this->db->where('tbl_print_stock.status', 1);
+                    $this->db->where('tbl_print_stock.qty >', 0);
+                    $this->db->where('tbl_print_stock.tbl_print_material_info_idtbl_print_material_info', $materialID);
+                    $this->db->where('tbl_print_stock.batchno', $rowbatchno);
+                    $this->db->where('tbl_print_stock.tbl_company_idtbl_company', $companyID);
+                    $this->db->where('tbl_print_stock.tbl_company_branch_idtbl_company_branch', $branchID);
+                    $this->db->group_by('tbl_print_stock.batchno, tbl_print_stock.qty, tbl_print_stock.unitprice');
 
-                    $respondstock=$this->db->get();
+                    $respondstock = $this->db->get();
 
                     if($balqty>0){
                         if($respondstock->row(0)->qty>=$balqty){
@@ -560,15 +642,35 @@ class MaterialallocationManualinfo extends CI_Model{
                 $balqty=$issueqtydata;
 
                 foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
+                    $this->db->select('
+                        tbl_print_stock.batchno, 
+                        tbl_print_stock.unitprice,
+                        (tbl_print_stock.qty - COALESCE(SUM(tbl_jobcard_issue_meterial.issueqty), 0)) AS qty
+                    ');
                     $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                    $this->db->join(
+                        'tbl_jobcard_issue_meterial',
+                        'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_print_stock.tbl_print_material_info_idtbl_print_material_info 
+                        AND tbl_jobcard_issue_meterial.batchno = tbl_print_stock.batchno
+                        AND tbl_jobcard_issue_meterial.status = 1',
+                        'left'
+                    );
+                    $this->db->join(
+                        'tbl_jobcard',
+                        'tbl_jobcard.idtbl_jobcard = tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard
+                        AND tbl_jobcard.tbl_company_idtbl_company = ' . $companyID . '
+                        AND tbl_jobcard.tbl_company_branch_idtbl_company_branch = ' . $branchID,
+                        'left'
+                    );
+                    $this->db->where('tbl_print_stock.status', 1);
+                    $this->db->where('tbl_print_stock.qty >', 0);
+                    $this->db->where('tbl_print_stock.tbl_print_material_info_idtbl_print_material_info', $materialID);
+                    $this->db->where('tbl_print_stock.batchno', $rowbatchno);
+                    $this->db->where('tbl_print_stock.tbl_company_idtbl_company', $companyID);
+                    $this->db->where('tbl_print_stock.tbl_company_branch_idtbl_company_branch', $branchID);
+                    $this->db->group_by('tbl_print_stock.batchno, tbl_print_stock.qty, tbl_print_stock.unitprice');
 
-                    $respondstock=$this->db->get();
+                    $respondstock = $this->db->get();
 
                     if($balqty>0){
                         if($respondstock->row(0)->qty>=$balqty){
@@ -625,15 +727,35 @@ class MaterialallocationManualinfo extends CI_Model{
                 $balqty=$issueqtydata;
 
                 foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
+                    $this->db->select('
+                        tbl_print_stock.batchno, 
+                        tbl_print_stock.unitprice,
+                        (tbl_print_stock.qty - COALESCE(SUM(tbl_jobcard_issue_meterial.issueqty), 0)) AS qty
+                    ');
                     $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                    $this->db->join(
+                        'tbl_jobcard_issue_meterial',
+                        'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_print_stock.tbl_print_material_info_idtbl_print_material_info 
+                        AND tbl_jobcard_issue_meterial.batchno = tbl_print_stock.batchno
+                        AND tbl_jobcard_issue_meterial.status = 1',
+                        'left'
+                    );
+                    $this->db->join(
+                        'tbl_jobcard',
+                        'tbl_jobcard.idtbl_jobcard = tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard
+                        AND tbl_jobcard.tbl_company_idtbl_company = ' . $companyID . '
+                        AND tbl_jobcard.tbl_company_branch_idtbl_company_branch = ' . $branchID,
+                        'left'
+                    );
+                    $this->db->where('tbl_print_stock.status', 1);
+                    $this->db->where('tbl_print_stock.qty >', 0);
+                    $this->db->where('tbl_print_stock.tbl_print_material_info_idtbl_print_material_info', $materialID);
+                    $this->db->where('tbl_print_stock.batchno', $rowbatchno);
+                    $this->db->where('tbl_print_stock.tbl_company_idtbl_company', $companyID);
+                    $this->db->where('tbl_print_stock.tbl_company_branch_idtbl_company_branch', $branchID);
+                    $this->db->group_by('tbl_print_stock.batchno, tbl_print_stock.qty, tbl_print_stock.unitprice');
 
-                    $respondstock=$this->db->get();
+                    $respondstock = $this->db->get();
 
                     if($balqty>0){
                         if($respondstock->row(0)->qty>=$balqty){
@@ -688,15 +810,35 @@ class MaterialallocationManualinfo extends CI_Model{
                 $balqty=$issueqtydata;
 
                 foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
+                    $this->db->select('
+                        tbl_print_stock.batchno, 
+                        tbl_print_stock.unitprice,
+                        (tbl_print_stock.qty - COALESCE(SUM(tbl_jobcard_issue_meterial.issueqty), 0)) AS qty
+                    ');
                     $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                    $this->db->join(
+                        'tbl_jobcard_issue_meterial',
+                        'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_print_stock.tbl_print_material_info_idtbl_print_material_info 
+                        AND tbl_jobcard_issue_meterial.batchno = tbl_print_stock.batchno
+                        AND tbl_jobcard_issue_meterial.status = 1',
+                        'left'
+                    );
+                    $this->db->join(
+                        'tbl_jobcard',
+                        'tbl_jobcard.idtbl_jobcard = tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard
+                        AND tbl_jobcard.tbl_company_idtbl_company = ' . $companyID . '
+                        AND tbl_jobcard.tbl_company_branch_idtbl_company_branch = ' . $branchID,
+                        'left'
+                    );
+                    $this->db->where('tbl_print_stock.status', 1);
+                    $this->db->where('tbl_print_stock.qty >', 0);
+                    $this->db->where('tbl_print_stock.tbl_print_material_info_idtbl_print_material_info', $materialID);
+                    $this->db->where('tbl_print_stock.batchno', $rowbatchno);
+                    $this->db->where('tbl_print_stock.tbl_company_idtbl_company', $companyID);
+                    $this->db->where('tbl_print_stock.tbl_company_branch_idtbl_company_branch', $branchID);
+                    $this->db->group_by('tbl_print_stock.batchno, tbl_print_stock.qty, tbl_print_stock.unitprice');
 
-                    $respondstock=$this->db->get();
+                    $respondstock = $this->db->get();
 
                     if($balqty>0){
                         if($respondstock->row(0)->qty>=$balqty){

@@ -489,7 +489,7 @@ class Jobcardissuematerialinfo extends CI_Model {
             $this->db->where('status', '1');
             $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
             $respondissue=$this->db->get();
-
+            
             foreach ($respondissue->result() as $rowissue) {
                 $issuematerialID=$rowissue->idtbl_jobcard_issue_meterial;
                 $issueqty=$rowissue->issueqty;
@@ -519,7 +519,7 @@ class Jobcardissuematerialinfo extends CI_Model {
             }
 
             // Get material value
-            $this->db->select('SUM(`tbl_jobcard_issue_meterial`.`issueqty`*`tbl_jobcard_issue_meterial`.`unitprice`) AS `issuematerialvalue`, GROUP_CONCAT(`tbl_print_material_info`.`tbl_supplier_idtbl_supplier`) AS `suppliers`');
+            $this->db->select('tbl_jobcard_issue_meterial.issuedate, SUM(`tbl_jobcard_issue_meterial`.`issueqty`*`tbl_jobcard_issue_meterial`.`unitprice`) AS `issuematerialvalue`, GROUP_CONCAT(`tbl_print_material_info`.`tbl_supplier_idtbl_supplier`) AS `suppliers`');
             $this->db->from('tbl_jobcard_issue_meterial');
             $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info', 'left');
             $this->db->where('tbl_jobcard_issue_meterial.status', 1);
@@ -533,7 +533,7 @@ class Jobcardissuematerialinfo extends CI_Model {
             $this->db->where('idtbl_jobcard', $recordID);
             $respondjobcard = $this->db->get();
 
-            $tradate = date('Y-m-d');
+            $tradate = $respond->row(0)->issuedate;
             $traamount = $respond->row(0)->issuematerialvalue;
             $suppliersArray = explode(',', $respond->row(0)->suppliers);
             $narrationcr = $respondjobcard->row(0)->job_description.' Material Issued on '.$tradate;

@@ -183,8 +183,22 @@ class Invoiceinfo extends CI_Model{
             }
         }
 
-        if ($vat_customer == 1) {
-            $taxDatePrefix = 'TXN' . date('Ymd', strtotime($date));
+        $invoiceDate = strtotime($date);
+        $isNewFormat = $invoiceDate >= strtotime('2026-07-01');
+        $taxInvoiceNo = '';
+
+        if ($isNewFormat) {
+            // New format: YYMMM_QQQQ_XXXXX (effective July 1, 2026)
+            $yy  = date('y', $invoiceDate);          // e.g. 26
+            $mmm = strtoupper(date('M', $invoiceDate)); // e.g. JUL
+            $qqqqMap = [
+                1 => 'MOP1',
+                2 => 'FT01',
+                3 => 'RMI1',
+            ];
+            $qqqq = $qqqqMap[$companyID] ?? 'GEN1'; // your branch/unit code — adjust as needed
+
+            $taxDatePrefix = $yy . $mmm . '_' . $qqqq . '_';
 
             $this->db->select('tax_invoice_num');
             $this->db->from('tbl_print_invoice');
@@ -197,22 +211,110 @@ class Invoiceinfo extends CI_Model{
             $taxQuery = $this->db->get();
 
             if ($taxQuery->num_rows() > 0) {
-                $lastTaxNo = $taxQuery->row()->tax_invoice_num;
-                $lastCount = intval(substr($lastTaxNo, -4));
-                $taxCount = $lastCount + 1;
+                $lastTaxNo  = $taxQuery->row()->tax_invoice_num;
+                $lastCount  = intval(substr($lastTaxNo, strrpos($lastTaxNo, '_') + 1));
+                $taxCount   = $lastCount + 1;
             } else {
-                $taxCount = 1;
+                $currentYear = date("Y", strtotime($date));
+                $currentMonth = date("m", strtotime($date));
+            
+                if ($currentMonth < 4) { //03
+                    $startDate = $currentYear."-04-01";
+                    $startDate = date('Y-m-d',  strtotime($startDate.'-1 year'));
+                    $endDate = $currentYear."-03-31";
+                } else {
+                    $startDate = $currentYear."-04-01";
+                    $endDate = $currentYear."-03-31";
+                    $endDate = date('Y-m-d',  strtotime($endDate.'+1 year'));
+                }
+            
+                $fromyear = date("Y-m-d", strtotime($startDate));
+                $toyear = date("Y-m-d", strtotime($endDate));
+
+                $this->db->select('inv_no');
+                $this->db->from('tbl_print_invoice');
+                $this->db->where('tbl_company_idtbl_company', $companyID);
+                $this->db->where("DATE(insertdatetime) >=", $fromyear);
+                $this->db->where("DATE(insertdatetime) <=", $toyear);
+                $this->db->order_by('inv_no', 'DESC');
+                $this->db->limit(1);
+                $taxQueryInv = $this->db->get();
+
+                if ($taxQueryInv->num_rows() > 0) {
+                    $last_inv_no = $taxQueryInv->row()->inv_no;
+                    $inv_no = intval(substr($last_inv_no, -4));
+                    $taxCount = $inv_no + 1;
+                } else {
+                    $taxCount = 1;
+                }
             }
 
-            $taxCountPrefix = sprintf('%04d', $taxCount);
-            $taxInvoiceNo = $taxDatePrefix . $taxCountPrefix;
+            // XXXXX — numeric only, no letters
+            $taxInvoiceNo = $taxDatePrefix . sprintf('%05d', $taxCount);
 
-            $this->db->where('idtbl_print_invoice', $invoiceID);
-            $this->db->update('tbl_print_invoice', [
-                'tax_invoice_num' => $taxInvoiceNo,
-                'updatedatetime' => $updatedatetime
-            ]);
+        } else {
+            if ($vat_customer == 1) {
+                // Old format: TXNYYYYMMDDxxxx
+                $taxDatePrefix = 'TXN' . date('Ymd', $invoiceDate);
+
+                $this->db->select('tax_invoice_num');
+                $this->db->from('tbl_print_invoice');
+                $this->db->where('tbl_company_idtbl_company', $companyID);
+                $this->db->like('tax_invoice_num', $taxDatePrefix, 'after');
+                $this->db->where('tax_invoice_num IS NOT NULL', NULL, FALSE);
+                $this->db->order_by('tax_invoice_num', 'DESC');
+                $this->db->limit(1);
+
+                $taxQuery = $this->db->get();
+
+                if ($taxQuery->num_rows() > 0) {
+                    $lastTaxNo = $taxQuery->row()->tax_invoice_num;
+                    $lastCount = intval(substr($lastTaxNo, -4));
+                    $taxCount  = $lastCount + 1;
+                } else {
+                    $taxCount = 1;
+                }
+
+                $taxInvoiceNo = $taxDatePrefix . sprintf('%04d', $taxCount);
+            }
         }
+
+        $this->db->where('idtbl_print_invoice', $invoiceID);
+        $this->db->update('tbl_print_invoice', [
+            'tax_invoice_num' => $taxInvoiceNo,
+            'updatedatetime'  => $updatedatetime
+        ]);
+
+        // if ($vat_customer == 1) {
+        //     $taxDatePrefix = 'TXN' . date('Ymd', strtotime($date));
+
+        //     $this->db->select('tax_invoice_num');
+        //     $this->db->from('tbl_print_invoice');
+        //     $this->db->where('tbl_company_idtbl_company', $companyID);
+        //     $this->db->like('tax_invoice_num', $taxDatePrefix, 'after');
+        //     $this->db->where('tax_invoice_num IS NOT NULL', NULL, FALSE);
+        //     $this->db->order_by('tax_invoice_num', 'DESC');
+        //     $this->db->limit(1);
+
+        //     $taxQuery = $this->db->get();
+
+        //     if ($taxQuery->num_rows() > 0) {
+        //         $lastTaxNo = $taxQuery->row()->tax_invoice_num;
+        //         $lastCount = intval(substr($lastTaxNo, -4));
+        //         $taxCount = $lastCount + 1;
+        //     } else {
+        //         $taxCount = 1;
+        //     }
+
+        //     $taxCountPrefix = sprintf('%04d', $taxCount);
+        //     $taxInvoiceNo = $taxDatePrefix . $taxCountPrefix;
+
+        //     $this->db->where('idtbl_print_invoice', $invoiceID);
+        //     $this->db->update('tbl_print_invoice', [
+        //         'tax_invoice_num' => $taxInvoiceNo,
+        //         'updatedatetime' => $updatedatetime
+        //     ]);
+        // }
 
 		$currentYear = date("Y", strtotime($date));
 		$currentMonth = date("m", strtotime($date));
