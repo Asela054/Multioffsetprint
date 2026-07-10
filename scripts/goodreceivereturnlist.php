@@ -41,7 +41,7 @@ $columns = array(
 	array( 'db' => '`u`.`approvestatus`', 'dt' => 'approvestatus', 'field' => 'approvestatus' ),
 	array( 'db' => '`u`.`tbl_supplier_idtbl_supplier`', 'dt' => 'tbl_supplier_idtbl_supplier', 'field' => 'tbl_supplier_idtbl_supplier' ),
 	array( 'db' => '`ua`.`suppliername` AS `suppliername`', 'dt' => 'suppliername', 'field' => 'suppliername' ),
-	array( 'db' => '`ub`.`type` AS `grntypename`', 'dt' => 'grntypename', 'field' => 'grntypename' ),
+	array( 'db' => '`ub`.`group` AS `group`', 'dt' => 'group', 'field' => 'group' ),
 	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' ),
 );
 
@@ -62,7 +62,7 @@ $sql_details = array(
 // require( 'ssp.class.php' );
 require('ssp.customized.class.php' );
 
-$joinQuery = "FROM `tbl_print_grn_return` AS `u` LEFT JOIN `tbl_supplier` AS `ua` ON (`ua`.`idtbl_supplier` = `u`.`tbl_supplier_idtbl_supplier`) LEFT JOIN `tbl_order_type` AS `ub` ON (`ub`.`idtbl_order_type` = `u`.`grn_type`)";
+$joinQuery = "FROM `tbl_print_grn_return` AS `u` LEFT JOIN `tbl_supplier` AS `ua` ON (`ua`.`idtbl_supplier` = `u`.`tbl_supplier_idtbl_supplier`) LEFT JOIN `tbl_material_group` AS `ub` ON (`ub`.`idtbl_material_group` = `u`.`grn_type`)";
 
 $extraWhere = "`u`.`status` IN (1,2)";
 
