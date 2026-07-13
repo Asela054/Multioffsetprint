@@ -17,7 +17,21 @@ $columns = array(
     array('db' => '`main`.`idtbl_print_invoice`', 'dt' => 'idtbl_print_invoice', 'field' => 'idtbl_print_invoice'),
     array('db' => '`main`.`date`', 'dt' => 'date', 'field' => 'date'),
     array('db' => '`main`.`total`', 'dt' => 'total', 'field' => 'total'),
-    array('db' => '`main`.`inv_no`', 'dt' => 'inv_no', 'field' => 'inv_no'),
+    array('db' => 'CASE 
+                    WHEN DATE(`main`.`date`) < "2026-07-01" THEN 
+                        CASE 
+                            WHEN `main`.`tax_invoice_num` IS NOT NULL 
+                                AND `main`.`tax_invoice_num` != "" 
+                            THEN `main`.`tax_invoice_num`
+                            ELSE `main`.`inv_no`
+                        END
+                    ELSE 
+                        `main`.`new_invoice_no`
+                END',
+        'dt' => 'inv_no',
+        'field' => 'inv_no',
+        'as' => 'inv_no'
+    ),
     array('db' => '`main`.`customer`', 'dt' => 'customer', 'field' => 'customer'),
     array('db' => '`main`.`job`', 'dt' => 'job', 'field' => 'job'),
     array('db' => '`main`.`job_no`', 'dt' => 'job_no', 'field' => 'job_no'),
@@ -59,9 +73,16 @@ $joinQuery = "FROM (
         u.date,
         u.total,
         u.inv_no,
+        u.tax_invoice_num,
 		u.tbl_company_idtbl_company,
         ua.customer,
         v.job,
+        CONCAT(
+            DATE_FORMAT(u.date,'%y'),
+            UPPER(DATE_FORMAT(u.date,'%b')),
+            '_MOP1_',
+            LPAD(u.idtbl_print_invoice,5,'0')
+        ) AS new_invoice_no,
  		GROUP_CONCAT(DISTINCT v.job_no SEPARATOR ', ') AS job_no, -- Ensure DISTINCT job_no,
 		u.approvestatus,
         u.status,

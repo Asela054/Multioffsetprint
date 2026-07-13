@@ -92,30 +92,32 @@ class Issuegoodreceiveinfo extends CI_Model{
         $issueID=$this->db->insert_id();
 
 
-			foreach($tableData as $rowtabledata) {
-				$uomId=$rowtabledata['col_3'];
-				$comment=$rowtabledata['col_4'];
-				$unitprice=$rowtabledata['col_5'];
-				$qty=$rowtabledata['col_6'];
-				$productid=$rowtabledata['col_8'];
-				$total=$rowtabledata['col_9'];
-				$stockid=$rowtabledata['col_10'];
+		foreach($tableData as $rowtabledata) {
+			$uomId=$rowtabledata['col_3'];
+			$comment=$rowtabledata['col_4'];
+			$unitprice=$rowtabledata['col_5'];
+			$qty=$rowtabledata['col_6'];
+			$productid=$rowtabledata['col_8'];
+			$total=$rowtabledata['col_9'];
+			$stockid=$rowtabledata['col_10'];
+			$batchno=$rowtabledata['col_11'];
 
-				$dataone=array(
-					'issue_date'=> $issuedate,
-					'qty'=> $qty,
-					'unitprice'=> $unitprice,
-					'total'=> $total,
-					'comment'=> $comment,
-					'measure_type_id'=> $uomId,
-					'status'=> '1',
-					'insertdatetime'=> $updatedatetime,
-					'tbl_print_issue_idtbl_print_issue'=> $issueID,
-					'tbl_print_material_info_idtbl_print_material_info'=> $productid,
-					'stock_id'=> $stockid);
+			$dataone=array(
+				'issue_date'=> $issuedate,
+				'qty'=> $qty,
+				'unitprice'=> $unitprice,
+				'total'=> $total,
+				'comment'=> $comment,
+				'batchno'=> $batchno,
+				'measure_type_id'=> $uomId,
+				'status'=> '1',
+				'insertdatetime'=> $updatedatetime,
+				'tbl_print_issue_idtbl_print_issue'=> $issueID,
+				'tbl_print_material_info_idtbl_print_material_info'=> $productid,
+				'stock_id'=> $stockid);
 
-				$this->db->insert('tbl_print_issuedetail', $dataone);
-			}
+			$this->db->insert('tbl_print_issuedetail', $dataone);
+		}
 
         $this->db->trans_complete();
 
@@ -255,14 +257,14 @@ class Issuegoodreceiveinfo extends CI_Model{
 
 	public function Getproductinfoaccoproduct() {
 		$recordID = $this->input->post('recordID');
-	
-		$this->db->select('idtbl_print_stock, batchno, qty, unitprice');
+
+		$this->db->select('idtbl_print_stock, batchno, qty, unitprice, measure_type_id');
 		$this->db->from('tbl_print_stock');
 		$this->db->where('status', 1);
 		$this->db->where('tbl_print_material_info_idtbl_print_material_info', $recordID);
-	
+
 		$respond = $this->db->get();
-	
+
 		if ($respond->num_rows() > 0) {
 			echo json_encode($respond->result());
 		} else {

@@ -85,6 +85,16 @@ class Pdfviewinvoiceinfo extends CI_Model {
         $dompdf = new Dompdf($options);
 
 		$vat_customer = $query->row()->vat_customer;
+		$isPostJuly = strtotime($query->row()->invoice_date) >= strtotime('2026-07-01');
+
+		$taxNum = $query->row()->tax_inv_number;
+		$displayInvoiceNo = (!empty($taxNum) && $taxNum != '0')
+			? $taxNum
+			: $query->row()->inv_number;
+
+		$displayInvoiceLabel = $isPostJuly
+			? 'Invoice No.'                       // unified format for everyone post-Jul-1
+			: ($vat_customer == 1 ? 'Tax Invoice No.' : 'Invoice No.');
 
 		//     $html = '
 		//     <!DOCTYPE html>
@@ -703,9 +713,9 @@ class Pdfviewinvoiceinfo extends CI_Model {
 						<td>
 							<table class="inner-details-table" style="width: 100%; border: none; border-collapse: collapse;">
 								<tr>
-									<th style="border: none;width:38%;vertical-align: top;">'.($vat_customer == 1 ? 'Tax Invoice No.' : 'Invoice No.').'</th>
+									<th style="border: none;width:38%;vertical-align: top;">'.$displayInvoiceLabel.'</th>
 									<th style="border: none;width:2%;vertical-align: top;">:</th>
-									<td style="border: none;width:60%;vertical-align: top;padding-top:0;">'. $query->row()->tax_inv_number .'</td>
+									<td style="border: none;width:60%;vertical-align: top;padding-top:0;">'. $displayInvoiceNo .'</td>
 								</tr>
 							</table>
 						</td>

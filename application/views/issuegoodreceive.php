@@ -460,7 +460,7 @@ include "include/topnavbar.php";
 					"render": function (data, type, full) {
 						var button = '';
 						button += '<a href="<?php echo base_url() ?>Issuegoodreceive/Issuepdf/' + full['idtbl_print_issue'] + '" target="_blank" data-toggle="tooltip" data-placement="bottom" title="Print" class="btn btn-secondary btn-sm btnPdf mr-1" data-toggle="tooltip" data-placement="bottom" title="Issue Item Request PDF"><i class="fas fa-file-pdf"></i></a>';
-						if (full['approvestatus'] == 0) {
+						if (full['approvestatus'] == 0 && addcheck == 1) {
 							button += 
 								'<button ' +
 									'class="btn btn-primary btn-sm btnAddAccount mr-1" ' +
@@ -871,6 +871,9 @@ include "include/topnavbar.php";
 				var unitprice = parseFloat($('#unitprice').val());
 				var newqty = parseFloat($('#newqty').val());
 				var stockid = $('#batchno').val();
+				var batchno = $('#batchno option:selected').map(function () {
+					return $(this).data('batchno');
+				}).get().join(', ');
 				var uomID = parseFloat($('#uom').val());
 				var uom = $("#uom option:selected").text();
 
@@ -890,6 +893,7 @@ include "include/topnavbar.php";
 					showtotal + '</td><td name="productid" class="d-none">' + productID +
 					'</td><td name="total" class="total d-none">' + total +
 					'</td><td name="stockid" class="d-none">' + stockid +
+					'</td><td name="batchno" class="d-none">' + batchno +
 					'</td><td><button type="button" onclick= "productDelete(this);" id="btnDeleterow" class=" btn btn-danger btn-sm float-right"><i class="fas fa-trash-alt"></i></button></td> </tr>'
 					);
 
@@ -1101,47 +1105,69 @@ include "include/topnavbar.php";
 		var ordertype = tempgrntype;
 		var itemreq_id = $('#itemrequest').val();
 
-			$.ajax({
-				type: "POST",
-				data: {
-					recordID: productID,
-					itemreq_id: itemreq_id,
-				},
-				url: 'Issuegoodreceive/Getproductinfoaccoproduct',
-				success: function (result) {
-					var obj = JSON.parse(result);
-					var html1 = '<option value="">Select</option>';
-
-					$.each(obj, function (i, item) {
-						html1 += '<option value="' + item.idtbl_print_stock + '">' + item.batchno + ' / Stock in Hand - ' + item.qty + ' </option>';
-					});
-
-					$('#batchno').empty().append(html1);
-
-				},
-				error: function () {
-					alert('Failed to fetch batch numbers');
+		$.ajax({
+			type: "POST",
+			data: {
+				recordID: productID,
+				itemreq_id: itemreq_id,
+			},
+			url: 'Issuegoodreceive/Getproductinfoaccoproduct',
+			success: function (result) {
+				var obj;
+				try {
+					obj = JSON.parse(result);
+				} catch (e) {
+					console.error('Non-JSON response from Getproductinfoaccoproduct:', result);
+					alert('Server error while fetching batch numbers. Check console.');
+					return;
 				}
-			});
 
-			$.ajax({
-				type: "POST",
-				data: {
-					recordID: productID,
-					itemreq_id: itemreq_id,
-				},
-				url: 'Issuegoodreceive/Getqtyfromreq',
-				success: function (result) {
-					var obj = JSON.parse(result);
-					$('#qtylabel').html(obj.qtylabel);
+				var html1 = '<option value="">Select</option>';
+
+				$.each(obj, function (i, item) {
+					html1 += '<option value="' + item.idtbl_print_stock +
+						'" data-batchno="' + item.batchno +
+						'" data-measureid="' + item.measure_type_id + '">' +
+						item.batchno + ' / Stock in Hand - ' + item.qty + ' </option>';
+				});
+
+				$('#batchno').empty().append(html1);
+
+				if (obj.length > 0 && obj[0].measure_type_id) {
+					$('#uom').val(obj[0].measure_type_id);
+				} else {
+					$('#uom').val('');
 				}
-			});
+			},
+			error: function (xhr) {
+				console.error('AJAX error fetching batch numbers:', xhr.status, xhr.responseText);
+				alert('Failed to fetch batch numbers');
+			}
+		});
 
+		$.ajax({
+			type: "POST",
+			data: {
+				recordID: productID,
+				itemreq_id: itemreq_id,
+			},
+			url: 'Issuegoodreceive/Getqtyfromreq',
+			success: function (result) {
+				var obj = JSON.parse(result);
+				$('#qtylabel').html(obj.qtylabel);
+			}
+		});
 	});
 
 	$('#batchno').change(function () {
-		var batchno  = $(this).find(':selected').data('batchno');
+		var $selected = $(this).find(':selected');
+		var batchno = $selected.data('batchno');
+		var measureid = $selected.data('measureid');
 		var productID = $('#product').val();
+
+		if (measureid) {
+			$('#uom').val(measureid);
+		}
 
 		$.ajax({
 			type: "POST",
@@ -1155,7 +1181,6 @@ include "include/topnavbar.php";
 				$('#unitprice').val(obj.unitprice);
 			}
 		});
-
 	});
 
 	function approvejob(confirmnot) {
