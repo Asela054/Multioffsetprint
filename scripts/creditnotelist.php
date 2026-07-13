@@ -33,7 +33,26 @@ $columns = array(
 	array( 'db' => '`u`.`idtbl_print_invoice`', 'dt' => 'idtbl_print_invoice', 'field' => 'idtbl_print_invoice' ),
 	array( 'db' => '`u`.`date`', 'dt' => 'date', 'field' => 'date' ),
     array( 'db' => '`u`.`total`', 'dt' => 'total', 'field' => 'total' ),
-	array( 'db' => '`u`.`inv_no`', 'dt' => 'inv_no', 'field' => 'inv_no' ),
+	array(
+		'db' => 'CASE 
+					WHEN DATE(`u`.`date`) < "2026-07-01" THEN 
+						CASE 
+							WHEN `u`.`tax_invoice_num` IS NOT NULL 
+								AND `u`.`tax_invoice_num` != "" 
+							THEN `u`.`tax_invoice_num`
+							ELSE `u`.`inv_no`
+						END
+					ELSE 
+						CONCAT(
+							DATE_FORMAT(`u`.`date`,"%y"),
+							UPPER(DATE_FORMAT(`u`.`date`,"%b")),
+							"_MOP1_",
+							LPAD(`u`.`idtbl_print_invoice`,5,"0")
+						)
+				END AS inv_no',
+		'dt' => 'inv_no',
+		'field' => 'inv_no'
+	),
 	array( 'db' => '`ua`.`customer`', 'dt' => 'customer', 'field' => 'customer' ),
 	array( 'db' => '`u`.`approvestatus`', 'dt' => 'approvestatus', 'field' => 'approvestatus' ),
 	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' )
