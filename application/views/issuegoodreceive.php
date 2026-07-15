@@ -150,6 +150,7 @@ include "include/topnavbar.php";
 										<thead>
 											<tr>
 												<th>Item</th>
+												<th>Batch No</th>
 												<th>UOM</th>
 												<th class="d-none">UOMID</th>
 												<th class="d-none">ProductID</th>
@@ -885,6 +886,7 @@ include "include/topnavbar.php";
 
 				$('#tableorder > tbody:last').append('<tr class="pointer"><td name="productname">' +
 					product +
+					'</td><td name="batchno">' + batchno +
 					'</td><td>' + uom +
 						'</td><td class="d-none">' + uomID + '</td><td name="comment">' +
 					comment + '</td><td name="unitprice" class="text-right">' + unitprice +
@@ -893,7 +895,6 @@ include "include/topnavbar.php";
 					showtotal + '</td><td name="productid" class="d-none">' + productID +
 					'</td><td name="total" class="total d-none">' + total +
 					'</td><td name="stockid" class="d-none">' + stockid +
-					'</td><td name="batchno" class="d-none">' + batchno +
 					'</td><td><button type="button" onclick= "productDelete(this);" id="btnDeleterow" class=" btn btn-danger btn-sm float-right"><i class="fas fa-trash-alt"></i></button></td> </tr>'
 					);
 

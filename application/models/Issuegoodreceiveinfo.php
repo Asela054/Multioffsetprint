@@ -93,14 +93,14 @@ class Issuegoodreceiveinfo extends CI_Model{
 
 
 		foreach($tableData as $rowtabledata) {
-			$uomId=$rowtabledata['col_3'];
-			$comment=$rowtabledata['col_4'];
-			$unitprice=$rowtabledata['col_5'];
-			$qty=$rowtabledata['col_6'];
-			$productid=$rowtabledata['col_8'];
-			$total=$rowtabledata['col_9'];
-			$stockid=$rowtabledata['col_10'];
-			$batchno=$rowtabledata['col_11'];
+			$batchno=$rowtabledata['col_2'];
+			$uomId=$rowtabledata['col_4'];
+			$comment=$rowtabledata['col_5'];
+			$unitprice=$rowtabledata['col_6'];
+			$qty=$rowtabledata['col_7'];
+			$productid=$rowtabledata['col_9'];
+			$total=$rowtabledata['col_10'];
+			$stockid=$rowtabledata['col_11'];
 
 			$dataone=array(
 				'issue_date'=> $issuedate,
@@ -371,32 +371,57 @@ class Issuegoodreceiveinfo extends CI_Model{
 
 	public function Issueview() {
 		$recordID = $this->input->post('recordID');
-	
-		$this->db->select('tbl_print_issuedetail.*, tbl_print_material_info.materialname, tbl_print_material_info.materialinfocode, tbl_measurements.measure_type');
+
+		$this->db->select('
+			tbl_print_issuedetail.*,
+			tbl_print_material_info.materialname,
+			tbl_print_material_info.materialinfocode,
+			tbl_measurements.measure_type,
+			tbl_account.accountno AS accountno_head,
+			tbl_account.accountname AS account_name_head,
+			tbl_account_detail.accountno AS accountno_detail,
+			tbl_account_detail.accountname AS account_name_detail
+		');
 		$this->db->from('tbl_print_issuedetail');
 		$this->db->join('tbl_print_material_info', 'tbl_print_issuedetail.tbl_print_material_info_idtbl_print_material_info = tbl_print_material_info.idtbl_print_material_info', 'left');
 		$this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_issuedetail.measure_type_id', 'left');
+		$this->db->join('tbl_account', 'tbl_account.idtbl_account = tbl_print_issuedetail.tbl_account_idtbl_account', 'left');
+		$this->db->join('tbl_account_detail', 'tbl_account_detail.idtbl_account_detail = tbl_print_issuedetail.tbl_account_detail_idtbl_account_detail', 'left');
 		$this->db->where('tbl_print_issuedetail.tbl_print_issue_idtbl_print_issue', $recordID);
 		$this->db->where('tbl_print_issuedetail.status', 1);
-	
+
 		$responddetail = $this->db->get();
-	
+
 		$html = '';
-		
-		foreach($responddetail->result() as $roworderinfo) {
-			$total = number_format(($roworderinfo->qty * $roworderinfo->unitprice), 2);
+
+		foreach ($responddetail->result() as $roworderinfo) {
+
+			$accountName = '';
+			$accountID   = '';
+			$accountType = '';
+
+			if (!empty($roworderinfo->tbl_account_idtbl_account)) {
+				$accountName = $roworderinfo->accountno_head . ' - ' . $roworderinfo->account_name_head;
+				$accountID   = $roworderinfo->tbl_account_idtbl_account;
+				$accountType = 1;
+			} elseif (!empty($roworderinfo->tbl_account_detail_idtbl_account_detail)) {
+				$accountName = $roworderinfo->accountno_detail . ' - ' . $roworderinfo->account_name_detail;
+				$accountID   = $roworderinfo->tbl_account_detail_idtbl_account_detail;
+				$accountType = 2;
+			}
+
 			$html .= '<tr>
-							<td>'.$roworderinfo->materialname. '-' .$roworderinfo->materialinfocode. '</td>
-							<td class="text-left">'.$roworderinfo->measure_type.'</td>
-							<td class="text-center">'.$roworderinfo->qty.'</td>
-							<td class="text-center d-none">'.$roworderinfo->tbl_print_material_info_idtbl_print_material_info.'</td>
-							<td class="text-center d-none">'.$roworderinfo->stock_id.'</td>
-							<td class="accountlist"></td>
-							<td class="text-center d-none"><input type="text" class="row_account_id" name="row_account_id[]"></td>					
-							<td class="text-center d-none"><input type="text" class="row_account_type" name="row_account_type[]"></td>
+							<td>' . $roworderinfo->materialname . '-' . $roworderinfo->materialinfocode . '</td>
+							<td class="text-left">' . $roworderinfo->measure_type . '</td>
+							<td class="text-center">' . $roworderinfo->qty . '</td>
+							<td class="text-center d-none">' . $roworderinfo->tbl_print_material_info_idtbl_print_material_info . '</td>
+							<td class="text-center d-none">' . $roworderinfo->stock_id . '</td>
+							<td class="accountlist">' . $accountName . '</td>
+							<td class="text-center d-none"><input type="text" class="row_account_id" name="row_account_id[]" value="' . $accountID . '"></td>
+							<td class="text-center d-none"><input type="text" class="row_account_type" name="row_account_type[]" value="' . $accountType . '"></td>
 						</tr>';
 		}
-	
+
 		echo $html;
 	}
 
