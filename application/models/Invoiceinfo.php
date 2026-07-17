@@ -953,7 +953,7 @@ class Invoiceinfo extends CI_Model{
                     }
                     
                     // $APIstatus .= $jobFinishData;
-
+                    
                     $apiurljobfinish = $_SESSION['accountapiurl'].'Api/Costmaterialprocess';
 
                     $postDatajobfinish = http_build_query([
@@ -982,7 +982,7 @@ class Invoiceinfo extends CI_Model{
                     $curlError = curl_error($ch);
                     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                     curl_close($ch);
-
+                    
                     // Check both HTTP status and API response
                     $apiResponsejobfinish = json_decode($server_output, true);
 
@@ -1023,7 +1023,7 @@ class Invoiceinfo extends CI_Model{
                 $curlError = curl_error($ch);
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
-
+                
                 // Check both HTTP status and API response
                 $apiResponse = json_decode($server_output, true);
 

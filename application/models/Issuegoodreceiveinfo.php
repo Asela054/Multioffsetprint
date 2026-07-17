@@ -667,34 +667,102 @@ class Issuegoodreceiveinfo extends CI_Model{
 	}
 
 	public function Approvestatus() {
-		$this->db->trans_begin();
 		$userID = $_SESSION['userid'];
+		$company = $_SESSION['company_id'];
+        $branch = $_SESSION['branch_id'];
 		$updatedatetime = date('Y-m-d H:i:s');
 		$approveID = $this->input->post('grnid');
 		$grnreqid = $this->input->post('req_id');
 		$confirmnot = $this->input->post('confirmnot');
 
-		$data = array(
-			'approvestatus' => $confirmnot,
-			'updateuser' => $userID,
-			'updatedatetime' => $updatedatetime
-		);
-		$this->db->where('idtbl_print_issue', $approveID);
-		$this->db->update('tbl_print_issue', $data);
+		$obj = new stdClass();
+        $actionObj = new stdClass();
 
-		$datareq = array(
-			'issuestatus' => '1',
-			'updateuser' => $userID,
-			'updatedatetime' => $updatedatetime
-		);
-		$this->db->where('idtbl_grn_req', $grnreqid);
-		$this->db->update('tbl_grn_req', $datareq);
+		try {
+			$this->db->trans_begin();
 
-		$this->db->trans_complete();
+			if ($confirmnot == 1) { 
+				$data = array(
+					'approvestatus' => $confirmnot,
+					'updateuser' => $userID,
+					'updatedatetime' => $updatedatetime
+				);
+				$this->db->where('idtbl_print_issue', $approveID);
+				$this->db->update('tbl_print_issue', $data);
 
-		if ($this->db->trans_status() === TRUE) {
+				$datareq = array(
+					'issuestatus' => '1',
+					'updateuser' => $userID,
+					'updatedatetime' => $updatedatetime
+				);
+				$this->db->where('idtbl_grn_req', $grnreqid);
+				$this->db->update('tbl_grn_req', $datareq);
+
+				$APIstatus = $this->load->model('Apiinfo');
+				$APIstatus = $this->Apiinfo->InternalIssueApi($approveID);
+				
+				if (empty($APIstatus)) {
+					throw new Exception("Internal Issue API configuration error: Missing chart of accounts for one or more items.");
+				}
+
+				$this->db->select('issuedate');
+				$this->db->from('tbl_print_issue');
+				$this->db->where('status', 1);
+				$this->db->where('idtbl_print_issue', $approveID);
+				$respond = $this->db->get();
+
+				if (!empty($issueData)) {
+                    $fullnarration = 'Costing for Internal Issue ID: ' . $approveID;
+                    $apiurljobfinish = $_SESSION['accountapiurl'].'Api/JurnalEntryProcess';
+
+                    $postDataList = http_build_query([
+                        'userid' => $userID,
+                        'company' => $company,
+                        'branch' => $branch,
+                        'invoicedate' => $respond->row(0)->issuedate,
+                        'fullnarration' => $fullnarration,
+                        'jurnalentrydata' => json_encode($APIstatus)
+                    ]);
+
+                    $ch = curl_init();
+                    curl_setopt_array($ch, [
+                        CURLOPT_URL => $apiurljobfinish,
+                        CURLOPT_POST => true,
+                        CURLOPT_POSTFIELDS => $postDataList,
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_TIMEOUT => 30,
+                        CURLOPT_HTTPHEADER => [
+                            'Content-Type: application/x-www-form-urlencoded',
+                        ]
+                    ]);
+                    
+                    $server_output = curl_exec($ch);
+                    $curlError = curl_error($ch);
+                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    curl_close($ch);
+					
+                    // Check both HTTP status and API response
+                    $apiResponsejobfinish = json_decode($server_output, true);
+
+                    if ($httpCode != 200 || !isset($apiResponsejobfinish['status']) || $apiResponsejobfinish['status'] !== 'success') {
+                        $errorMsg = $apiResponsejobfinish['message'] ?? 'API request failed in jobfinish';
+                        throw new Exception($errorMsg);
+                    }
+                }
+
+			} else {
+				$data = array(
+					'approvestatus' => $confirmnot,
+					'updateuser' => $userID,
+					'updatedatetime' => $updatedatetime
+				);
+			
+				$this->db->where('idtbl_print_issue', $approveID);
+				$this->db->update('tbl_print_issue', $data);
+			}
+
 			$this->db->trans_commit();
-			$actionObj = new stdClass();
+			
 			$actionObj->icon = 'fas fa-check';
 			$actionObj->title = '';
 			$actionObj->message = ($confirmnot == 1) ? 'Record Approved Successfully' : 'Record Rejected Successfully';
@@ -702,17 +770,26 @@ class Issuegoodreceiveinfo extends CI_Model{
 			$actionObj->target = '_blank';
 			$actionObj->type = 'success';
 
-			echo json_encode([
-				'status' => 1,
-				'action' => json_encode($actionObj)
-			]);
-		} else {
-			$this->db->trans_rollback();
-			echo json_encode([
-				'status' => 0,
-				'message' => 'Transaction failed. Please try again.'
-			]);
+			$obj->status = 1;
+            $obj->action = json_encode($actionObj);
+
+		} catch (Exception $e) {
+            $this->db->trans_rollback();
+
+            error_log("Transaction faild Error: " . $e->getMessage());
+            
+            $actionObj->icon = 'fas fa-exclamation-triangle';
+            $actionObj->title = '';
+            $actionObj->message = 'Operation Failed: ' . $e->getMessage();
+            $actionObj->url = '';
+            $actionObj->target = '_blank';
+            $actionObj->type = 'danger';
+    
+            $obj->status = 0;
+            $obj->action = json_encode($actionObj);
 		}
+
+		echo json_encode($obj);
 	}
 
 	public function Issuepdf($x)
