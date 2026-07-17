@@ -698,7 +698,7 @@ class GRNVoucherinfo extends CI_Model{
     
                 $respondgrn = $this->db->get();
                 $grnData = $respondgrn->row(0);
-
+                
                 // APPROVE PROCESS
                 $data = array(
                     'approvestatus' => $confirmnot,
@@ -768,7 +768,7 @@ class GRNVoucherinfo extends CI_Model{
                 $segregationdataencode = json_encode($APIstatus);
                 $supplier = $grnData->tbl_supplier_idtbl_supplier;
                 $invoice = $grnData->grn_no;
-                $invoicedate = $grnData->grn_date;
+                $invoicedate = $grnData->grndate;
                 $invoiceamount = $grnData->grntotal;
 
                 // Make API call

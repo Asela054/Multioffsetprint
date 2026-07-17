@@ -380,6 +380,7 @@ $vatValue = ($companyID == 3) ? "0" : "18";
             								id="dataTable">
             								<thead>
             									<tr>
+            										<th>#</th>
             										<th>Invoice Number</th>
             										<th>Date</th>
             										<th>Customer</th>
@@ -566,8 +567,11 @@ $(document).ready(function() {
 						});
 					}
         },
-        order: [[1, 'desc']],
+        order: [[0, 'desc']],
         "columns": [
+            {
+                "data": "idtbl_print_invoice"
+            },
             {
                 "data": "inv_no"
             },

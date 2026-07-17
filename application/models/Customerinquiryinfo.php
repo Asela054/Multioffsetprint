@@ -532,9 +532,9 @@ class Customerinquiryinfo extends CI_Model{
             }
             
             // $APIstatus .= $jobFinishData;
-
+            
             $apiurljobfinish = $_SESSION['accountapiurl'].'Api/Costmaterialprocess';
-
+            
             $postDatajobfinish = http_build_query([
                 'userid' => $userID,
                 'company' => $company,

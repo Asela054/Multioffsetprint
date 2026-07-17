@@ -428,11 +428,12 @@ class Apiinfo extends CI_Model{
                 AND tbl_account_detail.special_cate_detail = 2', 
                 'left'
             );
+            $this->db->join('tbl_account_allocation', 'tbl_account_allocation.tbl_account_detail_idtbl_account_detail = tbl_account_detail.idtbl_account_detail AND tbl_account_allocation.companybank = ' . $companyID . ' AND tbl_account_allocation.branchcompanybank = ' . $branchID, 'inner');
             $this->db->where('tbl_jobcard_issue_meterial.status', 2);
             $this->db->where('tbl_jobcard.tbl_customerinquiry_idtbl_customerinquiry', $customerinqueryID);
             $this->db->group_by('tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info');
             $respond = $this->db->get();
-
+            
             $materialissuenettotal = 0;
             foreach ($respond->result() as $rowmaterial) {
                 if(!empty($rowmaterial->idtbl_account_detail)){
@@ -505,11 +506,11 @@ class Apiinfo extends CI_Model{
             $this->db->where('tbl_print_issuedetail.tbl_print_issue_idtbl_print_issue', $issuenoteID);
             $this->db->group_by('tbl_print_issuedetail.tbl_print_material_info_idtbl_print_material_info');
             $respond = $this->db->get();
-
+            
             $materialissuenettotal = 0;
             $sundryissuenettotal = 0;
             foreach ($respond->result() as $rowmaterial) {
-                if(!empty($rowmaterial->idtbl_account_detail)){
+                if(!empty($rowmaterial->tbl_account_detail_idtbl_account_detail)){
                     $obj = new stdClass();
                     $obj->amount = str_replace(",", "", $rowmaterial->issuetotal);
                     $obj->narration = 'Material Costing for ' . $rowmaterial->materialname . ' ' . $issuenoteID;
@@ -531,7 +532,7 @@ class Apiinfo extends CI_Model{
                     throw new Exception("No account detail found for material: " . $rowmaterial->materialname);
                 }
             }
-
+            
             if($materialissuenettotal > 0){
                 $this->db->where('tbl_account_allocation.companybank', $companyID);
                 $this->db->where('tbl_account_allocation.branchcompanybank', $branchID);
