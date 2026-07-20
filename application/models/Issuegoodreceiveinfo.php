@@ -258,7 +258,7 @@ class Issuegoodreceiveinfo extends CI_Model{
 	public function Getproductinfoaccoproduct() {
 		$recordID = $this->input->post('recordID');
 
-		$this->db->select('idtbl_print_stock, batchno, qty, unitprice, measure_type_id');
+		$this->db->select('idtbl_print_stock, batchno, qty, unitprice, measure_type_id, grndate');
 		$this->db->from('tbl_print_stock');
 		$this->db->where('status', 1);
 		$this->db->where('tbl_print_material_info_idtbl_print_material_info', $recordID);
@@ -579,6 +579,7 @@ class Issuegoodreceiveinfo extends CI_Model{
 			d.unitprice,
 			d.total,
 			d.comment,
+			d.batchno,
 			m.materialname,
 			m.materialinfocode,
 			u.measure_type
@@ -615,6 +616,7 @@ class Issuegoodreceiveinfo extends CI_Model{
 			<thead class="thead-light">
 				<tr>
 					<th>Material</th>
+					<th>Batch No</th>
 					<th class="text-center">Qty</th>
 					<th class="d-none">Stock ID</th>
 					<th class="text-center">UOM</th>
@@ -635,6 +637,7 @@ class Issuegoodreceiveinfo extends CI_Model{
 			$html .= '
 			<tr>
 				<td>' . $material . '</td>
+				<td>' . $row->batchno . '</td>
 				<td class="text-center issueqty">' . $row->qty . '</td>
 				<td class="d-none stockid">' . $row->stock_id . '</td>
 				<td class="text-center">' . $row->measure_type . '</td>

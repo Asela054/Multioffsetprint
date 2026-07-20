@@ -905,18 +905,23 @@
                 url: "<?php echo base_url() ?>Creditnote/fetchDispatchList",
                 data: { hideinvoiceid: id },
                 dataType: "json",
-                success: function (response) {
-                    var dispatchDropdown = $("#dispatchno");
-                    dispatchDropdown.empty();
-                    dispatchDropdown.append('<option value="">Select</option>');
+				success: function (response) {
+					var dispatchDropdown = $("#dispatchno");
+					dispatchDropdown.empty();
+					dispatchDropdown.append('<option value="">Select</option>');
 
-                    $.each(response.dispatchList, function (index, item) {
-                        dispatchDropdown.append('<option value="' + item.id + '">' + item.dispatch_no + '</option>');
-                    });
+					$.each(response.dispatchList, function (index, item) {
+						dispatchDropdown.append('<option value="' + item.id + '">' + item.dispatch_no + '</option>');
+					});
 
-                    $("#showVathtml").text(response.percentage + "%");
-                    $("#showVat").val(response.percentage);
-                },
+					<?php if ($this->session->userdata('company_id') == 3) { ?>
+						$("#showVathtml").text("0%");
+						$("#showVat").val(0);
+					<?php } else { ?>
+						$("#showVathtml").text(response.percentage + "%");
+						$("#showVat").val(response.percentage);
+					<?php } ?>
+				},
                 error: function () {
                     alert("Failed to fetch dispatch numbers!");
                 }
