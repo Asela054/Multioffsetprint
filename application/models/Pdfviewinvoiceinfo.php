@@ -432,12 +432,14 @@ class Pdfviewinvoiceinfo extends CI_Model {
 		// 	    </body>
 		// </html>
 		// ';  
+		$safeInvoiceNo = preg_replace('/[^A-Za-z0-9_\-\/]/', '_', $displayInvoiceNo);
 		
 		$html = '
 		<!DOCTYPE html>
 			<html lang="en">
 			<head>
 				<meta charset="UTF-8">
+				 <title>'.$safeInvoiceNo.'</title>
 				<style>
 					* {
 						margin: 0;
@@ -965,7 +967,9 @@ class Pdfviewinvoiceinfo extends CI_Model {
 		$dompdf->loadHtml($html);
 		$dompdf->setPaper('A4', 'portrait');
 		$dompdf->render();
-		$dompdf->stream($fileNamePrefix . " - " . $recordID . ".pdf", ["Attachment" => 0]);
+		$safeInvoiceNo = preg_replace('/[^A-Za-z0-9_\-]/', '_', $displayInvoiceNo);
+
+		$dompdf->stream($fileNamePrefix . " - " . $safeInvoiceNo . ".pdf", ["Attachment" => 0]);
 
     }
 	public function ConvertRupeeToText($amount) {
