@@ -228,8 +228,19 @@ class InvoicePrintinfo extends CI_Model{
                 </table>
             </footer>';
 
+            // PHP 7.2/older-safe replacement for array_key_last()/array_key_first()
+            $sectionKeys     = array_keys($dataArray);
+            $firstSectionKey = reset($sectionKeys);
+            $lastSectionKey  = end($sectionKeys);
+
             foreach ($dataArray as $index => $section) {
-                $html.='<main>
+
+                // page break BEFORE every section except the first one
+                if ($index !== $firstSectionKey) {
+                    $html .= '<div style="page-break-before: always;"></div>';
+                }
+
+                $html .= '<main>
                     <table style="table-layout: fixed;padding:3px;width:100%;border-collapse: collapse;font-size: 13px;">
                         <thead>
                             <tr>
@@ -243,7 +254,7 @@ class InvoicePrintinfo extends CI_Model{
                         </thead>
                         <tbody>';
                             foreach ($section as $row) {
-                                $html .= '<tr>
+                                $html .= '<tr style="page-break-inside: avoid;">
                                     <td style="width: 10%; text-align:center; border-right: 1px solid black; border-left: 1px solid #000;">' . htmlspecialchars($row['materialInfoCode']) . '</td>
                                     <td style="width: 40%; border-right: 1px solid black; padding-left: 10px;">' . htmlspecialchars($row['itemDescription']) . '</td>
                                     <td style="width: 10%; text-align:center; border-right: 1px solid black;">' . htmlspecialchars($row['qty']) . '</td>
@@ -253,25 +264,9 @@ class InvoicePrintinfo extends CI_Model{
                                 </tr>';
                             }
                         $html.='</tbody>';
-                        if ($index === count($dataArray) - 1) {
-                            $html .= '<tfoot>
-                                <tr>
-                                    <td colspan="2" style="border-top: 1px solid #000;font-size:12px;"></td>
-                                    <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Total (Excl)</td>
-                                    <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal"></label></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2" style="font-size:11px;"></td>
-                                    <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
-                                    <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2"></td>
-                                    <td colspan="2" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left; font-weight:bold;padding-left:35px;">Total (Incl)</td>
-                                    <th colspan="2" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label class="font-weight-bold text-dark" id="lblbalance"></label></th>
-                                </tr>
-                            </tfoot>';
-                        } else {
+
+                        // only the TRUE last section shows the actual totals
+                        if ($index === $lastSectionKey) {
                             $html .= '<tfoot>
                                 <tr>
                                     <td colspan="2" style="border-top: 1px solid #000;font-size:12px;"></td>
@@ -289,12 +284,28 @@ class InvoicePrintinfo extends CI_Model{
                                     <th colspan="2" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label class="font-weight-bold text-dark" id="lblbalance">'.number_format($net,2).'</label></th>
                                 </tr>
                             </tfoot>';
+                        } else {
+                            // not the last section -> leave totals blank, continues on next page
+                            $html .= '<tfoot>
+                                <tr>
+                                    <td colspan="2" style="border-top: 1px solid #000;font-size:12px;"></td>
+                                    <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Total (Excl)</td>
+                                    <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal"></label></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="font-size:11px;"></td>
+                                    <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
+                                    <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td colspan="2" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left; font-weight:bold;padding-left:35px;">Total (Incl)</td>
+                                    <th colspan="2" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label class="font-weight-bold text-dark" id="lblbalance"></label></th>
+                                </tr>
+                            </tfoot>';
                         }
                     $html.='</table>
                 </main>';
-                if ($index === count($dataArray) - 1) {
-                    $html .= '<div style="page-break-before: always;"></div>'; 
-                }
             }
         $html .= '</body>
         </html>';

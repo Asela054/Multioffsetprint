@@ -36,19 +36,9 @@ $columns = array(
 	array(
 		'db' => 'CASE 
 					WHEN DATE(`u`.`date`) < "2026-07-01" THEN 
-						CASE 
-							WHEN `u`.`tax_invoice_num` IS NOT NULL 
-								AND `u`.`tax_invoice_num` != "" 
-							THEN `u`.`tax_invoice_num`
-							ELSE `u`.`inv_no`
-						END
+						`u`.`inv_no`
 					ELSE 
-						CONCAT(
-							DATE_FORMAT(`u`.`date`,"%y"),
-							UPPER(DATE_FORMAT(`u`.`date`,"%b")),
-							"_MOP1_",
-							LPAD(`u`.`idtbl_print_invoice`,5,"0")
-						)
+						`u`.`tax_invoice_num`
 				END AS inv_no',
 		'dt' => 'inv_no',
 		'field' => 'inv_no'

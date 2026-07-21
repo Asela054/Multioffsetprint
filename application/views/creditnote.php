@@ -141,6 +141,10 @@
                                             <option value="2">Edit Previous Job</option>
                                         </select>
 							</div>
+							<div class="form-group mb-1">
+								<label class="small font-weight-bold text-dark">Comment</label>
+								<textarea name="comment" id="comment" class="form-control form-control-sm"></textarea>
+							</div>
                             <div class="form-group mt-3 text-right">
                                 <button type="button" id="formsubmit" class="btn btn-warning font-weight-bold btn-sm px-4" <?php if($addcheck==0){echo 'disabled';} ?>><i class="fas fa-plus"></i>&nbsp;Add to list</button>
                                 <input name="submitBtn" type="submit" value="Save" id="submitBtn" class="d-none">
@@ -155,6 +159,7 @@
 										<th>Job</th>
                                         <th>Dispatch No</th>
                                         <th>Return Type</th>
+										<th>Comment</th>
 										<th class="d-none">JobID</th>
                                         <th class="d-none">DispatchID</th>
                                         <th class="d-none">ReturntypeID</th>
@@ -711,50 +716,52 @@
 		document.getElementById('btnreceiptprint').addEventListener("click", print);
 
 
-        $("#formsubmit").click(function () {
-            if (!$("#createorderform")[0].checkValidity()) {
-                $("#submitBtn").click();
-            } else {
-                var unitprice = parseFloat($('#unitprice').val());
-                var qty = parseFloat($('#qty').val());
+		$("#formsubmit").click(function () {
+			if (!$("#createorderform")[0].checkValidity()) {
+				$("#submitBtn").click();
+			} else {
+				var unitprice = parseFloat($('#unitprice').val());
+				var qty = parseFloat($('#qty').val());
+				var comment = $('#comment').val();
 
-                var newtotal = parseFloat(unitprice * qty);
-                var total = parseFloat(newtotal);
-                var showtotal = addCommas(parseFloat(total).toFixed(2));
+				var newtotal = parseFloat(unitprice * qty);
+				var total = parseFloat(newtotal);
+				var showtotal = addCommas(parseFloat(total).toFixed(2));
 
-                $('#tableorder > tbody:last').append('<tr class="pointer"><td>' + 
-                    $('#job').val() + '</td><td>' + 
-                    $("#dispatchno option:selected").text() + '</td><td>' + 
-                    $("#returntype option:selected").text() + '</td><td class="d-none">' + 
-                    $('#jobid').val() + '</td><td class="d-none">' + 
-                    $('#dispatchno').val() + '</td><td class="d-none">' + 
-                    $('#returntype').val() + '</td><td class="d-none">' + 
-                    unitprice + '</td><td>' + unitprice + '</td><td class="text-center">' + 
-                    qty + '</td><td class="total d-none">' + total + '</td><td class="text-right">' + 
-                    showtotal + '</td></tr>');
+				$('#tableorder > tbody:last').append('<tr class="pointer"><td>' + 
+					$('#job').val() + '</td><td>' + 
+					$("#dispatchno option:selected").text() + '</td><td>' + 
+					$("#returntype option:selected").text() + '</td><td>' + 
+					comment + '</td><td class="d-none">' + 
+					$('#jobid').val() + '</td><td class="d-none">' + 
+					$('#dispatchno').val() + '</td><td class="d-none">' + 
+					$('#returntype').val() + '</td><td class="d-none">' + 
+					unitprice + '</td><td>' + unitprice + '</td><td class="text-center">' + 
+					qty + '</td><td class="total d-none">' + total + '</td><td class="text-right">' + 
+					showtotal + '</td></tr>');
 
-                $('#dispatchno, #returntype, #returnqty, #comment').val('');
+				$('#dispatchno, #returntype, #returnqty, #comment').val('');
 
-                var sum = 0;
-                $(".total").each(function () {
-                    sum += parseFloat($(this).text());
-                });
+				var sum = 0;
+				$(".total").each(function () {
+					sum += parseFloat($(this).text());
+				});
 
-                var vatPercentage = parseFloat($('#showVat').val()) || 0;
-                var vatAmount = (sum * vatPercentage) / 100;
-                var totalWithVat = sum + vatAmount;
+				var vatPercentage = parseFloat($('#showVat').val()) || 0;
+				var vatAmount = (sum * vatPercentage) / 100;
+				var totalWithVat = sum + vatAmount;
 
-                $('#divtotal').html('Rs. ' + addCommas(parseFloat(sum).toFixed(2)));
-                $('#showtaxAmount').html('Rs. ' + addCommas(parseFloat(vatAmount).toFixed(2)));
-                $('#showPrice').html('Rs. ' + addCommas(parseFloat(totalWithVat).toFixed(2)));
+				$('#divtotal').html('Rs. ' + addCommas(parseFloat(sum).toFixed(2)));
+				$('#showtaxAmount').html('Rs. ' + addCommas(parseFloat(vatAmount).toFixed(2)));
+				$('#showPrice').html('Rs. ' + addCommas(parseFloat(totalWithVat).toFixed(2)));
 
-                $('#hidetotalorder').val(sum);
-                $('#txtShowtaxAmount').val(vatAmount);
-                $('#txtShowPrice').val(totalWithVat);
+				$('#hidetotalorder').val(sum);
+				$('#txtShowtaxAmount').val(vatAmount);
+				$('#txtShowPrice').val(totalWithVat);
 
-                $('#productlist').focus();
-            }
-        });
+				$('#productlist').focus();
+			}
+		});
 
     	$('#tableorder').on('click', 'tr', function () { 
             var r = confirm("Are you sure, you want to remove this product?");
@@ -905,18 +912,23 @@
                 url: "<?php echo base_url() ?>Creditnote/fetchDispatchList",
                 data: { hideinvoiceid: id },
                 dataType: "json",
-                success: function (response) {
-                    var dispatchDropdown = $("#dispatchno");
-                    dispatchDropdown.empty();
-                    dispatchDropdown.append('<option value="">Select</option>');
+				success: function (response) {
+					var dispatchDropdown = $("#dispatchno");
+					dispatchDropdown.empty();
+					dispatchDropdown.append('<option value="">Select</option>');
 
-                    $.each(response.dispatchList, function (index, item) {
-                        dispatchDropdown.append('<option value="' + item.id + '">' + item.dispatch_no + '</option>');
-                    });
+					$.each(response.dispatchList, function (index, item) {
+						dispatchDropdown.append('<option value="' + item.id + '">' + item.dispatch_no + '</option>');
+					});
 
-                    $("#showVathtml").text(response.percentage + "%");
-                    $("#showVat").val(response.percentage);
-                },
+					<?php if ($this->session->userdata('company_id') == 3) { ?>
+						$("#showVathtml").text("0%");
+						$("#showVat").val(0);
+					<?php } else { ?>
+						$("#showVathtml").text(response.percentage + "%");
+						$("#showVat").val(response.percentage);
+					<?php } ?>
+				},
                 error: function () {
                     alert("Failed to fetch dispatch numbers!");
                 }

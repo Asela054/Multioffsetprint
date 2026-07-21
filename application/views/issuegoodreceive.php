@@ -1126,12 +1126,14 @@ include "include/topnavbar.php";
 				var html1 = '<option value="">Select</option>';
 
 				$.each(obj, function (i, item) {
-					html1 += '<option value="' + item.idtbl_print_stock +
-						'" data-batchno="' + item.batchno +
-						'" data-measureid="' + item.measure_type_id + '">' +
-						item.batchno + ' / Stock in Hand - ' + item.qty + ' </option>';
+					html1 += `
+						<option value="${item.idtbl_print_stock}"
+								data-batchno="${item.batchno}"
+								data-measureid="${item.measure_type_id}">
+							${item.batchno} | GRN: ${item.grndate} | Stock: ${item.qty}
+						</option>
+					`;
 				});
-
 				$('#batchno').empty().append(html1);
 
 				if (obj.length > 0 && obj[0].measure_type_id) {

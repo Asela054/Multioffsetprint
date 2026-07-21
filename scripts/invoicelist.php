@@ -19,14 +19,9 @@ $columns = array(
     array('db' => '`main`.`total`', 'dt' => 'total', 'field' => 'total'),
     array('db' => 'CASE 
                     WHEN DATE(`main`.`date`) < "2026-07-01" THEN 
-                        CASE 
-                            WHEN `main`.`tax_invoice_num` IS NOT NULL 
-                                AND `main`.`tax_invoice_num` != "" 
-                            THEN `main`.`tax_invoice_num`
-                            ELSE `main`.`inv_no`
-                        END
+                        `main`.`inv_no`
                     ELSE 
-                        `main`.`new_invoice_no`
+                        `main`.`tax_invoice_num`
                 END',
         'dt' => 'inv_no',
         'field' => 'inv_no',
@@ -77,12 +72,6 @@ $joinQuery = "FROM (
 		u.tbl_company_idtbl_company,
         ua.customer,
         v.job,
-        CONCAT(
-            DATE_FORMAT(u.date,'%y'),
-            UPPER(DATE_FORMAT(u.date,'%b')),
-            '_MOP1_',
-            LPAD(u.idtbl_print_invoice,5,'0')
-        ) AS new_invoice_no,
  		GROUP_CONCAT(DISTINCT v.job_no SEPARATOR ', ') AS job_no, -- Ensure DISTINCT job_no,
 		u.approvestatus,
         u.status,

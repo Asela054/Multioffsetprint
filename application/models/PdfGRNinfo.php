@@ -108,6 +108,7 @@ class PdfGRNinfo extends CI_Model {
                     line-height: 1.5;
                     text-align:left;
                     margin-top: 165px;
+                    margin-bottom: 140px;
                 }
 
                 /** Define the header rules **/
@@ -216,7 +217,56 @@ class PdfGRNinfo extends CI_Model {
             </table>
         </footer>
         ';
+
+        // PHP 7.2/older-safe replacement for array_key_last()/array_key_first()
+        $sectionKeys     = array_keys($dataArray);
+        $firstSectionKey = reset($sectionKeys);
+        $lastSectionKey  = end($sectionKeys);
+
+        // Only push totals to their own page when the last chunk is already
+        // full (3 items) — a full chunk + totals doesn't fit in the space left
+        // above the footer. If the last chunk has room to spare (1-2 items),
+        // keep the totals on that same page right under it.
+        $itemsPerPage      = 3;
+        $itemsInLastChunk  = count($dataArray[$lastSectionKey]);
+        $lastChunkIsFull   = ($itemsInLastChunk >= $itemsPerPage);
+
+        $totalsRowsHtml = '
+            <tr>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Total (Ex)</th>
+                <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($totalSum, 2).'</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Vat</th>
+                <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($grn_vat, 2).'</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Total (Icl)</th>
+                <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($grn_total, 2).'</th>
+            </tr>';
+
         foreach ($dataArray as $index => $section) {
+
+            // page break BEFORE every section except the first one
+            if ($index !== $firstSectionKey) {
+                $html .= '<div style="page-break-before: always;"></div>';
+            }
+
 			$html.='
             <main>
                 <table style="width:100%;border-collapse: collapse;">
@@ -237,7 +287,7 @@ class PdfGRNinfo extends CI_Model {
                     </thead>
                     <tbody>';
 						foreach ($section as $row) {
-							$html .= '<tr>
+							$html .= '<tr style="page-break-inside: avoid;">
 								<td style="font-size: 12px;border: 1px thin solid;padding-left: 10px;">' . htmlspecialchars($row['itemcode']) . '</td>
 								<td style="width: 35%;text-align:left;font-size: 12px;border: 1px thin solid;padding-left: 10px;">' . htmlspecialchars($row['itemDescription']) . '</td>
 								<td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['ordered']) . '</td>
@@ -249,45 +299,28 @@ class PdfGRNinfo extends CI_Model {
 							</tr>';
 						}
 					$html.='</tbody>';
-                    if ($index === count($dataArray) - 1) {}
-                    else{
-                        $html .= '<tfoot>
-                            <tr>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Total (Ex)</th>
-                                <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($totalSum, 2).'</th>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Vat</th>
-                                <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($grn_vat, 2).'</th>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                                <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Total (Icl)</th>
-                                <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($grn_total, 2).'</th>
-                            </tr>
-                        </tfoot>';
+
+                    // If this is the last chunk AND it has room to spare, attach the
+                    // totals right here on the same page instead of forcing a new one.
+                    if ($index === $lastSectionKey && !$lastChunkIsFull) {
+                        $html .= '<tfoot>'.$totalsRowsHtml.'</tfoot>';
                     }
+
                     $html .= '</table>
                     </main>';
-
-                    if ($index < count($dataArray)) {
-                        $html .= '<div style="page-break-after: always;"></div>';
-                    }
         }   
+
+            // Last chunk was completely full (3 items) — no room left for totals
+            // on that page, so give them a dedicated page of their own.
+            if ($lastChunkIsFull) {
+                $html .= '<div style="page-break-before: always;"></div>';
+                $html .= '<main>
+                    <table style="width:100%;border-collapse: collapse;">'
+                        .$totalsRowsHtml.'
+                    </table>
+                </main>';
+            }
+
             $html.='</body>
         </html>
         '; 
@@ -500,53 +533,74 @@ class PdfGRNinfo extends CI_Model {
                 </table>
             </footer>';
 
+            // ---- Item list now renders ONCE, before the cost-split pages ----
+            // (previously this whole block was inside the per-section loop below,
+            //  so the full GRN item list was reprinted on every Importation Split page)
+            $html.='
+            <main>
+                <table style="width:100%;border-collapse: collapse;">
+                    <tr>
+                        <td colspan="2" style="padding-top: 25px;">
+                            <table style="width:100%;border-collapse: collapse;">
+                                <tr>
+                                    <th style="text-align: left;font-size: 12px;" nowrap><u>Item Code</u></th>
+                                    <th style="text-align: left;font-size: 12px;" nowrap><u>Item Description</u></th>
+                                    <th style="text-align: center;font-size: 12px;"><u>Ordered</u></th>
+                                    <th style="text-align: center;font-size: 12px;"><u>Prev</u></th>
+                                    <th style="text-align: center;font-size: 12px;"><u>Quantity</u></th>
+                                    <th style="text-align: center;font-size: 12px;"><u>Unit</u></th>
+                                    <th style="text-align: right;font-size: 12px;" nowrap><u>Price (Ex</u></th>
+                                    <th style="text-align: left;font-size: 12px;" nowrap><u>Disc %</u></th>
+                                    <th style="text-align: right;font-size: 12px;" nowrap><u>Tax</u></th>
+                                    <th style="text-align: right;font-size: 12px;" nowrap><u>Total (Inc)</u></th>
+                                </tr>';
+                                foreach ($respondgrn->result() as $rowgrninfo) {                               
+                                        $itemcode=$rowgrninfo->materialinfocode;
+                                        $itemdesc=$rowgrninfo->materialname;
+                        
+                                    $html.='
+                                    <tr style="page-break-inside: avoid;">
+                                        <td style="text-align: left;font-size: 12px;">'.$itemcode.'</td>
+                                        <td style="text-align: left;font-size: 12px;" nowrap>'.$itemdesc.'</td>
+                                        <td style="text-align: center;font-size: 12px;">'.$rowgrninfo->qty.'</td>
+                                        <td style="text-align: center;font-size: 12px;">0.00</td>
+                                        <td style="text-align: center;font-size: 12px;">'.$rowgrninfo->qty.'</td>
+                                        <td style="text-align: center;font-size: 12px;">'.$rowgrninfo->measure_type.'</td>
+                                        <td style="text-align: right;font-size: 12px;" nowrap>'.$rowgrninfo->costunitprice.'</td>
+                                        <td style="text-align: left;font-size: 12px;" nowrap>'.$rowgrninfo->unit_discount.'</td>
+                                        <td style="text-align: right;font-size: 12px;" nowrap>'.number_format($rowgrninfo->costunitprice, 2).'</td>
+                                        <td style="text-align: right;font-size: 12px;" nowrap>'.number_format($rowgrninfo->total, 2).'</td>
+                                    </tr>
+                                    ';
+                                }
+                            $html.='</table>
+                            <div style="border-top: 1px thin solid;width: 100%;margin-top: 10px;"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="2" style="padding-top: 15px;font-size: 13px;">
+                            Importation Split - Additional Cost Allocation
+                        </th>
+                    </tr>
+                </table>
+            </main>
+            ';
+
+            // PHP 7.2/older-safe replacement for array_key_last()/array_key_first()
+            $sectionKeys     = array_keys($dataArray);
+            $firstSectionKey = reset($sectionKeys);
+            $lastSectionKey  = end($sectionKeys);
+
             foreach ($dataArray as $index => $section) {
+
+                // page break BEFORE every split-cost section except the first one
+                if ($index !== $firstSectionKey) {
+                    $html .= '<div style="page-break-before: always;"></div>';
+                }
+
                 $html.='
                 <main>
                     <table style="width:100%;border-collapse: collapse;">
-                        <tr>
-                            <td colspan="2" style="padding-top: 25px;">
-                                <table style="width:100%;border-collapse: collapse;">
-                                    <tr>
-                                        <th style="text-align: left;font-size: 12px;" nowrap><u>Item Code</u></th>
-                                        <th style="text-align: left;font-size: 12px;" nowrap><u>Item Description</u></th>
-                                        <th style="text-align: center;font-size: 12px;"><u>Ordered</u></th>
-                                        <th style="text-align: center;font-size: 12px;"><u>Prev</u></th>
-                                        <th style="text-align: center;font-size: 12px;"><u>Quantity</u></th>
-                                        <th style="text-align: center;font-size: 12px;"><u>Unit</u></th>
-                                        <th style="text-align: right;font-size: 12px;" nowrap><u>Price (Ex</u></th>
-                                        <th style="text-align: left;font-size: 12px;" nowrap><u>Disc %</u></th>
-                                        <th style="text-align: right;font-size: 12px;" nowrap><u>Tax</u></th>
-                                        <th style="text-align: right;font-size: 12px;" nowrap><u>Total (Inc)</u></th>
-                                    </tr>';
-                                    foreach ($respondgrn->result() as $rowgrninfo) {                               
-                                            $itemcode=$rowgrninfo->materialinfocode;
-                                            $itemdesc=$rowgrninfo->materialname;
-                            
-                                        $html.='
-                                        <tr>
-                                            <td style="text-align: left;font-size: 12px;">'.$itemcode.'</td>
-                                            <td style="text-align: left;font-size: 12px;" nowrap>'.$itemdesc.'</td>
-                                            <td style="text-align: center;font-size: 12px;">'.$rowgrninfo->qty.'</td>
-                                            <td style="text-align: center;font-size: 12px;">0.00</td>
-                                            <td style="text-align: center;font-size: 12px;">'.$rowgrninfo->qty.'</td>
-                                            <td style="text-align: center;font-size: 12px;">'.$rowgrninfo->measure_type.'</td>
-                                            <td style="text-align: right;font-size: 12px;" nowrap>'.$rowgrninfo->costunitprice.'</td>
-                                            <td style="text-align: left;font-size: 12px;" nowrap>'.$rowgrninfo->unit_discount.'</td>
-                                            <td style="text-align: right;font-size: 12px;" nowrap>'.number_format($rowgrninfo->costunitprice, 2).'</td>
-                                            <td style="text-align: right;font-size: 12px;" nowrap>'.number_format($rowgrninfo->total, 2).'</td>
-                                        </tr>
-                                        ';
-                                    }
-                                $html.='</table>
-                                <div style="border-top: 1px thin solid;width: 100%;margin-top: 10px;"></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th colspan="2" style="padding-top: 15px;font-size: 13px;">
-                                Importation Split - Additional Cost Allocation
-                            </th>
-                        </tr>
                         <tr>
                             <td colspan="2" style="padding-top: 15px;">
                                 <table style="width:100%;border-collapse: collapse;">
@@ -562,7 +616,7 @@ class PdfGRNinfo extends CI_Model {
                                     $totalcostvatamount=0;
                                     foreach ($section as $row) {
                                         $totalcostamount+=htmlspecialchars($row['cost_amount']);
-                                        $html.='<tr>
+                                        $html.='<tr style="page-break-inside: avoid;">
                                             <td style="font-size: 12px;text-align: left;">&nbsp;</td>
                                             <td style="font-size: 12px;text-align: left;">'.htmlspecialchars($row['cost_type']).'</td>
                                             <td style="font-size: 12px;text-align: left;">'.htmlspecialchars($row['cost_type']).'</td>
@@ -571,19 +625,21 @@ class PdfGRNinfo extends CI_Model {
                                             <td style="font-size: 12px;text-align: right;">'.number_format(htmlspecialchars($row['cost_amount']), 2).'</td>
                                         </tr>';
                                     }
-                                    if ($index === count($dataArray) - 1) {
-                                        $html .= '<tfoot>
-                                            <tr>
-                                                <td colspan="3" style="font-size:12px;">&nbsp;</td>
-                                            </tr>
-                                        </tfoot>';
-                                    } else {
+
+                                    // only the TRUE last section shows the split totals
+                                    if ($index === $lastSectionKey) {
                                         $html .= '<tfoot>
                                             <tr>
                                                 <th colspan="3" style="font-size:13px;">Importation Split Totals</th>
                                                 <th style="font-size:13px;text-align:right;">'.number_format($totalcostamount,2).'</th>
                                                 <th style="font-size:13px;text-align:right;">'.number_format($totalcostvatamount,2).'</th>
                                                 <th>&nbsp;</th>
+                                            </tr>
+                                        </tfoot>';
+                                    } else {
+                                        $html .= '<tfoot>
+                                            <tr>
+                                                <td colspan="6" style="font-size:12px;">&nbsp;</td>
                                             </tr>
                                         </tfoot>';
                                     }
@@ -595,9 +651,6 @@ class PdfGRNinfo extends CI_Model {
                     </table>
                 </main>
                 ';
-                if ($index === count($dataArray) - 1) {
-                    $html .= '<div style="page-break-before: always;"></div>'; 
-                }
             }
         $html .= '</body>
         </html>';

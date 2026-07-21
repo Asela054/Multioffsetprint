@@ -21,32 +21,38 @@ function SearchSupplierList($searchTerm){
 
     if(!isset($searchTerm)){
         $CI = get_instance();
-        $CI->db->where('status', 1);
-        $CI->db->where('tbl_company_idtbl_company', $companyid);
-        $CI->db->where('tbl_company_branch_idtbl_company_branch', $branchid);
-        $CI->db->select('idtbl_supplier, suppliername, telephone_no');
+        $CI->db->where('tbl_supplier.status', 1);
+        $CI->db->where('tbl_supplier.tbl_company_idtbl_company', $companyid);
+        $CI->db->where('tbl_supplier.tbl_company_branch_idtbl_company_branch', $branchid);
+        $CI->db->where('tbl_supplier_type.idtbl_supplier_type !=', 5);
+        $CI->db->select('tbl_supplier.idtbl_supplier, tbl_supplier.suppliername, tbl_supplier.telephone_no');
         $CI->db->from('tbl_supplier');
+        $CI->db->join('tbl_supplier_type', 'tbl_supplier_type.idtbl_supplier_type = tbl_supplier.tbl_supplier_type_idtbl_supplier_type');
         $CI->db->limit(5);
         $respond=$CI->db->get();
     }
     else{            
         if(!empty($searchTerm)){
             $CI = get_instance();
-            $CI->db->where('status', 1);
-            $CI->db->where('tbl_company_idtbl_company', $companyid);
-            $CI->db->where('tbl_company_branch_idtbl_company_branch', $branchid);
-            $CI->db->select('idtbl_supplier, suppliername, telephone_no');
+            $CI->db->where('tbl_supplier.status', 1);
+            $CI->db->where('tbl_supplier.tbl_company_idtbl_company', $companyid);
+            $CI->db->where('tbl_supplier.tbl_company_branch_idtbl_company_branch', $branchid);
+            $CI->db->where('tbl_supplier_type.idtbl_supplier_type !=', 5);
+            $CI->db->select('tbl_supplier.idtbl_supplier, tbl_supplier.suppliername, tbl_supplier.telephone_no');
             $CI->db->from('tbl_supplier');
-            $CI->db->like('suppliername', $searchTerm, 'both'); 
+            $CI->db->join('tbl_supplier_type', 'tbl_supplier_type.idtbl_supplier_type = tbl_supplier.tbl_supplier_type_idtbl_supplier_type');
+            $CI->db->like('tbl_supplier.suppliername', $searchTerm, 'both'); 
             $respond=$CI->db->get();
         }
         else{
             $CI = get_instance();
-            $CI->db->where('status', 1);
-            $CI->db->where('tbl_company_idtbl_company', $companyid);
-            $CI->db->where('tbl_company_branch_idtbl_company_branch', $branchid);
-            $CI->db->select('idtbl_supplier, suppliername, telephone_no');
+            $CI->db->where('tbl_supplier.status', 1);
+            $CI->db->where('tbl_supplier.tbl_company_idtbl_company', $companyid);
+            $CI->db->where('tbl_supplier.tbl_company_branch_idtbl_company_branch', $branchid);
+            $CI->db->where('tbl_supplier_type.idtbl_supplier_type !=', 5);
+            $CI->db->select('tbl_supplier.idtbl_supplier, tbl_supplier.suppliername, tbl_supplier.telephone_no');
             $CI->db->from('tbl_supplier');
+            $CI->db->join('tbl_supplier_type', 'tbl_supplier_type.idtbl_supplier_type = tbl_supplier.tbl_supplier_type_idtbl_supplier_type');
             $CI->db->limit(5);
             $respond=$CI->db->get();             
         }

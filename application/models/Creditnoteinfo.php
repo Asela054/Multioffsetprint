@@ -106,36 +106,38 @@ class Creditnoteinfo extends CI_Model {
         $returninvoiceID=$this->db->insert_id();
 
         foreach ($tableData as $rowtabledata) {
-            $jobID = $rowtabledata['col_4'];
-            $dispatchID = $rowtabledata['col_5'];
-            $returnType = $rowtabledata['col_6'];
-            $unitprice = $rowtabledata['col_7'];
-            $qty = $rowtabledata['col_9'];
-            $nettotal = $rowtabledata['col_10'];
-        
+            $comment    = $rowtabledata['col_4'];
+            $jobID      = $rowtabledata['col_5'];
+            $dispatchID = $rowtabledata['col_6'];
+            $returnType = $rowtabledata['col_7'];
+            $unitprice  = $rowtabledata['col_8'];
+            $qty        = $rowtabledata['col_10'];
+            $nettotal   = $rowtabledata['col_11'];
+
             $dataone = array(
                 'qty' => $qty,
                 'unitprice' => $unitprice,
                 'total' => $nettotal,
                 'job_id' => $jobID,
                 'dispatch_id' => $dispatchID,
+                'comment' => $comment,
                 'status' => '1',
                 'insertdatetime' => $updatedatetime,
                 'tbl_credit_note_idtbl_credit_note' => $returninvoiceID,
                 'tbl_user_idtbl_user'=> $userID 
             );
-        
+
             $this->db->insert('tbl_credit_note_detail', $dataone);
-        
+
             if ($returnType == 2) {
                 $data = array(
                     'invoice_status' => '0',
                 );
-        
+
                 $this->db->where('idtbl_print_dispatch', $dispatchID);
                 $this->db->update('tbl_print_dispatch', $data);
             }
-        }        
+        }       
 
         $this->db->trans_complete();
 
