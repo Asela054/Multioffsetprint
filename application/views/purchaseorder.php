@@ -395,20 +395,20 @@ include "include/topnavbar.php";
 					<div class="col-sm-12 col-md-12 col-lg-7 col-xl-7">
 							<div class="scrollbar pb-3" id="style-3">
 								<table class="table table-striped table-bordered table-sm small" id="edittableorder">
-									<thead>
-										<tr>
-											<th>Product / Service / Machine / Spare Parts</th>
-											<th class="d-none">ProductID</th>
-											<th class="text-center">Qty</th>
-											<th class="text-center">Uom</th>
-											<th class="text-right">Unit Price</th>
-											<th class="d-none">HideTotal</th>
-											<th class="text-right">Total</th>
-
-										</tr>
-									</thead>
-									<tbody></tbody>
-								</table>
+                                    <thead>
+                                        <tr>
+                                            <th id="editThServiceItem" class="d-none">Service Item</th>
+                                            <th>Item Name</th>
+                                            <th class="d-none">ProductID</th>
+                                            <th class="text-center">Qty</th>
+                                            <th class="text-center">Uom</th>
+                                            <th class="text-right">Unit Price</th>
+                                            <th class="d-none">HideTotal</th>
+                                            <th class="text-right">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
 							</div>
 						<div class="row">
 							<div class="col text-right">
@@ -744,6 +744,7 @@ $(document).ready(function() {
     						$('#editorderdate').val(obj.orderdate);
     						$('#editsupplier').val(obj.supplier);
                             $('#editordertype').val(obj.type);
+                            toggleEditServiceColumn();
                             var ordertype = parseInt(obj.type, 10) || 0;
 
     						$('#edittableorder > tbody').empty();
@@ -751,34 +752,41 @@ $(document).ready(function() {
     						if (obj.items && Array.isArray(obj.items)) {
     							obj.items.forEach(function (item) {
 
-                                    var productID = item.materialID;
-    								var product = item.material;
-    								var comment = item.comment;
-    								var uom = item.measure;
-    								var uomID = item.measureID;
-    								var unitprice = parseFloat(item.unitprice);
-    								var netprice = parseFloat(item.netprice);
-    								var pieces = item.pieces;
-    								var newqty = parseFloat(item.qty);
-    								var newtotal = parseFloat(unitprice * newqty);
-    								var total = parseFloat(newtotal);
-    								var showtotal = addCommas(parseFloat(netprice).toFixed(2));
+                                    var productID  = item.materialID;
+                                    var product    = item.material;
+                                    var comment    = item.comment;
+                                    var uom        = item.measure;
+                                    var uomID      = item.measureID;
+                                    var unitprice  = parseFloat(item.unitprice) || 0;
+                                    var netprice   = parseFloat(item.netprice) || 0;
+                                    var pieces     = item.pieces;
+                                    var newqty     = parseFloat(item.qty) || 0;
+                                    var showtotal  = addCommas(netprice.toFixed(2));
 
-                                    var productDisplay = (ordertype == 4) ? comment : product;
+                                    // Build row using the SAME 10-cell layout the "Add to list"
+                                    // handler uses, so Service Item / Item Name always line up
+                                    // with the table header regardless of PO type.
+                                    var row = '<tr class="pointer">';
 
-    								$('#edittableorder > tbody:last').append(
-    									'<tr class="pointer"><td>' + productDisplay +
-    									'</td><td class="d-none">' + comment +
-    									'</td><td class="d-none">' + productID +
-    									'</td><td class="text-center">' + newqty +
-    									'</td><td class="text-center">' + uom +
-    									'</td><td class="d-none">' + uomID +
-    									'</td><td class="text-right">' +
-    									parseFloat(unitprice) + '</td><td class="edittotal d-none">' + netprice +
-    									'</td><td class="text-right">' +
-    									showtotal + '</td><td class="text-right d-none">' +
-    									pieces + '</td></tr>'
-    								);
+                                    if (ordertype == 4) {
+                                        row += '<td>' + (product || '') + '</td>';
+                                        row += '<td>' + (comment || '') + '</td>';
+                                    } else {
+                                        row += '<td class="d-none"></td>';
+                                        row += '<td>' + (product || '') + '</td>';
+                                    }
+
+                                    row += '<td class="d-none">' + productID + '</td>';
+                                    row += '<td class="text-center">' + newqty + '</td>';
+                                    row += '<td class="text-center">' + uom + '</td>';
+                                    row += '<td class="d-none">' + uomID + '</td>';
+                                    row += '<td class="text-right">' + unitprice.toFixed(2) + '</td>';
+                                    row += '<td class="edittotal d-none">' + netprice + '</td>';
+                                    row += '<td class="text-right">' + showtotal + '</td>';
+                                    row += '<td class="text-right d-none">' + pieces + '</td>';
+                                    row += '</tr>';
+
+    								$('#edittableorder > tbody:last').append(row);
 
     								var sum = 0;
     								$(".edittotal").each(function () {
@@ -941,7 +949,9 @@ $(document).ready(function() {
     $('#ordertype').on('change', function () {
         toggleServiceColumn();
     });
-
+    $('#editordertype').on('change', function () {
+        toggleEditServiceColumn();
+    });
     $("#formsubmit").click(function () {
 
     	if (!$("#createorderform")[0].checkValidity()) {
@@ -1071,19 +1081,29 @@ $(document).ready(function() {
                 var showtotdiscount = addCommas(parseFloat(totdiscount).toFixed(2));
                 var showtotvat = addCommas(parseFloat(totvat).toFixed(2));
 
-                var productDisplay = (ordertype == 4) ? comment : product;
+                // Same 10-cell layout as the item-loading block above, so both
+                // "loaded" rows and "newly added" rows line up under the same headers.
+                var row = '<tr class="pointer">';
 
-                $('#edittableorder > tbody:last').append('<tr class="pointer"><td>' + productDisplay +
-                    '</td><td class="d-none">' +
-                    comment + '</td><td class="d-none">' + productID +
-                    '</td><td class="text-center">' + newqty +
-                    '</td><td class="text-center">' + uom +
-                    '</td><td class="d-none">' + uomID +
-                    '</td><td class="text-right">' +
-                    parseFloat(unitprice) + '</td><td class="edittotal d-none">' + total +
-                    '</td><td class="text-right">' +
-                    showtotal + '</td><td class="text-right d-none">' +
-                    pieces + '</td></tr>');
+                if (ordertype == 4) {
+                    row += '<td>' + product + '</td>';
+                    row += '<td>' + comment + '</td>';
+                } else {
+                    row += '<td class="d-none"></td>';
+                    row += '<td>' + product + '</td>';
+                }
+
+                row += '<td class="d-none">' + productID + '</td>';
+                row += '<td class="text-center">' + newqty + '</td>';
+                row += '<td class="text-center">' + uom + '</td>';
+                row += '<td class="d-none">' + uomID + '</td>';
+                row += '<td class="text-right">' + unitprice.toFixed(2) + '</td>';
+                row += '<td class="edittotal d-none">' + total + '</td>';
+                row += '<td class="text-right">' + showtotal + '</td>';
+                row += '<td class="text-right d-none">' + pieces + '</td>';
+                row += '</tr>';
+
+                $('#edittableorder > tbody:last').append(row);
 
                 $('#editproduct').val('').trigger('change');
                 $('#editunitprice').val('');
@@ -1653,6 +1673,21 @@ function toggleServiceColumn() {
         $('#thServiceItem').addClass('d-none');
 
         $('#tableorder tbody tr').each(function () {
+            $(this).find('td:eq(0)').addClass('d-none');
+        });
+    }
+}
+function toggleEditServiceColumn() {
+    var ordertype = $('#editordertype').val();
+
+    if (ordertype == 4) {
+        $('#editThServiceItem').removeClass('d-none');
+        $('#edittableorder tbody tr').each(function () {
+            $(this).find('td:eq(0)').removeClass('d-none');
+        });
+    } else {
+        $('#editThServiceItem').addClass('d-none');
+        $('#edittableorder tbody tr').each(function () {
             $(this).find('td:eq(0)').addClass('d-none');
         });
     }

@@ -44,8 +44,10 @@
 
 		$this->db->select('`idtbl_supplier`, `suppliername`');
 		$this->db->from('tbl_supplier');
-		$this->db->where('status', 1);
+		$this->db->join('tbl_supplier_type', 'tbl_supplier_type.idtbl_supplier_type = tbl_supplier.tbl_supplier_type_idtbl_supplier_type', 'left');
+		$this->db->where('tbl_supplier.status', 1);
 		$this->db->where('tbl_company_idtbl_company', $companyID);
+		$this->db->where('tbl_supplier_type.idtbl_supplier_type !=', 5);
 
 		return $respond=$this->db->get();
 	}
