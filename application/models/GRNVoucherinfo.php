@@ -126,6 +126,8 @@ class GRNVoucherinfo extends CI_Model{
             foreach ($costDetails as $cost) {
                 $data = array(
                     'cost_amount' => $cost['chargeamount'],
+                    'cost_tax' => $cost['costtax'],
+                    'cost_total' => $cost['costtotal'],
                     'status' => '1',
                     'insertdatetime' => $updatedatetime,
                     'tbl_grn_vouchar_import_cost_idtbl_grn_vouchar_import_cost' => $grnvoucherID,

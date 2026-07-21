@@ -76,7 +76,7 @@ include "include/topnavbar.php";
                                 <h6 class="title-style small"><span>Other Cost Information</span></h6>
                                 <form id="expensesform" autocomplete="off">
                                     <div class="form-row">
-                                        <div class="col">
+                                        <div class="col-3">
                                             <label class="small font-weight-bold text-dark">Supplier</label>
                                             <select class="form-control form-control-sm" name="costsupplier" id="costsupplier" required>
                                                 <option value="">Select</option>
@@ -97,6 +97,14 @@ include "include/topnavbar.php";
                                             <label class="small font-weight-bold text-dark">Amount</label>
                                             <input type="number" step="any" name="costamount" class="form-control form-control-sm" id="costamount" required>
                                         </div>
+                                        <div class="col">
+                                            <label class="small font-weight-bold text-dark">Tax</label>
+                                            <input type="number" step="any" name="costtax" class="form-control form-control-sm" id="costtax" required>
+                                        </div>
+                                        <div class="col">
+                                            <label class="small font-weight-bold text-dark">Net Amount</label>
+                                            <input type="text" name="costtotal" class="form-control form-control-sm" id="costtotal" readonly>
+                                        </div>
                                     </div>
                                     <?php if($addcheck==1){ ?>
                                     <div class="form-row mt-3">
@@ -115,19 +123,31 @@ include "include/topnavbar.php";
                                                 <th>Supplier</th>
                                                 <th>Cost Type</th>
                                                 <th class="text-right">Amount</th>
+                                                <th class="text-right">Tax</th>
+                                                <th class="text-right">Nettotal</th>
                                                 <th class="d-none">CostTypeID</th>
                                                 <th class="d-none">SupplierID</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="2">&nbsp;</th>
+                                                <th class="text-right" id="footcostamount">0.00</th>
+                                                <th class="text-right" id="footcosttax">0.00</th>
+                                                <th class="text-right" id="footcosttotal">0.00</th>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                     <input type="hidden" id="hidechargestotal" value="0">
+                                    <input type="hidden" id="hidechargestaxtotal" value="0">
+                                    <input type="hidden" id="hidechargesnettotal" value="0">
                                 </div>
-                                <div class="row">
+                                <!-- <div class="row">
                                     <div class="col-12 text-right">
                                         <h4 class="font-weight-600" id="divchargestotal">Rs. 0.00</h4>
                                     </div>
-                                </div>
+                                </div> -->
                                 <div class="form-group">
                                     <label class="small font-weight-bold text-dark">Remark</label>
                                     <textarea name="remark" id="remark" class="form-control form-control-sm"></textarea>
@@ -637,58 +657,101 @@ $(document).ready(function() {
 
         TextInputRemove(row);
     });
+
+    // Auto-calculate cost total whenever amount or tax is typed
+    $('#costamount, #costtax').on('input', function() {
+        var amount = parseFloat($('#costamount').val()) || 0;
+        var tax = parseFloat($('#costtax').val()) || 0;
+        $('#costtotal').val((amount + tax).toFixed(2));
+    });
+
     $("#secondformsubmit").click(function() {
         if (!$("#expensesform")[0].checkValidity()) {
             $("#chargesubmitBtn").click();
-        } else {
-            var supplierID = $('#costsupplier').val();
-            var supplier = $("#costsupplier option:selected").text();
-            var chargetypeID = $('#costtype').val();
-            var chargeamount = parseFloat($('#costamount').val());
-            var chargetype = $("#costtype option:selected").text();
-
-            $('#chargetableorder > tbody:last').append('<tr class="pointer"><td>'+supplier+'</td><td name="chargetype">' + chargetype + '</td><td name="chargeamount" class="text-right othercostamount">' + chargeamount.toFixed(2) + '</td><td name="chargetypeid" class="d-none">' + chargetypeID + '</td><td name="supplierid" class="d-none">' + supplierID + '</td></tr>'
-            );
-
-            let othernettotal = 0;
-
-            $('#chargetableorder tbody .othercostamount').each(function() {
-                let value = parseFloat($(this).text().replace(/,/g, '')) || 0;
-                othernettotal += value;
-            });
-
-            var showsum = addCommas(othernettotal.toFixed(2));
-            $('#divchargestotal').html(showsum);
-            $('#hidechargestotal').val(othernettotal.toFixed(2));
-
-            $('#costtype').val('');
-            $('#costsupplier').val('').trigger('change');
-            $('#costamount').val('');
-
-            // OtherCostSetQty(chargeamount, '1');
+            return;
         }
-    });
-    $('#chargetableorder').on('click', 'tr', function() {
-        var r = confirm("Are you sure, You want to remove this charge? ");
-        if (r == true) {
-            let removeamount = parseFloat($(this).closest("tr").find('.othercostamount').text().replace(/,/g, ''));
-            
-            $(this).closest('tr').remove();
 
-            let othernettotal = 0;
+        var $costsupplier = $('#costsupplier');
+        var supplierID    = $costsupplier.val();
+        var supplier      = $costsupplier.find('option:selected').text();
 
-            $('#chargetableorder tbody .othercostamount').each(function() {
-                let value = parseFloat($(this).text().replace(/,/g, '')) || 0;
-                othernettotal += value;
+        var $costtype     = $('#costtype');
+        var chargetypeID  = $costtype.val();
+        var chargetype    = $costtype.find('option:selected').text();
+
+        var chargeamount = parseFloat($('#costamount').val()) || 0;
+        var costtax      = parseFloat($('#costtax').val()) || 0;
+        var costtotal    = parseFloat($('#costtotal').val()) || 0;
+
+        var row = '<tr class="pointer">' +
+            '<td>' + supplier + '</td>' +
+            '<td name="chargetype">' + chargetype + '</td>' +
+            '<td name="chargeamount" class="text-right othercostamount">' + chargeamount.toFixed(2) + '</td>' +
+            '<td name="costtax" class="text-right othercosttax">' + costtax.toFixed(2) + '</td>' +
+            '<td name="costtotal" class="text-right othercosttotal">' + costtotal.toFixed(2) + '</td>' +
+            '<td name="chargetypeid" class="d-none">' + chargetypeID + '</td>' +
+            '<td name="supplierid" class="d-none">' + supplierID + '</td>' +
+            '</tr>';
+
+        $('#chargetableorder > tbody:last').append(row);
+
+        function sumColumn(selector) {
+            var total = 0;
+            $(selector).each(function() {
+                total += parseFloat($(this).text().replace(/,/g, '')) || 0;
             });
+            return total;
+        }
 
-            var showsum = addCommas(othernettotal.toFixed(2));
+        var othernettotal    = sumColumn('#chargetableorder tbody .othercostamount');
+        var othertaxnettotal = sumColumn('#chargetableorder tbody .othercosttax');
+        var otherfulltotal   = sumColumn('#chargetableorder tbody .othercosttotal');
 
-            $('#divchargestotal').html(showsum);
-            $('#hidechargestotal').val(othernettotal);
+        // hidden fields (for form submission)
+        $('#hidechargestotal').val(othernettotal.toFixed(2));
+        $('#hidechargestaxtotal').val(othertaxnettotal.toFixed(2));
+        $('#hidechargesnettotal').val(otherfulltotal.toFixed(2));
+
+        // visible tfoot totals
+        $('#footcostamount').text(othernettotal.toFixed(2));
+        $('#footcosttax').text(othertaxnettotal.toFixed(2));
+        $('#footcosttotal').text(otherfulltotal.toFixed(2));
+
+        // reset form fields
+        $('#costtype, #costamount, #costtax, #costtotal').val('');
+        $('#costsupplier').val('').trigger('change');
+    });
+
+    $('#chargetableorder').on('click', 'tbody tr', function() {
+        // Block row removal once charges have been transferred to GRN
+        if ($('#btntransgrn').prop('disabled')) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Not allowed',
+                text: 'This charge has already been transferred to GRN and cannot be removed.'
+            });
+            return;
+        }
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Remove charge?',
+            text: 'Are you sure you want to remove this charge?',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, remove it',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            var $row = $(this);
+            let removeamount = parseFloat($row.find('.othercostamount').text().replace(/,/g, '')) || 0;
+
+            $row.remove();
+
+            recalcChargeTotals();
 
             // OtherCostSetQty(removeamount, '0');
-        }
+        });
     });
     $("#btncreateorder").click(function(event) {
         event.preventDefault();
@@ -722,6 +785,8 @@ $(document).ready(function() {
             var costDetail = {
                 chargetype: row.find('td[name="chargetype"]').text(),
                 chargeamount: parseFloat(row.find('td[name="chargeamount"]').text()),
+                costtax: parseFloat(row.find('td[name="costtax"]').text()),
+                costtotal: parseFloat(row.find('td[name="costtotal"]').text()),
                 chargetypeid: row.find('td[name="chargetypeid"]').text(),
                 supplierid: row.find('td[name="supplierid"]').text()
             };
@@ -792,13 +857,16 @@ $(document).ready(function() {
     $('#btntransgrn').click(function(){
         var tbody = $("#chargetableorder tbody");
         if (tbody.children().length > 0) {
-            var otherchargetotal = $('#hidechargestotal').val();
+            var otherchargetotal = parseFloat($('#hidechargestotal').val()) || 0;
+            var othertaxtotal    = parseFloat($('#hidechargestaxtotal').val()) || 0;
+            var netaxtotal        = (parseFloat($('#vatamount').val()) || 0) + othertaxtotal;
+
+            $('#vatamount').val(netaxtotal.toFixed(2));
             OtherCostSetQty(otherchargetotal, '1');
+
             $('#btnresetdata').prop('disabled', false);
             $('#btntransgrn').prop('disabled', true);
-        }
-        else{
-            // Show an error alert
+        } else {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -1034,6 +1102,34 @@ function checkjob(confirmnot){
             });
         }
     });
+}
+function recalcChargeTotals() {
+    function sumColumn(selector) {
+        var total = 0;
+        $(selector).each(function() {
+            total += parseFloat($(this).text().replace(/,/g, '')) || 0;
+        });
+        return total;
+    }
+
+    var othernettotal    = sumColumn('#chargetableorder tbody .othercostamount');
+    var othertaxnettotal = sumColumn('#chargetableorder tbody .othercosttax');
+    var otherfulltotal   = sumColumn('#chargetableorder tbody .othercosttotal');
+
+    // hidden fields
+    $('#hidechargestotal').val(othernettotal.toFixed(2));
+    $('#hidechargestaxtotal').val(othertaxnettotal.toFixed(2));
+    $('#hidechargesnettotal').val(otherfulltotal.toFixed(2));
+
+    // visible display total (if you use this separately)
+    $('#divchargestotal').html(addCommas(othernettotal.toFixed(2)));
+
+    // tfoot
+    $('#footcostamount').text(addCommas(othernettotal.toFixed(2)));
+    $('#footcosttax').text(addCommas(othertaxnettotal.toFixed(2)));
+    $('#footcosttotal').text(addCommas(otherfulltotal.toFixed(2)));
+
+    return { othernettotal: othernettotal, othertaxnettotal: othertaxnettotal, otherfulltotal: otherfulltotal };
 }
 </script>
 

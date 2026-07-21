@@ -38,11 +38,14 @@ class Apiinfo extends CI_Model{
                     $this->db->insert('tbl_expence_info', $dataexpence);
                     $grnno=$row->grn_no;
 
-                    $supplierID=$row->supplierid;
+                    if($row->exptype == 1):
+                        $supplierID=$row->supplierid;
+                    endif;
                 }
             }
 
-            $sqlmaterialaccount = "SELECT `idtbl_account`, `accountno`, `accountname` FROM `tbl_print_grn` LEFT JOIN `tbl_account` ON `tbl_account`.`specialcate` = CASE WHEN `tbl_print_grn`.`grntype` = 1 THEN '37' WHEN `tbl_print_grn`.`grntype` IN (2, 3) THEN '38' END LEFT JOIN `tbl_account_allocation` ON `tbl_account_allocation`.`tbl_account_idtbl_account` = `tbl_account`.`idtbl_account` WHERE `tbl_print_grn`.`idtbl_print_grn`=? AND `tbl_account_allocation`.`companybank`=? AND `tbl_account_allocation`.`branchcompanybank`=? AND `tbl_account_allocation`.`status`=?";
+            // $sqlmaterialaccount = "SELECT `idtbl_account`, `accountno`, `accountname` FROM `tbl_print_grn` LEFT JOIN `tbl_account` ON `tbl_account`.`specialcate` = CASE WHEN `tbl_print_grn`.`grntype` = 1 THEN '37' WHEN `tbl_print_grn`.`grntype` IN (2, 3) THEN '38' END LEFT JOIN `tbl_account_allocation` ON `tbl_account_allocation`.`tbl_account_idtbl_account` = `tbl_account`.`idtbl_account` WHERE `tbl_print_grn`.`idtbl_print_grn`=? AND `tbl_account_allocation`.`companybank`=? AND `tbl_account_allocation`.`branchcompanybank`=? AND `tbl_account_allocation`.`status`=?";
+            $sqlmaterialaccount = "SELECT `idtbl_account`, `accountno`, `accountname`, `specialcate` FROM `tbl_print_grn` LEFT JOIN `tbl_account` ON `tbl_account`.`specialcate` IN (37, 38) LEFT JOIN `tbl_account_allocation` ON `tbl_account_allocation`.`tbl_account_idtbl_account` = `tbl_account`.`idtbl_account` WHERE `tbl_print_grn`.`idtbl_print_grn`=? AND `tbl_account_allocation`.`companybank`=? AND `tbl_account_allocation`.`branchcompanybank`=? AND `tbl_account_allocation`.`status`=?";
             $respondmaterialaccount = $this->db->query($sqlmaterialaccount, array($grnID, $companyID, $branchID, 1));
 
             $sqlmaterial="SELECT `tbl_print_grndetail`.`qty`, `tbl_print_grndetail`.`unitprice`, (`tbl_print_grndetail`.`qty`*`tbl_print_grndetail`.`unitprice`) AS `grncosttotal`, `tbl_print_grndetail`.`costunitprice`, `tbl_print_grndetail`.`total` As `costtotal`, `tbl_account_detail`.`idtbl_account_detail`, `tbl_account_detail`.`accountno`, `tbl_account_detail`.`accountname`, `tbl_print_material_info`.`materialname`, `tbl_print_grn`.`tbl_material_group_idtbl_material_group`, `tbl_print_material_info`.`idtbl_print_material_info` FROM `tbl_print_grndetail` LEFT JOIN `tbl_print_grn` ON `tbl_print_grn`.`idtbl_print_grn` = `tbl_print_grndetail`.`tbl_print_grn_idtbl_print_grn` LEFT JOIN `tbl_print_material_info` ON `tbl_print_material_info`.`idtbl_print_material_info` = `tbl_print_grndetail`.`tbl_print_material_info_idtbl_print_material_info` LEFT JOIN `tbl_account_detail` ON `tbl_account_detail`.`special_cate_sub` = `tbl_print_material_info`.`tbl_material_type_idtbl_material_type` AND `tbl_account_detail`.`status`=? AND `tbl_account_detail`.`special_cate_detail`=? WHERE `tbl_print_grndetail`.`tbl_print_grn_idtbl_print_grn`=? AND `tbl_print_grndetail`.`status`=?";
@@ -50,6 +53,7 @@ class Apiinfo extends CI_Model{
             
             if ($respondmaterial->num_rows() > 0) {
                 $materiltotalvalue = 0;
+                $sundrysparetotalvalue = 0;
                 foreach ($respondmaterial->result() as $rowmaterial) {
                     // if(!empty($rowmaterial->idtbl_account_detail)){
                     //     $obj = new stdClass();
@@ -83,7 +87,12 @@ class Apiinfo extends CI_Model{
                             $segregationdata[] = $obj;
                         }
                         else{
-                            $materiltotalvalue += $rowmaterial->costtotal;
+                            if($rowmaterial->tbl_material_group_idtbl_material_group==1){
+                                $materiltotalvalue += $rowmaterial->costtotal;
+                            }
+                            else{
+                                $sundrysparetotalvalue += $rowmaterial->costtotal;
+                            }
                         }
                     // }
                 }
@@ -122,11 +131,11 @@ class Apiinfo extends CI_Model{
             $respondstockvalue = $this->db->query($sqlstockvalue, array($grnID, $companyID, $branchID));
             
             if ($respondstockvalue->num_rows() > 0) {
-                $creditortotalvalue += $respondstockvalue->row()->invamount;
+                $creditortotalvalue += $respondstockvalue->row()->amount;
             }
             
-            $sqlothercost = "SELECT `tbl_grn_vouchar_import_cost_detail`.`cost_amount` AS `amount`, `tbl_grn_vouchar_import_cost_detail`.`cost_amount` AS `invamount`, `tbl_grn_vouchar_import_cost_detail`.`tbl_supplier_idtbl_supplier` AS `supplierid`, `tbl_grn_vouchar_import_cost`.`date` AS `expdate`, `tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn` AS `grnid`, `tbl_account_detail`.`idtbl_account_detail`, `tbl_account_detail`.`accountno`, `tbl_account_detail`.`accountname` FROM `tbl_grn_vouchar_import_cost_detail` LEFT JOIN `tbl_grn_vouchar_import_cost` ON `tbl_grn_vouchar_import_cost`.`idtbl_grn_vouchar_import_cost`=`tbl_grn_vouchar_import_cost_detail`.`tbl_grn_vouchar_import_cost_idtbl_grn_vouchar_import_cost`  LEFT JOIN `tbl_account_detail` ON `tbl_account_detail`.`special_cate_sub` = `tbl_grn_vouchar_import_cost_detail`.`tbl_import_cost_types_idtbl_import_cost_types` AND `tbl_account_detail`.`status`=? AND `tbl_account_detail`.`special_cate_detail`=? WHERE `tbl_grn_vouchar_import_cost_detail`.`status`=? AND `tbl_grn_vouchar_import_cost`.`tbl_company_idtbl_company`=? AND `tbl_grn_vouchar_import_cost`.`tbl_company_branch_idtbl_company_branch`=? AND `tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn`=?";
-            $respondothercost = $this->db->query($sqlothercost, array(1, 2, 1, $companyID, $branchID, $grnID)); 
+            $sqlothercost = "SELECT `tbl_grn_vouchar_import_cost_detail`.`cost_total` AS `amount`, `tbl_grn_vouchar_import_cost_detail`.`cost_total` AS `invamount`, `tbl_grn_vouchar_import_cost_detail`.`tbl_supplier_idtbl_supplier` AS `supplierid`, `tbl_grn_vouchar_import_cost`.`date` AS `expdate`, `tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn` AS `grnid`, `tbl_account_detail`.`idtbl_account_detail`, `tbl_account_detail`.`accountno`, `tbl_account_detail`.`accountname` FROM `tbl_grn_vouchar_import_cost_detail` LEFT JOIN `tbl_grn_vouchar_import_cost` ON `tbl_grn_vouchar_import_cost`.`idtbl_grn_vouchar_import_cost`=`tbl_grn_vouchar_import_cost_detail`.`tbl_grn_vouchar_import_cost_idtbl_grn_vouchar_import_cost` LEFT JOIN `tbl_account_detail_other` ON `tbl_account_detail_other`.`otheroption` = `tbl_grn_vouchar_import_cost_detail`.`tbl_supplier_idtbl_supplier` AND `tbl_account_detail_other`.`otheroptiontype` = ? LEFT JOIN `tbl_account_detail` ON `tbl_account_detail`.`idtbl_account_detail` = `tbl_account_detail_other`.`tbl_account_detail_idtbl_account_detail` AND `tbl_account_detail`.`status`=? AND `tbl_account_detail_other`.`tbl_company_idtbl_company` = ? AND `tbl_account_detail_other`.`tbl_company_branch_idtbl_company_branch` = ? WHERE `tbl_grn_vouchar_import_cost_detail`.`status`=? AND `tbl_grn_vouchar_import_cost`.`tbl_company_idtbl_company`=? AND `tbl_grn_vouchar_import_cost`.`tbl_company_branch_idtbl_company_branch`=? AND `tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn`=?";
+            $respondothercost = $this->db->query($sqlothercost, array(1, 1, $companyID, $branchID, 1, $companyID, $branchID, $grnID)); 
             
             if ($respondothercost->num_rows() > 0) {
                 foreach ($respondothercost->result() as $rowothercost) {
@@ -171,20 +180,35 @@ class Apiinfo extends CI_Model{
                 $segregationdata[] = $obj;
             }
             
-            if ($materiltotalvalue > 0) {
+            if ($materiltotalvalue > 0 || $sundrysparetotalvalue > 0) {
                 if ($respondmaterialaccount->num_rows() == 0) {
                     throw new Exception("No material account found.");
                 }
-                $obj = new stdClass();
-                $obj->amount = str_replace(",", "", $materiltotalvalue);
-                $obj->narration = 'Material Costing for GRN No: ' . $grnno;
-                $obj->detailaccount = 0;
-                $obj->chartaccount = $respondmaterialaccount->row()->idtbl_account;
-                $obj->crder = 'D';
-                $segregationdata[] = $obj;
+
+                foreach($respondmaterialaccount->result() as $rowstockaccounts){
+                    if($rowstockaccounts->specialcate==37){
+                        $obj = new stdClass();
+                        $obj->amount = str_replace(",", "", $materiltotalvalue);
+                        $obj->narration = 'Material Costing for GRN No: ' . $grnno;
+                        $obj->detailaccount = 0;
+                        $obj->chartaccount = $rowstockaccounts->idtbl_account;
+                        $obj->crder = 'D';
+                        $segregationdata[] = $obj;
+                    }
+
+                    if($rowstockaccounts->specialcate==38){
+                        $obj = new stdClass();
+                        $obj->amount = str_replace(",", "", $materiltotalvalue);
+                        $obj->narration = 'Material Costing for GRN No: ' . $grnno;
+                        $obj->detailaccount = 0;
+                        $obj->chartaccount = $rowstockaccounts->idtbl_account;
+                        $obj->crder = 'D';
+                        $segregationdata[] = $obj;
+                    }
+                }
             }
             
-            if ($respondvat->num_rows() > 0 && $respondvat->row()->vatamount > 0) {
+            if ($respondvat->num_rows() > 0 && $respondvat->row()->vatamountcost > 0) {
                 if($respondvataccount->num_rows() == 0) {
                     throw new Exception("No VAT account found.");
                 }
@@ -201,6 +225,23 @@ class Apiinfo extends CI_Model{
                     $obj->crder = 'D';
                     $segregationdata[] = $obj;
                 }
+            }
+
+            // Merge rows with same detailaccount + chartaccount + crder before posting
+            $segregationdata = $this->groupAndSumEntries($segregationdata);
+
+            // Optional but recommended: balance check before commit
+            $debitTotal = 0;
+            $creditTotal = 0;
+            foreach ($segregationdata as $seg) {
+                if ($seg->crder == 'D') {
+                    $debitTotal += $seg->amount;
+                } else {
+                    $creditTotal += $seg->amount;
+                }
+            }
+            if (round($debitTotal, 2) != round($creditTotal, 2)) {
+                throw new Exception("Journal entry not balanced: Debit {$debitTotal} vs Credit {$creditTotal}");
             }
             
             $this->db->trans_commit();
@@ -1121,4 +1162,26 @@ class Apiinfo extends CI_Model{
     //         }
     //     }
     // }
+
+    private function groupAndSumEntries($entries) {
+        $grouped = [];
+
+        foreach ($entries as $entry) {
+            $key = $entry->detailaccount . '_' . $entry->chartaccount . '_' . $entry->crder;
+
+            if (!isset($grouped[$key])) {
+                $grouped[$key] = clone $entry;
+                $grouped[$key]->amount = (float) $entry->amount;
+            } else {
+                $grouped[$key]->amount += (float) $entry->amount;
+            }
+        }
+
+        // round to avoid floating point artifacts before posting to journal entries
+        foreach ($grouped as $g) {
+            $g->amount = round($g->amount, 2);
+        }
+
+        return array_values($grouped);
+    }
 }
