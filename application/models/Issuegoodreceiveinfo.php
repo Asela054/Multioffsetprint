@@ -705,13 +705,13 @@ class Issuegoodreceiveinfo extends CI_Model{
 					throw new Exception("Internal Issue API configuration error: Missing chart of accounts for one or more items.");
 				}
 
-				$this->db->select('issuedate');
+				$this->db->select('issuedate, total');
 				$this->db->from('tbl_print_issue');
 				$this->db->where('status', 1);
 				$this->db->where('idtbl_print_issue', $approveID);
 				$respond = $this->db->get();
 
-				if (!empty($issueData)) {
+				if (!empty($APIstatus)) {
                     $fullnarration = 'Costing for Internal Issue ID: ' . $approveID;
                     $apiurljobfinish = $_SESSION['accountapiurl'].'Api/JurnalEntryProcess';
 
@@ -721,6 +721,7 @@ class Issuegoodreceiveinfo extends CI_Model{
                         'branch' => $branch,
                         'invoicedate' => $respond->row(0)->issuedate,
                         'fullnarration' => $fullnarration,
+						'fulltotal' => $respond->row(0)->total,
                         'jurnalentrydata' => json_encode($APIstatus)
                     ]);
 
@@ -760,7 +761,7 @@ class Issuegoodreceiveinfo extends CI_Model{
 				$this->db->where('idtbl_print_issue', $approveID);
 				$this->db->update('tbl_print_issue', $data);
 			}
-
+			
 			$this->db->trans_commit();
 			
 			$actionObj->icon = 'fas fa-check';

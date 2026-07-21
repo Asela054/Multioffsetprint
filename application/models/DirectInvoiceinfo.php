@@ -677,6 +677,7 @@ class DirectInvoiceinfo extends CI_Model{
                         'branch' => $branch,
                         'invoicedate' => $respond->row(0)->date,
                         'fullnarration' => $fullnarration,
+                        'fulltotal' => $respond->row(0)->total,
                         'jurnalentrydata' => json_encode($issueMaterialData)
                     ]);
 
