@@ -795,8 +795,7 @@ class Issuegoodreceiveinfo extends CI_Model{
 		echo json_encode($obj);
 	}
 
-	public function Issuepdf($x)
-	{
+	public function Issuepdf($x){
 
 		$recordID = $x;
 
@@ -805,7 +804,7 @@ class Issuegoodreceiveinfo extends CI_Model{
 		$this->db->join('tbl_print_issue', 'tbl_print_issuedetail.tbl_print_issue_idtbl_print_issue = tbl_print_issue.idtbl_print_issue', 'left');
 		$this->db->join('tbl_order_type', 'tbl_print_issue.ordertype = tbl_order_type.idtbl_order_type', 'left');
 		$this->db->join('tbl_print_material_info', 'tbl_print_issuedetail.tbl_print_material_info_idtbl_print_material_info = tbl_print_material_info.idtbl_print_material_info', 'left');
-        $this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_issuedetail.measure_type_id', 'left');
+		$this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_issuedetail.measure_type_id', 'left');
 		$this->db->join('tbl_location', 'tbl_print_issue.location_id = tbl_location.idtbl_location', 'left');
 		$this->db->join('employees', 'tbl_print_issue.employee_id = employees.id', 'left');
 
@@ -813,6 +812,13 @@ class Issuegoodreceiveinfo extends CI_Model{
 		$this->db->where('tbl_print_issuedetail.status', 1);
 
 		$responddetail = $this->db->get();
+
+		$ordertype = '';
+		$location = '';
+		$name = '';
+		$empid = '';
+		$idtbl_print_issue = '';
+
 		if ($responddetail->num_rows() > 0) {
 			$row = $responddetail->row();
 			$ordertype = $row->type;
@@ -823,10 +829,7 @@ class Issuegoodreceiveinfo extends CI_Model{
 		}
 
 		$sub_total_amount = 0;
-		$path = 'images/book.jpg';
-		$type = pathinfo($path, PATHINFO_EXTENSION);
-		$data = file_get_contents($path);
-		$base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+		$generateddatetime = date('Y-m-d h:i A');
 
 		$this->load->library('pdf');
 
@@ -837,156 +840,219 @@ class Issuegoodreceiveinfo extends CI_Model{
 		$dompdf = new Dompdf($options);
 
 		$html = '
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Purchase Order Request</title>
-            <style>
-                
-                body {
-                    margin: 5px;
-                    padding: 5px;
-                    font-family: Arial, sans-serif;
-                    width: 100%;
-                }
-                p {
-                    font-size: 14px;
-                    line-height: 3px;
-                }
-                .pheader {
-                    font-size: 12px;
-                    line-height: 1.5px;
-                }
-                .tablec {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-bottom: 20px;
-                }
-                .thc, .tdc {
-                    padding: 5px;
-                    text-align: left;
-                    border: 1px solid black;
-                }
-                .thc {
-                    background-color: #f2f2f2;
-                   
-                }
-                hr {
-                    border: 1px solid #ddd;
-                }
-                .postion {
-                    position: relative;
-                }
-                .pos{
-                    padding-bottom: -20px; 
-                }
-                .hedfont {
-                    font: 20px comicz;
-                }
-            </style>
-        </head>
-        <body>
+		<!DOCTYPE html>
+		<html lang="en">
+		<head>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Issue Item Request</title>
+			<style>
+				* {
+					box-sizing: border-box;
+				}
+				body {
+					margin: 0;
+					padding: 18px 24px;
+					font-family: Arial, sans-serif;
+					color: #222;
+					width: 100%;
+				}
+				.company-name {
+					margin: 0 0 4px 0;
+					font-size: 19px;
+					letter-spacing: 0.5px;
+				}
+				.company-detail {
+					margin: 0;
+					font-size: 11px;
+					line-height: 1.5;
+					color: #444;
+				}
+				.doc-title {
+					font-size: 16px;
+					font-weight: bold;
+					margin: 0;
+					padding-bottom: 2px;
+					border-bottom: 2px solid #333;
+					display: inline-block;
+				}
+				.ref-box {
+					font-size: 12px;
+					text-align: right;
+				}
+				.ref-box b {
+					font-size: 13px;
+				}
+				.info-table td {
+					font-size: 12px;
+					padding: 2px 0;
+					vertical-align: top;
+				}
+				.info-label {
+					font-weight: bold;
+					width: 90px;
+					display: inline-block;
+				}
+				.section-divider {
+					border: none;
+					border-top: 1px solid #ccc;
+					margin: 10px 0;
+				}
+				.tablec {
+					width: 100%;
+					border-collapse: collapse;
+					margin-top: 6px;
+					font-size: 12px;
+				}
+				.tablec thead th {
+					background-color: #333;
+					color: #fff;
+					padding: 7px 6px;
+					font-size: 11.5px;
+					text-transform: uppercase;
+					letter-spacing: 0.3px;
+					border: 1px solid #333;
+				}
+				.tablec tbody td {
+					padding: 6px;
+					border: 1px solid #ccc;
+				}
+				.tablec tbody tr:nth-child(even) {
+					background-color: #f7f7f7;
+				}
+				.subtotal-row td {
+					border-top: 2px solid #333;
+					padding: 8px 6px;
+					font-size: 12.5px;
+					background-color: #eee;
+				}
+				.signature-table {
+					width: 100%;
+					margin-top: 55px;
+					font-size: 11.5px;
+				}
+				.signature-table td {
+					padding-top: 6px;
+					text-align: center;
+					border-top: 1px solid #333;
+					width: 40%;
+				}
+				.signature-table .spacer {
+					width: 20%;
+					border-top: none;
+				}
+				.footer-note {
+					margin-top: 25px;
+					font-size: 9.5px;
+					color: #888;
+					text-align: center;
+					border-top: 1px solid #ddd;
+					padding-top: 6px;
+				}
+			</style>
+		</head>
+		<body>
 
-            <table border="0" width="100%">
+			<table border="0" width="100%" cellpadding="0" cellspacing="0">
+				<tr>
+					<td width="65%" valign="top">
+						<p class="company-name"><b><i>MULTI OFFSET PRINTERS (PVT) LTD</i></b></p>
+						<p class="company-detail"><i>345, Negombo Road, Mukalangamuwa, Seeduwa</i></p>
+						<p class="company-detail"><i>Phone: +94-11-2253505, 2253876, 2256615</i></p>
+						<p class="company-detail"><i>E-Mail: multioffsetprinters@gmail.com</i></p>
+						<p class="company-detail"><i>Fax: +94-11-2254057</i></p>
+					</td>
+					<td width="35%" valign="top" class="ref-box">
+						<p>MO/GRNR-<b>' . $idtbl_print_issue . '</b></p>
+						<p>Date: ' . date('Y-m-d') . '</p>
+					</td>
+				</tr>
+			</table>
 
-                <tr>
-                    <th width="15%" valign="top"></th>
-                    <td align="center">
-                        <h3><i>MULTI OFFSET PRINTERS (PVT) LTD</i></h3>
-                        <p class="pheader"><i>345,NEGOMBO ROAD MUKALANGAMUWA, SEEDUWA</i></p>
-                        <p class="pheader"><i>Phone : +94-11-2253505, 2253876, 2256615</i></p>
-                        <p class="pheader"><i>E-Mail : multioffsetprinters@gmail.com</i></p>
-                        <p class="pheader"><i>Fax : +94-11-2254057</i></p>
-                    </td>
-                    <th width="15%"></th>
-                </tr>
+			<hr class="section-divider">
 
-                <tr>
-                    <th colspan="3" height="10px"></th>
-                </tr>
+			<table border="0" width="100%" cellpadding="0" cellspacing="0">
+				<tr>
+					<td>
+						<p class="doc-title">Issue Item Request</p>
+					</td>
+				</tr>
+			</table>
 
-                <tr>
-                    <td colspan="3">
-                        <table width="100%" border="0" cellspacing="0">
-                            <tr>
-                                <td class="postion"><h3 class="pos">Issue Item Request</h3></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td valign="top">
-                                    <p><b>Location: </b>' . $location . '</p>
-                                    
-                                    <p><b>Employee: </b>' .$name. '-'.$empid. '</p>
-									
-                                    <p><b>Order Type: </b>' . $ordertype . '</p>
-                                    
-                                      
-                                </td>
-                                <td></td>
-                                <td align="right" width="30%" valign="top">
-                                    <p>MO/GRNR-<b>' . $idtbl_print_issue . '</b></p>
-                                </td>
-                            </tr>
-                            
-                        </table>
-                    </td>
-                </tr>
+			<table class="info-table" width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
+				<tr>
+					<td width="50%"><span class="info-label">Location:</span> ' . $location . '</td>
+					<td width="50%"><span class="info-label">Order Type:</span> ' . $ordertype . '</td>
+				</tr>
+				<tr>
+					<td><span class="info-label">Employee:</span> ' . $name . ' - ' . $empid . '</td>
+					<td></td>
+				</tr>
+			</table>
 
-                <tr>
-                    <td colspan="3"><hr></td>
-                </tr>
+			<table class="tablec">
+				<thead>
+					<tr>
+						<th style="text-align:center;" width="30%">Item Name</th>
+						<th style="text-align:center;" width="15%">UOM</th>
+						<th style="text-align:center;" width="15%">Qty</th>
+						<th style="text-align:right;" width="20%">Unit Price</th>
+						<th style="text-align:right;" width="20%">Total</th>
+					</tr>
+				</thead>
+				<tbody>';
 
-                <tr>
-                    <td colspan="3">
-                        <table class="tablec">
-                            <thead class="thc">
-                                <tr>
-									<th class="thc" style="text-align:center;" width="25%">Item Name</th>
-									<th class="thc" style="text-align:center;" width="25%">UOM</th>
-                                    <th class="thc" style="text-align:center;" width="25%">Qty</th>
-                                    <th class="thc" width="25%" style="text-align:right;">Unit Price</th>
-									<th class="thc" width="25%" style="text-align:right;">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody class="tdc">';
+		foreach ($responddetail->result() as $roworderinfo) {
+			$total = ($roworderinfo->qty * $roworderinfo->unitprice);
+			$html .= '<tr>';
+			if ($roworderinfo->tbl_print_material_info_idtbl_print_material_info == 0) {
+				$html .= '<td style="text-align:center;">' . $roworderinfo->machine . '</td>';
+			} else {
+				$html .= '<td style="text-align:center;">' . $roworderinfo->materialname . '</td>';
+			}
+			$html .= '<td style="text-align:center;">' . $roworderinfo->measure_type . '</td>';
+			$html .= '<td style="text-align:center;">' . $roworderinfo->qty . '</td>
+						<td style="text-align:right;">' . number_format($roworderinfo->unitprice, 2) . '</td>
+						<td style="text-align:right;">' . number_format($total, 2) . '</td></tr>';
+			$sub_total_amount += $total;
+		}
 
-								foreach ($responddetail->result() as $roworderinfo) {
-									$total = ($roworderinfo->qty * $roworderinfo->unitprice);
-									$html .= '<tr>';
-									if ($roworderinfo->tbl_print_material_info_idtbl_print_material_info == 0) {
-										$html .= '<td class="tdc" style="text-align:center;">' . $roworderinfo->machine . '</td>';
-									} else {
-										$html .= '<td class="tdc" style="text-align:center;">' . $roworderinfo->materialname . '</td>';
-									}
-									$html .= '<td class="tdc" style="text-align:center;">' . $roworderinfo->measure_type . '</td>';
-									$html .= '<td class="tdc" style="text-align:center;">' . $roworderinfo->qty . '</td>
-																<td class="tdc" style="text-align:right;">' .  number_format($roworderinfo->unitprice, 2) . '</td>
-																<td class="tdc" style="text-align:right;">' . number_format($total, 2) . '</td></tr>';
-									$sub_total_amount +=  $total;
-								}
+		$html .= '<tr class="subtotal-row">
+						<td colspan="4" style="text-align:right;"><b>Sub Total</b></td>
+						<td style="text-align:right;"><b>' . number_format($sub_total_amount, 2) . '</b></td>
+					</tr>
+				</tbody>
+			</table>
 
+			<table class="signature-table" cellpadding="0" cellspacing="0">
+				<tr>
+					<td>Issued By</td>
+					<td class="spacer"></td>
+					<td>Received By</td>
+				</tr>
+			</table>
 
-								$html .= '<tr>
-									<td colspan="4" style="text-align:right; padding-right:5px"><b>Sub Total</b></td>
-									<td class="tdc" style="text-align:right;">' . number_format($sub_total_amount, 2) . '</td>
-								</tr>
-                            </tbody>
-                        </table>
-                    </td>
-                </tr>
+			<div class="footer-note">
+				Generated on ' . $generateddatetime . ' &nbsp;|&nbsp; This is a system generated document.
+			</div>
 
-            </table>
-        </body>
-        </html>
-        ';
+		</body>
+		</html>
+		';
 
 		$dompdf->loadHtml($html);
 		$dompdf->setPaper('A4', 'portrait');
 		$dompdf->render();
-		$dompdf->stream("Purchase Order Request - ", ["Attachment" => 0]);
+
+		// Embed native PDF-level JavaScript so the print dialog opens automatically
+		// as soon as the document is opened in a JS-capable PDF viewer (Adobe Reader,
+		// most desktop browser PDF viewers). Viewers without a JS engine simply ignore it.
+		$canvas = $dompdf->getCanvas();
+		if (method_exists($canvas, 'get_cpdf')) {
+			$canvas->get_cpdf()->addJavascript('this.print();');
+		}
+
+		$dompdf->stream("Issue Item Request - " . $idtbl_print_issue, ["Attachment" => 0]);
 	}
 
 
