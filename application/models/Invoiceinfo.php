@@ -945,51 +945,59 @@ class Invoiceinfo extends CI_Model{
                         throw new Exception("You can't finish this job because there are $unconfirmedCount unapproved invoices.");
                     }
 
-                    $jobFinishData = $this->Apiinfo->JobfinishApi($jobid);
-                    
-                    // Check if JobfinishApi returned empty data
-                    if (empty($jobFinishData)) {
-                        throw new Exception("Please check all type chart of account and details are properly configured for Job Finish.");
+                    $this->db->select('count(*) AS `countjobcard`');
+                    $this->db->from('tbl_jobcard');
+                    $this->db->where('tbl_customerinquiry_idtbl_customerinquiry', $respondcusinquiry->row(0)->tbl_customerinquiry_idtbl_customerinquiry);
+                    $this->db->where('status', 1);
+                    $respondcheckjobcard = $this->db->get();
+
+                    if($respondcheckjobcard->row(0)->countjobcard > 0){
+                        $jobFinishData = $this->Apiinfo->JobfinishApi($jobid);
+                        
+                        // Check if JobfinishApi returned empty data
+                        if (empty($jobFinishData)) {
+                            throw new Exception("Please check all type chart of account and details are properly configured for Job Finish.");
+                        }
+                        
+                        // $APIstatus .= $jobFinishData;
+                        
+                        $apiurljobfinish = $_SESSION['accountapiurl'].'Api/Costmaterialprocess';
+
+                        $postDatajobfinish = http_build_query([
+                            'userid' => $userID,
+                            'company' => $company,
+                            'branch' => $branch,
+                            'customer' => $customer,
+                            'jobid' => $jobid,
+                            'jobfinishdate' => $jobfinishdate,
+                            'jobfinishdata' => json_encode($jobFinishData)
+                        ]);
+
+                        $ch = curl_init();
+                        curl_setopt_array($ch, [
+                            CURLOPT_URL => $apiurljobfinish,
+                            CURLOPT_POST => true,
+                            CURLOPT_POSTFIELDS => $postDatajobfinish,
+                            CURLOPT_RETURNTRANSFER => true,
+                            CURLOPT_TIMEOUT => 30,
+                            CURLOPT_HTTPHEADER => [
+                                'Content-Type: application/x-www-form-urlencoded',
+                            ]
+                        ]);
+                        
+                        $server_output = curl_exec($ch);
+                        $curlError = curl_error($ch);
+                        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        curl_close($ch);
+                        
+                        // Check both HTTP status and API response
+                        $apiResponsejobfinish = json_decode($server_output, true);
+
+                        if ($httpCode != 200 || !isset($apiResponsejobfinish['status']) || $apiResponsejobfinish['status'] !== 'success') {
+                            $errorMsg = $apiResponsejobfinish['message'] ?? 'API request failed in jobfinish';
+                            throw new Exception($errorMsg);
+                        }   
                     }
-                    
-                    // $APIstatus .= $jobFinishData;
-                    
-                    $apiurljobfinish = $_SESSION['accountapiurl'].'Api/Costmaterialprocess';
-
-                    $postDatajobfinish = http_build_query([
-                        'userid' => $userID,
-                        'company' => $company,
-                        'branch' => $branch,
-                        'customer' => $customer,
-                        'jobid' => $jobid,
-                        'jobfinishdate' => $jobfinishdate,
-                        'jobfinishdata' => json_encode($jobFinishData)
-                    ]);
-
-                    $ch = curl_init();
-                    curl_setopt_array($ch, [
-                        CURLOPT_URL => $apiurljobfinish,
-                        CURLOPT_POST => true,
-                        CURLOPT_POSTFIELDS => $postDatajobfinish,
-                        CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_TIMEOUT => 30,
-                        CURLOPT_HTTPHEADER => [
-                            'Content-Type: application/x-www-form-urlencoded',
-                        ]
-                    ]);
-                    
-                    $server_output = curl_exec($ch);
-                    $curlError = curl_error($ch);
-                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                    curl_close($ch);
-                    
-                    // Check both HTTP status and API response
-                    $apiResponsejobfinish = json_decode($server_output, true);
-
-                    if ($httpCode != 200 || !isset($apiResponsejobfinish['status']) || $apiResponsejobfinish['status'] !== 'success') {
-                        $errorMsg = $apiResponsejobfinish['message'] ?? 'API request failed in jobfinish';
-                        throw new Exception($errorMsg);
-                    }   
                 }                
     
                 // Make API call

@@ -524,51 +524,59 @@ class Customerinquiryinfo extends CI_Model{
             $customer = $respond->row(0)->tbl_customer_idtbl_customer;
             $jobid = $respond->row(0)->idtbl_customerinquiry_detail;
 
-            $jobFinishData = $this->load->model('Apiinfo');
-            $jobFinishData = $this->Apiinfo->JobfinishApi($jobid);
+            $this->db->select('count(*) AS `countjobcard`');
+            $this->db->from('tbl_jobcard');
+            $this->db->where('tbl_customerinquiry_idtbl_customerinquiry', $hiddenID);
+            $this->db->where('status', 1);
+            $respondcheckjobcard = $this->db->get();
 
-            if (empty($jobFinishData)) {
-                throw new Exception("Please check all type chart of account and details are properly configured for Job Finish.");
-            }
-            
-            // $APIstatus .= $jobFinishData;
-            
-            $apiurljobfinish = $_SESSION['accountapiurl'].'Api/Costmaterialprocess';
-            
-            $postDatajobfinish = http_build_query([
-                'userid' => $userID,
-                'company' => $company,
-                'branch' => $branch,
-                'customer' => $customer,
-                'jobid' => $jobid,
-                'jobfinishdate' => $completionDate,
-                'jobfinishdata' => json_encode($jobFinishData)
-            ]);
+            if($respondcheckjobcard->row(0)->countjobcard > 0){
+                $jobFinishData = $this->load->model('Apiinfo');
+                $jobFinishData = $this->Apiinfo->JobfinishApi($jobid);
+                
+                if (empty($jobFinishData)) {
+                    throw new Exception("Please check all type chart of account and details are properly configured for Job Finish.");
+                }
+                
+                // $APIstatus .= $jobFinishData;
+                
+                $apiurljobfinish = $_SESSION['accountapiurl'].'Api/Costmaterialprocess';
+                
+                $postDatajobfinish = http_build_query([
+                    'userid' => $userID,
+                    'company' => $company,
+                    'branch' => $branch,
+                    'customer' => $customer,
+                    'jobid' => $jobid,
+                    'jobfinishdate' => $completionDate,
+                    'jobfinishdata' => json_encode($jobFinishData)
+                ]);
 
-            $ch = curl_init();
-            curl_setopt_array($ch, [
-                CURLOPT_URL => $apiurljobfinish,
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => $postDatajobfinish,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/x-www-form-urlencoded',
-                ]
-            ]);
-            
-            $server_output = curl_exec($ch);
-            $curlError = curl_error($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+                $ch = curl_init();
+                curl_setopt_array($ch, [
+                    CURLOPT_URL => $apiurljobfinish,
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => $postDatajobfinish,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTPHEADER => [
+                        'Content-Type: application/x-www-form-urlencoded',
+                    ]
+                ]);
+                
+                $server_output = curl_exec($ch);
+                $curlError = curl_error($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
 
-            // Check both HTTP status and API response
-            $apiResponsejobfinish = json_decode($server_output, true);
+                // Check both HTTP status and API response
+                $apiResponsejobfinish = json_decode($server_output, true);
 
-            if ($httpCode != 200 || !isset($apiResponsejobfinish['status']) || $apiResponsejobfinish['status'] !== 'success') {
-                $errorMsg = $apiResponsejobfinish['message'] ?? 'API request failed in jobfinish';
-                throw new Exception($errorMsg);
-            }   
+                if ($httpCode != 200 || !isset($apiResponsejobfinish['status']) || $apiResponsejobfinish['status'] !== 'success') {
+                    $errorMsg = $apiResponsejobfinish['message'] ?? 'API request failed in jobfinish';
+                    throw new Exception($errorMsg);
+                } 
+            }  
 
             $this->db->trans_commit();
     
