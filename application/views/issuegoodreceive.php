@@ -360,6 +360,7 @@ include "include/topnavbar.php";
 		var editcheck = '<?php echo $editcheck; ?>';
 		var statuscheck = '<?php echo $statuscheck; ?>';
 		var deletecheck = '<?php echo $deletecheck; ?>';
+		var accountcheck = '<?php echo $accountstatus; ?>';
 
 		var companyid = "<?php echo $this->session->userdata('company_id'); ?>";
 		var branchid = "<?php echo $this->session->userdata('branch_id'); ?>";
@@ -461,7 +462,7 @@ include "include/topnavbar.php";
 					"render": function (data, type, full) {
 						var button = '';
 						button += '<a href="<?php echo base_url() ?>Issuegoodreceive/Issuepdf/' + full['idtbl_print_issue'] + '" target="_blank" data-toggle="tooltip" data-placement="bottom" title="Print" class="btn btn-secondary btn-sm btnPdf mr-1" data-toggle="tooltip" data-placement="bottom" title="Issue Item Request PDF"><i class="fas fa-file-pdf"></i></a>';
-						if (full['approvestatus'] == 0 && addcheck == 1) {
+						if (full['approvestatus'] == 0 && accountcheck == 1) {
 							button += 
 								'<button ' +
 									'class="btn btn-primary btn-sm btnAddAccount mr-1" ' +

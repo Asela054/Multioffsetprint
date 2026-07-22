@@ -11,6 +11,7 @@ $statuscheck = 0;
 $deletecheck = 0;
 $approvecheck = 0;
 $checkstatus = 0;
+$accountstatus = 0;
 
 foreach($menuprivilegearray as $row){
     if($row->module==$functionmenu2){
@@ -20,6 +21,7 @@ foreach($menuprivilegearray as $row){
         if($row->permission_type==4){$deletecheck=1;}
         if($row->permission_type==5){$approvecheck=1;}
         if($row->permission_type==6){$checkstatus=1;}
+		if($row->permission_type==7){$accountstatus=1;}
     }
 
     if($row->module==$functionmenu){
@@ -29,6 +31,7 @@ foreach($menuprivilegearray as $row){
         if($row->permission_type==4){$deletecheck=1;}
         if($row->permission_type==5){$approvecheck=1;}
         if($row->permission_type==6){$checkstatus=1;}
+		if($row->permission_type==7){$accountstatus=1;}
     }
     
     array_push($permissionallowed, $row->module);

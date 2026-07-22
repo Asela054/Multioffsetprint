@@ -959,6 +959,7 @@ class Userinfo extends CI_Model{
         if(!empty($this->input->post('permission_delete'))){$permission[] = array('name' => strtolower($userpermission).'-delete', 'type' => '4');}
         if(!empty($this->input->post('permission_approve'))){$permission[] = array('name' => strtolower($userpermission).'-approve', 'type' => '5');}
         if(!empty($this->input->post('permission_check'))){$permission[] = array('name' => strtolower($userpermission).'-check', 'type' => '6');}
+        if(!empty($this->input->post('permission_account'))){$permission[] = array('name' => strtolower($userpermission).'-account', 'type' => '7');}
 
         $updatedatetime=date('Y-m-d h:i:s');
         foreach($permission as $rowpermission){
