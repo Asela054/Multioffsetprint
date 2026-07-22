@@ -134,7 +134,7 @@ include "include/topnavbar.php";
 									<th>Material</th>
 									<th class="text-center">BOM Qty</th>
 									<th class="text-center">Issue Qty</th>
-									<th>Batch No</th>
+									<th class="d-none">Batch No</th>
 									<th class="d-none">MaterialID</th>
 									<th class="d-none">IssueReqQty</th>
 									<th class="text-center">Unit Type</th>
@@ -568,15 +568,15 @@ $(document).ready(function () {
 			$("#tableissue tbody tr").each(function () {
 				item = {}
 				$(this).find('td').each(function (col_idx) {
-					if($(this).text()==''){
-						emptybatch=1;
-					}
+					// if($(this).text()==''){
+					// 	emptybatch=1;
+					// }
 					item["col_" + (col_idx + 1)] = $(this).text();
 				});
 				jsonObj.push(item);
 			});
 		}
-		console.log(jsonObj);
+		// console.log(jsonObj);
 		if(emptybatch==1){
 			Swal.fire({
 				icon: 'error',

@@ -60,6 +60,6 @@ class GRNVoucher extends CI_Controller {
     }
     public function Getsupplierlist(){
         $searchTerm=$this->input->post('searchTerm');
-        $result=SearchSupplierList($searchTerm);
+        $result=SearchSupplierListGRNVoucher($searchTerm);
     }
 }

@@ -112,6 +112,82 @@ include "include/topnavbar.php";
 		</div>
 	</div>
 </div>
+<!-- Modal job Card Batch Select -->
+<div class="modal fade" id="jobCardBatch" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="jobCardBatchLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="jobCardBatchLabel">Choose issue batch</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-12">
+						<table class="table table-striped table-bordered table-sm small" id="tableissue">
+							<thead>
+								<tr>
+									<th class="d-none">JobCardOtherID</th>
+									<th class="d-none">Type</th>
+									<th>Material</th>
+									<th class="text-center">Issue Qty</th>
+									<th>Batch No</th>
+									<th class="d-none">MaterialID</th>
+									<th class="text-center">Unit Type</th>
+									<th class="d-none">ReqIssueQty</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+						<div class="row">
+							<div class="col-12 text-right">
+								<hr>
+								<?php if($addcheck==1){ ?>
+								<button type="button" id="allocateBatchBtn" class="btn btn-danger btn-sm px-4 mb-3" disabled><i class="far fa-save"></i>&nbsp;Allocate Batch</button>
+								<?php } ?>
+							</div>
+						</div>
+						<div id="warningdata"></div>
+						<input type="hidden" name="warningsection" id="warningsection">
+						<input type="hidden" name="batchJobcardID" id="batchJobcardID">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Modal Batch No List -->
+<div class="modal fade" id="modalbatchno" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+	aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalCenterTitle">Material Issue Batch No</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-12">
+						<form id="formbatchno">
+							<div class="form-group">
+								<label class="small font-weight-bold">Stock Batch No</label><br>
+								<select class="form-control form-control-sm" name="batchnolist[]" id="batchnolist" style="width: 100%;" multiple required>
+								</select>
+							</div>
+							<div class="form-group mb-1 text-right">
+								<button type="button" class="btn btn-primary btn-sm small" id="btnsubmitbatch" <?php if($addcheck==0){echo 'disabled';} ?>>Done</button>
+								<input type="submit" id="hidesubmitbatch" class="d-none">
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 <?php include "include/footerscripts.php"; ?>
 <script>
 $(document).ready(function () {
@@ -119,6 +195,16 @@ $(document).ready(function () {
 	var editcheck = '<?php echo $editcheck; ?>';
 	var statuscheck = '<?php echo $statuscheck; ?>';
 	var deletecheck = '<?php echo $deletecheck; ?>';
+
+	$('#batchnolist').select2();
+	$("#batchnolist").on("select2:select", function (evt) {
+		var element = evt.params.data.element;
+		var $element = $(element);
+		
+		$element.detach();
+		$(this).append($element);
+		$(this).trigger("change");
+	});
 
 	$('#dataTable').DataTable({
 		"destroy": true,
@@ -214,8 +300,9 @@ $(document).ready(function () {
 				"render": function (data, type, full) {
 					var button = '';
 
+					button+='<button type="button" class="btn btn-primary btn-sm btnBatchAllocation mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="Batch Allocation"><i class="fas fa-tasks"></i></button>';
 					button+='<button type="button" class="btn btn-dark btn-sm btnView mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="View & Issue" data-approvestatus="'+full['approvestatus']+'"><i class="fas fa-eye"></i></button>';
-					button+='<button type="button" class="btn btn-orange btn-sm btnListIssue mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="Issue note" data-approvestatus="'+full['approvestatus']+'"><i class="fas fa-list"></i></button>';
+					button+='<button type="button" class="btn btn-orange btn-sm btnListIssue mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="Issue note" data-approvestatus="'+full['approvestatus']+'"><i class="fas fa-file"></i></button>';
                     // if(full['issuematerialstatus'] == 1){
 					//     button += '<a href="<?php echo base_url() ?>Jobcardissuematerial/jobCardIssueNote/' + full['idtbl_jobcard'] + '" data-toggle="tooltip" title="Issue Note" target="_blank" class="btn btn-danger btn-sm"><i class="fas fa-file-pdf"></i></a>';
                     // }
@@ -406,6 +493,227 @@ $(document).ready(function () {
         	window.open(url, '_blank');
 		}
 	});
+
+	$('#dataTable tbody').on('click', '.btnBatchAllocation', async function() {
+		var id = $(this).attr('id');
+		$('#batchJobcardID').val(id);
+		var approvestatus = $(this).attr('data-approvestatus');
+
+		Swal.fire({
+			title: '',
+			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+			allowOutsideClick: false,
+			showConfirmButton: false, // Hide the OK button
+			backdrop: `
+				rgba(255, 255, 255, 0.5) 
+			`,
+			customClass: {
+				popup: 'fullscreen-swal'
+			},
+			didOpen: () => {
+				document.body.style.overflow = 'hidden';
+
+				$.ajax({
+					type: "POST",
+					data: {
+						recordID: id
+					},
+					url: '<?php echo base_url() ?>Jobcardissuematerial/Getjobcardissuematerialbatchlist',
+					success: function(result) {
+						Swal.close();
+						document.body.style.overflow = 'auto';
+
+						var obj = JSON.parse(result);
+						$('#tableissue > tbody').append(obj.tabledata);
+						if(obj.warnstatus==1){
+							$('#warningdata').html('<div class="alert alert-danger" role="alert">Some Product quantity not enough for you production. Please check stock in these material '+obj.warntext+' and production start again.</div>');
+							$('#warningsection').val(obj.warningsection);
+							$('#allocateBatchBtn').prop('disabled', true);
+						}
+						else{
+							$('#allocateBatchBtn').prop('disabled', false);
+							$('#warningdata').html('');
+						}
+						$('#jobCardBatch').modal('show');
+					},
+					error: function(error) {
+						// Close the SweetAlert on error
+						Swal.close();
+						document.body.style.overflow = 'auto';
+						
+						// Show an error alert
+						Swal.fire({
+							icon: 'error',
+							title: 'Error',
+							text: 'Something went wrong. Please try again later.'
+						});
+					}
+				});
+			}
+		}); 
+	});
+	$('#tableissue tbody').on('click', 'tr .batchnolist', function () {
+		var row = $(this);
+		// console.log(row);
+		var materialID = row.closest("tr").find('td:eq(5)').text();
+		rowID = row.closest("tr")[0].rowIndex;
+
+		Swal.fire({
+			title: '',
+			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+			allowOutsideClick: false,
+			showConfirmButton: false, // Hide the OK button
+			backdrop: `
+				rgba(255, 255, 255, 0.5) 
+			`,
+			customClass: {
+				popup: 'fullscreen-swal'
+			},
+			didOpen: () => {
+				document.body.style.overflow = 'hidden';
+
+				$.ajax({
+					type: "POST",
+					data: {
+						materialID: materialID
+					},
+					url: '<?php echo base_url() ?>Jobcardissuematerial/Getbatchnolistaccomaterial',
+					success: function(result) { //alert(result);
+						Swal.close();
+						document.body.style.overflow = 'auto';
+
+						var objfirst = JSON.parse(result);
+
+						var html = '';
+						$.each(objfirst, function(i, item) {
+							//alert(objfirst[i].id);
+							html += '<option value="' + objfirst[i].batchno + '">';
+							html += objfirst[i].batchno+' - '+objfirst[i].qty;
+							html += '</option>';
+						});
+
+						$('#batchnolist').empty().append(html);
+						$('#batchnolist').trigger('change');
+						$('#modalbatchno').modal('show');
+					},
+					error: function(error) {
+						$('#submitBtn').prop('disabled', false);
+						$('#issueMaterialBtn').prop('disabled', true);
+						// Close the SweetAlert on error
+						Swal.close();
+						document.body.style.overflow = 'auto';
+						
+						// Show an error alert
+						Swal.fire({
+							icon: 'error',
+							title: 'Error',
+							text: 'Something went wrong. Please try again later.'
+						});
+					}
+				}); 
+			}
+		});
+	});
+	$('#btnsubmitbatch').click(function(){
+		if (!$("#formbatchno")[0].checkValidity()) {
+			// If the form is invalid, submit it. The form won't actually submit;
+			// this will just cause the browser to display the native HTML5 error messages.
+			$("#hidesubmitbatch").click();
+		} else {
+			$('#tableissue').find('tr').eq(rowID).find('td:eq(4)').text($('#batchnolist').val());
+			$('#batchnolist').empty().trigger('change');
+			$('#modalbatchno').modal('hide');
+		}
+	});
+
+	$('#allocateBatchBtn').click(function(){
+		$('#allocateBatchBtn').prop('disabled', true);
+		var batchJobcardID = $('#batchJobcardID').val();
+		var jobcardtype = 0;
+
+		var emptybatch = 0;
+		var tbody = $('#tableissue tbody');
+		if (tbody.children().length > 0) {
+			var jsonObj = []
+			$("#tableissue tbody tr").each(function () {
+				item = {}
+				$(this).find('td').each(function (col_idx) {
+					if($(this).text()==''){
+						emptybatch=1;
+					}
+					item["col_" + (col_idx + 1)] = $(this).text();
+				});
+				jsonObj.push(item);
+			});
+		}
+		// console.log(jsonObj);
+		if(emptybatch==1){
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Please select material stock batch no for issue materials.'
+			});
+			$('#issueMaterialBtn').prop('disabled', false);
+		}
+		else{
+			Swal.fire({
+				title: '',
+				html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+				allowOutsideClick: false,
+				showConfirmButton: false, // Hide the OK button
+				backdrop: `
+					rgba(255, 255, 255, 0.5) 
+				`,
+				customClass: {
+					popup: 'fullscreen-swal'
+				},
+				didOpen: () => {
+					document.body.style.overflow = 'hidden';
+
+					$.ajax({
+						type: "POST",
+						data: {
+							batchJobcardID: batchJobcardID,
+							tableData: jsonObj
+						},
+						url: '<?php echo base_url() ?>Jobcardissuematerial/Issuematerialbatchupdate',
+						success: function(result) { //alert(result);
+							Swal.close();
+							document.body.style.overflow = 'auto';
+
+							var obj = JSON.parse(result);
+							if(obj.status==1){
+								actionreload(obj.action);
+							}
+							else{
+								action(obj.action);
+								$('#issueMaterialBtn').prop('disabled', false);
+							}
+
+							var objfirst = JSON.parse(result);
+						},
+						error: function(error) {
+							$('#issueMaterialBtn').prop('disabled', false);
+							// Close the SweetAlert on error
+							Swal.close();
+							document.body.style.overflow = 'auto';
+							
+							// Show an error alert
+							Swal.fire({
+								icon: 'error',
+								title: 'Error',
+								text: 'Something went wrong. Please try again later.'
+							});
+						}
+					}); 
+				}
+			});
+		}
+	});
+
+	$('#jobCardBatch').on('hidden.bs.modal', function (event) {
+        window.location.reload();
+    });
 });
 </script>
 <?php include "include/footer.php"; ?>

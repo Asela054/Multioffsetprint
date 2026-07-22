@@ -25,4 +25,13 @@ class Jobcardissuematerial extends CI_Controller {
     public function Getissuenotelist(){
         $result=$this->Jobcardissuematerialinfo->Getissuenotelist();
 	}
+    public function Getjobcardissuematerialbatchlist(){
+        $result=$this->Jobcardissuematerialinfo->Getjobcardissuematerialbatchlist();
+	}
+    public function Getbatchnolistaccomaterial(){
+        $result=$this->Jobcardissuematerialinfo->Getbatchnolistaccomaterial();
+	}
+    public function Issuematerialbatchupdate(){
+        $result=$this->Jobcardissuematerialinfo->Issuematerialbatchupdate();
+	}
 }

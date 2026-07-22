@@ -837,4 +837,409 @@ class Jobcardissuematerialinfo extends CI_Model {
 
         echo json_encode($respond->result());
     }
+
+    public function Getjobcardissuematerialbatchlist(){
+        $recordID = $this->input->post('recordID');
+
+        $warningstockstatus = 0;
+        $warningstocktext    = '';
+        $warningsection      = '';
+        $html                = [];
+
+        // Config: section type => [table, id column]
+        $sections = [
+            'material'   => ['tbl_jobcard_material',    'idtbl_jobcard_material'],
+            'color'      => ['tbl_jobcard_color',       'idtbl_jobcard_color'],
+            'varnish'    => ['tbl_jobcard_varnish',     'idtbl_jobcard_varnish'],
+            'foil'       => ['tbl_jobcard_foil',        'idtbl_jobcard_foil'],
+            'lamination' => ['tbl_jobcard_lamination',  'idtbl_jobcard_lamination'],
+            'pasting'    => ['tbl_jobcard_pasting',     'idtbl_jobcard_pasting'],
+            'rimming'    => ['tbl_jobcard_rimming',     'idtbl_jobcard_rimming'],
+        ];
+
+        foreach ($sections as $type => $tableInfo) {
+            list($table, $idCol) = $tableInfo;
+
+            $rows = $this->_getIssueMaterialRows($recordID, $table, $idCol);
+
+            $html = array_merge(
+                $html,
+                $this->_buildMaterialHtml($rows, $idCol, $warningstockstatus, $warningstocktext, $warningsection)
+            );
+        }
+
+        $obj=new stdClass();
+        $obj->tabledata=$html;
+        $obj->warnstatus=$warningstockstatus;
+        $obj->warntext=$warningstocktext;
+        $obj->warningsection=$warningsection;
+
+        echo json_encode($obj);
+    }
+
+    /**
+     * Shared query builder for all section types
+     * (material, color, varnish, foil, lamination, pasting, rimming).
+     */
+    private function _getIssueMaterialRows($recordID, $table, $idCol)
+    {
+        $fkCol = 'tbl_jobcard_idtbl_jobcard';
+
+        $this->db->select("
+            {$table}.{$idCol},
+            tbl_print_material_info.materialname,
+            {$table}.issueqty,
+            {$table}.batchno,
+            {$table}.tbl_print_material_info_idtbl_print_material_info,
+            tbl_measurements.measure_type,
+            tbl_jobcard_issue_meterial.reqissueqty,
+            SUM(tbl_print_stock.qty) AS totqty
+        ");
+        $this->db->from('tbl_jobcard_issue_meterial');
+        $this->db->join($table, "{$table}.{$fkCol} = tbl_jobcard_issue_meterial.{$fkCol} AND {$table}.{$idCol} = tbl_jobcard_issue_meterial.jobcard_other_id");
+        $this->db->join('tbl_print_material_info', "tbl_print_material_info.idtbl_print_material_info = {$table}.tbl_print_material_info_idtbl_print_material_info", 'left');
+        $this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_material_info.tbl_measurements_idtbl_measurements', 'left');
+        $this->db->join('tbl_print_stock', "tbl_print_stock.tbl_print_material_info_idtbl_print_material_info = {$table}.tbl_print_material_info_idtbl_print_material_info", 'left');
+        $this->db->where("{$table}.{$fkCol}", $recordID);
+        $this->db->where('tbl_jobcard_issue_meterial.status', 1);
+        $this->db->where("{$table}.status", 1);
+        $this->db->where('tbl_jobcard_issue_meterial.sectiontype', 1);
+        $this->db->group_by("{$table}.{$idCol}"); // critical fix, previous message eke explain kala
+
+        return $this->db->get()->result();
+    }
+
+    /**
+     * Builds HTML rows and tracks stock warnings (by reference).
+     */
+    private function _buildMaterialHtml($resultRows, $idField, &$warningstockstatus, &$warningstocktext, &$warningsection)
+    {
+        $html = [];
+
+        foreach ($resultRows as $row) {
+            $html[] = '
+                <tr data-otherrow="materialsection">
+                    <th colspan="6" class="sectionremove">Material Section</th>
+                </tr>
+                <tr class="materialsection">
+                    <td class="d-none">' . $row->$idField . '</td>
+                    <td class="d-none">1</td>
+                    <td>' . $row->materialname . '</td>
+                    <td class="text-center">' . $row->issueqty . '</td>
+                    <td class="batchnolist">' . $row->batchno . '</td>
+                    <td class="d-none">' . $row->tbl_print_material_info_idtbl_print_material_info . '</td>
+                    <td class="text-center">' . $row->measure_type . '</td>
+                    <td class="d-none">' . $row->reqissueqty . '</td>
+                </tr>
+            ';
+
+            if ($row->issueqty > $row->totqty) {
+                $warningstockstatus = 1;
+                $warningstocktext  .= $row->materialname . ', ';
+                $warningsection     = 'materialsection';
+            }
+        }
+
+        return $html;
+    }
+
+    public function Getbatchnolistaccomaterial(){
+        $materialID=$this->input->post('materialID');
+        $companyID=$_SESSION['company_id'];
+        $branchID=$_SESSION['branch_id'];
+
+        $this->db->select('`batchno`, `qty`, `unitprice`');
+        $this->db->from('tbl_print_stock');
+        $this->db->where('status', 1);
+        $this->db->where('qty >', 0);
+        $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+        $this->db->where('tbl_company_idtbl_company', $companyID);
+        $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+        $respond=$this->db->get();
+
+        echo json_encode($respond->result());
+    }
+
+    // public function Issuematerialbatchupdate(){
+    //     $this->db->trans_begin();
+
+    //     $jobCardID=$this->input->post('batchJobcardID');
+    //     $tableData=$this->input->post('tableData');
+        
+    //     $companyID=$_SESSION['company_id'];
+    //     $branchID=$_SESSION['branch_id'];
+    //     $userID=$_SESSION['userid'];
+
+    //     $updatedatetime=date('Y-m-d H:i:s');
+    //     $allocationdate='';
+
+    //     foreach($tableData as $rowdatalist){
+    //         $jobcardotherID=$rowdatalist['col_1'];
+    //         $type=$rowdatalist['col_2'];
+    //         $materialname=$rowdatalist['col_3'];
+    //         $issueqtydata=$rowdatalist['col_4'];
+    //         $batchnolist=$rowdatalist['col_5'];
+    //         $materialID=$rowdatalist['col_6'];
+    //         $unittype=$rowdatalist['col_7'];
+    //         $reqissueqty=$rowdatalist['col_7'];
+
+    //         if($type==1){
+    //             $this->db->select('issuedate');
+    //             $this->db->from('idtbl_jobcard_issue_meterial');
+    //             $this->db->where('tbl_jobcard_issue_meterial', $jobcardotherID);
+    //             $respond=$this->db->get();
+    //             $allocationdate = $respond->row(0)->issuedate;
+
+    //             $data = array(
+    //                 'batchno'=> $batchnolist, 
+    //                 'updateuser'=> $userID, 
+    //                 'updatedatetime'=> $updatedatetime
+    //             );
+
+    //             $this->db->where('idtbl_jobcard_material', $jobcardotherID);
+    //             $this->db->update('tbl_jobcard_material', $data);
+    //         }
+
+    //         $this->db->where('jobcard_other_id', $jobcardotherID);
+    //         $this->db->where('tbl_jobcard_idtbl_jobcard', $jobCardID);
+    //         $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //         $this->db->delete('tbl_jobcard_issue_meterial');
+
+    //         $explodebatch=explode(',', $batchnolist);
+                
+    //         $balqty=$issueqtydata;
+
+    //         foreach($explodebatch as $rowbatchno){
+    //             $this->db->select('`batchno`, `qty`, `unitprice`');
+    //             $this->db->from('tbl_print_stock');
+    //             $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //             $this->db->where('batchno', $rowbatchno);
+    //             $this->db->where('tbl_company_idtbl_company', $companyID);
+    //             $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+    //             $this->db->where('status', 1);
+
+    //             $respondstock=$this->db->get();
+
+    //             if($balqty>0){
+    //                 if($respondstock->row(0)->qty>=$balqty){
+    //                     $issueqty=$balqty;
+    //                     $balqty=0;
+    //                 }
+    //                 else{
+    //                     $balqty=$balqty-$respondstock->row(0)->qty;
+    //                     $issueqty=$respondstock->row(0)->qty;
+    //                 }
+
+    //                 $datamaterialissue = array(
+    //                     'sectiontype'=> $type, 
+    //                     'issuedate'=> $allocationdate, 
+    //                     'batchno'=> $rowbatchno, 
+    //                     'reqissueqty'=> $reqissueqty, 
+    //                     'issueqty'=> $issueqty, 
+    //                     'unitprice'=> $respondstock->row(0)->unitprice, 
+    //                     'status'=> '1', 
+    //                     'insertdatetime'=> $updatedatetime, 
+    //                     'tbl_user_idtbl_user'=> $userID, 
+    //                     'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+    //                     'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+    //                     'jobcard_other_id'=> $jobcardotherID
+    //                 );
+        
+    //                 $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+    //             }
+    //         }
+    //     }
+
+    //     $this->db->trans_complete();
+
+    //     if ($this->db->trans_status() === TRUE) {
+    //         $this->db->trans_commit();
+            
+    //         $actionObj=new stdClass();
+    //         $actionObj->icon='fas fa-save';
+    //         $actionObj->title='';
+    //         $actionObj->message='Record Added Successfully';
+    //         $actionObj->url='';
+    //         $actionObj->target='_blank';
+    //         $actionObj->type='success';
+
+    //         $actionJSON=json_encode($actionObj);
+
+    //         $obj=new stdClass();
+    //         $obj->status=1;          
+    //         $obj->action=$actionJSON;  
+            
+    //         echo json_encode($obj);
+    //     } else {
+    //         $this->db->trans_rollback();
+
+    //         $actionObj=new stdClass();
+    //         $actionObj->icon='fas fa-exclamation-triangle';
+    //         $actionObj->title='';
+    //         $actionObj->message='Record Error';
+    //         $actionObj->url='';
+    //         $actionObj->target='_blank';
+    //         $actionObj->type='danger';
+
+    //         $actionJSON=json_encode($actionObj);
+
+    //         $obj=new stdClass();
+    //         $obj->status=0;          
+    //         $obj->action=$actionJSON;  
+            
+    //         echo json_encode($obj);
+    //     }
+    // }
+
+    public function Issuematerialbatchupdate(){
+        $jobCardID = $this->input->post('batchJobcardID');
+        $tableData = $this->input->post('tableData');
+
+        $companyID = $_SESSION['company_id'];
+        $branchID  = $_SESSION['branch_id'];
+        $userID    = $_SESSION['userid'];
+
+        $updatedatetime = date('Y-m-d H:i:s');
+
+        // sectiontype => [table, id column]
+        // ⚠️ type numbers (2-7) confirm karanna - color/varnish/foil/lamination/pasting/rimming
+        // walata DB eke use wena actual sectiontype values danna
+        $typeConfig = [
+            1 => ['table' => 'tbl_jobcard_material',   'idcol' => 'idtbl_jobcard_material'],
+            2 => ['table' => 'tbl_jobcard_color',      'idcol' => 'idtbl_jobcard_color'],
+            3 => ['table' => 'tbl_jobcard_varnish',    'idcol' => 'idtbl_jobcard_varnish'],
+            4 => ['table' => 'tbl_jobcard_foil',       'idcol' => 'idtbl_jobcard_foil'],
+            5 => ['table' => 'tbl_jobcard_lamination', 'idcol' => 'idtbl_jobcard_lamination'],
+            6 => ['table' => 'tbl_jobcard_pasting',    'idcol' => 'idtbl_jobcard_pasting'],
+            7 => ['table' => 'tbl_jobcard_rimming',    'idcol' => 'idtbl_jobcard_rimming'],
+        ];
+
+        $this->db->trans_begin();
+
+        try {
+            foreach ($tableData as $rowdatalist) {
+                $jobcardotherID = $rowdatalist['col_1'];
+                $type           = $rowdatalist['col_2'];
+                $materialname   = $rowdatalist['col_3'];
+                $issueqtydata   = $rowdatalist['col_4'];
+                $batchnolist    = $rowdatalist['col_5'];
+                $materialID     = $rowdatalist['col_6'];
+                $unittype       = $rowdatalist['col_7'];
+                $reqissueqty    = $rowdatalist['col_7'];
+
+                if (!isset($typeConfig[$type])) {
+                    throw new Exception("Unknown section type received: {$type}");
+                }
+
+                $tableName      = $typeConfig[$type]['table'];
+                $tableIdCol     = $typeConfig[$type]['idcol'];
+                $allocationdate = '';
+
+                // Fixed: correct table/column (previously table & column names were swapped)
+                $this->db->select('issuedate');
+                $this->db->from('tbl_jobcard_issue_meterial');
+                $this->db->where('jobcard_other_id', $jobcardotherID);
+                $respond = $this->db->get();
+
+                if ($respond->num_rows() > 0) {
+                    $allocationdate = $respond->row(0)->issuedate;
+                }
+
+                // Updates the section-specific table (material/color/varnish/foil/
+                // lamination/pasting/rimming) - now runs for ALL 7 types, not just type==1
+                $data = [
+                    'batchno'        => $batchnolist,
+                    'updatedatetime' => $updatedatetime
+                ];
+
+                $this->db->where($tableIdCol, $jobcardotherID);
+                $this->db->update($tableName, $data);
+
+                // Clear existing allocation rows for this item before re-inserting
+                $this->db->where('jobcard_other_id', $jobcardotherID);
+                $this->db->where('tbl_jobcard_idtbl_jobcard', $jobCardID);
+                $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                $this->db->delete('tbl_jobcard_issue_meterial');
+
+                $explodebatch = explode(',', $batchnolist);
+                $balqty = $issueqtydata;
+
+                foreach ($explodebatch as $rowbatchno) {
+                    $this->db->select('batchno, qty, unitprice');
+                    $this->db->from('tbl_print_stock');
+                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                    $this->db->where('batchno', $rowbatchno);
+                    $this->db->where('tbl_company_idtbl_company', $companyID);
+                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                    $this->db->where('status', 1);
+
+                    $respondstock = $this->db->get();
+
+                    if ($respondstock->num_rows() === 0) {
+                        throw new Exception("Stock batch not found: {$rowbatchno} (materialID: {$materialID})");
+                    }
+
+                    if ($balqty > 0) {
+                        if ($respondstock->row(0)->qty >= $balqty) {
+                            $issueqty = $balqty;
+                            $balqty   = 0;
+                        } else {
+                            $balqty   = $balqty - $respondstock->row(0)->qty;
+                            $issueqty = $respondstock->row(0)->qty;
+                        }
+
+                        $datamaterialissue = [
+                            'sectiontype'          => $type,
+                            'issuedate'            => $allocationdate,
+                            'batchno'              => $rowbatchno,
+                            'reqissueqty'          => $reqissueqty,
+                            'issueqty'             => $issueqty,
+                            'unitprice'            => $respondstock->row(0)->unitprice,
+                            'status'               => '1',
+                            'insertdatetime'       => $updatedatetime,
+                            'tbl_user_idtbl_user'  => $userID,
+                            'tbl_jobcard_idtbl_jobcard' => $jobCardID,
+                            'tbl_print_material_info_idtbl_print_material_info' => $materialID,
+                            'jobcard_other_id'     => $jobcardotherID
+                        ];
+
+                        $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+                    }
+                }
+            }
+
+            if ($this->db->trans_status() === FALSE) {
+                throw new Exception('Transaction status check failed');
+            }
+
+            $this->db->trans_commit();
+            echo json_encode($this->_buildActionResponse(1, 'success', 'fas fa-save', 'Record Added Successfully'));
+
+        } catch (Exception $e) {
+            $this->db->trans_rollback();
+            log_message('error', 'Issuematerialbatchupdate failed: ' . $e->getMessage());
+            echo json_encode($this->_buildActionResponse(0, 'danger', 'fas fa-exclamation-triangle', 'Record Error'));
+        }
+    }
+
+    /**
+     * Builds the standard status/action JSON response.
+     */
+    private function _buildActionResponse($status, $type, $icon, $message)
+    {
+        $actionObj = new stdClass();
+        $actionObj->icon    = $icon;
+        $actionObj->title   = '';
+        $actionObj->message = $message;
+        $actionObj->url     = '';
+        $actionObj->target  = '_blank';
+        $actionObj->type    = $type;
+
+        $obj = new stdClass();
+        $obj->status = $status;
+        $obj->action = json_encode($actionObj);
+
+        return $obj;
+    }
 }

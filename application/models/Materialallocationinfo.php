@@ -107,7 +107,7 @@ class Materialallocationinfo extends CI_Model{
                         <td>'.$rowmaterial->materialname.'</td>
                         <td class="text-center">'.$rowmaterial->upspersheet.'</td>
                         <td class="text-center">'.$rowmaterial->issueqty.'</td>
-                        <td class="batchnolist"></td>
+                        <td class="d-none batchnolist"></td>
                         <td class="d-none">'.$rowmaterial->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
                         <td class="text-center">'.$rowmaterial->measure_type.'</td>
@@ -145,7 +145,7 @@ class Materialallocationinfo extends CI_Model{
                         <td>'.$rowcolor->materialname.'</td>
                         <td class="text-center">'.$rowcolor->qty.'</td>
                         <td class="text-center">'.$rowcolor->issueqty.'</td>
-                        <td class="batchnolist"></td>
+                        <td class="d-none batchnolist"></td>
                         <td class="d-none">'.$rowcolor->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
                         <td class="text-center">'.$rowcolor->measure_type.'</td>
@@ -183,7 +183,7 @@ class Materialallocationinfo extends CI_Model{
                         <td>'.$rowcoating->materialname.'</td>
                         <td class="text-center">'.$rowcoating->varnishQty.'</td>
                         <td class="text-center">'.$rowcoating->issueqty.'</td>
-                        <td class="batchnolist"></td>
+                        <td class="d-none batchnolist"></td>
                         <td class="d-none">'.$rowcoating->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
                         <td class="text-center">'.$rowcoating->measure_type.'</td>
@@ -221,7 +221,7 @@ class Materialallocationinfo extends CI_Model{
                         <td>'.$rowfoil->materialname.'</td>
                         <td class="text-center">'.$rowfoil->qty.'</td>
                         <td class="text-center">'.$rowfoil->issueqty.'</td>
-                        <td class="batchnolist"></td>
+                        <td class="d-none batchnolist"></td>
                         <td class="d-none">'.$rowfoil->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
                         <td class="text-center">'.$rowfoil->measure_type.'</td>
@@ -259,7 +259,7 @@ class Materialallocationinfo extends CI_Model{
                         <td>'.$rowlamination->materialname.'</td>
                         <td class="text-center">'.$rowlamination->lamination_qty.'</td>
                         <td class="text-center">'.$rowlamination->issueqty.'</td>
-                        <td class="batchnolist"></td>
+                        <td class="d-none batchnolist"></td>
                         <td class="d-none">'.$rowlamination->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
                         <td class="text-center">'.$rowlamination->measure_type.'</td>
@@ -297,7 +297,7 @@ class Materialallocationinfo extends CI_Model{
                         <td>'.$rowpaste->materialname.'</td>
                         <td class="text-center">'.$rowpaste->pasteqty.'</td>
                         <td class="text-center">'.$rowpaste->issueqty.'</td>
-                        <td class="batchnolist"></td>
+                        <td class="d-none batchnolist"></td>
                         <td class="d-none">'.$rowpaste->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
                         <td class="text-center">'.$rowpaste->measure_type.'</td>
@@ -335,7 +335,7 @@ class Materialallocationinfo extends CI_Model{
                         <td>'.$rowrimming->materialname.'</td>
                         <td class="text-center">'.$rowrimming->qty.'</td>
                         <td class="text-center">'.$rowrimming->issueqty.'</td>
-                        <td class="batchnolist"></td>
+                        <td class="d-none batchnolist"></td>
                         <td class="d-none">'.$rowrimming->tbl_print_material_info_idtbl_print_material_info.'</td>
                         <td class="d-none">'.$issueqty.'</td>
                         <td class="text-center">'.$rowrimming->measure_type.'</td>
@@ -434,34 +434,6 @@ class Materialallocationinfo extends CI_Model{
 
         $respondcheckjobcard=$this->db->get();
 
-        $this->db->select('COUNT(*) as notissuecount');
-        $this->db->from('tbl_jobcard_issue_meterial');
-        $this->db->where('issuedate !=', $allocationdate);
-        $this->db->where('tbl_jobcard_idtbl_jobcard', $respondcheckjobcard->row(0)->idtbl_jobcard);
-        $this->db->where('status !=', 2);
-
-        $respondnotissue = $this->db->get();
-
-        if($respondnotissue->row(0)->notissuecount > 0){
-            $actionObj=new stdClass();
-            $actionObj->icon='fas fa-exclamation-triangle';
-            $actionObj->title='Record Error';
-            $actionObj->message='Kindly resolve the pending issue note associated with this customer inquiry as a priority';
-            $actionObj->url='';
-            $actionObj->target='_blank';
-            $actionObj->type='danger';
-
-            $actionJSON=json_encode($actionObj);
-
-            $obj=new stdClass();
-            $obj->status=0;          
-            $obj->action=$actionJSON;  
-            
-            echo json_encode($obj);
-
-            return;
-        }
-
         if(empty($respondcheckjobcard->row(0)->idtbl_jobcard)){
             $this->db->select('COUNT(`idtbl_jobcard`) AS `count`');
             $this->db->from('tbl_jobcard');
@@ -504,6 +476,34 @@ class Materialallocationinfo extends CI_Model{
         }
         else{
             $jobCardID = $respondcheckjobcard->row(0)->idtbl_jobcard;
+
+            $this->db->select('COUNT(*) as notissuecount');
+            $this->db->from('tbl_jobcard_issue_meterial');
+            $this->db->where('issuedate !=', $allocationdate);
+            $this->db->where('tbl_jobcard_idtbl_jobcard', $jobCardID);
+            $this->db->where('status !=', 2);
+
+            $respondnotissue = $this->db->get();
+
+            if($respondnotissue->row(0)->notissuecount > 0){
+                $actionObj=new stdClass();
+                $actionObj->icon='fas fa-exclamation-triangle';
+                $actionObj->title='Record Error';
+                $actionObj->message='Kindly resolve the pending issue note associated with this customer inquiry as a priority';
+                $actionObj->url='';
+                $actionObj->target='_blank';
+                $actionObj->type='danger';
+
+                $actionJSON=json_encode($actionObj);
+
+                $obj=new stdClass();
+                $obj->status=0;          
+                $obj->action=$actionJSON;  
+                
+                echo json_encode($obj);
+
+                return;
+            }
 
             $data = array(
                 'approvestatus'=> '0',
@@ -551,58 +551,75 @@ class Materialallocationinfo extends CI_Model{
 
                 $jobcardotherID=$this->db->insert_id();
 
-                $explodebatch=explode(',', $batchnolist);
+                $datamaterialissue = array(
+                    'sectiontype'=> $type, 
+                    'issuedate'=> $today, 
+                    'batchno'=> $batchnolist, 
+                    'reqissueqty'=> $reqissueqty, 
+                    'issueqty'=> $issueqtydata, 
+                    'unitprice'=> '0', 
+                    'status'=> '1', 
+                    'insertdatetime'=> $updatedatetime, 
+                    'tbl_user_idtbl_user'=> $userID, 
+                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                    'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                    'jobcard_other_id'=> $jobcardotherID
+                );
+    
+                $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+                
+                // $explodebatch=explode(',', $batchnolist);
+                
+                // $balqty=$issueqtydata;
 
-                $balqty=$issueqtydata;
+                // foreach($explodebatch as $rowbatchno){
+                //     $this->db->select('`batchno`, `qty`, `unitprice`');
+                //     $this->db->from('tbl_print_stock');
+                //     $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //     $this->db->where('batchno', $rowbatchno);
+                //     $this->db->where('tbl_company_idtbl_company', $companyID);
+                //     $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //     $this->db->where('status', 1);
 
-                foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
-                    $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                //     $respondstock=$this->db->get();
 
-                    $respondstock=$this->db->get();
+                //     if($balqty>0){
+                //         if($respondstock->row(0)->qty>=$balqty){
+                //             $issueqty=$balqty;
+                //             $balqty=0;
+                //         }
+                //         else{
+                //             $balqty=$balqty-$respondstock->row(0)->qty;
+                //             $issueqty=$respondstock->row(0)->qty;
+                //         }
 
-                    if($balqty>0){
-                        if($respondstock->row(0)->qty>=$balqty){
-                            $issueqty=$balqty;
-                            $balqty=0;
-                        }
-                        else{
-                            $balqty=$balqty-$respondstock->row(0)->qty;
-                            $issueqty=$respondstock->row(0)->qty;
-                        }
-
-                        $datamaterialissue = array(
-                            'sectiontype'=> $type, 
-                            'issuedate'=> $today, 
-                            'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> $reqissueqty, 
-                            'issueqty'=> $issueqty, 
-                            'unitprice'=> $respondstock->row(0)->unitprice, 
-                            'status'=> '1', 
-                            'insertdatetime'=> $updatedatetime, 
-                            'tbl_user_idtbl_user'=> $userID, 
-                            'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
-                            'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
-                        );
+                //         $datamaterialissue = array(
+                //             'sectiontype'=> $type, 
+                //             'issuedate'=> $today, 
+                //             'batchno'=> $rowbatchno, 
+                //             'reqissueqty'=> $reqissueqty, 
+                //             'issueqty'=> $issueqty, 
+                //             'unitprice'=> $respondstock->row(0)->unitprice, 
+                //             'status'=> '1', 
+                //             'insertdatetime'=> $updatedatetime, 
+                //             'tbl_user_idtbl_user'=> $userID, 
+                //             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                //             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                //             'jobcard_other_id'=> $jobcardotherID
+                //         );
             
-                        $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+                //         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
-                        // //Stock Update Query
-                        // $this->db->where('batchno', $rowbatchno);
-                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                        // $this->db->where('tbl_company_idtbl_company', $companyID);
-                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //         // //Stock Update Query
+                //         // $this->db->where('batchno', $rowbatchno);
+                //         // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //         // $this->db->where('tbl_company_idtbl_company', $companyID);
+                //         // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
 
-                        // $this->db->set('qty', 'qty - '.$issueqty, false);
-                        // $this->db->update('tbl_print_stock');
-                    }
-                }
+                //         // $this->db->set('qty', 'qty - '.$issueqty, false);
+                //         // $this->db->update('tbl_print_stock');
+                //     }
+                // }
             }
             if($type==2){//Printing Section
                 $this->db->select('`colormaterialby`, `colortype`, `remark`, `qty`');
@@ -630,58 +647,75 @@ class Materialallocationinfo extends CI_Model{
 
                 $jobcardotherID=$this->db->insert_id();
 
-                $explodebatch=explode(',', $batchnolist);
+                $datamaterialissue = array(
+                    'sectiontype'=> $type, 
+                    'issuedate'=> $today, 
+                    'batchno'=> $batchnolist, 
+                    'reqissueqty'=> $reqissueqty, 
+                    'issueqty'=> $issueqtydata, 
+                    'unitprice'=> '0', 
+                    'status'=> '1', 
+                    'insertdatetime'=> $updatedatetime, 
+                    'tbl_user_idtbl_user'=> $userID, 
+                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                    'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                    'jobcard_other_id'=> $jobcardotherID
+                );
+    
+                $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
-                $balqty=$issueqtydata;
+                // $explodebatch=explode(',', $batchnolist);
 
-                foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
-                    $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                // $balqty=$issueqtydata;
 
-                    $respondstock=$this->db->get();
+                // foreach($explodebatch as $rowbatchno){
+                //     $this->db->select('`batchno`, `qty`, `unitprice`');
+                //     $this->db->from('tbl_print_stock');
+                //     $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //     $this->db->where('batchno', $rowbatchno);
+                //     $this->db->where('tbl_company_idtbl_company', $companyID);
+                //     $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //     $this->db->where('status', 1);
 
-                    if($balqty>0){
-                        if($respondstock->row(0)->qty>=$balqty){
-                            $issueqty=$balqty;
-                            $balqty=0;
-                        }
-                        else{
-                            $balqty=$balqty-$respondstock->row(0)->qty;
-                            $issueqty=$respondstock->row(0)->qty;
-                        }
+                //     $respondstock=$this->db->get();
 
-                        $datamaterialissue = array(
-                            'sectiontype'=> $type, 
-                            'issuedate'=> $today, 
-                            'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> $reqissueqty,
-                            'issueqty'=> $issueqty, 
-                            'unitprice'=> $respondstock->row(0)->unitprice, 
-                            'status'=> '1', 
-                            'insertdatetime'=> $updatedatetime, 
-                            'tbl_user_idtbl_user'=> $userID, 
-                            'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
-                            'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
-                        );
+                //     if($balqty>0){
+                //         if($respondstock->row(0)->qty>=$balqty){
+                //             $issueqty=$balqty;
+                //             $balqty=0;
+                //         }
+                //         else{
+                //             $balqty=$balqty-$respondstock->row(0)->qty;
+                //             $issueqty=$respondstock->row(0)->qty;
+                //         }
+
+                //         $datamaterialissue = array(
+                //             'sectiontype'=> $type, 
+                //             'issuedate'=> $today, 
+                //             'batchno'=> $rowbatchno, 
+                //             'reqissueqty'=> $reqissueqty,
+                //             'issueqty'=> $issueqty, 
+                //             'unitprice'=> $respondstock->row(0)->unitprice, 
+                //             'status'=> '1', 
+                //             'insertdatetime'=> $updatedatetime, 
+                //             'tbl_user_idtbl_user'=> $userID, 
+                //             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                //             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                //             'jobcard_other_id'=> $jobcardotherID
+                //         );
             
-                        $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+                //         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
-                        // //Stock Update Query
-                        // $this->db->where('batchno', $rowbatchno);
-                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                        // $this->db->where('tbl_company_idtbl_company', $companyID);
-                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //         // //Stock Update Query
+                //         // $this->db->where('batchno', $rowbatchno);
+                //         // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //         // $this->db->where('tbl_company_idtbl_company', $companyID);
+                //         // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
 
-                        // $this->db->set('qty', 'qty - '.$issueqty, false);
-                        // $this->db->update('tbl_print_stock');
-                    }
-                }
+                //         // $this->db->set('qty', 'qty - '.$issueqty, false);
+                //         // $this->db->update('tbl_print_stock');
+                //     }
+                // }
             }
             if($type==3){//Coating Section
                 $this->db->select('`glossmatt`, `fullspot`, `varnishQty`, `remark`, `tbl_varnish_idtbl_varnish`');
@@ -710,58 +744,75 @@ class Materialallocationinfo extends CI_Model{
 
                 $jobcardotherID=$this->db->insert_id();
 
-                $explodebatch=explode(',', $batchnolist);
+                $datamaterialissue = array(
+                    'sectiontype'=> $type, 
+                    'issuedate'=> $today, 
+                    'batchno'=> $batchnolist, 
+                    'reqissueqty'=> $reqissueqty, 
+                    'issueqty'=> $issueqtydata, 
+                    'unitprice'=> '0', 
+                    'status'=> '1', 
+                    'insertdatetime'=> $updatedatetime, 
+                    'tbl_user_idtbl_user'=> $userID, 
+                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                    'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                    'jobcard_other_id'=> $jobcardotherID
+                );
+    
+                $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
-                $balqty=$issueqtydata;
+                // $explodebatch=explode(',', $batchnolist);
 
-                foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
-                    $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                // $balqty=$issueqtydata;
 
-                    $respondstock=$this->db->get();
+                // foreach($explodebatch as $rowbatchno){
+                //     $this->db->select('`batchno`, `qty`, `unitprice`');
+                //     $this->db->from('tbl_print_stock');
+                //     $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //     $this->db->where('batchno', $rowbatchno);
+                //     $this->db->where('tbl_company_idtbl_company', $companyID);
+                //     $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //     $this->db->where('status', 1);
 
-                    if($balqty>0){
-                        if($respondstock->row(0)->qty>=$balqty){
-                            $issueqty=$balqty;
-                            $balqty=0;
-                        }
-                        else{
-                            $balqty=$balqty-$respondstock->row(0)->qty;
-                            $issueqty=$respondstock->row(0)->qty;
-                        }
+                //     $respondstock=$this->db->get();
 
-                        $datamaterialissue = array(
-                            'sectiontype'=> $type, 
-                            'issuedate'=> $today, 
-                            'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> $reqissueqty,
-                            'issueqty'=> $issueqty, 
-                            'unitprice'=> $respondstock->row(0)->unitprice, 
-                            'status'=> '1', 
-                            'insertdatetime'=> $updatedatetime, 
-                            'tbl_user_idtbl_user'=> $userID, 
-                            'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
-                            'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
-                        );
+                //     if($balqty>0){
+                //         if($respondstock->row(0)->qty>=$balqty){
+                //             $issueqty=$balqty;
+                //             $balqty=0;
+                //         }
+                //         else{
+                //             $balqty=$balqty-$respondstock->row(0)->qty;
+                //             $issueqty=$respondstock->row(0)->qty;
+                //         }
+
+                //         $datamaterialissue = array(
+                //             'sectiontype'=> $type, 
+                //             'issuedate'=> $today, 
+                //             'batchno'=> $rowbatchno, 
+                //             'reqissueqty'=> $reqissueqty,
+                //             'issueqty'=> $issueqty, 
+                //             'unitprice'=> $respondstock->row(0)->unitprice, 
+                //             'status'=> '1', 
+                //             'insertdatetime'=> $updatedatetime, 
+                //             'tbl_user_idtbl_user'=> $userID, 
+                //             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                //             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                //             'jobcard_other_id'=> $jobcardotherID
+                //         );
             
-                        $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+                //         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
-                        // //Stock Update Query
-                        // $this->db->where('batchno', $rowbatchno);
-                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                        // $this->db->where('tbl_company_idtbl_company', $companyID);
-                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //         // //Stock Update Query
+                //         // $this->db->where('batchno', $rowbatchno);
+                //         // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //         // $this->db->where('tbl_company_idtbl_company', $companyID);
+                //         // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
 
-                        // $this->db->set('qty', 'qty - '.$issueqty, false);
-                        // $this->db->update('tbl_print_stock');
-                    }
-                }
+                //         // $this->db->set('qty', 'qty - '.$issueqty, false);
+                //         // $this->db->update('tbl_print_stock');
+                //     }
+                // }
             }    
             if($type==4){//Foiling Section
                 $this->db->select('`foilmaterialby`, `qty`, `remark`, `tbl_foiling_idtbl_foiling`');
@@ -789,58 +840,75 @@ class Materialallocationinfo extends CI_Model{
 
                 $jobcardotherID=$this->db->insert_id();
 
-                $explodebatch=explode(',', $batchnolist);
+                $datamaterialissue = array(
+                    'sectiontype'=> $type, 
+                    'issuedate'=> $today, 
+                    'batchno'=> $batchnolist, 
+                    'reqissueqty'=> $reqissueqty, 
+                    'issueqty'=> $issueqtydata, 
+                    'unitprice'=> '0', 
+                    'status'=> '1', 
+                    'insertdatetime'=> $updatedatetime, 
+                    'tbl_user_idtbl_user'=> $userID, 
+                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                    'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                    'jobcard_other_id'=> $jobcardotherID
+                );
+    
+                $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
-                $balqty=$issueqtydata;
+                // $explodebatch=explode(',', $batchnolist);
 
-                foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
-                    $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                // $balqty=$issueqtydata;
 
-                    $respondstock=$this->db->get();
+                // foreach($explodebatch as $rowbatchno){
+                //     $this->db->select('`batchno`, `qty`, `unitprice`');
+                //     $this->db->from('tbl_print_stock');
+                //     $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //     $this->db->where('batchno', $rowbatchno);
+                //     $this->db->where('tbl_company_idtbl_company', $companyID);
+                //     $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //     $this->db->where('status', 1);
 
-                    if($balqty>0){
-                        if($respondstock->row(0)->qty>=$balqty){
-                            $issueqty=$balqty;
-                            $balqty=0;
-                        }
-                        else{
-                            $balqty=$balqty-$respondstock->row(0)->qty;
-                            $issueqty=$respondstock->row(0)->qty;
-                        }
+                //     $respondstock=$this->db->get();
 
-                        $datamaterialissue = array(
-                            'sectiontype'=> $type, 
-                            'issuedate'=> $today, 
-                            'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> $reqissueqty,
-                            'issueqty'=> $issueqty, 
-                            'unitprice'=> $respondstock->row(0)->unitprice, 
-                            'status'=> '1', 
-                            'insertdatetime'=> $updatedatetime, 
-                            'tbl_user_idtbl_user'=> $userID, 
-                            'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
-                            'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
-                        );
+                //     if($balqty>0){
+                //         if($respondstock->row(0)->qty>=$balqty){
+                //             $issueqty=$balqty;
+                //             $balqty=0;
+                //         }
+                //         else{
+                //             $balqty=$balqty-$respondstock->row(0)->qty;
+                //             $issueqty=$respondstock->row(0)->qty;
+                //         }
+
+                //         $datamaterialissue = array(
+                //             'sectiontype'=> $type, 
+                //             'issuedate'=> $today, 
+                //             'batchno'=> $rowbatchno, 
+                //             'reqissueqty'=> $reqissueqty,
+                //             'issueqty'=> $issueqty, 
+                //             'unitprice'=> $respondstock->row(0)->unitprice, 
+                //             'status'=> '1', 
+                //             'insertdatetime'=> $updatedatetime, 
+                //             'tbl_user_idtbl_user'=> $userID, 
+                //             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                //             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                //             'jobcard_other_id'=> $jobcardotherID
+                //         );
             
-                        $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+                //         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
-                        // //Stock Update Query
-                        // $this->db->where('batchno', $rowbatchno);
-                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                        // $this->db->where('tbl_company_idtbl_company', $companyID);
-                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //         // //Stock Update Query
+                //         // $this->db->where('batchno', $rowbatchno);
+                //         // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //         // $this->db->where('tbl_company_idtbl_company', $companyID);
+                //         // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
 
-                        // $this->db->set('qty', 'qty - '.$issueqty, false);
-                        // $this->db->update('tbl_print_stock');
-                    }
-                }
+                //         // $this->db->set('qty', 'qty - '.$issueqty, false);
+                //         // $this->db->update('tbl_print_stock');
+                //     }
+                // }
             }         
             if($type==5){//Lamination Section
                 $this->db->select('`sides`, `filmsize`, `lamination_qty`, `wastage`, `tbl_lamination_idtbl_lamination`');
@@ -869,58 +937,75 @@ class Materialallocationinfo extends CI_Model{
 
                 $jobcardotherID=$this->db->insert_id();
 
-                $explodebatch=explode(',', $batchnolist);
+                $datamaterialissue = array(
+                    'sectiontype'=> $type, 
+                    'issuedate'=> $today, 
+                    'batchno'=> $batchnolist, 
+                    'reqissueqty'=> $reqissueqty, 
+                    'issueqty'=> $issueqtydata, 
+                    'unitprice'=> '0', 
+                    'status'=> '1', 
+                    'insertdatetime'=> $updatedatetime, 
+                    'tbl_user_idtbl_user'=> $userID, 
+                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                    'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                    'jobcard_other_id'=> $jobcardotherID
+                );
+    
+                $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
-                $balqty=$issueqtydata;
+                // $explodebatch=explode(',', $batchnolist);
 
-                foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
-                    $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                // $balqty=$issueqtydata;
 
-                    $respondstock=$this->db->get();
+                // foreach($explodebatch as $rowbatchno){
+                //     $this->db->select('`batchno`, `qty`, `unitprice`');
+                //     $this->db->from('tbl_print_stock');
+                //     $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //     $this->db->where('batchno', $rowbatchno);
+                //     $this->db->where('tbl_company_idtbl_company', $companyID);
+                //     $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //     $this->db->where('status', 1);
 
-                    if($balqty>0){
-                        if($respondstock->row(0)->qty>=$balqty){
-                            $issueqty=$balqty;
-                            $balqty=0;
-                        }
-                        else{
-                            $balqty=$balqty-$respondstock->row(0)->qty;
-                            $issueqty=$respondstock->row(0)->qty;
-                        }
+                //     $respondstock=$this->db->get();
 
-                        $datamaterialissue = array(
-                            'sectiontype'=> $type, 
-                            'issuedate'=> $today, 
-                            'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> $reqissueqty,
-                            'issueqty'=> $issueqty, 
-                            'unitprice'=> $respondstock->row(0)->unitprice, 
-                            'status'=> '1', 
-                            'insertdatetime'=> $updatedatetime, 
-                            'tbl_user_idtbl_user'=> $userID, 
-                            'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
-                            'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
-                        );
+                //     if($balqty>0){
+                //         if($respondstock->row(0)->qty>=$balqty){
+                //             $issueqty=$balqty;
+                //             $balqty=0;
+                //         }
+                //         else{
+                //             $balqty=$balqty-$respondstock->row(0)->qty;
+                //             $issueqty=$respondstock->row(0)->qty;
+                //         }
+
+                //         $datamaterialissue = array(
+                //             'sectiontype'=> $type, 
+                //             'issuedate'=> $today, 
+                //             'batchno'=> $rowbatchno, 
+                //             'reqissueqty'=> $reqissueqty,
+                //             'issueqty'=> $issueqty, 
+                //             'unitprice'=> $respondstock->row(0)->unitprice, 
+                //             'status'=> '1', 
+                //             'insertdatetime'=> $updatedatetime, 
+                //             'tbl_user_idtbl_user'=> $userID, 
+                //             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                //             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                //             'jobcard_other_id'=> $jobcardotherID
+                //         );
             
-                        $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+                //         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
-                        // //Stock Update Query
-                        // $this->db->where('batchno', $rowbatchno);
-                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                        // $this->db->where('tbl_company_idtbl_company', $companyID);
-                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //         // //Stock Update Query
+                //         // $this->db->where('batchno', $rowbatchno);
+                //         // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //         // $this->db->where('tbl_company_idtbl_company', $companyID);
+                //         // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
 
-                        // $this->db->set('qty', 'qty - '.$issueqty, false);
-                        // $this->db->update('tbl_print_stock');
-                    }
-                }
+                //         // $this->db->set('qty', 'qty - '.$issueqty, false);
+                //         // $this->db->update('tbl_print_stock');
+                //     }
+                // }
             }
             if($type==6){//Paste Section
                 $this->db->select('`pastetype`, `pasteqty`, `remark`, `tbl_machine_idtbl_machine`');
@@ -948,58 +1033,75 @@ class Materialallocationinfo extends CI_Model{
 
                 $jobcardotherID=$this->db->insert_id();
 
-                $explodebatch=explode(',', $batchnolist);
+                $datamaterialissue = array(
+                    'sectiontype'=> $type, 
+                    'issuedate'=> $today, 
+                    'batchno'=> $batchnolist, 
+                    'reqissueqty'=> $reqissueqty, 
+                    'issueqty'=> $issueqtydata, 
+                    'unitprice'=> '0', 
+                    'status'=> '1', 
+                    'insertdatetime'=> $updatedatetime, 
+                    'tbl_user_idtbl_user'=> $userID, 
+                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                    'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                    'jobcard_other_id'=> $jobcardotherID
+                );
+    
+                $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
-                $balqty=$issueqtydata;
+                // $explodebatch=explode(',', $batchnolist);
 
-                foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
-                    $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                // $balqty=$issueqtydata;
 
-                    $respondstock=$this->db->get();
+                // foreach($explodebatch as $rowbatchno){
+                //     $this->db->select('`batchno`, `qty`, `unitprice`');
+                //     $this->db->from('tbl_print_stock');
+                //     $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //     $this->db->where('batchno', $rowbatchno);
+                //     $this->db->where('tbl_company_idtbl_company', $companyID);
+                //     $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //     $this->db->where('status', 1);
 
-                    if($balqty>0){
-                        if($respondstock->row(0)->qty>=$balqty){
-                            $issueqty=$balqty;
-                            $balqty=0;
-                        }
-                        else{
-                            $balqty=$balqty-$respondstock->row(0)->qty;
-                            $issueqty=$respondstock->row(0)->qty;
-                        }
+                //     $respondstock=$this->db->get();
 
-                        $datamaterialissue = array(
-                            'sectiontype'=> $type, 
-                            'issuedate'=> $today, 
-                            'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> $reqissueqty,
-                            'issueqty'=> $issueqty, 
-                            'unitprice'=> $respondstock->row(0)->unitprice, 
-                            'status'=> '1', 
-                            'insertdatetime'=> $updatedatetime, 
-                            'tbl_user_idtbl_user'=> $userID, 
-                            'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
-                            'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
-                        );
+                //     if($balqty>0){
+                //         if($respondstock->row(0)->qty>=$balqty){
+                //             $issueqty=$balqty;
+                //             $balqty=0;
+                //         }
+                //         else{
+                //             $balqty=$balqty-$respondstock->row(0)->qty;
+                //             $issueqty=$respondstock->row(0)->qty;
+                //         }
+
+                //         $datamaterialissue = array(
+                //             'sectiontype'=> $type, 
+                //             'issuedate'=> $today, 
+                //             'batchno'=> $rowbatchno, 
+                //             'reqissueqty'=> $reqissueqty,
+                //             'issueqty'=> $issueqty, 
+                //             'unitprice'=> $respondstock->row(0)->unitprice, 
+                //             'status'=> '1', 
+                //             'insertdatetime'=> $updatedatetime, 
+                //             'tbl_user_idtbl_user'=> $userID, 
+                //             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                //             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                //             'jobcard_other_id'=> $jobcardotherID
+                //         );
             
-                        $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+                //         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
-                        // //Stock Update Query
-                        // $this->db->where('batchno', $rowbatchno);
-                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                        // $this->db->where('tbl_company_idtbl_company', $companyID);
-                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //         // //Stock Update Query
+                //         // $this->db->where('batchno', $rowbatchno);
+                //         // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //         // $this->db->where('tbl_company_idtbl_company', $companyID);
+                //         // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
 
-                        // $this->db->set('qty', 'qty - '.$issueqty, false);
-                        // $this->db->update('tbl_print_stock');
-                    }
-                }
+                //         // $this->db->set('qty', 'qty - '.$issueqty, false);
+                //         // $this->db->update('tbl_print_stock');
+                //     }
+                // }
             }
             if($type==7){//Rimming Section
                 $this->db->select('`rimmingby`, `sides`, `qty`, `remark`, `tbl_rimming_idtbl_rimming`');
@@ -1028,58 +1130,75 @@ class Materialallocationinfo extends CI_Model{
 
                 $jobcardotherID=$this->db->insert_id();
 
-                $explodebatch=explode(',', $batchnolist);
+                $datamaterialissue = array(
+                    'sectiontype'=> $type, 
+                    'issuedate'=> $today, 
+                    'batchno'=> $batchnolist, 
+                    'reqissueqty'=> $reqissueqty, 
+                    'issueqty'=> $issueqtydata, 
+                    'unitprice'=> '0', 
+                    'status'=> '1', 
+                    'insertdatetime'=> $updatedatetime, 
+                    'tbl_user_idtbl_user'=> $userID, 
+                    'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                    'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                    'jobcard_other_id'=> $jobcardotherID
+                );
+    
+                $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
-                $balqty=$issueqtydata;
+                // $explodebatch=explode(',', $batchnolist);
 
-                foreach($explodebatch as $rowbatchno){
-                    $this->db->select('`batchno`, `qty`, `unitprice`');
-                    $this->db->from('tbl_print_stock');
-                    $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                    $this->db->where('batchno', $rowbatchno);
-                    $this->db->where('tbl_company_idtbl_company', $companyID);
-                    $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
-                    $this->db->where('status', 1);
+                // $balqty=$issueqtydata;
 
-                    $respondstock=$this->db->get();
+                // foreach($explodebatch as $rowbatchno){
+                //     $this->db->select('`batchno`, `qty`, `unitprice`');
+                //     $this->db->from('tbl_print_stock');
+                //     $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //     $this->db->where('batchno', $rowbatchno);
+                //     $this->db->where('tbl_company_idtbl_company', $companyID);
+                //     $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //     $this->db->where('status', 1);
 
-                    if($balqty>0){
-                        if($respondstock->row(0)->qty>=$balqty){
-                            $issueqty=$balqty;
-                            $balqty=0;
-                        }
-                        else{
-                            $balqty=$balqty-$respondstock->row(0)->qty;
-                            $issueqty=$respondstock->row(0)->qty;
-                        }
+                //     $respondstock=$this->db->get();
 
-                        $datamaterialissue = array(
-                            'sectiontype'=> $type, 
-                            'issuedate'=> $today, 
-                            'batchno'=> $rowbatchno, 
-                            'reqissueqty'=> $reqissueqty,
-                            'issueqty'=> $issueqty, 
-                            'unitprice'=> $respondstock->row(0)->unitprice, 
-                            'status'=> '1', 
-                            'insertdatetime'=> $updatedatetime, 
-                            'tbl_user_idtbl_user'=> $userID, 
-                            'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
-                            'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-                            'jobcard_other_id'=> $jobcardotherID
-                        );
+                //     if($balqty>0){
+                //         if($respondstock->row(0)->qty>=$balqty){
+                //             $issueqty=$balqty;
+                //             $balqty=0;
+                //         }
+                //         else{
+                //             $balqty=$balqty-$respondstock->row(0)->qty;
+                //             $issueqty=$respondstock->row(0)->qty;
+                //         }
+
+                //         $datamaterialissue = array(
+                //             'sectiontype'=> $type, 
+                //             'issuedate'=> $today, 
+                //             'batchno'=> $rowbatchno, 
+                //             'reqissueqty'=> $reqissueqty,
+                //             'issueqty'=> $issueqty, 
+                //             'unitprice'=> $respondstock->row(0)->unitprice, 
+                //             'status'=> '1', 
+                //             'insertdatetime'=> $updatedatetime, 
+                //             'tbl_user_idtbl_user'=> $userID, 
+                //             'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+                //             'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+                //             'jobcard_other_id'=> $jobcardotherID
+                //         );
             
-                        $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+                //         $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
 
-                        // //Stock Update Query
-                        // $this->db->where('batchno', $rowbatchno);
-                        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-                        // $this->db->where('tbl_company_idtbl_company', $companyID);
-                        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                //         // //Stock Update Query
+                //         // $this->db->where('batchno', $rowbatchno);
+                //         // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+                //         // $this->db->where('tbl_company_idtbl_company', $companyID);
+                //         // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
 
-                        // $this->db->set('qty', 'qty - '.$issueqty, false);
-                        // $this->db->update('tbl_print_stock');
-                    }
-                }
+                //         // $this->db->set('qty', 'qty - '.$issueqty, false);
+                //         // $this->db->update('tbl_print_stock');
+                //     }
+                // }
             }
         }
 
@@ -2523,4 +2642,785 @@ class Materialallocationinfo extends CI_Model{
             echo json_encode($obj);
         }
     }
+
+
+
+
+
+    // public function Allocationmaterialinsertupdate(){
+    //     $this->db->trans_begin();
+
+    //     $customer=$this->input->post('customer');
+    //     $cusinquiry=$this->input->post('cusinquiry');
+    //     $bominfo=$this->input->post('bominfo');
+    //     $issueqty=$this->input->post('issueqty');
+    //     $jobcardtype=$this->input->post('jobcardtype');
+    //     $allocationdate=$this->input->post('allocationdate');
+    //     $tableData=$this->input->post('tableData');
+        
+    //     $companyID=$_SESSION['company_id'];
+    //     $branchID=$_SESSION['branch_id'];
+    //     $userID=$_SESSION['userid'];
+
+    //     $updatedatetime=date('Y-m-d H:i:s');
+    //     $today=$allocationdate;
+
+    //     $this->db->select('`idtbl_jobcard`');
+    //     $this->db->from('tbl_jobcard');
+    //     $this->db->where('tbl_customerinquiry_idtbl_customerinquiry', $cusinquiry);
+    //     $this->db->where('tbl_company_idtbl_company', $companyID);
+    //     $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+    //     $respondcheckjobcard=$this->db->get();
+
+    //     if(empty($respondcheckjobcard->row(0)->idtbl_jobcard)){
+    //         $this->db->select('COUNT(`idtbl_jobcard`) AS `count`');
+    //         $this->db->from('tbl_jobcard');
+    //         $this->db->where('tbl_company_idtbl_company', $companyID);
+    //         $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+    //         $respond=$this->db->get();
+
+    //         $this->db->select('`job`, `job_no`');
+    //         $this->db->from('tbl_customerinquiry_detail');
+    //         $this->db->where('tbl_customerinquiry_idtbl_customerinquiry', $cusinquiry);
+
+    //         $respondjobinfo=$this->db->get();
+            
+    //         $jobdesc=$respondjobinfo->row(0)->job.' '.$respondjobinfo->row(0)->job_no;
+
+    //         if($respond->num_rows()==0){$jobcardno=date('Ym').'1';}
+    //         else{$jobcardno=date('Ym').($respond->row(0)->count+1);}
+
+    //         $data = array(
+    //             'jobcardtype'=> $jobcardtype,
+    //             'jobcardno'=> $jobcardno,
+    //             'job_description'=> $jobdesc,
+    //             'date'=> $today,
+    //             'docno'=> '',
+    //             'issueqty'=> $issueqty,
+    //             'status'=> '1',
+    //             'insertdatetime'=> $updatedatetime,
+    //             'tbl_user_idtbl_user'=> $userID,
+    //             'tbl_customerinquiry_idtbl_customerinquiry'=> $cusinquiry,
+    //             'tbl_jobcard_bom_idtbl_jobcard_bom'=> $bominfo,
+    //             'tbl_company_idtbl_company'=> $companyID,
+    //             'tbl_company_branch_idtbl_company_branch'=> $branchID,
+    //             'tbl_customer_idtbl_customer'=> $customer
+    //         );
+
+    //         $this->db->insert('tbl_jobcard', $data);
+
+    //         $jobCardID=$this->db->insert_id();
+    //     }
+    //     else{
+    //         $jobCardID = $respondcheckjobcard->row(0)->idtbl_jobcard;
+
+    //         $this->db->select('COUNT(*) as notissuecount');
+    //         $this->db->from('tbl_jobcard_issue_meterial');
+    //         $this->db->where('issuedate !=', $allocationdate);
+    //         $this->db->where('tbl_jobcard_idtbl_jobcard', $jobCardID);
+    //         $this->db->where('status !=', 2);
+
+    //         $respondnotissue = $this->db->get();
+
+    //         if($respondnotissue->row(0)->notissuecount > 0){
+    //             $actionObj=new stdClass();
+    //             $actionObj->icon='fas fa-exclamation-triangle';
+    //             $actionObj->title='Record Error';
+    //             $actionObj->message='Kindly resolve the pending issue note associated with this customer inquiry as a priority';
+    //             $actionObj->url='';
+    //             $actionObj->target='_blank';
+    //             $actionObj->type='danger';
+
+    //             $actionJSON=json_encode($actionObj);
+
+    //             $obj=new stdClass();
+    //             $obj->status=0;          
+    //             $obj->action=$actionJSON;  
+                
+    //             echo json_encode($obj);
+
+    //             return;
+    //         }
+
+    //         $data = array(
+    //             'approvestatus'=> '0',
+    //             'issuematerialstatus'=> '0',
+    //             'check_by'=> '0',
+    //             'updatedatetime'=> $updatedatetime
+    //         );
+    //         $this->db->where('idtbl_jobcard', $jobCardID);
+	// 		$this->db->update('tbl_jobcard', $data);            
+    //     }
+
+    //     foreach($tableData as $rowdatalist){
+    //         $type=$rowdatalist['col_1'];
+    //         $materialname=$rowdatalist['col_2'];
+    //         $bomqty=$rowdatalist['col_3'];
+    //         $issueqtydata=$rowdatalist['col_4'];
+    //         $batchnolist=$rowdatalist['col_5'];
+    //         $materialID=$rowdatalist['col_6'];
+    //         $reqissueqty=$rowdatalist['col_7'];
+
+    //         $datamaterial = array(
+    //             'materialby'=> $respondbommateinfo->row(0)->materialby, 
+    //             'cutsize'=> $respondbommateinfo->row(0)->cutsize, 
+    //             'cutups'=> $respondbommateinfo->row(0)->cutups, 
+    //             'upspersheet'=> $respondbommateinfo->row(0)->upspersheet, 
+    //             'wastage'=> $respondbommateinfo->row(0)->wastage, 
+    //             'batchno'=> $batchnolist, 
+    //             'issueqty'=> $issueqtydata, 
+    //             'status'=> '1', 
+    //             'insertdatetime'=> $updatedatetime, 
+    //             'tbl_user_idtbl_user'=> $userID, 
+    //             'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
+    //             'tbl_jobcard_idtbl_jobcard'=> $jobCardID
+    //         );
+    
+    //         $this->db->insert('tbl_jobcard_material', $datamaterial);
+
+    //         if($type==1){//Material Section
+    //             $this->db->select('`materialby`, `cutsize`, `cutups`, `upspersheet`, `wastage`');
+    //             $this->db->from('tbl_jobcard_bom_material');
+    //             $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //             $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+
+    //             $respondbommateinfo=$this->db->get();
+                
+    //             $datamaterial = array(
+    //                 'materialby'=> $respondbommateinfo->row(0)->materialby, 
+    //                 'cutsize'=> $respondbommateinfo->row(0)->cutsize, 
+    //                 'cutups'=> $respondbommateinfo->row(0)->cutups, 
+    //                 'upspersheet'=> $respondbommateinfo->row(0)->upspersheet, 
+    //                 'wastage'=> $respondbommateinfo->row(0)->wastage, 
+    //                 'batchno'=> $batchnolist, 
+    //                 'issueqty'=> $issueqtydata, 
+    //                 'status'=> '1', 
+    //                 'insertdatetime'=> $updatedatetime, 
+    //                 'tbl_user_idtbl_user'=> $userID, 
+    //                 'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
+    //                 'tbl_jobcard_idtbl_jobcard'=> $jobCardID
+    //             );
+       
+    //             $this->db->insert('tbl_jobcard_material', $datamaterial);
+
+    //             $jobcardotherID=$this->db->insert_id();
+                
+    //             $explodebatch=explode(',', $batchnolist);
+                
+    //             $balqty=$issueqtydata;
+
+    //             foreach($explodebatch as $rowbatchno){
+    //                 $this->db->select('`batchno`, `qty`, `unitprice`');
+    //                 $this->db->from('tbl_print_stock');
+    //                 $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                 $this->db->where('batchno', $rowbatchno);
+    //                 $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                 $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+    //                 $this->db->where('status', 1);
+
+    //                 $respondstock=$this->db->get();
+
+    //                 if($balqty>0){
+    //                     if($respondstock->row(0)->qty>=$balqty){
+    //                         $issueqty=$balqty;
+    //                         $balqty=0;
+    //                     }
+    //                     else{
+    //                         $balqty=$balqty-$respondstock->row(0)->qty;
+    //                         $issueqty=$respondstock->row(0)->qty;
+    //                     }
+
+    //                     $datamaterialissue = array(
+    //                         'sectiontype'=> $type, 
+    //                         'issuedate'=> $today, 
+    //                         'batchno'=> $rowbatchno, 
+    //                         'reqissueqty'=> $reqissueqty, 
+    //                         'issueqty'=> $issueqty, 
+    //                         'unitprice'=> $respondstock->row(0)->unitprice, 
+    //                         'status'=> '1', 
+    //                         'insertdatetime'=> $updatedatetime, 
+    //                         'tbl_user_idtbl_user'=> $userID, 
+    //                         'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+    //                         'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+    //                         'jobcard_other_id'=> $jobcardotherID
+    //                     );
+            
+    //                     $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+    //                     // //Stock Update Query
+    //                     // $this->db->where('batchno', $rowbatchno);
+    //                     // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                     // $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                     // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+    //                     // $this->db->set('qty', 'qty - '.$issueqty, false);
+    //                     // $this->db->update('tbl_print_stock');
+    //                 }
+    //             }
+    //         }
+    //         if($type==2){//Printing Section
+    //             $this->db->select('`colormaterialby`, `colortype`, `remark`, `qty`');
+    //             $this->db->from('tbl_jobcard_bom_color');
+    //             $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //             $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+
+    //             $respondbomcolorinfo=$this->db->get();
+                
+    //             $datacolor = array(
+    //                 'colormaterialby'=> $respondbomcolorinfo->row(0)->colormaterialby, 
+    //                 'colortype'=> $respondbomcolorinfo->row(0)->colortype, 
+    //                 'remark'=> $respondbomcolorinfo->row(0)->remark, 
+    //                 'qty'=> $respondbomcolorinfo->row(0)->qty, 
+    //                 'batchno'=> $batchnolist, 
+    //                 'issueqty'=> $issueqtydata, 
+    //                 'status'=> '1', 
+    //                 'insertdatetime'=> $updatedatetime, 
+    //                 'tbl_user_idtbl_user'=> $userID, 
+    //                 'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+    //                 'tbl_print_material_info_idtbl_print_material_info'=> $materialID
+    //             );
+       
+    //             $this->db->insert('tbl_jobcard_color', $datacolor);
+
+    //             $jobcardotherID=$this->db->insert_id();
+
+    //             $explodebatch=explode(',', $batchnolist);
+
+    //             $balqty=$issueqtydata;
+
+    //             foreach($explodebatch as $rowbatchno){
+    //                 $this->db->select('`batchno`, `qty`, `unitprice`');
+    //                 $this->db->from('tbl_print_stock');
+    //                 $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                 $this->db->where('batchno', $rowbatchno);
+    //                 $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                 $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+    //                 $this->db->where('status', 1);
+
+    //                 $respondstock=$this->db->get();
+
+    //                 if($balqty>0){
+    //                     if($respondstock->row(0)->qty>=$balqty){
+    //                         $issueqty=$balqty;
+    //                         $balqty=0;
+    //                     }
+    //                     else{
+    //                         $balqty=$balqty-$respondstock->row(0)->qty;
+    //                         $issueqty=$respondstock->row(0)->qty;
+    //                     }
+
+    //                     $datamaterialissue = array(
+    //                         'sectiontype'=> $type, 
+    //                         'issuedate'=> $today, 
+    //                         'batchno'=> $rowbatchno, 
+    //                         'reqissueqty'=> $reqissueqty,
+    //                         'issueqty'=> $issueqty, 
+    //                         'unitprice'=> $respondstock->row(0)->unitprice, 
+    //                         'status'=> '1', 
+    //                         'insertdatetime'=> $updatedatetime, 
+    //                         'tbl_user_idtbl_user'=> $userID, 
+    //                         'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+    //                         'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+    //                         'jobcard_other_id'=> $jobcardotherID
+    //                     );
+            
+    //                     $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+    //                     // //Stock Update Query
+    //                     // $this->db->where('batchno', $rowbatchno);
+    //                     // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                     // $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                     // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+    //                     // $this->db->set('qty', 'qty - '.$issueqty, false);
+    //                     // $this->db->update('tbl_print_stock');
+    //                 }
+    //             }
+    //         }
+    //         if($type==3){//Coating Section
+    //             $this->db->select('`glossmatt`, `fullspot`, `varnishQty`, `remark`, `tbl_varnish_idtbl_varnish`');
+    //             $this->db->from('tbl_jobcard_bom_varnish');
+    //             $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //             $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+
+    //             $respondbomvarnishinfo=$this->db->get();
+                
+    //             $datavarnish = array(
+    //                 'glossmatt'=> $respondbomvarnishinfo->row(0)->glossmatt, 
+    //                 'fullspot'=> $respondbomvarnishinfo->row(0)->fullspot, 
+    //                 'varnishQty'=> $respondbomvarnishinfo->row(0)->varnishQty, 
+    //                 'remark'=> $respondbomvarnishinfo->row(0)->remark, 
+    //                 'batchno'=> $batchnolist, 
+    //                 'issueqty'=> $issueqtydata, 
+    //                 'status'=> '1', 
+    //                 'insertdatetime'=> $updatedatetime, 
+    //                 'tbl_user_idtbl_user'=> $userID, 
+    //                 'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
+    //                 'tbl_varnish_idtbl_varnish'=> $respondbomvarnishinfo->row(0)->tbl_varnish_idtbl_varnish, 
+    //                 'tbl_jobcard_idtbl_jobcard'=> $jobCardID
+    //             );
+       
+    //             $this->db->insert('tbl_jobcard_varnish', $datavarnish);
+
+    //             $jobcardotherID=$this->db->insert_id();
+
+    //             $explodebatch=explode(',', $batchnolist);
+
+    //             $balqty=$issueqtydata;
+
+    //             foreach($explodebatch as $rowbatchno){
+    //                 $this->db->select('`batchno`, `qty`, `unitprice`');
+    //                 $this->db->from('tbl_print_stock');
+    //                 $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                 $this->db->where('batchno', $rowbatchno);
+    //                 $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                 $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+    //                 $this->db->where('status', 1);
+
+    //                 $respondstock=$this->db->get();
+
+    //                 if($balqty>0){
+    //                     if($respondstock->row(0)->qty>=$balqty){
+    //                         $issueqty=$balqty;
+    //                         $balqty=0;
+    //                     }
+    //                     else{
+    //                         $balqty=$balqty-$respondstock->row(0)->qty;
+    //                         $issueqty=$respondstock->row(0)->qty;
+    //                     }
+
+    //                     $datamaterialissue = array(
+    //                         'sectiontype'=> $type, 
+    //                         'issuedate'=> $today, 
+    //                         'batchno'=> $rowbatchno, 
+    //                         'reqissueqty'=> $reqissueqty,
+    //                         'issueqty'=> $issueqty, 
+    //                         'unitprice'=> $respondstock->row(0)->unitprice, 
+    //                         'status'=> '1', 
+    //                         'insertdatetime'=> $updatedatetime, 
+    //                         'tbl_user_idtbl_user'=> $userID, 
+    //                         'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+    //                         'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+    //                         'jobcard_other_id'=> $jobcardotherID
+    //                     );
+            
+    //                     $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+    //                     // //Stock Update Query
+    //                     // $this->db->where('batchno', $rowbatchno);
+    //                     // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                     // $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                     // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+    //                     // $this->db->set('qty', 'qty - '.$issueqty, false);
+    //                     // $this->db->update('tbl_print_stock');
+    //                 }
+    //             }
+    //         }    
+    //         if($type==4){//Foiling Section
+    //             $this->db->select('`foilmaterialby`, `qty`, `remark`, `tbl_foiling_idtbl_foiling`');
+    //             $this->db->from('tbl_jobcard_foil');
+    //             $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //             $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+
+    //             $respondbomfoilinfo=$this->db->get();
+                
+    //             $datafoil = array(
+    //                 'foilmaterialby'=> $respondbomfoilinfo->row(0)->foilmaterialby, 
+    //                 'qty'=> $respondbomfoilinfo->row(0)->qty, 
+    //                 'remark'=> $respondbomfoilinfo->row(0)->remark, 
+    //                 'batchno'=> $batchnolist, 
+    //                 'issueqty'=> $issueqtydata, 
+    //                 'status'=> '1', 
+    //                 'insertdatetime'=> $updatedatetime, 
+    //                 'tbl_user_idtbl_user'=> $userID, 
+    //                 'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
+    //                 'tbl_foiling_idtbl_foiling'=> $respondbomfoilinfo->row(0)->tbl_foiling_idtbl_foiling, 
+    //                 'tbl_jobcard_idtbl_jobcard'=> $jobCardID
+    //             );
+       
+    //             $this->db->insert('tbl_jobcard_foil', $datafoil);
+
+    //             $jobcardotherID=$this->db->insert_id();
+
+    //             $explodebatch=explode(',', $batchnolist);
+
+    //             $balqty=$issueqtydata;
+
+    //             foreach($explodebatch as $rowbatchno){
+    //                 $this->db->select('`batchno`, `qty`, `unitprice`');
+    //                 $this->db->from('tbl_print_stock');
+    //                 $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                 $this->db->where('batchno', $rowbatchno);
+    //                 $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                 $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+    //                 $this->db->where('status', 1);
+
+    //                 $respondstock=$this->db->get();
+
+    //                 if($balqty>0){
+    //                     if($respondstock->row(0)->qty>=$balqty){
+    //                         $issueqty=$balqty;
+    //                         $balqty=0;
+    //                     }
+    //                     else{
+    //                         $balqty=$balqty-$respondstock->row(0)->qty;
+    //                         $issueqty=$respondstock->row(0)->qty;
+    //                     }
+
+    //                     $datamaterialissue = array(
+    //                         'sectiontype'=> $type, 
+    //                         'issuedate'=> $today, 
+    //                         'batchno'=> $rowbatchno, 
+    //                         'reqissueqty'=> $reqissueqty,
+    //                         'issueqty'=> $issueqty, 
+    //                         'unitprice'=> $respondstock->row(0)->unitprice, 
+    //                         'status'=> '1', 
+    //                         'insertdatetime'=> $updatedatetime, 
+    //                         'tbl_user_idtbl_user'=> $userID, 
+    //                         'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+    //                         'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+    //                         'jobcard_other_id'=> $jobcardotherID
+    //                     );
+            
+    //                     $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+    //                     // //Stock Update Query
+    //                     // $this->db->where('batchno', $rowbatchno);
+    //                     // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                     // $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                     // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+    //                     // $this->db->set('qty', 'qty - '.$issueqty, false);
+    //                     // $this->db->update('tbl_print_stock');
+    //                 }
+    //             }
+    //         }         
+    //         if($type==5){//Lamination Section
+    //             $this->db->select('`sides`, `filmsize`, `lamination_qty`, `wastage`, `tbl_lamination_idtbl_lamination`');
+    //             $this->db->from('tbl_jobcard_bom_lamination');
+    //             $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //             $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+
+    //             $respondbomlamination=$this->db->get();
+                
+    //             $datalamination = array(
+    //                 'sides'=> $respondbomlamination->row(0)->sides, 
+    //                 'filmsize'=> $respondbomlamination->row(0)->filmsize, 
+    //                 'lamination_qty'=> $respondbomlamination->row(0)->lamination_qty, 
+    //                 'wastage'=> $respondbomlamination->row(0)->wastage, 
+    //                 'batchno'=> $batchnolist, 
+    //                 'issueqty'=> $issueqtydata, 
+    //                 'status'=> '1', 
+    //                 'insertdatetime'=> $updatedatetime, 
+    //                 'tbl_user_idtbl_user'=> $userID, 
+    //                 'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
+    //                 'tbl_lamination_idtbl_lamination'=> $respondbomlamination->row(0)->tbl_lamination_idtbl_lamination, 
+    //                 'tbl_jobcard_idtbl_jobcard'=> $jobCardID
+    //             );
+       
+    //             $this->db->insert('tbl_jobcard_lamination', $datalamination);
+
+    //             $jobcardotherID=$this->db->insert_id();
+
+    //             $explodebatch=explode(',', $batchnolist);
+
+    //             $balqty=$issueqtydata;
+
+    //             foreach($explodebatch as $rowbatchno){
+    //                 $this->db->select('`batchno`, `qty`, `unitprice`');
+    //                 $this->db->from('tbl_print_stock');
+    //                 $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                 $this->db->where('batchno', $rowbatchno);
+    //                 $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                 $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+    //                 $this->db->where('status', 1);
+
+    //                 $respondstock=$this->db->get();
+
+    //                 if($balqty>0){
+    //                     if($respondstock->row(0)->qty>=$balqty){
+    //                         $issueqty=$balqty;
+    //                         $balqty=0;
+    //                     }
+    //                     else{
+    //                         $balqty=$balqty-$respondstock->row(0)->qty;
+    //                         $issueqty=$respondstock->row(0)->qty;
+    //                     }
+
+    //                     $datamaterialissue = array(
+    //                         'sectiontype'=> $type, 
+    //                         'issuedate'=> $today, 
+    //                         'batchno'=> $rowbatchno, 
+    //                         'reqissueqty'=> $reqissueqty,
+    //                         'issueqty'=> $issueqty, 
+    //                         'unitprice'=> $respondstock->row(0)->unitprice, 
+    //                         'status'=> '1', 
+    //                         'insertdatetime'=> $updatedatetime, 
+    //                         'tbl_user_idtbl_user'=> $userID, 
+    //                         'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+    //                         'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+    //                         'jobcard_other_id'=> $jobcardotherID
+    //                     );
+            
+    //                     $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+    //                     // //Stock Update Query
+    //                     // $this->db->where('batchno', $rowbatchno);
+    //                     // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                     // $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                     // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+    //                     // $this->db->set('qty', 'qty - '.$issueqty, false);
+    //                     // $this->db->update('tbl_print_stock');
+    //                 }
+    //             }
+    //         }
+    //         if($type==6){//Paste Section
+    //             $this->db->select('`pastetype`, `pasteqty`, `remark`, `tbl_machine_idtbl_machine`');
+    //             $this->db->from('tbl_jobcard_bom_pasting');
+    //             $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //             $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+
+    //             $respondbompasting=$this->db->get();
+                
+    //             $datapasting = array(
+    //                 'pastetype'=> $respondbompasting->row(0)->pastetype, 
+    //                 'pasteqty'=> $respondbompasting->row(0)->pasteqty, 
+    //                 'remark'=> $respondbompasting->row(0)->remark, 
+    //                 'batchno'=> $batchnolist, 
+    //                 'issueqty'=> $issueqtydata, 
+    //                 'status'=> '1', 
+    //                 'insertdatetime'=> $updatedatetime, 
+    //                 'tbl_user_idtbl_user'=> $userID, 
+    //                 'tbl_machine_idtbl_machine'=> $respondbompasting->row(0)->tbl_machine_idtbl_machine, 
+    //                 'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
+    //                 'tbl_jobcard_idtbl_jobcard'=> $jobCardID
+    //             );
+       
+    //             $this->db->insert('tbl_jobcard_pasting', $datapasting);
+
+    //             $jobcardotherID=$this->db->insert_id();
+
+    //             $explodebatch=explode(',', $batchnolist);
+
+    //             $balqty=$issueqtydata;
+
+    //             foreach($explodebatch as $rowbatchno){
+    //                 $this->db->select('`batchno`, `qty`, `unitprice`');
+    //                 $this->db->from('tbl_print_stock');
+    //                 $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                 $this->db->where('batchno', $rowbatchno);
+    //                 $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                 $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+    //                 $this->db->where('status', 1);
+
+    //                 $respondstock=$this->db->get();
+
+    //                 if($balqty>0){
+    //                     if($respondstock->row(0)->qty>=$balqty){
+    //                         $issueqty=$balqty;
+    //                         $balqty=0;
+    //                     }
+    //                     else{
+    //                         $balqty=$balqty-$respondstock->row(0)->qty;
+    //                         $issueqty=$respondstock->row(0)->qty;
+    //                     }
+
+    //                     $datamaterialissue = array(
+    //                         'sectiontype'=> $type, 
+    //                         'issuedate'=> $today, 
+    //                         'batchno'=> $rowbatchno, 
+    //                         'reqissueqty'=> $reqissueqty,
+    //                         'issueqty'=> $issueqty, 
+    //                         'unitprice'=> $respondstock->row(0)->unitprice, 
+    //                         'status'=> '1', 
+    //                         'insertdatetime'=> $updatedatetime, 
+    //                         'tbl_user_idtbl_user'=> $userID, 
+    //                         'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+    //                         'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+    //                         'jobcard_other_id'=> $jobcardotherID
+    //                     );
+            
+    //                     $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+    //                     // //Stock Update Query
+    //                     // $this->db->where('batchno', $rowbatchno);
+    //                     // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                     // $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                     // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+    //                     // $this->db->set('qty', 'qty - '.$issueqty, false);
+    //                     // $this->db->update('tbl_print_stock');
+    //                 }
+    //             }
+    //         }
+    //         if($type==7){//Rimming Section
+    //             $this->db->select('`rimmingby`, `sides`, `qty`, `remark`, `tbl_rimming_idtbl_rimming`');
+    //             $this->db->from('tbl_jobcard_bom_rimming');
+    //             $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //             $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+
+    //             $respondbomrimming=$this->db->get();
+                
+    //             $datarimming = array(
+    //                 'rimmingby'=> $respondbomrimming->row(0)->rimmingby, 
+    //                 'sides'=> $respondbomrimming->row(0)->sides, 
+    //                 'qty'=> $respondbomrimming->row(0)->qty, 
+    //                 'remark'=> $respondbomrimming->row(0)->remark, 
+    //                 'batchno'=> $batchnolist, 
+    //                 'issueqty'=> $issueqtydata, 
+    //                 'status'=> '1', 
+    //                 'insertdatetime'=> $updatedatetime, 
+    //                 'tbl_user_idtbl_user'=> $userID, 
+    //                 'tbl_print_material_info_idtbl_print_material_info'=> $materialID, 
+    //                 'tbl_rimming_idtbl_rimming'=> $respondbomrimming->row(0)->tbl_rimming_idtbl_rimming, 
+    //                 'tbl_jobcard_idtbl_jobcard'=> $jobCardID
+    //             );
+       
+    //             $this->db->insert('tbl_jobcard_rimming', $datarimming);
+
+    //             $jobcardotherID=$this->db->insert_id();
+
+    //             $explodebatch=explode(',', $batchnolist);
+
+    //             $balqty=$issueqtydata;
+
+    //             foreach($explodebatch as $rowbatchno){
+    //                 $this->db->select('`batchno`, `qty`, `unitprice`');
+    //                 $this->db->from('tbl_print_stock');
+    //                 $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                 $this->db->where('batchno', $rowbatchno);
+    //                 $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                 $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+    //                 $this->db->where('status', 1);
+
+    //                 $respondstock=$this->db->get();
+
+    //                 if($balqty>0){
+    //                     if($respondstock->row(0)->qty>=$balqty){
+    //                         $issueqty=$balqty;
+    //                         $balqty=0;
+    //                     }
+    //                     else{
+    //                         $balqty=$balqty-$respondstock->row(0)->qty;
+    //                         $issueqty=$respondstock->row(0)->qty;
+    //                     }
+
+    //                     $datamaterialissue = array(
+    //                         'sectiontype'=> $type, 
+    //                         'issuedate'=> $today, 
+    //                         'batchno'=> $rowbatchno, 
+    //                         'reqissueqty'=> $reqissueqty,
+    //                         'issueqty'=> $issueqty, 
+    //                         'unitprice'=> $respondstock->row(0)->unitprice, 
+    //                         'status'=> '1', 
+    //                         'insertdatetime'=> $updatedatetime, 
+    //                         'tbl_user_idtbl_user'=> $userID, 
+    //                         'tbl_jobcard_idtbl_jobcard'=> $jobCardID, 
+    //                         'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+    //                         'jobcard_other_id'=> $jobcardotherID
+    //                     );
+            
+    //                     $this->db->insert('tbl_jobcard_issue_meterial', $datamaterialissue);
+
+    //                     // //Stock Update Query
+    //                     // $this->db->where('batchno', $rowbatchno);
+    //                     // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+    //                     // $this->db->where('tbl_company_idtbl_company', $companyID);
+    //                     // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+
+    //                     // $this->db->set('qty', 'qty - '.$issueqty, false);
+    //                     // $this->db->update('tbl_print_stock');
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     //Diecutting Section
+    //     $this->db->select('COUNT(*) AS `count`');
+    //     $this->db->from('tbl_jobcard_diecutting');
+    //     $this->db->where('tbl_jobcard_idtbl_jobcard', $jobCardID);
+    //     $this->db->where('status', '1');
+
+    //     $respondcheckdiecut=$this->db->get();
+
+    //     if($respondcheckdiecut->row(0)->count==0){
+    //         $this->db->select("`channel`, `board`, `size`, `qty`, `diecutby`, `embossby`, 1 AS `status`, '$updatedatetime' AS `insertdatetime`, '$userID' AS `tbl_user_idtbl_user`, '$jobCardID' AS `tbl_jobcard_idtbl_jobcard`");
+    //         $this->db->from('tbl_jobcard_bom_diecutting');
+    //         $this->db->where('status', 1);
+    //         $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+            
+    //         $responddiecut = $this->db->get();
+
+    //         if ($responddiecut->num_rows() > 0) {
+    //             $data = $responddiecut->result_array();
+    //             $this->db->insert_batch('tbl_jobcard_diecutting', $data);
+    //         }
+    //     }
+
+    //     //Other Section
+    //     $this->db->select('COUNT(*) AS `count`');
+    //     $this->db->from('tbl_jobcard_other');
+    //     $this->db->where('tbl_jobcard_idtbl_jobcard', $jobCardID);
+    //     $this->db->where('status', '1');
+
+    //     $respondcheckother=$this->db->get();
+
+    //     if($respondcheckother->row(0)->count==0){
+    //         $this->db->select("`perfoating`, `gattering`, `rimming`, `binding`, `stapling`, `padding`, `creasing`, `threading`, 1 AS `status`, '$updatedatetime' AS `insertdatetime`, '$userID' AS `tbl_user_idtbl_user`, '$jobCardID' AS `tbl_jobcard_idtbl_jobcard`");
+    //         $this->db->from('tbl_jobcard_bom_other');
+    //         $this->db->where('status', 1);
+    //         $this->db->where('tbl_jobcard_bom_idtbl_jobcard_bom', $bominfo);
+            
+    //         $respondother = $this->db->get();
+
+    //         if ($respondother->num_rows() > 0) {
+    //             $data = $respondother->result_array();
+    //             $this->db->insert_batch('tbl_jobcard_other', $data);
+    //         }
+    //     }
+
+    //     $this->db->trans_complete();
+
+    //     if ($this->db->trans_status() === TRUE) {
+    //         $this->db->trans_commit();
+            
+    //         $actionObj=new stdClass();
+    //         $actionObj->icon='fas fa-save';
+    //         $actionObj->title='';
+    //         $actionObj->message='Record Added Successfully';
+    //         $actionObj->url='';
+    //         $actionObj->target='_blank';
+    //         $actionObj->type='success';
+
+    //         $actionJSON=json_encode($actionObj);
+
+    //         $obj=new stdClass();
+    //         $obj->status=1;          
+    //         $obj->action=$actionJSON;  
+            
+    //         echo json_encode($obj);
+    //     } else {
+    //         $this->db->trans_rollback();
+
+    //         $actionObj=new stdClass();
+    //         $actionObj->icon='fas fa-exclamation-triangle';
+    //         $actionObj->title='';
+    //         $actionObj->message='Record Error';
+    //         $actionObj->url='';
+    //         $actionObj->target='_blank';
+    //         $actionObj->type='danger';
+
+    //         $actionJSON=json_encode($actionObj);
+
+    //         $obj=new stdClass();
+    //         $obj->status=0;          
+    //         $obj->action=$actionJSON;  
+            
+    //         echo json_encode($obj);
+    //     }
+    // }
 }
