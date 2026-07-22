@@ -60,6 +60,10 @@ include "include/topnavbar.php";
                                             <input type="checkbox" class="custom-control-input" name="permission_check" id="permission_check" value="1">
                                             <label class="custom-control-label" for="permission_check">Check Permission</label>
                                         </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" name="permission_account" id="permission_account" value="1">
+                                            <label class="custom-control-label" for="permission_account">Account Permission</label>
+                                        </div>
                                     </div>
                                     <div class="form-group mt-3 text-right">
                                         <button type="submit" id="submitBtn" class="btn btn-primary btn-sm px-4"><i class="far fa-save"></i>&nbsp;Add</button>
