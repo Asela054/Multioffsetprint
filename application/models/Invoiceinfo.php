@@ -951,7 +951,18 @@ class Invoiceinfo extends CI_Model{
                     $this->db->where('status', 1);
                     $respondcheckjobcard = $this->db->get();
 
-                    if($respondcheckjobcard->row(0)->countjobcard > 0){
+                    $this->db->select('SUM(tbl_jobcard_issue_meterial.issueqty * tbl_jobcard_issue_meterial.unitprice) AS issuetotal', FALSE);
+                    $this->db->from('tbl_jobcard_issue_meterial');
+                    $this->db->join('tbl_jobcard', 'tbl_jobcard.idtbl_jobcard = tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard', 'left');
+                    $this->db->join('tbl_customerinquiry_detail', 'tbl_customerinquiry_detail.tbl_customerinquiry_idtbl_customerinquiry = tbl_jobcard.tbl_customerinquiry_idtbl_customerinquiry', 'left');
+                    $this->db->where('tbl_jobcard_issue_meterial.status', 2);
+                    $this->db->where('tbl_customerinquiry_detail.idtbl_customerinquiry_detail', $jobid);
+
+                    $issueResult = $this->db->get()->row();
+
+                    $issuetotal = ($issueResult && $issueResult->issuetotal) ? $issueResult->issuetotal : 0;
+
+                    if ($respondcheckjobcard->row(0)->countjobcard > 0 && $issuetotal > 0) {
                         $jobFinishData = $this->Apiinfo->JobfinishApi($jobid);
                         
                         // Check if JobfinishApi returned empty data
