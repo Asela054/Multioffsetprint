@@ -554,7 +554,7 @@ class Apiinfo extends CI_Model{
                 if(!empty($rowmaterial->tbl_account_detail_idtbl_account_detail)){
                     $obj = new stdClass();
                     $obj->amount = str_replace(",", "", $rowmaterial->issuetotal);
-                    $obj->narration = 'Material Costing for ' . $rowmaterial->materialname . ' ' . $issuenoteID;
+                    $obj->narration = 'Material Costing for ' . $rowmaterial->materialname . ' IR000' . $issuenoteID;
                     $obj->detailaccount = $rowmaterial->tbl_account_detail_idtbl_account_detail ?? 0;
                     $obj->chartaccount = $rowmaterial->tbl_account_idtbl_account ?? 0;
                     $obj->crder = 'D';
@@ -595,7 +595,7 @@ class Apiinfo extends CI_Model{
                     if($rowrchartaccount->specialcate==37):
                         $obj = new stdClass();
                         $obj->amount = str_replace(",", "", $materialissuenettotal);
-                        $obj->narration = 'Material Costing for Issue Note ID: ' . $issuenoteID;
+                        $obj->narration = 'Material Costing for Issue Note ID: IR000' . $issuenoteID;
                         $obj->detailaccount = '0';
                         $obj->chartaccount = $rowrchartaccount->idtbl_account;
                         $obj->crder = 'C';
@@ -625,7 +625,7 @@ class Apiinfo extends CI_Model{
                     if($rowrchartaccount->specialcate==38):
                         $obj = new stdClass();
                         $obj->amount = str_replace(",", "", $sundryissuenettotal);
-                        $obj->narration = 'Sundry Costing for Issue Note ID: ' . $issuenoteID;
+                        $obj->narration = 'Sundry Costing for Issue Note ID: IR000' . $issuenoteID;
                         $obj->detailaccount = '0';
                         $obj->chartaccount = $rowrchartaccount->idtbl_account;
                         $obj->crder = 'C';

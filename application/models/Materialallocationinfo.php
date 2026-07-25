@@ -1766,6 +1766,15 @@ class Materialallocationinfo extends CI_Model{
                 
                 $this->db->where('idtbl_jobcard', $recordID);
                 $this->db->update('tbl_jobcard', $data);
+
+                $data2 = array(
+                    'status' => '3',
+                    'updateuser'=> $userID, 
+                    'updatedatetime'=> $updatedatetime
+                );
+                // Jobcard Issue Material Delete Process
+                $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
+                $this->db->update('tbl_jobcard_issue_meterial', $data2);
                 
                 // // Get issued materials to return to stock
                 // $this->db->select('issueqty, batchno, tbl_print_material_info_idtbl_print_material_info');

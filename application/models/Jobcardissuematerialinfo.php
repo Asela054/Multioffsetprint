@@ -848,23 +848,23 @@ class Jobcardissuematerialinfo extends CI_Model {
 
         // Config: section type => [table, id column]
         $sections = [
-            'material'   => ['tbl_jobcard_material',    'idtbl_jobcard_material'],
-            'color'      => ['tbl_jobcard_color',       'idtbl_jobcard_color'],
-            'varnish'    => ['tbl_jobcard_varnish',     'idtbl_jobcard_varnish'],
-            'foil'       => ['tbl_jobcard_foil',        'idtbl_jobcard_foil'],
-            'lamination' => ['tbl_jobcard_lamination',  'idtbl_jobcard_lamination'],
-            'pasting'    => ['tbl_jobcard_pasting',     'idtbl_jobcard_pasting'],
-            'rimming'    => ['tbl_jobcard_rimming',     'idtbl_jobcard_rimming'],
+            'material'   => ['tbl_jobcard_material',    'idtbl_jobcard_material', '1'],
+            'color'      => ['tbl_jobcard_color',       'idtbl_jobcard_color', '2'],
+            'varnish'    => ['tbl_jobcard_varnish',     'idtbl_jobcard_varnish', '3'],
+            'foil'       => ['tbl_jobcard_foil',        'idtbl_jobcard_foil', '4'],
+            'lamination' => ['tbl_jobcard_lamination',  'idtbl_jobcard_lamination', '5'],
+            'pasting'    => ['tbl_jobcard_pasting',     'idtbl_jobcard_pasting', '6'],
+            'rimming'    => ['tbl_jobcard_rimming',     'idtbl_jobcard_rimming', '7'],
         ];
 
         foreach ($sections as $type => $tableInfo) {
-            list($table, $idCol) = $tableInfo;
+            list($table, $idCol, $secid) = $tableInfo;
 
-            $rows = $this->_getIssueMaterialRows($recordID, $table, $idCol);
+            $rows = $this->_getIssueMaterialRows($recordID, $table, $idCol, $secid);
 
             $html = array_merge(
                 $html,
-                $this->_buildMaterialHtml($rows, $idCol, $warningstockstatus, $warningstocktext, $warningsection)
+                $this->_buildMaterialHtml($rows, $idCol, $secid, $warningstockstatus, $warningstocktext, $warningsection, $type)
             );
         }
 
@@ -881,7 +881,7 @@ class Jobcardissuematerialinfo extends CI_Model {
      * Shared query builder for all section types
      * (material, color, varnish, foil, lamination, pasting, rimming).
      */
-    private function _getIssueMaterialRows($recordID, $table, $idCol)
+    private function _getIssueMaterialRows($recordID, $table, $idCol, $secid)
     {
         $fkCol = 'tbl_jobcard_idtbl_jobcard';
 
@@ -903,27 +903,34 @@ class Jobcardissuematerialinfo extends CI_Model {
         $this->db->where("{$table}.{$fkCol}", $recordID);
         $this->db->where('tbl_jobcard_issue_meterial.status', 1);
         $this->db->where("{$table}.status", 1);
-        $this->db->where('tbl_jobcard_issue_meterial.sectiontype', 1);
+        $this->db->where('tbl_jobcard_issue_meterial.sectiontype', $secid);
         $this->db->group_by("{$table}.{$idCol}"); // critical fix, previous message eke explain kala
-
+            
         return $this->db->get()->result();
     }
 
     /**
      * Builds HTML rows and tracks stock warnings (by reference).
      */
-    private function _buildMaterialHtml($resultRows, $idField, &$warningstockstatus, &$warningstocktext, &$warningsection)
+    private function _buildMaterialHtml($resultRows, $idField, $secid, &$warningstockstatus, &$warningstocktext, &$warningsection, $type)
     {
         $html = [];
+        $sectionType = null;   // Fixed: was 0 (int), caused loose-comparison bug with string $type
 
         foreach ($resultRows as $row) {
+            if ($sectionType !== $type) {   // Fixed: strict comparison (!==)
+                $html[] = '
+                    <tr data-otherrow="'.$type.'section">
+                        <th colspan="6" class="sectionremove">'.ucfirst($type).' Section</th>
+                    </tr>';
+
+                $sectionType = $type;   // Fixed: mark header as already printed for this call
+            }
+
             $html[] = '
-                <tr data-otherrow="materialsection">
-                    <th colspan="6" class="sectionremove">Material Section</th>
-                </tr>
-                <tr class="materialsection">
+                <tr class="'.$type.'section">
                     <td class="d-none">' . $row->$idField . '</td>
-                    <td class="d-none">1</td>
+                    <td class="d-none">'.$secid.'</td>
                     <td>' . $row->materialname . '</td>
                     <td class="text-center">' . $row->issueqty . '</td>
                     <td class="batchnolist">' . $row->batchno . '</td>
@@ -948,15 +955,44 @@ class Jobcardissuematerialinfo extends CI_Model {
         $companyID=$_SESSION['company_id'];
         $branchID=$_SESSION['branch_id'];
 
-        $this->db->select('`batchno`, `qty`, `unitprice`');
-        $this->db->from('tbl_print_stock');
-        $this->db->where('status', 1);
-        $this->db->where('qty >', 0);
-        $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
-        $this->db->where('tbl_company_idtbl_company', $companyID);
-        $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+        // $this->db->select('`batchno`, `qty`, `unitprice`');
+        // $this->db->from('tbl_print_stock');
+        // $this->db->where('status', 1);
+        // $this->db->where('qty >', 0);
+        // $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
+        // $this->db->where('tbl_company_idtbl_company', $companyID);
+        // $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
 
-        $respond=$this->db->get();
+        // $respond=$this->db->get();
+
+        $this->db->select('
+            tbl_print_stock.batchno, 
+            tbl_print_stock.unitprice,
+            (tbl_print_stock.qty - COALESCE(SUM(tbl_jobcard_issue_meterial.issueqty), 0)) AS qty
+        ');
+        $this->db->from('tbl_print_stock');
+        $this->db->join(
+            'tbl_jobcard_issue_meterial',
+            'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_print_stock.tbl_print_material_info_idtbl_print_material_info 
+            AND tbl_jobcard_issue_meterial.batchno = tbl_print_stock.batchno
+            AND tbl_jobcard_issue_meterial.status = 1',
+            'left'
+        );
+        $this->db->join(
+            'tbl_jobcard',
+            'tbl_jobcard.idtbl_jobcard = tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard
+            AND tbl_jobcard.tbl_company_idtbl_company = ' . $companyID . '
+            AND tbl_jobcard.tbl_company_branch_idtbl_company_branch = ' . $branchID,
+            'left'
+        );
+        $this->db->where('tbl_print_stock.status', 1);
+        $this->db->where('tbl_print_stock.qty >', 0);
+        $this->db->where('tbl_print_stock.tbl_print_material_info_idtbl_print_material_info', $materialID);
+        $this->db->where('tbl_print_stock.tbl_company_idtbl_company', $companyID);
+        $this->db->where('tbl_print_stock.tbl_company_branch_idtbl_company_branch', $branchID);
+        $this->db->group_by('tbl_print_stock.batchno, tbl_print_stock.qty, tbl_print_stock.unitprice');
+
+        $respond = $this->db->get();
 
         echo json_encode($respond->result());
     }

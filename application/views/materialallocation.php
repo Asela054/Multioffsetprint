@@ -740,7 +740,7 @@ $(document).ready(function () {
 
 					button+='<button type="button" class="btn btn-dark btn-sm btnView mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="View & Approve" data-approvestatus="'+full['approvestatus']+'" data-checkby="'+full['check_by']+'"><i class="fas fa-eye"></i></button>';
 					if(deletecheck==1 && full['approvestatus'] == 0){
-						button+='<button type="button" data-url="MaterialAllocation/Jobcardstatus/'+full['idtbl_jobcard']+'/3" data-toggle="tooltip" title="Delete" data-actiontype="3" class="btn btn-danger btn-sm text-light btntableactionnoreload"><i class="fas fa-trash-alt"></i></button>';
+						button+='<button type="button" data-url="MaterialAllocation/Jobcardstatus/'+full['idtbl_jobcard']+'/3" data-toggle="tooltip" title="Delete" data-actiontype="3" class="btn btn-danger btn-sm text-light btntableaction"><i class="fas fa-trash-alt"></i></button>';
 					}
 					else if(full['approvestatus'] == 1){
 						button += '<a href="<?php echo base_url() ?>MaterialAllocation/jobCardPdf/' + full['idtbl_jobcard'] + '" data-toggle="tooltip" title="Job Card" target="_blank" class="btn btn-danger btn-sm"><i class="fas fa-file-pdf"></i></a>';
