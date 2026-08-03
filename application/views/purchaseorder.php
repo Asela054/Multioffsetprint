@@ -687,10 +687,12 @@ $(document).ready(function() {
                     }
 
                     button += '" id="' + full['idtbl_print_porder'] + '"><i class="fas fa-pen"></i></button>';
+
+                    // PDF/Print button — only visible once the PO is approved (confirmstatus == 1)
                     button += '<a href="<?php echo base_url() ?>Purchaseorder/Printinvoice/' +
                         full['idtbl_print_porder'] +
                         '" target="_blank" data-toggle="tooltip" data-placement="bottom" title="Print PO" class="btn btn-danger btn-sm mr-1 ';
-                    if (editcheck != 1) {
+                    if (editcheck != 1 || full['confirmstatus'] != 1) {
                         button += 'd-none';
                     }
                     button += '"><i class="fas fa-file-pdf"></i></a>';
@@ -1049,124 +1051,133 @@ $(document).ready(function() {
             $("#editsubmitBtn").click();
         } else {
 
-                var productID = $('#editproduct').val();
-                var comment = $('#editcomment').val();
-                var product = $("#editproduct option:selected").text();
-                var unitprice = parseFloat($('#editunitprice').val());
-                var vat = parseFloat($('#editvat').val());
-                var discount = parseFloat($('#editdiscount').val());
-                var newqty = parseFloat($('#editnewqty').val());
-                var uomID = $('#edituom').val();
-                var pieces = parseFloat($('#editpiecesper_qty').val());
-                var uom = $("#edituom option:selected").text();
-                var ordertype = $('#editordertype').val();
-                var newtotal;
-                var newprice;
-                if (pieces !== 0) {
-                    newtotal = unitprice * pieces;
-                    newprice = unitprice * pieces / newqty;
-                } else {
-                    newtotal = unitprice * newqty;
-                    newprice = 0;
-                }
-                var vatamount = parseFloat(((newtotal - discount) / 100) * vat);
-                var finaltotal = parseFloat((newtotal + vatamount) - discount);
+            var productID = $('#editproduct').val();
+            var comment = $('#editcomment').val();
+            var product = $("#editproduct option:selected").text();
+            var unitprice = parseFloat($('#editunitprice').val());
+            var vat = parseFloat($('#editvat').val());
+            var discount = parseFloat($('#editdiscount').val());
+            var newqty = parseFloat($('#editnewqty').val());
+            var uomID = $('#edituom').val();
+            var pieces = parseFloat($('#editpiecesper_qty').val());
+            var uom = $("#edituom option:selected").text();
+            var ordertype = $('#editordertype').val();
+            var newtotal;
+            var newprice;
+            if (pieces !== 0) {
+                newtotal = unitprice * pieces;
+                newprice = unitprice * pieces / newqty;
+            } else {
+                newtotal = unitprice * newqty;
+                newprice = 0;
+            }
+            var vatamount = parseFloat(((newtotal - discount) / 100) * vat);
+            var finaltotal = parseFloat((newtotal + vatamount) - discount);
 
-                var totdiscount = parseFloat(discount);
-                var totvat = parseFloat(vatamount);
-                var total = parseFloat(newtotal);
-                var finaltot = parseFloat(finaltotal);
-                var showfinaltot = addCommas(parseFloat(finaltot).toFixed(2));
-                var showtotal = addCommas(parseFloat(total).toFixed(2));
-                var showtotdiscount = addCommas(parseFloat(totdiscount).toFixed(2));
-                var showtotvat = addCommas(parseFloat(totvat).toFixed(2));
+            var totdiscount = parseFloat(discount);
+            var totvat = parseFloat(vatamount);
+            var total = parseFloat(newtotal);
+            var finaltot = parseFloat(finaltotal);
+            var showfinaltot = addCommas(parseFloat(finaltot).toFixed(2));
+            var showtotal = addCommas(parseFloat(total).toFixed(2));
+            var showtotdiscount = addCommas(parseFloat(totdiscount).toFixed(2));
+            var showtotvat = addCommas(parseFloat(totvat).toFixed(2));
 
-                // Same 10-cell layout as the item-loading block above, so both
-                // "loaded" rows and "newly added" rows line up under the same headers.
-                var row = '<tr class="pointer">';
+            // Same 10-cell layout as the item-loading block above, so both
+            // "loaded" rows and "newly added" rows line up under the same headers.
+            var row = '<tr class="pointer">';
 
-                if (ordertype == 4) {
-                    row += '<td>' + product + '</td>';
-                    row += '<td>' + comment + '</td>';
-                } else {
-                    row += '<td class="d-none"></td>';
-                    row += '<td>' + product + '</td>';
-                }
+            if (ordertype == 4) {
+                row += '<td>' + product + '</td>';
+                row += '<td>' + comment + '</td>';
+            } else {
+                row += '<td class="d-none"></td>';
+                row += '<td>' + product + '</td>';
+            }
 
-                row += '<td class="d-none">' + productID + '</td>';
-                row += '<td class="text-center">' + newqty + '</td>';
-                row += '<td class="text-center">' + uom + '</td>';
-                row += '<td class="d-none">' + uomID + '</td>';
-                row += '<td class="text-right">' + unitprice.toFixed(2) + '</td>';
-                row += '<td class="edittotal d-none">' + total + '</td>';
-                row += '<td class="text-right">' + showtotal + '</td>';
-                row += '<td class="text-right d-none">' + pieces + '</td>';
-                row += '</tr>';
+            row += '<td class="d-none">' + productID + '</td>';
+            row += '<td class="text-center">' + newqty + '</td>';
+            row += '<td class="text-center">' + uom + '</td>';
+            row += '<td class="d-none">' + uomID + '</td>';
+            row += '<td class="text-right">' + unitprice.toFixed(2) + '</td>';
+            row += '<td class="edittotal d-none">' + total + '</td>';
+            row += '<td class="text-right">' + showtotal + '</td>';
+            row += '<td class="text-right d-none">' + pieces + '</td>';
+            row += '</tr>';
 
+            // If we're editing an existing row, replace it in place instead of appending a new one
+            if (editingRow) {
+                editingRow.replaceWith(row);
+                editingRow = null;
+            } else {
                 $('#edittableorder > tbody:last').append(row);
+            }
 
-                $('#editproduct').val('').trigger('change');
-                $('#editunitprice').val('');
-                $('#editsaleprice').val('');
-                $('#editcomment').val('');
-                $('#edituom').val('');
-                $('#editnewqty').val('0');
-                $('#editdiscount').val('0');
-                $('#editpiecesper_qty').val('0');
-                $('#editpiecesper_qty_uom').val('');
-                $('#editporderrequest').prop('readonly', true).css('pointer-events', 'none');
+            $('#edittableorder tr').removeClass('table-warning');
 
-
-                var sum = 0;
-                $(".edittotal").each(function() {
-                    sum += parseFloat($(this).text());
-                });
-
-                var showgrosstot = addCommas(parseFloat(sum).toFixed(2));
-
-                $('#editdivgrosstotal').html(
-                    '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
-                    showgrosstot);
-                $('#edithidegrosstotalorder').val(sum);
-                $('#editproduct').focus();
+            $('#editproduct').val('').trigger('change');
+            $('#editunitprice').val('');
+            $('#editsaleprice').val('');
+            $('#editcomment').val('');
+            $('#edituom').val('');
+            $('#editnewqty').val('0');
+            $('#editdiscount').val('0');
+            $('#editpiecesper_qty').val('0');
+            $('#editpiecesper_qty_uom').val('');
+            $('#editporderrequest').prop('readonly', true).css('pointer-events', 'none');
 
 
-                var sum = 0;
-                $(".total_vat").each(function() {
-                    sum += parseFloat($(this).text());
-                });
+            var sum = 0;
+            $(".edittotal").each(function() {
+                sum += parseFloat($(this).text());
+            });
 
-                var showtotvat = addCommas(parseFloat(sum).toFixed(2));
+            var showgrosstot = addCommas(parseFloat(sum).toFixed(2));
 
-                $('#divtotalvat').html('Vat Total &nbsp; &nbsp; Rs.' + showtotvat);
-                $('#hidevatlorder').val(sum);
-                $('#product').focus();
+            $('#editdivgrosstotal').html(
+                '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
+                showgrosstot);
+            $('#edithidegrosstotalorder').val(sum);
+            $('#editproduct').focus();
 
-                var sum = 0;
-                $(".total_discount").each(function() {
-                    sum += parseFloat($(this).text());
-                });
 
-                var showtotdiscount = addCommas(parseFloat(sum).toFixed(2));
+            var sum = 0;
+            $(".total_vat").each(function() {
+                sum += parseFloat($(this).text());
+            });
 
-                $('#divtotaldiscount').html('Discount &nbsp; &nbsp; Rs.' + showtotdiscount);
-                $('#hidediscountlorder').val(sum);
-                $('#product').focus();
+            var showtotvat = addCommas(parseFloat(sum).toFixed(2));
 
-                var sum = 0;
-                $(".final_total").each(function() {
-                    sum += parseFloat($(this).text());
-                });
+            $('#divtotalvat').html('Vat Total &nbsp; &nbsp; Rs.' + showtotvat);
+            $('#hidevatlorder').val(sum);
+            $('#product').focus();
 
-                var showsum = addCommas(parseFloat(sum).toFixed(2));
+            var sum = 0;
+            $(".total_discount").each(function() {
+                sum += parseFloat($(this).text());
+            });
 
-                $('#divtotal').html(
-                    '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
-                    showsum + '</strong>');
-                $('#hidetotalorder').val(sum);
-                $('#product').focus();
+            var showtotdiscount = addCommas(parseFloat(sum).toFixed(2));
+
+            $('#divtotaldiscount').html('Discount &nbsp; &nbsp; Rs.' + showtotdiscount);
+            $('#hidediscountlorder').val(sum);
+            $('#product').focus();
+
+            var sum = 0;
+            $(".final_total").each(function() {
+                sum += parseFloat($(this).text());
+            });
+
+            var showsum = addCommas(parseFloat(sum).toFixed(2));
+
+            $('#divtotal').html(
+                '<strong style="background-color: yellow;">Final Price</strong> &nbsp; &nbsp;<strong>Rs.<strong> <strong>' +
+                showsum + '</strong>');
+            $('#hidetotalorder').val(sum);
+            $('#product').focus();
         }
     });
+
     $('#tableorder').on('click', 'tr', function() {
         var r = confirm("Are you sure, You want to remove this product ? ");
         if (r == true) {
@@ -1184,23 +1195,58 @@ $(document).ready(function() {
             $('#product').focus();
         }
     });
-    $('#edittableorder').on('click', 'tr', function() {
-        var r = confirm("Are you sure, You want to remove this product ? ");
-        if (r == true) {
-            $(this).closest('tr').remove();
+    // Top-level vars — declare once, alongside your other vars like `var tempgrntype;`
+    var editingRow = null; // no longer needed for replace-in-place, but kept for compatibility
+    var suppressEditProductChange = false; // prevents the AJAX price-fetch firing on programmatic set
 
+    // Row click — populates the edit form fields AND removes the row from the table
+    $('#edittableorder').on('click', 'tr', function () {
+        var $row = $(this);
+        var cells = $row.find('td');
+        var r = confirm("Are you sure, you want to remove this product?");
+        if (r) {
+            // Cell order: [0] ServiceItem [1] ItemName/Comment [2] ProductID [3] Qty
+            // [4] Uom [5] UomID [6] UnitPrice [7] edittotal [8] Total [9] pieces [10] Action
+            var ordertype = $('#editordertype').val();
+
+            var productID = $(cells[2]).text().trim();
+            var productName = (ordertype == 4) ? $(cells[0]).text().trim() : $(cells[1]).text().trim();
+            var qty = $(cells[3]).text().trim();
+            var uomID = $(cells[5]).text().trim();
+            var unitprice = $(cells[6]).text().trim();
+            var comment = (ordertype == 4) ? $(cells[1]).text().trim() : '';
+
+            // Select2's options only exist for products already searched — inject one if missing
+            if ($('#editproduct').find('option[value="' + productID + '"]').length === 0) {
+                var opt = new Option(productName, productID, true, true);
+                $('#editproduct').append(opt);
+            }
+
+            suppressEditProductChange = true;
+            $('#editproduct').val(productID).trigger('change');
+            suppressEditProductChange = false;
+
+            $('#editnewqty').val(qty);
+            $('#editunitprice').val(unitprice);
+            $('#editcomment').val(comment);
+            $('#edituom').val(uomID);
+
+            // Remove the row from the table now that its data has been pulled into the form
+            $row.remove();
+
+            // Recalculate the running total after removal
             var sum = 0;
-            $(".edittotal").each(function() {
+            $(".edittotal").each(function () {
                 sum += parseFloat($(this).text());
             });
-
             var showsum = addCommas(parseFloat(sum).toFixed(2));
-
             $('#editdivgrosstotal').html('Rs. ' + showsum);
             $('#edithidegrosstotalorder').val(sum);
-            $('#editproduct').focus();
+
+            editingRow = null; // row no longer exists, so "Add to list" will always append fresh
         }
     });
+
     $('#btncreateorder').click(function () {
         // disable button while processing
         $('#btncreateorder').prop('disabled', true).html(
@@ -1400,30 +1446,51 @@ $(document).ready(function() {
     });
 
     var tempgrntype;
+    var editingRow = null;                  
+    var suppressEditProductChange = false; 
 
     $('#porderrequest').change(function () {
-    	var porderID = $(this).val();
+        var porderID = $(this).val();
 
-    	$.ajax({
-    		type: "POST",
-    		data: {
-    			recordID: porderID
-    		},
-    		url: 'Purchaseorder/Getporderreqdetails',
-    		success: function (response) {
-    			var result = JSON.parse(response);
-    			$('#requestitem').empty();
+        $.ajax({
+            type: "POST",
+            data: {
+                recordID: porderID
+            },
+            url: 'Purchaseorder/Getporderreqdetails',
+            success: function (response) {
+                var result = JSON.parse(response);
+                $('#requestitem').empty();
 
                 if (result.length > 0) {
                     $.each(result, function (index, item) {
                         var listItem = '<li class="list-group-item bg-warning-soft">';
 
                         listItem += '<strong>' + item.requestname + '</strong> - ';
-
                         listItem += item.qty + ' ' + item.measure_type;
 
                         if (item.comment && item.comment !== "") {
                             listItem += ' <em>(' + item.comment + ')</em>';
+                        }
+
+                        // Show last two GRN price/date/qty rows (only present for "Exist" materials)
+                        if (item.grnhistory && item.grnhistory.length > 0) {
+                            listItem += '<table class="table table-sm table-bordered mb-0 mt-2 bg-white">';
+                            listItem += '<thead><tr>' +
+                                '<th class="small py-1">GRN Date</th>' +
+                                '<th class="small py-1 text-right">Qty</th>' +
+                                '<th class="small py-1 text-right">Unit Price</th>' +
+                                '</tr></thead><tbody>';
+
+                            $.each(item.grnhistory, function (i, grn) {
+                                listItem += '<tr>' +
+                                    '<td class="small py-1">' + grn.grndate + '</td>' +
+                                    '<td class="small py-1 text-right">' + grn.qty + '</td>' +
+                                    '<td class="small py-1 text-right">' + parseFloat(grn.unitprice).toFixed(2) + '</td>' +
+                                    '</tr>';
+                            });
+
+                            listItem += '</tbody></table>';
                         }
 
                         listItem += '</li>';
@@ -1435,8 +1502,8 @@ $(document).ready(function() {
                         }
                     });
                 }
-    		},
-    	});
+            },
+        });
     });
 
     $('#product').change(function () {
@@ -1458,27 +1525,30 @@ $(document).ready(function() {
     });
 
     $('#editproduct').change(function () {
-    	var productID = $(this).val();
-    	var ordertype = parseInt($('#editordertype').val(), 10);
-    	var supplier = $('#editsupplier').val();
+        if (suppressEditProductChange) {
+            return;
+        }
+        var productID = $(this).val();
+        var ordertype = parseInt($('#editordertype').val(), 10);
+        var supplier = $('#editsupplier').val();
 
-            if (ordertype === 4) {
-            	$('#editunitprice').val('');
-            	return;
+        if (ordertype === 4) {
+            $('#editunitprice').val('');
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: 'Purchaseorder/Getproductinfoaccoproduct',
+            data: {
+                recordID: productID,
+                supplier: supplier
+            },
+            success: function (result) {
+                var obj = JSON.parse(result);
+                $('#editunitprice').val(obj.unitprice || 0);
             }
-
-    		$.ajax({
-    			type: "POST",
-    			url: 'Purchaseorder/Getproductinfoaccoproduct',
-    			data: {
-    				recordID: productID,
-    				supplier: supplier 			
-                },
-    			success: function (result) {
-    				var obj = JSON.parse(result);
-    				$('#editunitprice').val(obj.unitprice || 0);
-    			}
-    		});
+        });
     });
 
 });

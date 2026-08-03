@@ -194,6 +194,7 @@
 		$ordertype = $this->input->post('ordertype');
 		$servicetype = $this->input->post('servicetype');
 		$reqdate = $this->input->post('date');
+		$newexist_status = $this->input->post('newexist_status'); // 1 = New, 0 = Exist
 	
 		$recordOption = $this->input->post('recordOption');
 		$updatedatetime = date('Y-m-d H:i:s');
@@ -204,6 +205,7 @@
 				'confirmstatus' => '0',
 				'status' => '1',
 				'porderconfirm' => '0',
+				'newexist_status' => $newexist_status,
 				'insertdatetime' => $updatedatetime,
 				'tbl_user_idtbl_user' => $userID,
 				'tbl_material_group_idtbl_material_group' => $ordertype,
@@ -389,6 +391,7 @@
 		$obj->companyphone=$respond->row(0)->companyphone;
 		$obj->companyemail=$respond->row(0)->companyemail;
 		$obj->branchname=$respond->row(0)->branchname;
+		$obj->newexist_status=$respond->row(0)->newexist_status;
 
 		echo json_encode($obj);
 	}

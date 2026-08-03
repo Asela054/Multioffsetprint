@@ -30,30 +30,34 @@ array(
 
 
 array(
-'db'=>'GROUP_CONCAT(DISTINCT cid.job SEPARATOR ", ") AS description',
+'db'=>'GROUP_CONCAT(DISTINCT cid.job SEPARATOR ", ")',
 'dt'=>'description',
-'field'=>'description'
+'field'=>'description',
+'as'=>'description'
 ),
 
 
 array(
-'db'=>'i.subtotal AS exclusive',
+'db'=>'i.subtotal',
 'dt'=>'exclusive',
-'field'=>'exclusive'
+'field'=>'exclusive',
+'as'=>'exclusive'
 ),
 
 
 array(
-'db'=>'i.vat_amount AS tax',
+'db'=>'i.vat_amount',
 'dt'=>'tax',
-'field'=>'tax'
+'field'=>'tax',
+'as'=>'tax'
 ),
 
 
 array(
-'db'=>'i.total AS inclusive',
+'db'=>'i.total',
 'dt'=>'inclusive',
-'field'=>'inclusive'
+'field'=>'inclusive',
+'as'=>'inclusive'
 )
 
 );
@@ -75,11 +79,23 @@ $sql_details=array(
 require('ssp.customized.class.php');
 
 
+$conn = new mysqli($db_host, $db_username, $db_password, $db_name);
+
+if ($conn->connect_error) {
+    die(json_encode(array('error' => 'Database connection failed')));
+}
+
+
+// Get company_id passed from the view (which reads it from the CI session)
+$companyID = isset($_POST['company_id']) ? $conn->real_escape_string($_POST['company_id']) : 0;
+
 
 $where=array();
 
 
 $where[]="i.status=1";
+
+$where[]="i.tbl_company_idtbl_company='".$companyID."'";
 
 
 
@@ -87,7 +103,9 @@ $where[]="i.status=1";
 
 if(!empty($_POST['customer']) && $_POST['customer']!='all'){
 
-$where[]="i.tbl_customer_idtbl_customer='".$_POST['customer']."'";
+$customer = $conn->real_escape_string($_POST['customer']);
+
+$where[]="i.tbl_customer_idtbl_customer='".$customer."'";
 
 }
 
@@ -97,12 +115,14 @@ $where[]="i.tbl_customer_idtbl_customer='".$_POST['customer']."'";
 
 if(!empty($_POST['search_from_date']) && !empty($_POST['search_to_date'])){
 
+$fromDate = $conn->real_escape_string($_POST['search_from_date']);
+$toDate = $conn->real_escape_string($_POST['search_to_date']);
 
 $where[]="
 i.date BETWEEN 
-'".$_POST['search_from_date']."' 
+'".$fromDate."' 
 AND 
-'".$_POST['search_to_date']."'";
+'".$toDate."'";
 
 
 }
@@ -142,6 +162,8 @@ OR i.tax_invoice_num='')
 
 }
 
+
+$conn->close();
 
 
 $whereClause=implode(" AND ",$where);

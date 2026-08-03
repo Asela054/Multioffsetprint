@@ -62,11 +62,31 @@ include "include/topnavbar.php";
             							</div>
 
             						</div>
+
+            						<!-- New / Exist material selector -->
+            						<div class="form-row mb-1">
+            							<div class="col">
+            								<label class="small font-weight-bold text-dark">Material Status*</label>
+            								<div class="mt-1">
+            									<div class="form-check form-check-inline">
+            										<input class="form-check-input" type="radio" name="newexist_status"
+            											id="newexist_new" value="1" checked>
+            										<label class="form-check-label small" for="newexist_new">New</label>
+            									</div>
+            									<div class="form-check form-check-inline">
+            										<input class="form-check-input" type="radio" name="newexist_status"
+            											id="newexist_exist" value="0">
+            										<label class="form-check-label small" for="newexist_exist">Exist</label>
+            									</div>
+            								</div>
+            							</div>
+            						</div>
+
             						<div id="productFields">
             							<div class="form-group mb-1">
             								<label class="small font-weight-bold text-dark">Spare
             									Part/Service/Material/Machine*</label>
-            								<input class="form-control form-control-sm" list="materials" name="product"
+            								<input class="form-control form-control-sm" name="product"
             									id="product">
             								<datalist id="materials">
             								</datalist>
@@ -148,6 +168,7 @@ include "include/topnavbar.php";
             										<th>P-Order Req Number</th>
             										<th>Date</th>
             										<th>Order Type</th>
+            										<th>Material Status</th>
             										<th>Confirm Status</th>
                                                      <th>Check By</th>
             										<th class="text-right">Actions</th>
@@ -191,6 +212,8 @@ include "include/topnavbar.php";
                             </p>
                             <p style="margin-bottom: 2px; font-family: cursive;font-size:15px;padding-top: 8px;padding:0;"
                                 class="text-left"><span id="porder_number"></span></p>
+                            <p style="margin-bottom: 2px; font-family: cursive;font-size:14px;padding-top: 4px;padding:0;"
+                                class="text-left"><span id="porder_newexist_status"></span></p>
                         </div>
                     </div>
                     </br>
@@ -282,6 +305,21 @@ $(document).ready(function() {
     var statuscheck = '<?php echo $statuscheck; ?>';
     var deletecheck = '<?php echo $deletecheck; ?>';
 
+    // default state on load: "New" is checked, so no datalist restriction
+    $('#product').removeAttr('list');
+
+    // toggle autocomplete behavior when New/Exist changes
+    $('input[name="newexist_status"]').on('change', function() {
+        var val = $(this).val();
+        if (val == '1') { // New
+            $('#materials').html('');
+            $('#product').removeAttr('list');
+            $('#stockqty').html('');
+        } else { // Exist
+            $('#product').attr('list', 'materials');
+        }
+        $('#product').val('').focus();
+    });
 
     $('#printporder').click(function() {
 
@@ -298,6 +336,14 @@ $(document).ready(function() {
     });
 
     $('#product').on('input', function() {
+        var newexist = $('input[name="newexist_status"]:checked').val();
+
+        // Only run autocomplete lookup when "Exist" is selected
+        if (newexist != '0') {
+            $('#materials').html('');
+            return;
+        }
+
         let query = $(this).val();
         var ordertype = $('#ordertype').val();
 
@@ -388,6 +434,12 @@ $(document).ready(function() {
             },
             {
                 "data": "group"
+            },
+            {
+                "data": "newexist_status",
+                "render": function(data, type, row) {
+                    return (data == 1 || data == '1') ? 'New' : 'Exist';
+                }
             },
             {
                 "targets": -1,
@@ -508,6 +560,9 @@ $(document).ready(function() {
 
                 $('#viewcompanyname').text(obj.companyname);
                 $('#viewbranchname').text(obj.branchname);
+
+                var newexistLabel = (obj.newexist_status == 1 || obj.newexist_status == '1') ? 'New' : 'Exist';
+                $('#porder_newexist_status').text('Material Status: ' + newexistLabel);
             }
         });
     });
@@ -645,7 +700,8 @@ $(document).ready(function() {
             branch_id: $("#f_branch_id").val(),
             date: $("#date").val(),
             ordertype: $('#ordertype').val(),
-            recordOption: $("#recordOption").val()
+            recordOption: $("#recordOption").val(),
+            newexist_status: $('input[name="newexist_status"]:checked').val()
         };
 
         Swal.fire({

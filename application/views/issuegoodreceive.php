@@ -863,58 +863,80 @@ include "include/topnavbar.php";
 
 		$("#formsubmit").click(function () {
 			if (!$("#createorderform")[0].checkValidity()) {
-				// If the form is invalid, submit it. The form won't actually submit;
-				// this will just cause the browser to display the native HTML5 error messages.
 				$("#submitBtn").click();
-			} else {
-				var productID = $('#product').val();
-				var comment = $('#comment').val();
-				var product = $("#product option:selected").text();
-				var unitprice = parseFloat($('#unitprice').val());
-				var newqty = parseFloat($('#newqty').val());
-				var stockid = $('#batchno').val();
-				var batchno = $('#batchno option:selected').map(function () {
-					return $(this).data('batchno');
-				}).get().join(', ');
-				var uomID = parseFloat($('#uom').val());
-				var uom = $("#uom option:selected").text();
-
-				var newtotal = parseFloat(unitprice * newqty);
-
-				var total = parseFloat(newtotal);
-				var showtotal = addCommas(parseFloat(total).toFixed(2));
-
-
-				$('#tableorder > tbody:last').append('<tr class="pointer"><td name="productname">' +
-					product +
-					'</td><td name="batchno">' + batchno +
-					'</td><td>' + uom +
-						'</td><td class="d-none">' + uomID + '</td><td name="comment">' +
-					comment + '</td><td name="unitprice" class="text-right">' + unitprice +
-					'</td><td name="qty" class="text-right">' +
-					newqty + '</td><td name="showtotal" class="text-right">' +
-					showtotal + '</td><td name="productid" class="d-none">' + productID +
-					'</td><td name="total" class="total d-none">' + total +
-					'</td><td name="stockid" class="d-none">' + stockid +
-					'</td><td><button type="button" onclick= "productDelete(this);" id="btnDeleterow" class=" btn btn-danger btn-sm float-right"><i class="fas fa-trash-alt"></i></button></td> </tr>'
-					);
-
-				$('#product').val('');
-				$('#unitprice').val('0');
-				$('#uom').val('');
-				$('#comment').val('');
-				$('#newqty').val('');
-				$('#qtylabel').val('0');
-
-
-				var sum = 0;
-				$(".total").each(function () {
-					sum += parseFloat($(this).text());
-				});
-				$('#totalprice').val(sum);
+				return;
 			}
 
+			var productID   = $('#product').val();
+			var comment     = $('#comment').val();
+			var product     = $("#product option:selected").text();
+			var uomID       = parseFloat($('#uom').val());
+			var uom         = $("#uom option:selected").text();
+			var qtyNeeded   = parseFloat($('#newqty').val());
 
+			var selectedBatches = $('#batchno option:selected');
+
+			if (selectedBatches.length === 0) {
+				Swal.fire({ icon: 'warning', title: 'No Batch Selected', text: 'Please select at least one batch.' });
+				return;
+			}
+
+			var remainingQty = qtyNeeded;
+
+			selectedBatches.each(function () {
+				if (remainingQty <= 0) return; // nothing left to allocate
+
+				var $opt         = $(this);
+				var stockid      = $opt.val();
+				var batchno      = $opt.data('batchno');
+				var availableQty = parseFloat($opt.data('qty')) || 0;
+				var unitprice    = parseFloat($opt.data('unitprice')) || 0;
+
+				var allocatedQty = Math.min(remainingQty, availableQty);
+				if (allocatedQty <= 0) return;
+
+				var lineTotal  = unitprice * allocatedQty;
+				var showtotal  = addCommas(lineTotal.toFixed(2));
+
+				$('#tableorder > tbody:last').append(
+					'<tr class="pointer"><td name="productname">' + product +
+					'</td><td name="batchno">' + batchno +
+					'</td><td>' + uom +
+					'</td><td class="d-none">' + uomID + '</td><td name="comment">' +
+					comment + '</td><td name="unitprice" class="text-right">' + unitprice +
+					'</td><td name="qty" class="text-right">' + allocatedQty +
+					'</td><td name="showtotal" class="text-right">' + showtotal +
+					'</td><td name="productid" class="d-none">' + productID +
+					'</td><td name="total" class="total d-none">' + lineTotal +
+					'</td><td name="stockid" class="d-none">' + stockid +
+					'</td><td><button type="button" onclick="productDelete(this);" id="btnDeleterow" class="btn btn-danger btn-sm float-right"><i class="fas fa-trash-alt"></i></button></td></tr>'
+				);
+
+				remainingQty -= allocatedQty;
+			});
+
+			if (remainingQty > 0.0001) {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Insufficient Stock',
+					text: 'Selected batches don\'t cover the full quantity. Short by ' + remainingQty + '. Add another batch if available.'
+				});
+			}
+
+			// reset fields
+			$('#product').val('');
+			$('#unitprice').val('0');
+			$('#uom').val('');
+			$('#comment').val('');
+			$('#newqty').val('');
+			$('#batchno').val(null).trigger('change');
+			$('#qtylabel').html('0');
+
+			var sum = 0;
+			$(".total").each(function () {
+				sum += parseFloat($(this).text());
+			});
+			$('#totalprice').val(sum);
 		});
 		$('#tableorder').on('click', 'tr', function () {
 			var r = confirm("Are you sure, You want to remove this product ? ");
@@ -1104,15 +1126,11 @@ include "include/topnavbar.php";
 
 	$('#product').change(function () {
 		var productID = $(this).val();
-		var ordertype = tempgrntype;
 		var itemreq_id = $('#itemrequest').val();
 
 		$.ajax({
 			type: "POST",
-			data: {
-				recordID: productID,
-				itemreq_id: itemreq_id,
-			},
+			data: { recordID: productID, itemreq_id: itemreq_id },
 			url: 'Issuegoodreceive/Getproductinfoaccoproduct',
 			success: function (result) {
 				var obj;
@@ -1130,8 +1148,10 @@ include "include/topnavbar.php";
 					html1 += `
 						<option value="${item.idtbl_print_stock}"
 								data-batchno="${item.batchno}"
-								data-measureid="${item.measure_type_id}">
-							${item.batchno} | GRN: ${item.grndate} | Stock: ${item.qty}
+								data-measureid="${item.measure_type_id}"
+								data-qty="${item.qty}"
+								data-unitprice="${item.unitprice}">
+							${item.batchno} | GRN: ${item.grndate} | Stock: ${item.qty} | Rate: ${item.unitprice}
 						</option>
 					`;
 				});
@@ -1151,10 +1171,7 @@ include "include/topnavbar.php";
 
 		$.ajax({
 			type: "POST",
-			data: {
-				recordID: productID,
-				itemreq_id: itemreq_id,
-			},
+			data: { recordID: productID, itemreq_id: itemreq_id },
 			url: 'Issuegoodreceive/Getqtyfromreq',
 			success: function (result) {
 				var obj = JSON.parse(result);

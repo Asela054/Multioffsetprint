@@ -248,7 +248,9 @@ search_from_date:$("#date_from").val(),
 
 search_to_date:$("#date_to").val(),
 
-tax:$("#tax").val()
+tax:$("#tax").val(),
+
+company_id:'<?php echo $_SESSION['company_id']; ?>'
 
 
 });
@@ -314,7 +316,10 @@ columns:[
 dom:"<'row'<'col-sm-4'B><'col-sm-3'l><'col-sm-5'f>>"+
 "<'row'<'col-sm-12'tr>>"+
 "<'row'<'col-sm-5'i><'col-sm-7'p>>",
-
+lengthMenu: [
+    [10, 25, 50, -1],
+    [10, 25, 50, 'All'],
+],
 
 
 buttons:[

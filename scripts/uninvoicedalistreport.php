@@ -1,33 +1,9 @@
 <?php
 
-/*
- * DataTables example server-side processing script.
- *
- * Please note that this script is intentionally extremely simply to show how
- * server-side processing can be implemented, and probably shouldn't be used as
- * the basis for a large complex system. It is suitable for simple use cases as
- * for learning.
- *
- * See http://datatables.net/usage/server-side for full details on the server-
- * side processing requirements of DataTables.
- *
- * @license MIT - http://datatables.net/license_mit
- */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Easy set variables
- */
-
-// DB table to use
 $table = 'tbl_print_dispatch';
 
-// Table's primary key
 $primaryKey = 'idtbl_print_dispatch';
 
-// Array of database columns which should be read and sent back to DataTables.
-// The db parameter represents the column name in the database, while the dt
-// parameter represents the DataTables column identifier. In this case simple
-// indexes
 $columns = array(
     array('db' => 'u.idtbl_print_dispatch', 'dt' => 'idtbl_print_dispatch', 'field' => 'idtbl_print_dispatch'),
     array('db' => 'u.date', 'dt' => 'date', 'field' => 'date'),
@@ -38,7 +14,6 @@ $columns = array(
     array('db' => 'u.tbl_customerinquiry_idtbl_customerinquiry', 'dt' => 'tbl_customerinquiry_idtbl_customerinquiry', 'field' => 'tbl_customerinquiry_idtbl_customerinquiry'),
 );
 
-// SQL server connection information
 require('config.php');
 $sql_details = array(
     'user' => $db_username,
@@ -47,34 +22,36 @@ $sql_details = array(
     'host' => $db_host
 );
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * If you just want to use the basic configuration for DataTables with PHP
- * server-side, there is no need to edit below this line.
- */
-
-// require('ssp.class.php');
 require('ssp.customized.class.php');
 
-// build dynamic WHERE clause based on posted filters
+$conn = new mysqli($db_host, $db_username, $db_password, $db_name);
+
+if ($conn->connect_error) {
+    die(json_encode(array('error' => 'Database connection failed')));
+}
+
 $whereConds = array();
 $whereConds[] = "u.invoice_status IN (0)";
 
-$customer = isset($_POST['customer']) ? $_POST['customer'] : '';
+// company filter
+$companyID = isset($_POST['company_id']) ? $conn->real_escape_string($_POST['company_id']) : 0;
+$whereConds[] = "u.tbl_company_idtbl_company='".$companyID."'";
+
+$customer = isset($_POST['customer']) ? $conn->real_escape_string($_POST['customer']) : '';
 if ($customer !== '' && $customer !== 'all') {
     $whereConds[] = "u.tbl_customer_idtbl_customer = '$customer'";
 }
 
-// date filters take precedence in this order: range, month, week, single date
 if (!empty($_POST['search_from_date']) && !empty($_POST['search_to_date'])) {
-    $from = $_POST['search_from_date'];
-    $to = $_POST['search_to_date'];
+    $from = $conn->real_escape_string($_POST['search_from_date']);
+    $to = $conn->real_escape_string($_POST['search_to_date']);
     $whereConds[] = "u.date BETWEEN '$from' AND '$to'";
 } elseif (!empty($_POST['search_month'])) {
-    $month = $_POST['search_month'];
+    $month = $conn->real_escape_string($_POST['search_month']);
     $month_arr = explode('-', $month);
     $whereConds[] = "YEAR(u.date)='{$month_arr[0]}' AND MONTH(u.date)='{$month_arr[1]}'";
 } elseif (!empty($_POST['search_week'])) {
-    $week = $_POST['search_week'];
+    $week = $conn->real_escape_string($_POST['search_week']);
     $weeksep = explode('-W', $week);
     $year = $weeksep[0];
     $week1 = $weeksep[1];
@@ -87,14 +64,16 @@ if (!empty($_POST['search_from_date']) && !empty($_POST['search_to_date'])) {
 
     $whereConds[] = "u.date BETWEEN '$startDate' AND '$endDate'";
 } elseif (!empty($_POST['search_date'])) {
-    $date = $_POST['search_date'];
+    $date = $conn->real_escape_string($_POST['search_date']);
     $whereConds[] = "u.date = '$date'";
 }
 
 if (!empty($_POST['job'])) {
-    $job = $_POST['job'];
+    $job = $conn->real_escape_string($_POST['job']);
     $whereConds[] = "(ua.job LIKE '%$job%' OR ua.job_no LIKE '%$job%')";
 }
+
+$conn->close();
 
 $whereClause = implode(' AND ', $whereConds);
 
@@ -104,5 +83,5 @@ $joinQuery = "FROM tbl_print_dispatch AS u
             WHERE $whereClause";
 
 echo json_encode(
-    SSP::simple($_POST, $sql_details, $table, $primaryKey, $columns,$joinQuery)
+    SSP::simple($_POST, $sql_details, $table, $primaryKey, $columns, $joinQuery)
 );

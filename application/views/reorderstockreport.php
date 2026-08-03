@@ -263,7 +263,9 @@ $(document).ready(function(){
 
 						"date_to":$("#date_to").val(),
 
-						"search":$("#search").val()
+						"search":$("#search").val(),
+						
+						"company_id": '<?php echo $_SESSION['company_id']; ?>',
 
 					});
 
@@ -330,12 +332,9 @@ $(document).ready(function(){
 			responsive:true,
 
 
-			lengthMenu:[
-
-				[-1],
-
-				['All']
-
+			lengthMenu: [
+				[10, 25, 50, -1],
+				[10, 25, 50, 'All'],
 			],
 
 

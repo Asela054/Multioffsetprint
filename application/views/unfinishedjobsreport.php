@@ -116,6 +116,7 @@
 							"search_to_date": $("#date_to").val(),
 							"job": $("#job").val(),
 							"customer": $("#customer").val(),
+							"company_id": '<?php echo $_SESSION['company_id']; ?>',
 						});
 					}
 				},
@@ -137,8 +138,8 @@
 					"<'row'<'col-sm-5'i><'col-sm-7'p>>",
 				responsive: true,
 				lengthMenu: [
-					[-1],
-					['All'],
+					[10, 25, 50, -1],
+					[10, 25, 50, 'All'],
 				],
 				buttons: [{
 						extend: 'pdf',

@@ -9,60 +9,13 @@ $primaryKey='idtbl_print_material_info';
 
 $columns=array(
 
-array(
-'db'=>'mi.materialinfocode',
-'dt'=>'code',
-'field'=>'code',
-'as'=>'code'
-),
-
-
-array(
-'db'=>'mi.materialname',
-'dt'=>'product_name',
-'field'=>'product_name',
-'as'=>'product_name'
-),
-
-
-array(
-'db'=>'mg.group',
-'dt'=>'category',
-'field'=>'category',
-'as'=>'category'
-),
-
-
-array(
-'db'=>'latest.batchno',
-'dt'=>'batch',
-'field'=>'batch',
-'as'=>'batch'
-),
-
-
-array(
-'db'=>'latest.grndate',
-'dt'=>'date',
-'field'=>'date',
-'as'=>'date'
-),
-
-
-array(
-'db'=>'stock_totals.total_qty',
-'dt'=>'qty',
-'field'=>'qty',
-'as'=>'qty'
-),
-
-
-array(
-'db'=>'mt.measure_type',
-'dt'=>'uom',
-'field'=>'uom',
-'as'=>'uom'
-)
+array('db'=>'mi.materialinfocode','dt'=>'code','field'=>'code','as'=>'code'),
+array('db'=>'mi.materialname','dt'=>'product_name','field'=>'product_name','as'=>'product_name'),
+array('db'=>'mg.group','dt'=>'category','field'=>'category','as'=>'category'),
+array('db'=>'latest.batchno','dt'=>'batch','field'=>'batch','as'=>'batch'),
+array('db'=>'latest.grndate','dt'=>'date','field'=>'date','as'=>'date'),
+array('db'=>'stock_totals.total_qty','dt'=>'qty','field'=>'qty','as'=>'qty'),
+array('db'=>'mt.measure_type','dt'=>'uom','field'=>'uom','as'=>'uom')
 
 );
 
@@ -91,6 +44,10 @@ if($conn->connect_error){
 $where=array();
 
 $where[]="mi.status=1";
+
+// company filter
+$companyID = isset($_POST['company_id']) ? $conn->real_escape_string($_POST['company_id']) : 0;
+$where[]="mi.tbl_company_idtbl_company='".$companyID."'";
 
 
 
