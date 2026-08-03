@@ -83,7 +83,7 @@ include "include/topnavbar.php";
 </div>
 <!-- Modal View Job Card Issue Note -->
 <div class="modal fade" id="viewIssueNote" tabindex="-1" aria-labelledby="viewIssueNoteLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm">
+	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="viewIssueNoteLabel">Issue Note Information</h5>
@@ -102,7 +102,10 @@ include "include/topnavbar.php";
 								</select>
 							</div>
 							<div class="form-group mt-3 text-right">
-								<button type="button" id="formsubmit" class="btn btn-primary btn-sm font-weight-bold px-4"><i class="fas fa-file-pdf"></i>&nbsp;View Issue Note</button>
+								<button type="button" id="formsubmit" class="btn btn-primary btn-sm font-weight-bold px-4"><i class="fas fa-print"></i>&nbsp;Print Issue Note</button>
+								<?php if($accountstatus==1){ ?>
+								<button type="button" id="formsubmitAccount" class="btn btn-dark btn-sm font-weight-bold px-4"><i class="fas fa-eye"></i>&nbsp;View Issue Note</button>
+								<?php } ?>
 								<input type="submit" class="d-none" id="hidesubmitissuenote">
 							</div>
 						</form>
@@ -188,6 +191,30 @@ include "include/topnavbar.php";
 		</div>
 	</div>
 </div>
+<!-- Modal Batch No List -->
+<div class="modal fade" id="modalAccountTransfer" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+	aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalCenterTitle">Issue Note Approve</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div id="viewissueacc"></div>
+				<input type="hidden" name="hideissuenote" id="hideissuenote" value="">
+				<?php if($accountstatus==1){ ?>
+				<hr>
+				<div class="form-group mb-1 text-right">
+					<button type="button" class="btn btn-primary btn-sm small px-3" id="btnIssueApprove" <?php if($accountstatus==0){echo 'disabled';} ?>>Approve</button>
+				</div>
+				<?php } ?>
+			</div>
+		</div>
+	</div>
+</div>
 <?php include "include/footerscripts.php"; ?>
 <script>
 $(document).ready(function () {
@@ -195,6 +222,7 @@ $(document).ready(function () {
 	var editcheck = '<?php echo $editcheck; ?>';
 	var statuscheck = '<?php echo $statuscheck; ?>';
 	var deletecheck = '<?php echo $deletecheck; ?>';
+	var accountcheck = '<?php echo $accountstatus; ?>';
 
 	$('#batchnolist').select2();
 	$("#batchnolist").on("select2:select", function (evt) {
@@ -493,6 +521,37 @@ $(document).ready(function () {
         	window.open(url, '_blank');
 		}
 	});
+	$('#formsubmitAccount').click(function(){
+		if (!$("#formissuenotelist")[0].checkValidity()) {
+			// If the form is invalid, submit it. The form won't actually submit;
+			// this will just cause the browser to display the native HTML5 error messages.
+			$("#hidesubmitissuenote").click();
+		} else {
+			var issuenoteID = $('#issuenote').val();
+			$('#hideissuenote').val(issuenoteID);
+
+			$.ajax({
+				type: "POST",
+				data: {
+					recordID: issuenoteID
+				},
+				url: '<?php echo base_url() ?>Jobcardissuematerial/Getissuenoteaccounttransfer',
+				success: function(result) {
+					$('#viewissueacc').html(result);
+					$('#modalAccountTransfer').modal('show');
+					$('#viewIssueNote').modal('hide');
+				},
+				error: function(error) {					
+					// Show an error alert
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: 'Something went wrong. Please try again later.'
+					});
+				}
+			});
+		}
+	});
 
 	$('#dataTable tbody').on('click', '.btnBatchAllocation', async function() {
 		var id = $(this).attr('id');
@@ -588,7 +647,7 @@ $(document).ready(function () {
 						$.each(objfirst, function(i, item) {
 							//alert(objfirst[i].id);
 							html += '<option value="' + objfirst[i].batchno + '">';
-							html += objfirst[i].batchno+' - '+objfirst[i].qty;
+							html += objfirst[i].batchno+' - '+objfirst[i].qty+' - ('+objfirst[i].grndate+')';
 							html += '</option>';
 						});
 
@@ -714,6 +773,57 @@ $(document).ready(function () {
 	$('#jobCardBatch').on('hidden.bs.modal', function (event) {
         window.location.reload();
     });
+
+	$('#btnIssueApprove').click(async function() {
+		var r = await Otherconfirmation("Are you sure you want to approve & transfer this issue note? ");
+        if (r == true) {
+			var issuenoteID = $('#hideissuenote').val();
+			Swal.fire({
+				title: '',
+				html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+				allowOutsideClick: false,
+				showConfirmButton: false, // Hide the OK button
+				backdrop: `
+					rgba(255, 255, 255, 0.5) 
+				`,
+				customClass: {
+					popup: 'fullscreen-swal'
+				},
+				didOpen: () => {
+					document.body.style.overflow = 'hidden';
+
+					$.ajax({
+						type: "POST",
+						data: {
+							recordID: issuenoteID
+						},
+						url: '<?php echo base_url() ?>Jobcardissuematerial/Approveissuenote',
+						success: function(result) {
+							Swal.close();
+							document.body.style.overflow = 'auto';
+
+							var obj = JSON.parse(result);
+							
+							if(obj.status==1){
+								actionreload(obj.action);
+							}
+							else{
+								action(obj.action);
+							}
+						},
+						error: function(error) {					
+							// Show an error alert
+							Swal.fire({
+								icon: 'error',
+								title: 'Error',
+								text: 'Something went wrong. Please try again later.'
+							});
+						}
+					});
+				}
+			});
+		}
+	});
 });
 </script>
 <?php include "include/footer.php"; ?>

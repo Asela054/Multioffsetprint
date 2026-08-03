@@ -987,7 +987,7 @@ class MaterialallocationManualinfo extends CI_Model{
             $this->db->from('tbl_jobcard_issue_meterial');
             $this->db->where('issuedate !=', $allocationdate);
             $this->db->where('tbl_jobcard_idtbl_jobcard', $respondcheckjobcard->row(0)->idtbl_jobcard);
-            $this->db->where('status !=', 2);
+            $this->db->where('status', 1);
 
             $respondnotissue = $this->db->get();
 
