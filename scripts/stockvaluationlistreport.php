@@ -104,11 +104,19 @@ if($conn->connect_error){
 }
 
 
+// Get company_id passed from the view (which reads it from the CI session)
+$companyID = isset($_POST['company_id']) ? $conn->real_escape_string($_POST['company_id']) : 0;
+
+
 $where=array();
 
 $where[]="s.status=1";
 
 $where[]="mi.status=1";
+
+$where[]="s.qty > 0";
+
+$where[]="s.tbl_company_idtbl_company='".$companyID."'";
 
 
 
@@ -158,7 +166,7 @@ s.batchno LIKE '%$search%'
 $conn->close();
 
 
-$whereClause=implode(" AND ",$where);
+$extraWhere=implode(" AND ",$where);
 
 
 
@@ -175,9 +183,6 @@ ON mg.idtbl_material_group=mi.tbl_material_group_idtbl_material_group
 
 LEFT JOIN tbl_measurements mt
 ON mt.idtbl_mesurements=s.measure_type_id
-
-
-WHERE $whereClause
 ";
 
 
@@ -189,8 +194,7 @@ $sql_details,
 $table,
 $primaryKey,
 $columns,
-$joinQuery
+$joinQuery,
+$extraWhere
 )
 );
-
-?>

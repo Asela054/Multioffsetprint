@@ -5,10 +5,13 @@ class InvoiceReportinfo extends CI_Model{
 
     public function Customerget(){
 
-        $this->db->select('idtbl_customer, customer');
+        $company_id = $this->session->userdata('company_id');
+
+        $this->db->select('`idtbl_customer`, `customer`');
         $this->db->from('tbl_customer');
-        $this->db->where('status',1);
-        $this->db->order_by('customer','ASC');
+        $this->db->where('status', 1);
+        $this->db->where('tbl_company_idtbl_company', $company_id);
+        $this->db->order_by('customer', 'ASC');
 
         return $this->db->get();
     }

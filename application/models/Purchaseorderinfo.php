@@ -757,7 +757,7 @@
 	public function Getporderreqdetails() {
 		$recordID = $this->input->post('recordID');
 		
-		$this->db->select('requestname, qty, measure_type, comment, group');
+		$this->db->select('requestname, qty, measure_type, comment, group, tbl_print_porder_req.newexist_status');
 		$this->db->from('tbl_print_porder_req_detail');
 		$this->db->join('tbl_print_porder_req', 'tbl_print_porder_req.idtbl_print_porder_req = tbl_print_porder_req_detail.tbl_print_porder_req_idtbl_print_porder_req', 'left');
 		$this->db->join('tbl_material_group', 'tbl_material_group.idtbl_material_group = tbl_print_porder_req.tbl_material_group_idtbl_material_group', 'left');
@@ -770,18 +770,51 @@
 		if ($response->num_rows() > 0) {
 			$result = [];
 			foreach ($response->result() as $row) {
+				$grnhistory = [];
+
+				// Only look up history when this request's material status is "Exist"
+				if ($row->newexist_status == 0) {
+					$grnhistory = $this->getLastGRNHistory($row->requestname);
+				}
+
 				$result[] = [
-					'requestname' => $row->requestname,
-					'qty' => $row->qty,
+					'requestname'  => $row->requestname,
+					'qty'          => $row->qty,
 					'measure_type' => $row->measure_type,
-					'comment' => $row->comment,
-					'order_type' => $row->group
+					'comment'      => $row->comment,
+					'order_type'   => $row->group,
+					'grnhistory'   => $grnhistory
 				];
 			}
 			echo json_encode($result);
 		} else {
 			echo json_encode([]);
 		}
+	}
+
+	private function getLastGRNHistory($materialname) {
+		$sql = "SELECT grn.grndate, grnd.qty, grnd.unitprice
+				FROM tbl_print_grndetail grnd
+				INNER JOIN tbl_print_grn grn ON grn.idtbl_print_grn = grnd.tbl_print_grn_idtbl_print_grn
+				INNER JOIN tbl_print_material_info mi ON mi.idtbl_print_material_info = grnd.tbl_print_material_info_idtbl_print_material_info
+				WHERE mi.materialname = ?
+				AND grn.status = 1
+				AND grnd.status = 1
+				ORDER BY grn.grndate DESC, grn.idtbl_print_grn DESC
+				LIMIT 2";
+
+		$query = $this->db->query($sql, array($materialname));
+
+		$history = [];
+		foreach ($query->result() as $row) {
+			$history[] = [
+				'grndate'   => $row->grndate,
+				'qty'       => $row->qty,
+				'unitprice' => $row->unitprice
+			];
+		}
+
+		return $history;
 	}			
 
 	public function getProductsByType() {

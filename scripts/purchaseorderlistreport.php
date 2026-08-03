@@ -9,60 +9,13 @@ $primaryKey='idtbl_print_porder';
 
 $columns=array(
 
-array(
-'db'=>'po.porder_no',
-'dt'=>'po_no',
-'field'=>'po_no',
-'as'=>'po_no'
-),
-
-
-array(
-'db'=>'po.orderdate',
-'dt'=>'po_date',
-'field'=>'po_date',
-'as'=>'po_date'
-),
-
-
-array(
-'db'=>'sup.suppliername',
-'dt'=>'supplier',
-'field'=>'supplier',
-'as'=>'supplier'
-),
-
-
-array(
-'db'=>'g.grn_no',
-'dt'=>'grn_no',
-'field'=>'grn_no',
-'as'=>'grn_no'
-),
-
-
-array(
-'db'=>'g.grndate',
-'dt'=>'grn_date',
-'field'=>'grn_date',
-'as'=>'grn_date'
-),
-
-
-array(
-'db'=>'g.invoicenum',
-'dt'=>'inv_no',
-'field'=>'inv_no',
-'as'=>'inv_no'
-),
-
-
-array(
-'db'=>'g.batchno',
-'dt'=>'batch_no',
-'field'=>'batch_no',
-'as'=>'batch_no'
-)
+array('db'=>'po.porder_no','dt'=>'po_no','field'=>'po_no','as'=>'po_no'),
+array('db'=>'po.orderdate','dt'=>'po_date','field'=>'po_date','as'=>'po_date'),
+array('db'=>'sup.suppliername','dt'=>'supplier','field'=>'supplier','as'=>'supplier'),
+array('db'=>'g.grn_no','dt'=>'grn_no','field'=>'grn_no','as'=>'grn_no'),
+array('db'=>'g.grndate','dt'=>'grn_date','field'=>'grn_date','as'=>'grn_date'),
+array('db'=>'g.invoicenum','dt'=>'inv_no','field'=>'inv_no','as'=>'inv_no'),
+array('db'=>'g.batchno','dt'=>'batch_no','field'=>'batch_no','as'=>'batch_no')
 
 );
 
@@ -91,6 +44,10 @@ if($conn->connect_error){
 $where=array();
 
 $where[]="po.status=1";
+
+// company filter
+$companyID = isset($_POST['company_id']) ? $conn->real_escape_string($_POST['company_id']) : 0;
+$where[]="po.tbl_company_idtbl_company='".$companyID."'";
 
 
 
