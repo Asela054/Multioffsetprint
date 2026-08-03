@@ -34,4 +34,10 @@ class Jobcardissuematerial extends CI_Controller {
     public function Issuematerialbatchupdate(){
         $result=$this->Jobcardissuematerialinfo->Issuematerialbatchupdate();
 	}
+    public function Getissuenoteaccounttransfer(){
+        $result=$this->Jobcardissuematerialinfo->Getissuenoteaccounttransfer();
+	}
+    public function Approveissuenote(){
+        $result=$this->Jobcardissuematerialinfo->Approveissuenote();
+	}
 }

@@ -18,9 +18,11 @@ class Jobcardissuematerialinfo extends CI_Model {
         $this->db->select('tbl_jobcard_material.materialby, tbl_jobcard_material.cutsize, tbl_jobcard_material.cutups, tbl_jobcard_material.upspersheet, tbl_jobcard_material.wastage, tbl_jobcard_material.batchno, tbl_jobcard_material.issueqty, tbl_print_material_info.materialname, tbl_jobcard_issue_meterial.status as issuestatus, tbl_jobcard_issue_meterial.issuedate');
 		$this->db->from('tbl_jobcard_material');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_material.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_material.tbl_print_material_info_idtbl_print_material_info AND tbl_jobcard_issue_meterial.sectiontype = 1 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_material.tbl_jobcard_idtbl_jobcard', 'left');
+        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.jobcard_other_id = tbl_jobcard_material.idtbl_jobcard_material AND tbl_jobcard_issue_meterial.sectiontype = 1 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_material.tbl_jobcard_idtbl_jobcard', 'left');
 		$this->db->where('tbl_jobcard_material.tbl_jobcard_idtbl_jobcard', $recordID);
 		$this->db->where('tbl_jobcard_material.status', 1);
+        $this->db->where('tbl_jobcard_issue_meterial.status <', 3);
+        $this->db->group_by('tbl_jobcard_issue_meterial.jobcard_other_id');
 
 		$respondmaterial=$this->db->get();
 
@@ -37,9 +39,11 @@ class Jobcardissuematerialinfo extends CI_Model {
         ]);
 		$this->db->from('tbl_jobcard_color');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_color.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_color.tbl_print_material_info_idtbl_print_material_info AND tbl_jobcard_issue_meterial.sectiontype = 2 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_color.tbl_jobcard_idtbl_jobcard', 'left');
+        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.jobcard_other_id = tbl_jobcard_color.idtbl_jobcard_color AND tbl_jobcard_issue_meterial.sectiontype = 2 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_color.tbl_jobcard_idtbl_jobcard', 'left');
 		$this->db->where('tbl_jobcard_color.tbl_jobcard_idtbl_jobcard', $recordID);
 		$this->db->where('tbl_jobcard_color.status', 1);
+		$this->db->where('tbl_jobcard_issue_meterial.status <', 3);
+        $this->db->group_by('tbl_jobcard_issue_meterial.jobcard_other_id');
 
 		$respondcolor=$this->db->get();
 
@@ -47,19 +51,22 @@ class Jobcardissuematerialinfo extends CI_Model {
 		$this->db->from('tbl_jobcard_varnish');
         $this->db->join('tbl_varnish', 'tbl_varnish.idtbl_varnish = tbl_jobcard_varnish.tbl_varnish_idtbl_varnish', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_varnish.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_varnish.tbl_print_material_info_idtbl_print_material_info AND tbl_jobcard_issue_meterial.sectiontype = 3 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_varnish.tbl_jobcard_idtbl_jobcard', 'left');
+        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.jobcard_other_id = tbl_jobcard_varnish.idtbl_jobcard_varnish AND tbl_jobcard_issue_meterial.sectiontype = 3 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_varnish.tbl_jobcard_idtbl_jobcard', 'left');
 		$this->db->where('tbl_jobcard_varnish.tbl_jobcard_idtbl_jobcard', $recordID);
 		$this->db->where('tbl_jobcard_varnish.status', 1);
-
+        $this->db->where('tbl_jobcard_issue_meterial.status <', 3);
+        $this->db->group_by('tbl_jobcard_issue_meterial.jobcard_other_id');
 		$respondvarnish=$this->db->get();  
         
         $this->db->select('tbl_jobcard_foil.foilmaterialby, tbl_jobcard_foil.qty, tbl_jobcard_foil.remark, tbl_jobcard_foil.batchno, tbl_jobcard_foil.issueqty, tbl_foiling.foiling, tbl_print_material_info.materialname, tbl_jobcard_issue_meterial.status as issuestatus, tbl_jobcard_issue_meterial.issuedate');
 		$this->db->from('tbl_jobcard_foil');
         $this->db->join('tbl_foiling', 'tbl_foiling.idtbl_foiling = tbl_jobcard_foil.tbl_foiling_idtbl_foiling', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_foil.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_foil.tbl_print_material_info_idtbl_print_material_info AND tbl_jobcard_issue_meterial.sectiontype = 4 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_foil.tbl_jobcard_idtbl_jobcard', 'left');
+        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.jobcard_other_id = tbl_jobcard_foil.idtbl_jobcard_foil AND tbl_jobcard_issue_meterial.sectiontype = 4 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_foil.tbl_jobcard_idtbl_jobcard', 'left');
 		$this->db->where('tbl_jobcard_foil.tbl_jobcard_idtbl_jobcard', $recordID);
 		$this->db->where('tbl_jobcard_foil.status', 1);
+        $this->db->where('tbl_jobcard_issue_meterial.status <', 3);
+        $this->db->group_by('tbl_jobcard_issue_meterial.jobcard_other_id');
 
 		$respondfoiling=$this->db->get();  
 
@@ -67,9 +74,11 @@ class Jobcardissuematerialinfo extends CI_Model {
 		$this->db->from('tbl_jobcard_lamination');
         $this->db->join('tbl_lamination', 'tbl_lamination.idtbl_lamination = tbl_jobcard_lamination.tbl_lamination_idtbl_lamination', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_lamination.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_lamination.tbl_print_material_info_idtbl_print_material_info AND tbl_jobcard_issue_meterial.sectiontype = 5 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_lamination.tbl_jobcard_idtbl_jobcard', 'left');
+        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.jobcard_other_id = tbl_jobcard_lamination.idtbl_jobcard_lamination AND tbl_jobcard_issue_meterial.sectiontype = 5 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_lamination.tbl_jobcard_idtbl_jobcard', 'left');
 		$this->db->where('tbl_jobcard_lamination.tbl_jobcard_idtbl_jobcard', $recordID);
 		$this->db->where('tbl_jobcard_lamination.status', 1);
+        $this->db->where('tbl_jobcard_issue_meterial.status <', 3);
+        $this->db->group_by('tbl_jobcard_issue_meterial.jobcard_other_id');
 
 		$respondlamination=$this->db->get();
 
@@ -77,9 +86,11 @@ class Jobcardissuematerialinfo extends CI_Model {
 		$this->db->from('tbl_jobcard_pasting');
         $this->db->join('tbl_machine', 'tbl_machine.idtbl_machine = tbl_jobcard_pasting.tbl_machine_idtbl_machine', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_pasting.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_pasting.tbl_print_material_info_idtbl_print_material_info AND tbl_jobcard_issue_meterial.sectiontype = 6 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_pasting.tbl_jobcard_idtbl_jobcard', 'left');
+        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.jobcard_other_id = tbl_jobcard_pasting.idtbl_jobcard_pasting AND tbl_jobcard_issue_meterial.sectiontype = 6 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_pasting.tbl_jobcard_idtbl_jobcard', 'left');
 		$this->db->where('tbl_jobcard_pasting.tbl_jobcard_idtbl_jobcard', $recordID);
 		$this->db->where('tbl_jobcard_pasting.status', 1);
+        $this->db->where('tbl_jobcard_issue_meterial.status <', 3);
+        $this->db->group_by('tbl_jobcard_issue_meterial.jobcard_other_id');
 
 		$respondpasting=$this->db->get();  
 
@@ -94,9 +105,11 @@ class Jobcardissuematerialinfo extends CI_Model {
 		$this->db->from('tbl_jobcard_rimming');
         $this->db->join('tbl_rimming', 'tbl_rimming.idtbl_rimming = tbl_jobcard_rimming.tbl_rimming_idtbl_rimming', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_rimming.tbl_print_material_info_idtbl_print_material_info', 'left');
-        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info = tbl_jobcard_rimming.tbl_print_material_info_idtbl_print_material_info AND tbl_jobcard_issue_meterial.sectiontype = 7 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_rimming.tbl_jobcard_idtbl_jobcard', 'left');
+        $this->db->join('tbl_jobcard_issue_meterial', 'tbl_jobcard_issue_meterial.jobcard_other_id = tbl_jobcard_rimming.idtbl_jobcard_rimming AND tbl_jobcard_issue_meterial.sectiontype = 7 AND tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard = tbl_jobcard_rimming.tbl_jobcard_idtbl_jobcard', 'left');
 		$this->db->where('tbl_jobcard_rimming.tbl_jobcard_idtbl_jobcard', $recordID);
 		$this->db->where('tbl_jobcard_rimming.status', 1);
+        $this->db->where('tbl_jobcard_issue_meterial.status <', 3);
+        $this->db->group_by('tbl_jobcard_issue_meterial.jobcard_other_id');
 
 		$respondrimming=$this->db->get();
 
@@ -527,101 +540,6 @@ class Jobcardissuematerialinfo extends CI_Model {
                 $this->db->insert('tbl_issue_note_detail', $dataissuenotedetail);
             }
 
-            // Get material value
-            $this->db->select('tbl_jobcard_issue_meterial.issuedate, SUM(`tbl_jobcard_issue_meterial`.`issueqty`*`tbl_jobcard_issue_meterial`.`unitprice`) AS `issuematerialvalue`, GROUP_CONCAT(`tbl_print_material_info`.`tbl_supplier_idtbl_supplier`) AS `suppliers`');
-            $this->db->from('tbl_jobcard_issue_meterial');
-            $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info', 'left');
-            $this->db->where('tbl_jobcard_issue_meterial.status', 1);
-            $this->db->where('tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard', $recordID);
-            $respond = $this->db->get();
-            
-            // Get job description
-            $this->db->select('job_description');
-            $this->db->from('tbl_jobcard');
-            $this->db->where('status', 1);
-            $this->db->where('idtbl_jobcard', $recordID);
-            $respondjobcard = $this->db->get();
-
-            $tradate = $respond->row(0)->issuedate;
-            $traamount = $respond->row(0)->issuematerialvalue;
-            $suppliersArray = explode(',', $respond->row(0)->suppliers);
-            $narrationcr = $respondjobcard->row(0)->job_description.' Material Issued on '.$tradate;
-            $narrationdr = $respondjobcard->row(0)->job_description.' Material Issued on '.$tradate;
-
-            $chartspecialcate = array('39', '37');
-            $this->db->where('tbl_account_allocation.companybank', $companyID);
-            $this->db->where('tbl_account_allocation.branchcompanybank', $branchID);
-            $this->db->where_in('tbl_account.specialcate', $chartspecialcate);
-            $this->db->where('tbl_account.status', 1);
-            $this->db->where('tbl_account_allocation.status', 1);
-            $this->db->where('tbl_account_allocation.tbl_account_idtbl_account is NOT NULL', NULL, FALSE);
-            $this->db->select('`tbl_account`.`idtbl_account`, `tbl_account`.`accountno`, `tbl_account`.`accountname`, `tbl_account`.`specialcate`');
-            $this->db->from('tbl_account');
-            $this->db->join('tbl_account_allocation', 'tbl_account_allocation.tbl_account_idtbl_account = tbl_account.idtbl_account', 'left');
-
-            $respondchart=$this->db->get();
-
-            foreach($respondchart->result() as $rowchartdata):
-                if($rowchartdata->specialcate == '39'):
-                    $accountdrno = $rowchartdata->idtbl_account; 
-                elseif($rowchartdata->specialcate == '37'):
-                    $accountcrno = $rowchartdata->idtbl_account; 
-                endif;
-            endforeach;
-
-            $isSupplierPartyOnly = false;
-
-            if($traamount <= 0){
-                if($companyID == 1){$supplierbypartyID = 64;}
-                else if($companyID == 3){$supplierbypartyID = 81;}
-                else{$supplierbypartyID = 0;} 
-
-                $suppliersArray = array_filter(array_unique(explode(',', $respond->row(0)->suppliers)));
-                $isSupplierPartyOnly = (count($suppliersArray) === 1 && intval(reset($suppliersArray)) === $supplierbypartyID);
-
-                if(!$isSupplierPartyOnly){
-                    throw new Exception('Material value is zero, cannot proceed with accounting entry.');
-                }
-            }
-
-            if($traamount > 0 || !$isSupplierPartyOnly){  // ← only this line changed
-                // Make API call
-                $apiURL = $_SESSION['accountapiurl'].'Api/Issuematerialprocess';
-
-                $postData = http_build_query([
-                    'userid'      => $userID,
-                    'company'     => $companyID,
-                    'branch'      => $branchID,
-                    'tradate'     => $tradate,
-                    'traamount'   => $traamount,
-                    'accountcrno' => $accountcrno,
-                    'narrationcr' => $narrationcr,
-                    'accountdrno' => $accountdrno,
-                    'narrationdr' => $narrationdr,
-                ]);
-                
-                $ch = curl_init();
-                curl_setopt_array($ch, [
-                    CURLOPT_URL            => $apiURL,
-                    CURLOPT_POST           => true,
-                    CURLOPT_POSTFIELDS     => $postData,
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_TIMEOUT        => 30,
-                    CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
-                ]);
-                
-                $server_output = curl_exec($ch);
-                $curlError     = curl_error($ch);
-                $httpCode      = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
-
-                $apiResponse = json_decode($server_output, true);
-                if ($httpCode != 200 || !isset($apiResponse['status']) || $apiResponse['status'] !== 'success') {
-                    $errorMsg = $apiResponse['message'] ?? 'API request failed';
-                    throw new Exception($errorMsg);
-                }   
-            }
-
             // Update issue material status
             $dataissue = array(
                 'status' => '2',
@@ -967,6 +885,7 @@ class Jobcardissuematerialinfo extends CI_Model {
 
         $this->db->select('
             tbl_print_stock.batchno, 
+            tbl_print_stock.grndate, 
             tbl_print_stock.unitprice,
             (tbl_print_stock.qty - COALESCE(SUM(tbl_jobcard_issue_meterial.issueqty), 0)) AS qty
         ');
@@ -1277,5 +1196,289 @@ class Jobcardissuematerialinfo extends CI_Model {
         $obj->action = json_encode($actionObj);
 
         return $obj;
+    }
+
+    public function Getissuenoteaccounttransfer(){
+        $recordID=$this->input->post('recordID');
+        $companyID=$_SESSION['company_id'];
+        
+        if($companyID==1){$prefix = 'MOPI';} 
+        else if($companyID==2){$prefix = 'FTHI';}
+        else if($companyID==3){$prefix = 'RMII';}
+
+        $this->db->select("tbl_jobcard.*, `tbl_company`.`company`, `tbl_company_branch`.`branch`, CONCAT(`tbl_company`.`address1`, ' ', `tbl_company`.`address2`) AS `companyaddress`, `tbl_customerinquiry_detail`.`job_no`, `tbl_issue_note`.`issuenoteno`, `tbl_issue_note`.`approvestatus`");
+        $this->db->from('tbl_jobcard');
+        $this->db->join('tbl_customerinquiry_detail', 'tbl_customerinquiry_detail.tbl_customerinquiry_idtbl_customerinquiry = tbl_jobcard.tbl_customerinquiry_idtbl_customerinquiry', 'left');
+        $this->db->join('tbl_issue_note', 'tbl_issue_note.tbl_jobcard_idtbl_jobcard = tbl_jobcard.idtbl_jobcard', 'left');
+        $this->db->join('tbl_company', 'tbl_company.idtbl_company = tbl_jobcard.tbl_company_idtbl_company', 'left');
+        $this->db->join('tbl_company_branch', 'tbl_company_branch.idtbl_company_branch = tbl_jobcard.tbl_company_branch_idtbl_company_branch', 'left');
+        $this->db->where('tbl_issue_note.idtbl_issue_note', $recordID);
+        $this->db->where('tbl_jobcard.status', 1);
+        $respond=$this->db->get();
+
+        $this->db->select('tbl_issue_note_detail.*, tbl_print_material_info.materialname');
+        $this->db->from('tbl_issue_note_detail');
+        $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_issue_note_detail.tbl_print_material_info_idtbl_print_material_info', 'left');
+        $this->db->where('tbl_issue_note_detail.status', 1);
+        $this->db->where('tbl_issue_note_detail.tbl_issue_note_idtbl_issue_note', $recordID);
+        $responddetail=$this->db->get();
+
+        $html='';
+        $html.='
+        <div class="row">
+            <div class="col">
+                <label class="small font-weight-bold my-0">Issue No: </label>
+                <label class="small my-0">'.$respond->row(0)->issuenoteno.'</label><br>
+                <label class="small font-weight-bold my-0">Date: </label>
+                <label class="small my-0">'.$respond->row(0)->date.'</label><br>
+                <label class="small font-weight-bold my-0">Job Description: </label>
+                <label class="small my-0">' . $respond->row()->job_description . '</label>
+            </div>
+            <div class="col">
+                <label class="small font-weight-bold my-0">Company: </label>
+                <label class="small my-0">'.$respond->row()->company.'</label><br>
+                <label class="small font-weight-bold my-0">Address: </label>
+                <label class="small my-0">'.$respond->row()->companyaddress.'</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h6 class="small title-style my-3"><span>Segregation Information</span></h6>
+                <table class="table  table-striped table-sm nowrap small">
+                    <thead>
+                        <tr>
+                            <th>Batch No</th>
+                            <th>Material</th>
+                            <th class="text-center">Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+                    foreach($responddetail->result() as $rowdatainfo){
+                        $html.='
+                        <tr>
+                            <td>'.$rowdatainfo->batchno.'</td>
+                            <td>'.$rowdatainfo->materialname.'</td>
+                            <td class="text-center">'.$rowdatainfo->issueqty.'</td>
+                        </tr>
+                        ';
+                    }
+                    $html.='</tbody>
+                </table>
+            </div>
+        </div>';
+        if($respond->row(0)->approvestatus==1){
+            $html.='<div class="alert alert-success" role="alert">
+                <h4 class="alert-heading">Posted!</h4>
+                <p>This issue note has been approved and transfer to accounting system.</p>
+            </div>';
+        }
+
+        echo $html;
+    }
+
+    public function Approveissuenote(){
+        try {
+            $this->db->trans_begin();
+
+            $recordID=$this->input->post('recordID');
+            $companyID=$_SESSION['company_id'];
+            $branchID=$_SESSION['branch_id'];
+            $userID=$_SESSION['userid'];
+
+            $updatedatetime=date('Y-m-d H:i:s');
+
+            $this->db->select('approvestatus, tbl_jobcard_idtbl_jobcard');
+            $this->db->from('tbl_issue_note');
+            $this->db->where('idtbl_issue_note', $recordID);
+            $respond = $this->db->get();
+
+            if ($respond->row() && $respond->row()->approvestatus == 1) {
+                throw new Exception('This issue note has already been approved.');
+            }
+
+            $data = array(
+                'approvestatus'=> 1, 
+                'approveby'=> $userID, 
+                'updatedatetime'=> $updatedatetime
+            );
+
+            $this->db->where('idtbl_issue_note', $recordID);
+            $this->db->update('tbl_issue_note', $data);
+
+            $jobcardID = $respond->row()->tbl_jobcard_idtbl_jobcard;
+
+            // Check batch no have any grn voucher entry
+            $this->db->select('tbl_jobcard_issue_meterial.batchno as batchno');
+            $this->db->from('tbl_jobcard_issue_meterial');
+            $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_issue_note_detail', 'tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial = tbl_jobcard_issue_meterial.idtbl_jobcard_issue_meterial', 'left');
+            $this->db->where('tbl_jobcard_issue_meterial.status', 2);
+            $this->db->where('tbl_issue_note_detail.tbl_issue_note_idtbl_issue_note', $recordID);
+            $respondcheckgrnvoucher = $this->db->get();
+
+            // Collect unique batch numbers from the issued materials
+            $batchNoList = array();
+            foreach ($respondcheckgrnvoucher->result() as $row) {
+                if (!empty($row->batchno) && !in_array($row->batchno, $batchNoList)) {
+                    $batchNoList[] = $row->batchno;
+                }
+            }
+
+            // For every batch no, check GRN(s) exist; if a GRN exists, it must have a voucher import cost entry
+            foreach ($batchNoList as $batchNo) {
+
+                $this->db->select('idtbl_print_grn');
+                $this->db->from('tbl_print_grn');
+                $this->db->where('batchno', $batchNo);
+                $grnCheck = $this->db->get();
+
+                // No GRN for this batch at all - skip, nothing to validate
+                if ($grnCheck->num_rows() == 0) {
+                    continue;
+                }
+
+                // GRN exists - every GRN must have a corresponding voucher import cost entry
+                foreach ($grnCheck->result() as $grnRow) {
+
+                    $this->db->select('idtbl_grn_vouchar_import_cost');
+                    $this->db->from('tbl_grn_vouchar_import_cost');
+                    $this->db->where('tbl_print_grn_idtbl_print_grn', $grnRow->idtbl_print_grn);
+                    $voucherCheck = $this->db->get();
+
+                    if ($voucherCheck->num_rows() == 0) {
+                        throw new Exception('Batch No ' . $batchNo . ' has a GRN but no voucher entry.');
+                    }
+                }
+            }
+
+            // Get material value
+            $this->db->select('tbl_jobcard_issue_meterial.issuedate, SUM(`tbl_jobcard_issue_meterial`.`issueqty`*`tbl_jobcard_issue_meterial`.`unitprice`) AS `issuematerialvalue`, GROUP_CONCAT(`tbl_print_material_info`.`tbl_supplier_idtbl_supplier`) AS `suppliers`');
+            $this->db->from('tbl_jobcard_issue_meterial');
+            $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info', 'left');
+            $this->db->join('tbl_issue_note_detail', 'tbl_issue_note_detail.tbl_jobcard_issue_meterial_idtbl_jobcard_issue_meterial = tbl_jobcard_issue_meterial.idtbl_jobcard_issue_meterial', 'left');
+            $this->db->where('tbl_jobcard_issue_meterial.status', 2);
+            $this->db->where('tbl_issue_note_detail.tbl_issue_note_idtbl_issue_note', $recordID);
+            $respond = $this->db->get();
+            
+            // Get job description
+            $this->db->select('job_description');
+            $this->db->from('tbl_jobcard');
+            $this->db->where('status', 1);
+            $this->db->where('idtbl_jobcard', $jobcardID);
+            $respondjobcard = $this->db->get();
+
+            $tradate = $respond->row(0)->issuedate;
+            $traamount = $respond->row(0)->issuematerialvalue;
+            $suppliersArray = explode(',', $respond->row(0)->suppliers);
+            $narrationcr = $respondjobcard->row(0)->job_description.' Material Issued on '.$tradate;
+            $narrationdr = $respondjobcard->row(0)->job_description.' Material Issued on '.$tradate;
+
+            $chartspecialcate = array('39', '37');
+            $this->db->where('tbl_account_allocation.companybank', $companyID);
+            $this->db->where('tbl_account_allocation.branchcompanybank', $branchID);
+            $this->db->where_in('tbl_account.specialcate', $chartspecialcate);
+            $this->db->where('tbl_account.status', 1);
+            $this->db->where('tbl_account_allocation.status', 1);
+            $this->db->where('tbl_account_allocation.tbl_account_idtbl_account is NOT NULL', NULL, FALSE);
+            $this->db->select('`tbl_account`.`idtbl_account`, `tbl_account`.`accountno`, `tbl_account`.`accountname`, `tbl_account`.`specialcate`');
+            $this->db->from('tbl_account');
+            $this->db->join('tbl_account_allocation', 'tbl_account_allocation.tbl_account_idtbl_account = tbl_account.idtbl_account', 'left');
+
+            $respondchart=$this->db->get();
+
+            foreach($respondchart->result() as $rowchartdata):
+                if($rowchartdata->specialcate == '39'):
+                    $accountdrno = $rowchartdata->idtbl_account; 
+                elseif($rowchartdata->specialcate == '37'):
+                    $accountcrno = $rowchartdata->idtbl_account; 
+                endif;
+            endforeach;
+
+            $isSupplierPartyOnly = false;
+
+            if($traamount <= 0){
+                if($companyID == 1){$supplierbypartyID = 64;}
+                else if($companyID == 3){$supplierbypartyID = 81;}
+                else{$supplierbypartyID = 0;} 
+
+                $suppliersArray = array_filter(array_unique(explode(',', $respond->row(0)->suppliers)));
+                $isSupplierPartyOnly = (count($suppliersArray) === 1 && intval(reset($suppliersArray)) === $supplierbypartyID);
+
+                if(!$isSupplierPartyOnly){
+                    throw new Exception('Material value is zero, cannot proceed with accounting entry.');
+                }
+            }
+
+            if($traamount > 0 || !$isSupplierPartyOnly){  // ← only this line changed
+                // Make API call
+                $apiURL = $_SESSION['accountapiurl'].'Api/Issuematerialprocess';
+
+                $postData = http_build_query([
+                    'userid'      => $userID,
+                    'company'     => $companyID,
+                    'branch'      => $branchID,
+                    'tradate'     => $tradate,
+                    'traamount'   => $traamount,
+                    'accountcrno' => $accountcrno,
+                    'narrationcr' => $narrationcr,
+                    'accountdrno' => $accountdrno,
+                    'narrationdr' => $narrationdr,
+                ]);
+                
+                $ch = curl_init();
+                curl_setopt_array($ch, [
+                    CURLOPT_URL            => $apiURL,
+                    CURLOPT_POST           => true,
+                    CURLOPT_POSTFIELDS     => $postData,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT        => 30,
+                    CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
+                ]);
+                
+                $server_output = curl_exec($ch);
+                $curlError     = curl_error($ch);
+                $httpCode      = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+
+                $apiResponse = json_decode($server_output, true);
+                if ($httpCode != 200 || !isset($apiResponse['status']) || $apiResponse['status'] !== 'success') {
+                    $errorMsg = $apiResponse['message'] ?? 'API request failed';
+                    throw new Exception($errorMsg);
+                }   
+            }
+
+            $this->db->trans_commit();
+
+            $actionObj = new stdClass();
+            $actionObj->icon = 'fas fa-check-circle';
+            $actionObj->title = '';
+            $actionObj->message = 'Issue note approved and accounting entry created successfully.';
+            $actionObj->url = '';
+            $actionObj->target = '_blank';
+            $actionObj->type = 'success';
+    
+            $obj = new stdClass();
+            $obj->status = 1;
+            $obj->action = json_encode($actionObj);
+
+        } catch (Exception $e) {
+            $this->db->trans_rollback();
+
+            error_log("Error: " . $e->getMessage());
+            
+            $actionObj = new stdClass();
+            $actionObj->icon = 'fas fa-exclamation-triangle';
+            $actionObj->title = '';
+            $actionObj->message = 'Operation Failed: ' . $e->getMessage();
+            $actionObj->url = '';
+            $actionObj->target = '_blank';
+            $actionObj->type = 'danger';
+    
+            $obj = new stdClass();
+            $obj->status = 0;
+            $obj->action = json_encode($actionObj);
+        }
+
+        echo json_encode($obj);
     }
 }
