@@ -32,7 +32,8 @@ include "include/topnavbar.php";
                                                 <th>#</th>
                                                 <th>Product Name</th>
                                                 <th>Batch No</th>
-                                                <th>Location</th>
+                                                <!-- <th>Location</th> -->
+                                                <th>Warehouse</th>
                                                 <th class="text-center">Quantity</th>
                                                 <th>UOM</th>
                                                 <th class="text-right">Unit Price</th>
@@ -127,8 +128,11 @@ $(document).ready(function() {
             {
                 "data": "batchno"
             },
+            // {
+            //     "data": "location"
+            // },
             {
-                "data": "location"
+                "data": "wh_name"
             },
             {
                 render: function (data, type, row) {

@@ -146,7 +146,7 @@ function generateTable(type, items) {
                     <tr>
                         <th>Product Name</th>
                         <th>Batch No</th>
-                        <th>Location</th>
+                        <th>Warehouse</th>
                         <th class="text-center">Quantity</th>
                         <th>UOM</th>
                         <th class="text-right">Unit Price</th>
@@ -170,7 +170,7 @@ function generateTable(type, items) {
             <tr>
                 <td>${item.materialname}</td>
                 <td>${item.batchno}</td>
-                <td>${item.location}</td>
+                <td>${item.wh_name}</td>
                 <td class="text-center">${qty}</td>
                 <td>${item.measure_type}</td>
                 <td class="text-right">${unitprice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>

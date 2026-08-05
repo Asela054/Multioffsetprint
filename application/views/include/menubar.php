@@ -87,6 +87,8 @@ $permissionallowed = array_unique($permissionallowed);
 					<?php } if(in_array("Uomconversions", $permissionallowed)){ ?>
 					<a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Uomconversions'; ?>">UOM
 						Conversions</a>
+					<?php } if(in_array("Warehouse", $permissionallowed)){ ?>
+					<a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Warehouse'; ?>">Warehouse</a>
 					<?php } ?>
 				</nav>
 			</div>

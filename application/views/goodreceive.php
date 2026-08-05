@@ -122,13 +122,24 @@ include "include/topnavbar.php";
                             <input type="hidden" name="f_company_id" id="f_company_id">
                             <input type="hidden" name="f_branch_id" id="f_branch_id">
 
-                            <div class="form-group mb-1">
+                            <div class="form-group mb-1 d-none">
                                 <label class="small font-weight-bold text-dark">Location*</label>
                                 <select class="form-control form-control-sm" name="location" id="location" required>
                                     <option value="">Select</option>
                                     <?php foreach($locationlist->result() as $rowlocationlist){ ?>
-                                    <option value="<?php echo $rowlocationlist->idtbl_location ?>">
+                                    <option value="<?php echo $rowlocationlist->idtbl_location ?>" selected>
                                         <?php echo $rowlocationlist->location ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+
+                            <div class="form-group mb-1">
+                                <label class="small font-weight-bold text-dark">Warehouse*</label>
+                                <select class="form-control form-control-sm" name="warehouse" id="warehouse" required>
+                                    <option value="">Select</option>
+                                    <?php foreach($warehouselist->result() as $rowwarehouselist){ ?>
+                                    <option value="<?php echo $rowwarehouselist->idtbl_warehouse ?>">
+                                        <?php echo $rowwarehouselist->wh_name ?></option>
                                     <?php } ?>
                                 </select>
                             </div>
@@ -962,6 +973,7 @@ $(document).ready(function() {
             var total = $('#modeltotalpayment').val();
             var vatamount = $('#vatamount').val();
             var location = $('#location').val();
+            var warehouse = $('#warehouse').val();
             var porder = $('#porder').val();
             var batchno = $('#batchno').val();
             var supplier = $('#supplier').val();
@@ -995,6 +1007,7 @@ $(document).ready(function() {
                         remark: remark,
                         vatamount: vatamount,
                         location: location,
+                        warehouse: warehouse,
                         porder: porder,
                         invoice: invoice,
                         subtotal: subtotal,

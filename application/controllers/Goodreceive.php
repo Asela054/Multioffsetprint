@@ -10,6 +10,7 @@ class Goodreceive extends CI_Controller {
 		$result['menuaccess']=$this->Commeninfo->Getmenuprivilege();
 		$result['companylist']=$this->Goodreceiveinfo->Getcompany();
 		$result['locationlist']=$this->Goodreceiveinfo->Getlocation();
+		$result['warehouselist']=$this->Goodreceiveinfo->Getwarehouse();
 		$result['branchlist']=$this->Goodreceiveinfo->Getcompanybranch();
 		$result['ordertypelist']=$this->Goodreceiveinfo->Getordertype();
 		$result['measurelist']=$this->Goodreceiveinfo->Getmeasuretype();

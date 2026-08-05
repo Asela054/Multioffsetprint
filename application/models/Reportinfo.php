@@ -22,6 +22,7 @@ public function stockReport() {
         tbl_print_stock.idtbl_print_stock,
         tbl_print_stock.batchno,
         tbl_location.location,
+        tbl_warehouse.wh_name,
         tbl_print_stock.qty,
         tbl_print_stock.unitprice,
         tbl_print_stock.total,
@@ -34,6 +35,9 @@ public function stockReport() {
 
     $this->db->join('tbl_location',
         'tbl_location.idtbl_location = tbl_print_stock.location', 'left');
+
+    $this->db->join('tbl_warehouse',
+        'tbl_warehouse.idtbl_warehouse = tbl_print_stock.warehouse_id', 'left');
 
     $this->db->join('tbl_print_material_info',
         'tbl_print_material_info.idtbl_print_material_info =
