@@ -46,7 +46,7 @@ class PorderreqPrintinfo extends CI_Model {
             $measureType = $rowlist->measure_type;
             $comment = $rowlist->comment;
         
-            if ($count % 5 == 0) {
+            if ($count % 8 == 0) {
                 $dataArray[$section] = [];
             }
         
@@ -59,7 +59,7 @@ class PorderreqPrintinfo extends CI_Model {
         
             $count++;
         
-            if ($count % 5 == 0) {
+            if ($count % 8 == 0) {
                 $section++;
             }
         }  
@@ -79,7 +79,7 @@ class PorderreqPrintinfo extends CI_Model {
                     font-family: Arial, sans-serif;
                     line-height: 1.5;
                     text-align:left;
-                    margin-top: 160px;
+                    margin-top: 75px;
                 }
 
                 /** Define the header rules **/
@@ -88,7 +88,7 @@ class PorderreqPrintinfo extends CI_Model {
                     top: 0px;
                     left: 0px;
                     right: 0px;
-                    height: 250px;
+                    height: 100px;
                 }
 
                 /** Define the footer rules **/
@@ -107,11 +107,11 @@ class PorderreqPrintinfo extends CI_Model {
                     <tr>
                         <td style="vertical-align: top;padding:0px;">
                             <p style="margin:0px;font-size:18px;font-weight:bold;text-transform: uppercase;">'.$companydetails->row()->companyname.'</p>
-                            <p style="margin:0px;font-size:13px;font-weight:normal;text-transform: uppercase;">'.$companydetails->row()->companyaddress.'</p>
-                            <p style="margin:0px;font-size:13px;font-weight:normal;">Phone : '.$companydetails->row()->companymobile.'/'.$companydetails->row()->companyphone.'</p>
-                            <p style="margin:0px;font-size:13px;font-weight:normal;"><u>E-Mail : '.$companydetails->row()->companyemail.'</u></p>
                             <p style="margin:0px;font-size:13px;font-weight:normal;">POR No : ' . $prefix . '/' . $query->row(0)->porder_req_no.'</p>
                             <p style="margin:0px;font-size:13px;font-weight:normal;">Date : '.$query->row(0)->date.'</p>
+                        </td>
+                        <td style="vertical-align: top;padding:0px;text-align:right;">
+                            <h3 style="margin:0px;">PURCHASE ORDER REQUEST</h3>
                         </td>
                     </tr>
                 </table>
@@ -145,23 +145,22 @@ class PorderreqPrintinfo extends CI_Model {
 
             foreach ($dataArray as $index => $section) {
                 $html.='<main>
-                    <h3 style="text-align: center;">Purchase Order Request</h3>
                     <table style="table-layout: fixed;padding:3px;width:100%;border-collapse: collapse;font-size: 13px;">
                         <thead>
                             <tr>
-                                <th style="width: 10%; padding-left: 10px; border: 1px solid #000;">Request Item</th>
-                                <th style="width: 10%;text-align:center; border: 1px solid #000;">Quantity</th>
-                                <th style="width: 10%;text-align:center; border: 1px solid #000;">UOM</th>
-                                <th style="width: 10%;text-align:center; border: 1px solid #000;">Comment</th>
+                                <th style="padding-left: 10px; border: 1px solid #000;" width="60%" nowrap>Request Item</th>
+                                <th style="text-align:center; border: 1px solid #000;" nowrap>Quantity</th>
+                                <th style="text-align:center; border: 1px solid #000;" nowrap>UOM</th>
+                                <th style="text-align:center; border: 1px solid #000;" nowrap>Comment</th>
                             </tr>
                         </thead>
                         <tbody>';
                             foreach ($section as $row) {
                                 $html .= '<tr>
-                                    <td style="width: 20%; border: 1px solid black; padding-left: 10px;">' . htmlspecialchars($row['requestname']) . '</td>
-                                    <td style="width: 25%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['qty']) . '</td>
-                                    <td style="width: 25%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['measureType']) . '</td>
-                                    <td style="width: 30%; text-align: center; border: 1px solid black;">' . htmlspecialchars($row['comment']) . '</td>
+                                    <td style="border: 1px solid black; padding-left: 10px;" width="60%" nowrap>' . htmlspecialchars($row['requestname']) . '</td>
+                                    <td style="text-align: center; border: 1px solid black;" nowrap>' . htmlspecialchars($row['qty']) . '</td>
+                                    <td style="text-align: center; border: 1px solid black;" nowrap>' . htmlspecialchars($row['measureType']) . '</td>
+                                    <td style="text-align: center; border: 1px solid black;" nowrap>' . htmlspecialchars($row['comment']) . '</td>
                                 </tr>';
                             }
                         $html.='</tbody>';
