@@ -87,6 +87,8 @@ $permissionallowed = array_unique($permissionallowed);
 					<?php } if(in_array("Uomconversions", $permissionallowed)){ ?>
 					<a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Uomconversions'; ?>">UOM
 						Conversions</a>
+					<?php } if(in_array("Warehouse", $permissionallowed)){ ?>
+					<a class="nav-link p-0 px-3 py-1 text-dark" href="<?php echo base_url().'Warehouse'; ?>">Warehouse</a>
 					<?php } ?>
 				</nav>
 			</div>
@@ -405,14 +407,14 @@ $permissionallowed = array_unique($permissionallowed);
 			<?php } ?>
 
 			<!-- Report Menu New Added -->
-			<?php if(in_array("Jobreport", $permissionallowed) || in_array("Finishedjobsreport", $permissionallowed) || in_array("Unfinishedjobsreport", $permissionallowed) || in_array("Invoicereport", $permissionallowed) || in_array("Salesreportnew", $permissionallowed) || in_array("Vehicledetailreport", $permissionallowed) || in_array("Vehiclerenewreport", $permissionallowed) || in_array("Vehicleservicereport", $permissionallowed) || in_array("UninvoiceDAReport", $permissionallowed) || in_array("Stocklistreport", $permissionallowed) || in_array("Stockvaluationreport", $permissionallowed) || in_array("Reorderstockreport", $permissionallowed) || in_array("Purchaseorderreport", $permissionallowed)){ ?>
+			<?php if(in_array("Jobreport", $permissionallowed) || in_array("Finishedjobsreport", $permissionallowed) || in_array("Unfinishedjobsreport", $permissionallowed) || in_array("Materialissuereport", $permissionallowed) || in_array("Sundryissuereport", $permissionallowed) || in_array("Invoicereport", $permissionallowed) || in_array("Salesreportnew", $permissionallowed) || in_array("Vehicledetailreport", $permissionallowed) || in_array("Vehiclerenewreport", $permissionallowed) || in_array("Vehicleservicereport", $permissionallowed) || in_array("UninvoiceDAReport", $permissionallowed) || in_array("Stocklistreport", $permissionallowed) || in_array("Stockvaluationreport", $permissionallowed) || in_array("Reorderstockreport", $permissionallowed) || in_array("Purchaseorderreport", $permissionallowed)){ ?>
 			<a class="nav-link p-0 px-3 py-2 collapsed text-dark" href="javascript:void(0);" data-toggle="collapse"
 				data-target="#collapsereport" aria-expanded="false" aria-controls="collapsereport">
 				<div class="nav-link-icon"><i data-feather="file"></i></div>
 				Reports
 				<div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
 			</a>
-			<div class="collapse <?php if($functionmenu=="Jobreport" || $functionmenu=="Finishedjobsreport" || $functionmenu=="Unfinishedjobsreport"  || $functionmenu=="Invoicereport" || $functionmenu=="Salesreportnew" || $functionmenu=="Vehicledetailreport" || $functionmenu=="Vehiclerenewreport" || $functionmenu=="Vehicleservicereport" || $functionmenu=="UninvoiceDAReport" || $functionmenu=="Stocklistreport" || $functionmenu=="Stockvaluationreport" || $functionmenu=="Reorderstockreport" || $functionmenu=="Purchaseorderreport"){echo 'show';} ?>"
+			<div class="collapse <?php if($functionmenu=="Jobreport" || $functionmenu=="Finishedjobsreport" || $functionmenu=="Unfinishedjobsreport" || $functionmenu=="Materialissuereport" || $functionmenu=="Sundryissuereport" || $functionmenu=="Invoicereport" || $functionmenu=="Salesreportnew" || $functionmenu=="Vehicledetailreport" || $functionmenu=="Vehiclerenewreport" || $functionmenu=="Vehicleservicereport" || $functionmenu=="UninvoiceDAReport" || $functionmenu=="Stocklistreport" || $functionmenu=="Stockvaluationreport" || $functionmenu=="Reorderstockreport" || $functionmenu=="Purchaseorderreport"){echo 'show';} ?>"
 				id="collapsereport" data-parent="#accordionSidenav">
 				<nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
 					<?php if(in_array("Jobreport", $permissionallowed)){ ?>
@@ -424,6 +426,12 @@ $permissionallowed = array_unique($permissionallowed);
 					<?php } if(in_array("Unfinishedjobsreport", $permissionallowed)){ ?>
 					<a class="nav-link p-0 px-3 py-1 text-dark"
 						href="<?php echo base_url().'Unfinishedjobsreport'; ?>">Unfinished Jobs Report</a>
+					<?php } if(in_array("Materialissuereport", $permissionallowed)){ ?>
+					<a class="nav-link p-0 px-3 py-1 text-dark"
+						href="<?php echo base_url().'Materialissuereport'; ?>">Material Issue Report</a>
+					<?php } if(in_array("Sundryissuereport", $permissionallowed)){ ?>
+					<a class="nav-link p-0 px-3 py-1 text-dark"
+						href="<?php echo base_url().'Sundryissuereport'; ?>">Sundry Items Issue Report</a>
 					<?php } if(in_array("Invoicereport", $permissionallowed)){ ?>
 					<a class="nav-link p-0 px-3 py-1 text-dark"
 						href="<?php echo base_url().'Invoicereport'; ?>">Invoice Report</a>

@@ -8,6 +8,14 @@
 		return $respond=$this->db->get();
 	}
 
+	public function Getwarehouse() {
+		$this->db->select('`idtbl_warehouse`, `wh_name`');
+		$this->db->from('tbl_warehouse');
+		$this->db->where('status', 1);
+
+		return $respond=$this->db->get();
+	}
+
 	public function Getcompany() {
 		$this->db->select('`idtbl_company`, `company`');
 		$this->db->from('tbl_company');
@@ -83,6 +91,7 @@
 		$remark=$this->input->post('remark');
 		$supplier=$this->input->post('supplier');
 		$location=$this->input->post('location');
+		$warehouse=$this->input->post('warehouse');
 		$company_id=$this->input->post('company_id');
 		$branch_id=$this->input->post('branch_id');
 		$porder=$this->input->post('porder');
@@ -121,7 +130,8 @@
 			'tbl_supplier_idtbl_supplier'=> $supplier,
 			'tbl_location_idtbl_location'=> $location,
 			'tbl_print_porder_idtbl_print_porder'=> $porder,
-			'tbl_material_group_idtbl_material_group'=> $grntype);
+			'tbl_material_group_idtbl_material_group'=> $grntype,
+			'warehouse_id'=> $warehouse);
 
 		$this->db->insert('tbl_print_grn', $data);
 
@@ -534,7 +544,7 @@
 				$this->db->update('tbl_print_porder', $dataporder);
 			}
 
-			$this->db->select('tbl_print_grn.batchno, tbl_print_grn.tbl_material_group_idtbl_material_group, tbl_print_grn.tbl_company_idtbl_company, tbl_print_grn.tbl_company_branch_idtbl_company_branch, tbl_print_grn.grntype, tbl_print_grn.tbl_location_idtbl_location, tbl_print_grn.tbl_supplier_idtbl_supplier, tbl_print_grn.grndate, tbl_print_grndetail.qty, tbl_print_grndetail.pieces, tbl_print_grndetail.total, tbl_print_grndetail.unitprice, tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.tbl_measurements_idtbl_measurements as material_measure_type, tbl_print_grn.tbl_print_porder_idtbl_print_porder');
+			$this->db->select('tbl_print_grn.batchno, tbl_print_grn.tbl_material_group_idtbl_material_group, tbl_print_grn.tbl_company_idtbl_company, tbl_print_grn.tbl_company_branch_idtbl_company_branch, tbl_print_grn.grntype, tbl_print_grn.tbl_location_idtbl_location, tbl_print_grn.warehouse_id, tbl_print_grn.tbl_supplier_idtbl_supplier, tbl_print_grn.grndate, tbl_print_grndetail.qty, tbl_print_grndetail.pieces, tbl_print_grndetail.total, tbl_print_grndetail.unitprice, tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info, tbl_print_material_info.tbl_measurements_idtbl_measurements as material_measure_type, tbl_print_grn.tbl_print_porder_idtbl_print_porder');
 			$this->db->from('tbl_print_grn');
 			$this->db->join('tbl_print_grndetail', 'tbl_print_grn.idtbl_print_grn = tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', 'left');
 			$this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info', 'left');
@@ -550,6 +560,7 @@
 
 					$batchno = $row->batchno;
 					$location = $row->tbl_location_idtbl_location;
+					$warehouse = $row->warehouse_id;
 					$supplier = $row->tbl_supplier_idtbl_supplier;
 					$grndate = $row->grndate;
 					$qty = $row->qty;
@@ -578,7 +589,8 @@
 							'tbl_user_idtbl_user' => $userID,
 							'tbl_company_idtbl_company' => $companyid,
 							'tbl_company_branch_idtbl_company_branch' => $branchid,
-							'tbl_print_material_info_idtbl_print_material_info' => $materialID
+							'tbl_print_material_info_idtbl_print_material_info' => $materialID,
+							'warehouse_id' => $warehouse
 						);
 
 						$this->db->insert('tbl_print_stock', $stockData);
