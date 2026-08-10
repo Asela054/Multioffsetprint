@@ -42,6 +42,7 @@ $columns = array(
 	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' ),
 	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' ),
 	array( 'db' => '`u`.`check_by`', 'dt' => 'check_by', 'field' => 'check_by' ),
+	array( 'db' => '`u`.`updateuser`', 'dt' => 'updateuser', 'field' => 'updateuser' ),
 	array( 'db' => '`ue`.`name`', 'dt' => 'name', 'field' => 'name' ),
 	array(
 	'db' => "CONCAT(
@@ -86,7 +87,7 @@ $sql_details = array(
 require('ssp.customized.class.php' );
 $companyID = $_POST['company_id'];
 
-$joinQuery = "FROM `tbl_print_porder` AS `u` LEFT JOIN `tbl_supplier` AS `ua` ON (`ua`.`idtbl_supplier` = `u`.`tbl_supplier_idtbl_supplier`) LEFT JOIN `tbl_material_group` AS `uc` ON (`uc`.`idtbl_material_group` = `u`.`tbl_material_group_idtbl_material_group`) LEFT JOIN `tbl_print_porder_req` AS `ud` ON (`ud`.`idtbl_print_porder_req` = `u`.`tbl_print_porder_req_idtbl_print_porder_req`) LEFT JOIN `tbl_user` AS `ue` ON (`ue`.`idtbl_user` = `u`.`check_by`)";
+$joinQuery = "FROM `tbl_print_porder` AS `u` LEFT JOIN `tbl_supplier` AS `ua` ON (`ua`.`idtbl_supplier` = `u`.`tbl_supplier_idtbl_supplier`) LEFT JOIN `tbl_material_group` AS `uc` ON (`uc`.`idtbl_material_group` = `u`.`tbl_material_group_idtbl_material_group`) LEFT JOIN `tbl_print_porder_req` AS `ud` ON (`ud`.`idtbl_print_porder_req` = `u`.`tbl_print_porder_req_idtbl_print_porder_req`) LEFT JOIN `tbl_user` AS `ue` ON (`ue`.`idtbl_user` = `u`.`updateuser`)";
 
 $extraWhere = "`u`.`status` IN (1,2) AND `u`.`tbl_company_idtbl_company`='$companyID'";
 

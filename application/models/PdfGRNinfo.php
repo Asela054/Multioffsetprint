@@ -7,7 +7,10 @@ class PdfGRNinfo extends CI_Model {
         $recordID=$x;
         $insertdatetime=date('Y-m-d H:i:s');
 
-        $this->db->select('*, COALESCE(tbl_print_grn.idtbl_print_grn, 0) AS idtbl_print_grn, COALESCE(tbl_print_grn.subtotalcost, 0) AS grn_subtotal, COALESCE(tbl_print_grn.totalcost, 0) AS grn_total, COALESCE(tbl_print_grn.vatamountcost, 0) AS vatamount, COALESCE(tbl_print_grn.discount, 0) AS discount, COALESCE(tbl_print_grndetail.qty, 0) AS qty, COALESCE(tbl_print_grndetail.costunitprice, 0) AS costunitprice, COALESCE(tbl_material_group.idtbl_material_group, 0) AS idtbl_material_group , COALESCE(tbl_print_grndetail.comment, 0) AS comment');
+        $this->db->select("*, COALESCE(tbl_print_grn.idtbl_print_grn, 0) AS idtbl_print_grn, COALESCE(tbl_print_grn.subtotalcost, 0) AS grn_subtotal, COALESCE(tbl_print_grn.totalcost, 0) AS grn_total, COALESCE(tbl_print_grn.vatamountcost, 0) AS vatamount, COALESCE(tbl_print_grn.discount, 0) AS discount, COALESCE(tbl_print_grndetail.qty, 0) AS qty, COALESCE(tbl_print_grndetail.costunitprice, 0) AS costunitprice, COALESCE(tbl_material_group.idtbl_material_group, 0) AS idtbl_material_group , COALESCE(tbl_print_grndetail.comment, 0) AS comment,
+            (SELECT pd.qty FROM tbl_print_porder_detail pd WHERE pd.tbl_print_porder_idtbl_print_porder = tbl_print_grn.tbl_print_porder_idtbl_print_porder AND pd.tbl_material_id = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info AND pd.status = 1 ORDER BY pd.idtbl_print_porder_detail DESC LIMIT 1) AS ordered_qty,
+            (SELECT pd.actual_qty FROM tbl_print_porder_detail pd WHERE pd.tbl_print_porder_idtbl_print_porder = tbl_print_grn.tbl_print_porder_idtbl_print_porder AND pd.tbl_material_id = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info AND pd.status = 1 ORDER BY pd.idtbl_print_porder_detail DESC LIMIT 1) AS actual_qty_total
+        ", false);
         $this->db->from('tbl_print_grn');
         $this->db->join('tbl_print_grndetail', 'tbl_print_grn.idtbl_print_grn = tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', 'left');
         $this->db->join('tbl_print_material_info', 'tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info = tbl_print_material_info.idtbl_print_material_info', 'left');
@@ -15,6 +18,7 @@ class PdfGRNinfo extends CI_Model {
         $this->db->join('tbl_location', 'tbl_print_grn.tbl_location_idtbl_location = tbl_location.idtbl_location', 'left');
         $this->db->join('tbl_material_group', 'tbl_print_grn.tbl_material_group_idtbl_material_group = tbl_material_group.idtbl_material_group', 'left');
         $this->db->join('tbl_measurements', 'tbl_print_grndetail.tbl_measurements_idtbl_mesurements = tbl_measurements.idtbl_mesurements', 'left');
+        $this->db->join('tbl_print_porder', 'tbl_print_grn.tbl_print_porder_idtbl_print_porder = tbl_print_porder.idtbl_print_porder', 'left');
         $this->db->where('tbl_print_grn.idtbl_print_grn' ,$recordID);
         $query = $this->db->get();
 
@@ -57,13 +61,21 @@ class PdfGRNinfo extends CI_Model {
                     $itemDescription .= ' / ' . $rowlist->materialinfocode;
                 }
             }
+
+            // Received qty = this GRN's line qty.
+            // Ordered qty = the matching PO detail line's ordered qty (single row, not summed).
+            // Prev qty = cumulative received-to-date minus what THIS GRN contributed.
+            $receivedQty = $rowlist->qty;
+            $orderedQty  = ($rowlist->ordered_qty !== null) ? $rowlist->ordered_qty : 0;
+            $actualTotal = ($rowlist->actual_qty_total !== null) ? $rowlist->actual_qty_total : 0;
+            $prevQty     = max(0, $actualTotal - $receivedQty);
         
             $dataArray[$section][] = [
                 'itemcode' => $itemcode,
                 'itemDescription' => $itemDescription,
-                'ordered' => $rowlist->qty,
-                'prev' => '',
-                'received' => $rowlist->qty,
+                'ordered' => $orderedQty,
+                'prev' => $prevQty,
+                'received' => $receivedQty,
                 'unit' => $rowlist->measure_type,
                 'price' => !empty($rowlist->packetprice) ? $rowlist->packetprice : $rowlist->costunitprice,
                 'total' => $rowlist->total,
@@ -79,16 +91,16 @@ class PdfGRNinfo extends CI_Model {
         $this->load->library('pdf');
 
         $options = new Options();
-		$options->set('isHtml5ParserEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
         $options->set('isPhpEnabled', true);
         $dompdf = new Dompdf($options);
 
         $this->db->select('tbl_company.company AS companyname,tbl_company.address1 As companyaddress,tbl_company.mobile AS companymobile, tbl_company.phone companyphone,tbl_company.email AS companyemail, tbl_company_branch.branch AS branchname');
-		$this->db->from('tbl_print_grn');
-		$this->db->join('tbl_company', 'tbl_company.idtbl_company = tbl_print_grn.tbl_company_idtbl_company', 'left');
+        $this->db->from('tbl_print_grn');
+        $this->db->join('tbl_company', 'tbl_company.idtbl_company = tbl_print_grn.tbl_company_idtbl_company', 'left');
         $this->db->join('tbl_company_branch', 'tbl_company_branch.idtbl_company_branch = tbl_print_grn.tbl_company_branch_idtbl_company_branch', 'left');
-		$this->db->where('tbl_print_grn.idtbl_print_grn', $recordID);
-		$companydetails = $this->db->get();
+        $this->db->where('tbl_print_grn.idtbl_print_grn', $recordID);
+        $companydetails = $this->db->get();
 
         $html = '
         <!DOCTYPE html>
@@ -107,17 +119,16 @@ class PdfGRNinfo extends CI_Model {
                     font-family: Arial, sans-serif;
                     line-height: 1.5;
                     text-align:left;
-                    margin-top: 165px;
+                    margin-top: 190px;   /* was 165px */
                     margin-bottom: 140px;
                 }
 
-                /** Define the header rules **/
                 header {
                     position: fixed;
                     top: 0px;
                     left: 0px;
                     right: 0px;
-                    height: 255px;
+                    height: 280px;   /* was 255px */
                 }
 
                 /** Define the footer rules **/
@@ -169,6 +180,11 @@ class PdfGRNinfo extends CI_Model {
                                         <td style="font-size: 13px;font-weight: bold;" width="40%">Invoice Number</td>
                                         <td style="font-size: 13px;font-weight: bold;" width="5%">:</td>
                                         <td style="font-size: 13px;">'. $query->row()->invoicenum .'</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-size: 13px;font-weight: bold;" width="40%">PO Number</td>
+                                        <td style="font-size: 13px;font-weight: bold;" width="5%">:</td>
+                                        <td style="font-size: 13px;">' . $query->row()->porder_no . '</td>
                                     </tr>
                                     <tr>
                                         <td style="font-size: 13px;font-weight: bold;" width="40%">Batch Number</td>

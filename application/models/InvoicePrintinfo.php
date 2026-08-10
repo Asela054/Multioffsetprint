@@ -55,9 +55,14 @@ class InvoicePrintinfo extends CI_Model{
             $remarkFeild = $respond->row(0)->remark;
         }
         foreach ($respond2->result() as $rowlist) {
-            $unitPrice = !empty($rowlist->packetprice) ? $rowlist->packetprice : $rowlist->unitprice;
-        
-            $nettotal = $unitPrice * $rowlist->qty;
+            $unitPrice = $rowlist->unitprice;
+            $price     = !empty($rowlist->packetprice) ? $rowlist->packetprice : 0;
+
+            // Total still follows the same rule the app uses elsewhere:
+            // packet price when present, otherwise plain unit price × qty
+            $effectivePrice = !empty($rowlist->packetprice) ? $rowlist->packetprice : $rowlist->unitprice;
+            $nettotal = $effectivePrice * $rowlist->qty;
+
             $materialInfoCode = $rowlist->materialinfocode;
             $itemDescription = '';
 
@@ -71,23 +76,23 @@ class InvoicePrintinfo extends CI_Model{
             }
             $qty = $rowlist->qty;
             $measureType = $rowlist->measure_type;
-    
-        
+
             if ($count % 5 == 0) {
                 $dataArray[$section] = [];
             }
-        
+
             $dataArray[$section][] = [
                 'materialInfoCode' => $materialInfoCode,
                 'itemDescription' => $itemDescription,
                 'qty' => $qty,
                 'measureType' => $measureType,
                 'unitPrice' => $unitPrice,
+                'price' => $price,          // NEW
                 'nettotal' => $nettotal
             ];
-        
+
             $count++;
-        
+
             if ($count % 5 == 0) {
                 $section++;
             }
@@ -244,66 +249,68 @@ class InvoicePrintinfo extends CI_Model{
                     <table style="table-layout: fixed;padding:3px;width:100%;border-collapse: collapse;font-size: 13px;">
                         <thead>
                             <tr>
-                                <th style="width: 10%;text-align:center; border: 1px solid #000;">Code</th>
-                                <th style="width: 40%;text-align:center; border: 1px solid #000;">Item Description </th>
-                                <th style="width: 10%;text-align:center; border: 1px solid #000;">Quantity</th>
-                                <th style="width: 10%;text-align:center; border: 1px solid #000;">UOM</th>
-                                <th style="width: 15%;text-align:right; border: 1px solid #000;padding-right: 10px;">Unit Price</th>
-                                <th style="width: 15%;text-align:right; border: 1px solid #000;padding-right: 10px;">Total</th>
+                                <th style="width: 9%;text-align:center; border: 1px solid #000;">Code</th>
+                                <th style="width: 30%;text-align:center; border: 1px solid #000;">Item Description </th>
+                                <th style="width: 8%;text-align:center; border: 1px solid #000;">Quantity</th>
+                                <th style="width: 8%;text-align:center; border: 1px solid #000;">UOM</th>
+                                <th style="width: 14%;text-align:right; border: 1px solid #000;padding-right: 10px;">Unit Price</th>
+                                <th style="width: 14%;text-align:right; border: 1px solid #000;padding-right: 10px;">Price</th>
+                                <th style="width: 17%;text-align:right; border: 1px solid #000;padding-right: 10px;">Total</th>
                             </tr>
                         </thead>
                         <tbody>';
                             foreach ($section as $row) {
                                 $html .= '<tr style="page-break-inside: avoid;">
-                                    <td style="width: 10%; text-align:center; border-right: 1px solid black; border-left: 1px solid #000;">' . htmlspecialchars($row['materialInfoCode']) . '</td>
-                                    <td style="width: 40%; border-right: 1px solid black; padding-left: 10px;">' . htmlspecialchars($row['itemDescription']) . '</td>
-                                    <td style="width: 10%; text-align:center; border-right: 1px solid black;">' . htmlspecialchars($row['qty']) . '</td>
-                                    <td style="width: 10%; text-align:center; border-right: 1px solid black;">' . htmlspecialchars($row['measureType']) . '</td>
-                                    <td style="width: 15%; text-align:right; border-right: 1px solid black;padding-right: 10px;">' . htmlspecialchars(number_format($row['unitPrice'],2)) . '</td>
-                                    <td style="width: 15%; text-align:right; border-right: 1px solid black;padding-right: 10px;">' . htmlspecialchars(number_format($row['nettotal'],2)) . '</td>
+                                    <td style="width: 9%; text-align:center; border-right: 1px solid black; border-left: 1px solid #000;">' . htmlspecialchars($row['materialInfoCode']) . '</td>
+                                    <td style="width: 30%; border-right: 1px solid black; padding-left: 10px;">' . htmlspecialchars($row['itemDescription']) . '</td>
+                                    <td style="width: 8%; text-align:center; border-right: 1px solid black;">' . htmlspecialchars($row['qty']) . '</td>
+                                    <td style="width: 8%; text-align:center; border-right: 1px solid black;">' . htmlspecialchars($row['measureType']) . '</td>
+                                    <td style="width: 14%; text-align:right; border-right: 1px solid black;padding-right: 10px;">' . htmlspecialchars(number_format($row['unitPrice'],2)) . '</td>
+                                    <td style="width: 14%; text-align:right; border-right: 1px solid black;padding-right: 10px;">' . htmlspecialchars(number_format($row['price'],2)) . '</td>
+                                    <td style="width: 17%; text-align:right; border-right: 1px solid black;padding-right: 10px;">' . htmlspecialchars(number_format($row['nettotal'],2)) . '</td>
                                 </tr>';
                             }
                         $html.='</tbody>';
 
-                        // only the TRUE last section shows the actual totals
-                        if ($index === $lastSectionKey) {
-                            $html .= '<tfoot>
-                                <tr>
-                                    <td colspan="2" style="border-top: 1px solid #000;font-size:12px;"></td>
-                                    <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Total (Excl)</td>
-                                    <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal">'.number_format($net,2).'</label></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2" style="font-size:11px;"></td>
-                                    <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
-                                    <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2"></td>
-                                    <td colspan="2" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left; font-weight:bold;padding-left:35px;">Total (Incl)</td>
-                                    <th colspan="2" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label class="font-weight-bold text-dark" id="lblbalance">'.number_format($net,2).'</label></th>
-                                </tr>
-                            </tfoot>';
-                        } else {
-                            // not the last section -> leave totals blank, continues on next page
-                            $html .= '<tfoot>
-                                <tr>
-                                    <td colspan="2" style="border-top: 1px solid #000;font-size:12px;"></td>
-                                    <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Total (Excl)</td>
-                                    <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal"></label></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2" style="font-size:11px;"></td>
-                                    <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
-                                    <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2"></td>
-                                    <td colspan="2" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left; font-weight:bold;padding-left:35px;">Total (Incl)</td>
-                                    <th colspan="2" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label class="font-weight-bold text-dark" id="lblbalance"></label></th>
-                                </tr>
-                            </tfoot>';
-                        }
+                            // only the TRUE last section shows the actual totals
+                            if ($index === $lastSectionKey) {
+                                $html .= '<tfoot>
+                                    <tr>
+                                        <td colspan="2" style="border-top: 1px solid #000;font-size:12px;"></td>
+                                        <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Total (Excl)</td>
+                                        <td colspan="3" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal">'.number_format($net,2).'</label></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" style="font-size:11px;"></td>
+                                        <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
+                                        <td colspan="3" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2"></td>
+                                        <td colspan="2" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left; font-weight:bold;padding-left:35px;">Total (Incl)</td>
+                                        <th colspan="3" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label class="font-weight-bold text-dark" id="lblbalance">'.number_format($net,2).'</label></th>
+                                    </tr>
+                                </tfoot>';
+                            } else {
+                                // not the last section -> leave totals blank, continues on next page
+                                $html .= '<tfoot>
+                                    <tr>
+                                        <td colspan="2" style="border-top: 1px solid #000;font-size:12px;"></td>
+                                        <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Total (Excl)</td>
+                                        <td colspan="3" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal"></label></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" style="font-size:11px;"></td>
+                                        <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
+                                        <td colspan="3" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2"></td>
+                                        <td colspan="2" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left; font-weight:bold;padding-left:35px;">Total (Incl)</td>
+                                        <th colspan="3" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label class="font-weight-bold text-dark" id="lblbalance"></label></th>
+                                    </tr>
+                                </tfoot>';
+                            }
                     $html.='</table>
                 </main>';
             }

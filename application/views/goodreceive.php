@@ -1172,12 +1172,12 @@ $(document).ready(function() {
 
                 if (data.length > 0) {
                     $.each(data, function (index, item) {
-                        $('#servicematerial').append(
-                            '<option value="' + item.comment + '" ' +
-                            'data-recordid="' + item.idtbl_print_porder_detail + '">' +
-                                item.comment +
-                            '</option>'
-                        );
+                        var $opt = $('<option></option>')
+                            .val(item.comment)
+                            .text(item.comment)
+                            .data('recordid', item.idtbl_print_porder_detail);
+
+                        $('#servicematerial').append($opt);
                     });
                 }
             }
@@ -1314,11 +1314,11 @@ $(document).ready(function() {
                         $('#uom').val(obj.uom || '');
                         $('#unitprice').val(obj.unitprice || '');
                         $('#piecesper_qty').val(pieces);
-                        $('#comment').val(obj.comment || '');
+                        /* comment intentionally left alone for normal materials */
                         $('#porderdetailsid').val(obj.detailsid || '');
 
                     } else {
-                        $('#uom, #unitprice, #piecesper_qty, #comment, #porderdetailsid').val('');
+                        $('#uom, #unitprice, #piecesper_qty, #porderdetailsid').val('');
                         $('#qtylabel').html('');
                     }
 
