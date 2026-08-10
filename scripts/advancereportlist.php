@@ -40,7 +40,7 @@ LEFT JOIN `tbl_print_material_info` As `ub` ON (`ub`.`idtbl_print_material_info`
 LEFT JOIN `tbl_measurements` As `uc` ON (`uc`.`idtbl_mesurements` = `u`.`measure_type_id`)
 LEFT JOIN `tbl_warehouse` As `ud` ON (`ud`.`idtbl_warehouse` = `u`.`warehouse_id`)";
 
-$extraWhere = "`u`.`status` IN (1,2) AND `u`.`tbl_company_idtbl_company`='$companyID'";
+$extraWhere = "`u`.`status` IN (1,2) AND `u`.`tbl_company_idtbl_company`='$companyID' AND `u`.`qty` > 0";
 
 echo json_encode(
     SSP::simple($_POST, $sql_details, $table, $primaryKey, $columns, $joinQuery, $extraWhere)
