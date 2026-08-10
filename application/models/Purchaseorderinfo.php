@@ -15,6 +15,15 @@
 		return $respond=$this->db->get();
 	}
 
+	public function Getcontactperson() {
+		$this->db->select('`idtbl_po_contact_person`, `contact_person`, `designation`');
+		$this->db->from('tbl_po_contact_person');
+		$this->db->where('status', 1);
+		$this->db->order_by('contact_person', 'ASC');
+
+		return $respond=$this->db->get();
+	}
+
 	public function Getporder() {
 
 		$comapnyID=$_SESSION['company_id'];
@@ -25,6 +34,7 @@
 		$this->db->where('confirmstatus', 1);
         $this->db->where('porderconfirm', 0);
 		$this->db->where('tbl_print_porder_req.tbl_company_idtbl_company', $comapnyID);
+		$this->db->order_by('idtbl_print_porder_req', 'DESC');
 
 
 		return $respond=$this->db->get();
@@ -277,6 +287,7 @@
 		$company_id=$this->input->post('company_id');
 		$branch_id=$this->input->post('branch_id');
 		$porderrequest=$this->input->post('porderrequest');
+		$contactperson=$this->input->post('contactperson');
 
 		$updatedatetime=date('Y-m-d H:i:s');
 
@@ -298,6 +309,7 @@
 			'tbl_company_idtbl_company'=> $company_id, 
 			'tbl_company_branch_idtbl_company_branch'=> $branch_id, 
 			'tbl_print_porder_req_idtbl_print_porder_req'=> $porderrequest,
+			'idtbl_po_contact_person'=> $contactperson,
 
 		);
 
@@ -436,11 +448,12 @@
 
 		$recordID = $this->input->post('recordID');
 
-		$sql = "SELECT `u`.*, `ua`.`suppliername`, `ua`.`address_line1`, `ub`.`branch`, `ub`.`phone`, `ub`.`address1`, `ub`.`address2`, `ub`.`mobile`, `ub`.`email` AS `locemail`, `uc`.`company`
+		$sql = "SELECT `u`.*, `ua`.`suppliername`, `ua`.`address_line1`, `ub`.`branch`, `ub`.`phone`, `ub`.`address1`, `ub`.`address2`, `ub`.`mobile`, `ub`.`email` AS `locemail`, `uc`.`company`, `ud`.`name` AS `checkby`
 				FROM `tbl_print_porder` AS `u`
 				LEFT JOIN `tbl_supplier` AS `ua` ON (`ua`.`idtbl_supplier` = `u`.`tbl_supplier_idtbl_supplier`)
 				LEFT JOIN `tbl_company_branch` AS `ub` ON (`ub`.`idtbl_company_branch` = `u`.`tbl_company_branch_idtbl_company_branch`)
 				LEFT JOIN `tbl_company` AS `uc` ON (`uc`.`idtbl_company` = `u`.`tbl_company_idtbl_company`)
+				LEFT JOIN `tbl_user` AS `ud` ON (`ud`.`idtbl_user` = `u`.`updateuser`)
 				WHERE `u`.`status`=? AND `u`.`idtbl_print_porder`=?";
 
 		$respond = $this->db->query($sql, array(1, $recordID));
@@ -475,7 +488,8 @@
 			</div>
 			<div class="col-6 small">
 				<label class="small font-weight-bold text-dark mb-1">Company:</label> '.$respond->row(0)->company.'<br>
-				<label class="small font-weight-bold text-dark mb-1">Branch:</label> '.$respond->row(0)->branch.'
+				<label class="small font-weight-bold text-dark mb-1">Branch:</label> '.$respond->row(0)->branch.'<br>
+				<label class="small font-weight-bold text-dark mb-1">Check By:</label> '.$respond->row(0)->checkby.'
 			</div>
 		</div>
 		<hr class="border-dark">
@@ -494,6 +508,7 @@
 
 		$html .= '
 			<th class="text-right">Unit Price</th>
+			<th class="text-right">Last GRN Price</th>
 			<th class="text-right">Qty</th>
 			<th class="text-center">Uom</th>
 			<th class="text-right">Total</th>
@@ -508,6 +523,17 @@
 				$material .= ' / ' . $roworderinfo->materialinfocode;
 			}
 
+			// Last GRN price lookup — only meaningful for actual materials (has a materialname),
+			// service items (ordertype 4) won't match anything in tbl_print_grndetail by name.
+			$lastGrnPriceDisplay = '&nbsp;';
+			if (!empty($roworderinfo->materialname)) {
+				$grnhistory = $this->getLastGRNHistory($roworderinfo->materialname);
+				if (!empty($grnhistory)) {
+					$lastGrnPriceDisplay = number_format($grnhistory[0]['unitprice'], 2)
+						. ' <small class="text-muted">(' . $grnhistory[0]['grndate'] . ')</small>';
+				}
+			}
+
 			$html .= '<tr>';
 
 			if ($ordertype == 4) {
@@ -519,6 +545,7 @@
 
 			$html .= '
 				<td class="text-right">' . (!empty($roworderinfo->packetprice) ? $roworderinfo->packetprice : $roworderinfo->unitprice) . '</td>
+				<td class="text-right">' . $lastGrnPriceDisplay . '</td>
 				<td class="text-right">' . $roworderinfo->qty . '</td>
 				<td class="text-center">' . $roworderinfo->measure_type . '</td>
 				<td class="text-right">' . number_format(($roworderinfo->netprice), 2) . '</td>
@@ -549,11 +576,14 @@
 		$this->db->select('tbl_print_porder.*,tbl_supplier.suppliername AS suppliername,tbl_supplier.telephone_no AS suppliercontact,tbl_supplier.address_line1 AS address1,tbl_supplier.address_line2 AS address2,tbl_supplier.city AS city,tbl_supplier.state AS supplierstate,
 								tbl_company.company AS companyname,tbl_company.address1 As companyaddress,tbl_company.mobile AS companymobile,
                                 tbl_company.phone companyphone,tbl_company.email AS companyemail,
-                                tbl_company_branch.branch AS branchname');
+                                tbl_company_branch.branch AS branchname,
+                                tbl_po_contact_person.contact_person AS contactpersonname,
+                                tbl_po_contact_person.designation AS contactpersondesignation');
 		$this->db->from('tbl_print_porder');
 		$this->db->join('tbl_supplier', 'tbl_supplier.idtbl_supplier  = tbl_print_porder.tbl_supplier_idtbl_supplier ', 'left');
 		$this->db->join('tbl_company', 'tbl_company.idtbl_company = tbl_print_porder.tbl_company_idtbl_company', 'left');
 		$this->db->join('tbl_company_branch', 'tbl_company_branch.idtbl_company_branch = tbl_print_porder.tbl_company_branch_idtbl_company_branch', 'left');
+		$this->db->join('tbl_po_contact_person', 'tbl_po_contact_person.idtbl_po_contact_person = tbl_print_porder.idtbl_po_contact_person', 'left');
 		$this->db->where('idtbl_print_porder', $recordID);
 		$this->db->where('tbl_print_porder.status', 1);
 
@@ -573,6 +603,8 @@
 		$obj->companyphone=$respond->row(0)->companyphone;
 		$obj->companyemail=$respond->row(0)->companyemail;
 		$obj->branchname=$respond->row(0)->branchname;
+		$obj->contactpersonname=$respond->row(0)->contactpersonname;
+		$obj->contactpersondesignation=$respond->row(0)->contactpersondesignation;
 
 		echo json_encode($obj);
 	}
@@ -757,7 +789,7 @@
 	public function Getporderreqdetails() {
 		$recordID = $this->input->post('recordID');
 		
-		$this->db->select('requestname, qty, measure_type, comment, group, tbl_print_porder_req.newexist_status');
+		$this->db->select('requestname, qty, measure_type, comment, group, tbl_print_porder_req_detail.newexist_status');
 		$this->db->from('tbl_print_porder_req_detail');
 		$this->db->join('tbl_print_porder_req', 'tbl_print_porder_req.idtbl_print_porder_req = tbl_print_porder_req_detail.tbl_print_porder_req_idtbl_print_porder_req', 'left');
 		$this->db->join('tbl_material_group', 'tbl_material_group.idtbl_material_group = tbl_print_porder_req.tbl_material_group_idtbl_material_group', 'left');
@@ -772,7 +804,6 @@
 			foreach ($response->result() as $row) {
 				$grnhistory = [];
 
-				// Only look up history when this request's material status is "Exist"
 				if ($row->newexist_status == 0) {
 					$grnhistory = $this->getLastGRNHistory($row->requestname);
 				}
@@ -914,6 +945,7 @@
 			'tbl_print_porder.orderdate',
 			'tbl_print_porder.tbl_supplier_idtbl_supplier AS supplier_id',
 			'tbl_print_porder.tbl_material_group_idtbl_material_group AS order_type',
+			'tbl_print_porder.idtbl_po_contact_person AS contactperson_id',
 
 			'tbl_print_porder_detail.pieces',
 			'tbl_print_porder_detail.actual_qty',
@@ -972,6 +1004,7 @@
 		$obj->orderdate = $row0->orderdate;
 		$obj->supplier  = $row0->supplier_id;
 		$obj->type      = $row0->order_type;
+		$obj->contactperson = $row0->contactperson_id;
 
 		$items = [];
 		foreach ($respond->result() as $row) {
@@ -1018,6 +1051,7 @@
 			$branch_id=$this->input->post('branch_id');
 			$porderID=$this->input->post('porderID');
 			$porderreqID=$this->input->post('porderreqID');
+			$contactperson=$this->input->post('contactperson');
             $updatedatetime=date('Y-m-d H:i:s');
     
 			$data=array(
@@ -1038,6 +1072,7 @@
 			'tbl_company_idtbl_company'=> $company_id, 
 			'tbl_company_branch_idtbl_company_branch'=> $branch_id, 
 			'tbl_print_porder_req_idtbl_print_porder_req '=> $porderreqID,
+			'idtbl_po_contact_person'=> $contactperson,
 
 		);
     
@@ -1048,40 +1083,39 @@
             $this->db->where('tbl_print_porder_idtbl_print_porder', $porderID);
             $this->db->delete('tbl_print_porder_detail');
 
-				foreach ($tableData as $rowtabledata) {
-					$materialname=$rowtabledata['col_1'];
-					$comment=$rowtabledata['col_2'];
-					$materialID=$rowtabledata['col_3'];
-					$qty=$rowtabledata['col_4'];
-					$uom=$rowtabledata['col_5'];
-					$uomID=$rowtabledata['col_6'];
-					$unit=$rowtabledata['col_7'];
-					$nettotal=$rowtabledata['col_8'];
-					$pieces=$rowtabledata['col_10'];
-					
-	
-					$dataone=array(
-						'qty'=> $qty,
-						'pieces'=> $pieces,
-						'tbl_measurements_idtbl_measurements'=> $uomID,
-						'unitprice'=> $unit,
-						'packetprice'=> '0',
-						'discount'=>'0',
-						'vat'=>'0',
-						'vatamount'=>'0',
-						'grossprice'=>'0',
-						'netprice'=>  $nettotal,
-						'comment'=> $comment,
-						'status'=> '1',
-						'updatedatetime'=> $updatedatetime,
-						'tbl_print_porder_idtbl_print_porder'=> $porderID,
-						'tbl_material_id'=> $materialID,
-						'tbl_user_idtbl_user'=> $userID
-						
-					);
-	
-					$this->db->insert('tbl_print_porder_detail', $dataone);
-				}
+			foreach ($tableData as $rowtabledata) {
+				$materialname=$rowtabledata['col_1'];
+				$comment=$rowtabledata['col_2'];
+				$materialID=$rowtabledata['col_3'];
+				$qty=$rowtabledata['col_4'];
+				$uom=$rowtabledata['col_5'];
+				$uomID=$rowtabledata['col_6'];
+				$unit=$rowtabledata['col_7'];
+				$packetprice=$rowtabledata['col_8'];
+				$nettotal=$rowtabledata['col_9'];
+				$pieces=$rowtabledata['col_11'];
+
+				$dataone=array(
+					'qty'=> $qty,
+					'pieces'=> $pieces,
+					'tbl_measurements_idtbl_measurements'=> $uomID,
+					'unitprice'=> $unit,
+					'packetprice'=> $packetprice, 
+					'discount'=>'0',
+					'vat'=>'0',
+					'vatamount'=>'0',
+					'grossprice'=>'0',
+					'netprice'=>  $nettotal,
+					'comment'=> $comment,
+					'status'=> '1',
+					'updatedatetime'=> $updatedatetime,
+					'tbl_print_porder_idtbl_print_porder'=> $porderID,
+					'tbl_material_id'=> $materialID,
+					'tbl_user_idtbl_user'=> $userID
+				);
+
+				$this->db->insert('tbl_print_porder_detail', $dataone);
+			}
 
 			$this->db->trans_complete();
 

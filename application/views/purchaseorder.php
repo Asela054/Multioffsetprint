@@ -41,7 +41,7 @@ include "include/topnavbar.php";
                                                 <th>Order Type</th>
                                                 <th>Supplier</th>
                                                 <th>Confirm Status</th>
-                                                <th>Check By</th>
+                                                <th>Approve By</th>
                                                 <th>GRN Issue Status</th>
                                                 <th>Total</th>
                                                 <th class="text-right">Actions</th>
@@ -116,6 +116,18 @@ include "include/topnavbar.php";
 									<label class="small font-weight-bold text-dark">Supplier*</label>
 									<select class="form-control form-control-sm" name="supplier" id="supplier">
 										<option value="">Select</option>
+									</select>
+								</div>
+							</div>
+							<div id="contactPersonFields">
+								<div class="form-group mb-1">
+									<label class="small font-weight-bold text-dark">Contact Person</label>
+									<select class="form-control form-control-sm" name="contactperson" id="contactperson">
+										<option value="">Select</option>
+										<?php foreach($contactpersonlist->result() as $rowcontactpersonlist){ ?>
+										<option value="<?php echo $rowcontactpersonlist->idtbl_po_contact_person ?>">
+											<?php echo $rowcontactpersonlist->contact_person ?><?php if(!empty($rowcontactpersonlist->designation)){ echo ' - '.$rowcontactpersonlist->designation; } ?></option>
+										<?php } ?>
 									</select>
 								</div>
 							</div>
@@ -308,6 +320,18 @@ include "include/topnavbar.php";
 									</select>
 								</div>
 							</div>
+							<div id="editContactPersonFields">
+								<div class="form-group mb-1">
+									<label class="small font-weight-bold text-dark">Contact Person</label>
+									<select class="form-control form-control-sm" name="editcontactperson" id="editcontactperson">
+										<option value="">Select</option>
+										<?php foreach($contactpersonlist->result() as $rowcontactpersonlist){ ?>
+										<option value="<?php echo $rowcontactpersonlist->idtbl_po_contact_person ?>">
+											<?php echo $rowcontactpersonlist->contact_person ?><?php if(!empty($rowcontactpersonlist->designation)){ echo ' - '.$rowcontactpersonlist->designation; } ?></option>
+										<?php } ?>
+									</select>
+								</div>
+							</div>
                             <div class="form-group mb-1">
 									<div class="form-group mb-1">
 										<label class="small font-weight-bold text-dark">PO Type*</label>
@@ -394,7 +418,7 @@ include "include/topnavbar.php";
 					</div>
 					<div class="col-sm-12 col-md-12 col-lg-7 col-xl-7">
 							<div class="scrollbar pb-3" id="style-3">
-								<table class="table table-striped table-bordered table-sm small" id="edittableorder">
+                                <table class="table table-striped table-bordered table-sm small" id="edittableorder">
                                     <thead>
                                         <tr>
                                             <th id="editThServiceItem" class="d-none">Service Item</th>
@@ -403,6 +427,7 @@ include "include/topnavbar.php";
                                             <th class="text-center">Qty</th>
                                             <th class="text-center">Uom</th>
                                             <th class="text-right">Unit Price</th>
+                                            <th class="text-right">Price</th>
                                             <th class="d-none">HideTotal</th>
                                             <th class="text-right">Total</th>
                                         </tr>
@@ -437,7 +462,7 @@ include "include/topnavbar.php";
 <div id="purchaseview">
 	<div class="modal fade" id="porderviewmodal" data-backdrop="static" data-keyboard="false" tabindex="-1"
 		aria-labelledby="staticBackdropLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-dialog modal-dialog-centered modal-xl">
 
 			<div class="modal-content">
 				<div class="modal-header">
@@ -460,6 +485,7 @@ include "include/topnavbar.php";
 							</p>
 							<p style="margin-bottom: 2px;" class="text-left"><span id="pordercity"></span></p>
 							<p style="margin-bottom: 2px;" class="text-left"><span id="porderstate"></span></p>
+							<p style="margin-bottom: 2px;" class="text-left"><span id="pordercontactperson"></span></p>
 						</div>
 					</div>
 					<div id="viewhtml"></div>
@@ -510,6 +536,15 @@ $(document).ready(function() {
     });
     $('#location').select2({
         dropdownParent: $('#staticBackdrop'),
+        width: '100%',
+    });
+
+    $('#contactperson').select2({
+        dropdownParent: $('#staticBackdrop'),
+        width: '100%',
+    });
+    $('#editcontactperson').select2({
+        dropdownParent: $('#porderEditmodal'),
         width: '100%',
     });
     
@@ -679,13 +714,13 @@ $(document).ready(function() {
                 "data": null,
                 "render": function(data, type, full) {
                     var button = '';
+                    if (statuscheck == 1){
                     button += '<button type="button" data-toggle="tooltip" data-placement="bottom" title="Manual Complete" data-url="Purchaseorder/POmanualconfirm/' + full['idtbl_print_porder'] + '"  data-actiontype="6" class="btn btn-warning btn-sm mr-1 btntableaction"><i class="fas fa-clipboard-check"></i></button>';
+                    }
                     button += '<button data-toggle="tooltip" data-placement="bottom" title="Edit" class="btn btn-primary btn-sm btnEdit mr-1 ';
-
                     if (editcheck != 1) {
                         button += 'd-none';
                     }
-
                     button += '" id="' + full['idtbl_print_porder'] + '"><i class="fas fa-pen"></i></button>';
 
                     // PDF/Print button — only visible once the PO is approved (confirmstatus == 1)
@@ -745,6 +780,7 @@ $(document).ready(function() {
     						$('#hiddenporderreqid').val(obj.requestid);
     						$('#editorderdate').val(obj.orderdate);
     						$('#editsupplier').val(obj.supplier);
+                            $('#editcontactperson').val(obj.contactperson).trigger('change');
                             $('#editordertype').val(obj.type);
                             toggleEditServiceColumn();
                             var ordertype = parseInt(obj.type, 10) || 0;
@@ -761,13 +797,11 @@ $(document).ready(function() {
                                     var uomID      = item.measureID;
                                     var unitprice  = parseFloat(item.unitprice) || 0;
                                     var netprice   = parseFloat(item.netprice) || 0;
+                                    var price      = parseFloat(item.packetprice) || 0;   // NEW
                                     var pieces     = item.pieces;
                                     var newqty     = parseFloat(item.qty) || 0;
                                     var showtotal  = addCommas(netprice.toFixed(2));
 
-                                    // Build row using the SAME 10-cell layout the "Add to list"
-                                    // handler uses, so Service Item / Item Name always line up
-                                    // with the table header regardless of PO type.
                                     var row = '<tr class="pointer">';
 
                                     if (ordertype == 4) {
@@ -783,6 +817,7 @@ $(document).ready(function() {
                                     row += '<td class="text-center">' + uom + '</td>';
                                     row += '<td class="d-none">' + uomID + '</td>';
                                     row += '<td class="text-right">' + unitprice.toFixed(2) + '</td>';
+                                    row += '<td class="text-right">' + price.toFixed(2) + '</td>';        // NEW
                                     row += '<td class="edittotal d-none">' + netprice + '</td>';
                                     row += '<td class="text-right">' + showtotal + '</td>';
                                     row += '<td class="text-right d-none">' + pieces + '</td>';
@@ -890,6 +925,16 @@ $(document).ready(function() {
 
                 $('#viewcompanyname').text(obj.companyname);
                 $('#viewbranchname').text(obj.branchname);
+
+                if (obj.contactpersonname) {
+                    var contactLine = 'Contact Person: ' + obj.contactpersonname;
+                    if (obj.contactpersondesignation) {
+                        contactLine += ' (' + obj.contactpersondesignation + ')';
+                    }
+                    $('#pordercontactperson').text(contactLine);
+                } else {
+                    $('#pordercontactperson').text('');
+                }
             }
         });
     });
@@ -1100,6 +1145,7 @@ $(document).ready(function() {
             row += '<td class="text-center">' + uom + '</td>';
             row += '<td class="d-none">' + uomID + '</td>';
             row += '<td class="text-right">' + unitprice.toFixed(2) + '</td>';
+            row += '<td class="text-right">' + newprice.toFixed(2) + '</td>';   // NEW
             row += '<td class="edittotal d-none">' + total + '</td>';
             row += '<td class="text-right">' + showtotal + '</td>';
             row += '<td class="text-right d-none">' + pieces + '</td>';
@@ -1206,15 +1252,15 @@ $(document).ready(function() {
         var r = confirm("Are you sure, you want to remove this product?");
         if (r) {
             // Cell order: [0] ServiceItem [1] ItemName/Comment [2] ProductID [3] Qty
-            // [4] Uom [5] UomID [6] UnitPrice [7] edittotal [8] Total [9] pieces [10] Action
+            // [4] Uom [5] UomID [6] UnitPrice [7] Price [8] edittotal [9] Total [10] pieces
             var ordertype = $('#editordertype').val();
 
-            var productID = $(cells[2]).text().trim();
+            var productID   = $(cells[2]).text().trim();
             var productName = (ordertype == 4) ? $(cells[0]).text().trim() : $(cells[1]).text().trim();
-            var qty = $(cells[3]).text().trim();
-            var uomID = $(cells[5]).text().trim();
-            var unitprice = $(cells[6]).text().trim();
-            var comment = (ordertype == 4) ? $(cells[1]).text().trim() : '';
+            var qty         = $(cells[3]).text().trim();
+            var uomID       = $(cells[5]).text().trim();
+            var unitprice   = $(cells[6]).text().trim();
+            var comment     = (ordertype == 4) ? $(cells[1]).text().trim() : '';
 
             // Select2's options only exist for products already searched — inject one if missing
             if ($('#editproduct').find('option[value="' + productID + '"]').length === 0) {
@@ -1230,6 +1276,29 @@ $(document).ready(function() {
             $('#editunitprice').val(unitprice);
             $('#editcomment').val(comment);
             $('#edituom').val(uomID);
+
+            // Fetch the actual conversion unit (e.g. "Sheet") for this product + uom,
+            // same call the normal #edituom change handler uses — the table row itself
+            // never stores this label, so it has to be looked up, not read off a cell.
+            if (uomID && productID) {
+                $.ajax({
+                    type: "POST",
+                    url: 'Purchaseorder/Getpiecesforqty',
+                    data: {
+                        recordID: uomID,
+                        productId: productID,
+                        qty: qty
+                    },
+                    success: function (result) {
+                        var obj = JSON.parse(result);
+                        $('#editpiecesper_qty').val(obj.piecesper_qty);
+                        $('#editpiecesper_qty_uom').val(obj.measure_type);
+                    }
+                });
+            } else {
+                $('#editpiecesper_qty').val(0);
+                $('#editpiecesper_qty_uom').val('');
+            }
 
             // Remove the row from the table now that its data has been pulled into the form
             $row.remove();
@@ -1286,6 +1355,7 @@ $(document).ready(function() {
             grosstotal: $('#hidegrosstotalorder').val(),
             remark: $('#remark').val(),
             supplier: $('#supplier').val(),
+            contactperson: $('#contactperson').val(),
             company_id: $('#f_company_id').val(),
             branch_id: $('#f_branch_id').val(),
             porderrequest: $('#porderrequest').val()
@@ -1371,6 +1441,7 @@ $(document).ready(function() {
             grosstotal: $('#edithidegrosstotalorder').val(),
             remark: $('#editremark').val(),
             supplier: $('#editsupplier').val(),
+            contactperson: $('#editcontactperson').val(),
             company_id: $('#f_company_id').val(),
             branch_id: $('#f_branch_id').val(),
             porderID: $('#hiddenporderid').val(),

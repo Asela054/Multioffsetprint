@@ -194,7 +194,7 @@
 		$ordertype = $this->input->post('ordertype');
 		$servicetype = $this->input->post('servicetype');
 		$reqdate = $this->input->post('date');
-		$newexist_status = $this->input->post('newexist_status'); // 1 = New, 0 = Exist
+		// newexist_status is no longer a header-level field — it now comes in per row via tableData (col_6)
 	
 		$recordOption = $this->input->post('recordOption');
 		$updatedatetime = date('Y-m-d H:i:s');
@@ -205,7 +205,6 @@
 				'confirmstatus' => '0',
 				'status' => '1',
 				'porderconfirm' => '0',
-				'newexist_status' => $newexist_status,
 				'insertdatetime' => $updatedatetime,
 				'tbl_user_idtbl_user' => $userID,
 				'tbl_material_group_idtbl_material_group' => $ordertype,
@@ -220,12 +219,14 @@
 				$materialname = $rowtabledata['col_1'];
 				$qty = $rowtabledata['col_2'];
 				$uom = $rowtabledata['col_4'];
-				$comment = $rowtabledata['col_5'];
+				$rownewexist = $rowtabledata['col_6']; // '1' New / '0' Exist, per line item
+				$comment = $rowtabledata['col_7'];
 	
 				$dataone = array(
 					'qty' => $qty,
 					'comment' => $comment,
 					'tbl_measurements_idtbl_measurements' => $uom,
+					'newexist_status' => $rownewexist,
 					'status' => '1',
 					'insertdatetime' => $updatedatetime,
 					'tbl_print_porder_req_idtbl_print_porder_req' => $porderID,
@@ -354,12 +355,14 @@
 		<th class="bg-primary text-light">Request Item</th>
 		<th class="bg-primary text-light">Qty</th>
 		<th class="bg-primary text-light">Uom</th>
+		<th class="bg-primary text-light text-center">Status</th>
 		<th class="bg-primary text-light text-center">Comment</th>
 		</thead>
 		<tbody>';
         foreach($responddetail->result() as $roworderinfo) {
+				$newexistLabel = ($roworderinfo->newexist_status == 1 || $roworderinfo->newexist_status == '1') ? 'New' : 'Exist';
 				$html.='<tr>
-        <td>'.$roworderinfo->requestname.'</td><td>'.$roworderinfo->qty.'</td><td>'.$roworderinfo->measure_type.'</td><td class="text-center">'.$roworderinfo->comment.'</td></tr>';
+        <td>'.$roworderinfo->requestname.'</td><td>'.$roworderinfo->qty.'</td><td>'.$roworderinfo->measure_type.'</td><td class="text-center">'.$newexistLabel.'</td><td class="text-center">'.$roworderinfo->comment.'</td></tr>';
 		}
 
 		$html.='</tbody>
@@ -391,7 +394,7 @@
 		$obj->companyphone=$respond->row(0)->companyphone;
 		$obj->companyemail=$respond->row(0)->companyemail;
 		$obj->branchname=$respond->row(0)->branchname;
-		$obj->newexist_status=$respond->row(0)->newexist_status;
+		// newexist_status removed — it's no longer stored on the header row, see Purchaseorderview() for per-item status
 
 		echo json_encode($obj);
 	}

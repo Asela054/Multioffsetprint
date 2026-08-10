@@ -14,6 +14,7 @@ class Purchaseorder extends CI_Controller {
 		$result['servicetypelist']=$this->Purchaseorderinfo->Getservicetype();
 		$result['measurelist']=$this->Purchaseorderinfo->Getmeasuretype();
 		$result['porderlist']=$this->Purchaseorderinfo->Getporder();
+		$result['contactpersonlist'] = $this->Purchaseorderinfo->Getcontactperson();
 		$this->load->view('purchaseorder', $result);
 	}
     public function Purchaseorderinsertupdate(){

@@ -64,6 +64,7 @@ include "include/topnavbar.php";
             						</div>
 
             						<!-- New / Exist material selector -->
+            						<!-- NOTE: this now tags the INDIVIDUAL LINE ITEM being added, not the whole order -->
             						<div class="form-row mb-1">
             							<div class="col">
             								<label class="small font-weight-bold text-dark">Material Status*</label>
@@ -138,6 +139,7 @@ include "include/topnavbar.php";
             									<th>Request</th>
             									<th class="text-center">Qty</th>
             									<th class="text-center">UOM</th>
+            									<th class="text-center">Status</th>
                                                 <th>Comment</th>
             									<th class="text-right">Action</th>
             								</tr>
@@ -168,7 +170,6 @@ include "include/topnavbar.php";
             										<th>P-Order Req Number</th>
             										<th>Date</th>
             										<th>Order Type</th>
-            										<th>Material Status</th>
             										<th>Confirm Status</th>
                                                      <th>Check By</th>
             										<th class="text-right">Actions</th>
@@ -212,8 +213,6 @@ include "include/topnavbar.php";
                             </p>
                             <p style="margin-bottom: 2px; font-family: cursive;font-size:15px;padding-top: 8px;padding:0;"
                                 class="text-left"><span id="porder_number"></span></p>
-                            <p style="margin-bottom: 2px; font-family: cursive;font-size:14px;padding-top: 4px;padding:0;"
-                                class="text-left"><span id="porder_newexist_status"></span></p>
                         </div>
                     </div>
                     </br>
@@ -436,12 +435,6 @@ $(document).ready(function() {
                 "data": "group"
             },
             {
-                "data": "newexist_status",
-                "render": function(data, type, row) {
-                    return (data == 1 || data == '1') ? 'New' : 'Exist';
-                }
-            },
-            {
                 "targets": -1,
                 "className": '',
                 "data": "confirmstatus_display",
@@ -560,9 +553,7 @@ $(document).ready(function() {
 
                 $('#viewcompanyname').text(obj.companyname);
                 $('#viewbranchname').text(obj.branchname);
-
-                var newexistLabel = (obj.newexist_status == 1 || obj.newexist_status == '1') ? 'New' : 'Exist';
-                $('#porder_newexist_status').text('Material Status: ' + newexistLabel);
+                // newexist_status is now per line item, shown inside the detail table (Purchaseorderview), not here
             }
         });
     });
@@ -636,11 +627,18 @@ $(document).ready(function() {
                 var uomID = $('#uom').val();
                 var uom = $("#uom option:selected").text();
                 var comment = $('#comment').val();
+                var newexistVal = $('input[name="newexist_status"]:checked').val(); // '1' New / '0' Exist
+                var newexistText = (newexistVal == '1') ? 'New' : 'Exist';
 
+                // td order matters — it maps directly to col_1..col_8 on submit:
+                // col_1 product | col_2 qty | col_3 uom text | col_4 uomID (hidden)
+                // col_5 status text (visible) | col_6 status raw value (hidden) | col_7 comment | col_8 action
                 $('#tableorder > tbody:last').append('<tr class="pointer"><td>' + product +
                     '</td><td class="text-center">' +
                     newqty + '</td> <td class="text-center">' +
                     uom + '</td><td class="d-none">' + uomID +
+                    '</td><td class="text-center">' + newexistText +
+                    '</td><td class="d-none">' + newexistVal +
                     '</td><td>' + comment +
                     '</td><td><button type="button" onclick= "productDelete(this);" id="btnDeleterow" class=" btn btn-danger btn-sm float-right"><i class="fas fa-trash-alt"></i></button></td> </tr>'
                 );
@@ -700,8 +698,8 @@ $(document).ready(function() {
             branch_id: $("#f_branch_id").val(),
             date: $("#date").val(),
             ordertype: $('#ordertype').val(),
-            recordOption: $("#recordOption").val(),
-            newexist_status: $('input[name="newexist_status"]:checked').val()
+            recordOption: $("#recordOption").val()
+            // newexist_status removed from here — it now travels per-row inside tableData (col_6)
         };
 
         Swal.fire({
