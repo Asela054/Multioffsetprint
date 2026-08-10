@@ -1428,7 +1428,7 @@ class Materialallocationinfo extends CI_Model{
             foreach($respondmaterial->result() as $rowmaterialdata){
             $html.='
             <tbody>
-                <tr class="'.($rowmaterialdata->issuestatus == 2 ? 'table-primary' : '').'>
+                <tr class="'.($rowmaterialdata->issuestatus == 2 ? 'table-primary' : '').'">
                     <td>'.$rowmaterialdata->materialby.'</td>
                     <td>'.$rowmaterialdata->materialname.' ('.$rowmaterialdata->issuedate.')</td>
                     <td>'.$rowmaterialdata->cutsize.'</td>

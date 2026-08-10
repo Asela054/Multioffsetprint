@@ -32,187 +32,8 @@ include "include/topnavbar.php";
                 <div class="card">
                     <div class="card-body p-0 p-2">
                         <div class="row">
-                            <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                                <form id="createorderform" autocomplete="off">
-                                    <div class="row">
-                                        <div class="col-2">
-                                            <label class="small font-weight-bold text-dark">Date*</label>
-                                            <input type="date" class="form-control form-control-sm" placeholder="" name="date" id="date" onchange="getVat();" value="<?php echo date('Y-m-d') ?>" required>
-                                        </div>
-                                        <div class="col-2">
-                                            <label class="small font-weight-bold text-dark">Company*</label>
-                                            <input type="text" id="f_company_name" name="f_company_name" class="form-control form-control-sm" required readonly>
-                                        </div>
-                                        <div class="col-2">
-                                            <label class="small font-weight-bold text-dark">Company Branch*</label>
-                                            <input type="text" id="f_branch_name" name="f_branch_name" class="form-control form-control-sm" required readonly>
-                                        </div>
-                                        <input type="hidden" name="f_company_id" id="f_company_id">
-                                        <input type="hidden" name="f_branch_id" id="f_branch_id">
-                                        <div class="col-2">
-                                            <label class="small font-weight-bold text-dark">GRN No.</label>
-                                            <select class="form-control form-control-sm selecter2 px-0" name="grnno" id="grnno" required>
-                                                <option value="">Select</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-2">
-                                            <label class="small font-weight-bold text-dark">Supplier*</label>
-                                            <input type="text" id="supplier" name="supplier" class="form-control form-control-sm" readonly>
-                                        </div>
-                                        <div class="col-2">
-                                            <label class="small font-weight-bold text-dark">Invoice No.</label>
-                                            <input type="text" id="invoiceno" name="invoiceno" class="form-control form-control-sm">
-                                        </div>
-                                    </div>
-                                    <input type="hidden" id="inquerydetailsid" name="inquerydetailsid" class="form-control form-control-sm" />
-                                    <div class="form-group mt-2 text-right">
-                                        <input name="submitBtn" type="submit" value="Save" id="submitBtn" class="d-none">
-                                    </div>
-                                    <input type="hidden" name="refillprice" id="refillprice" value="">
-                                    <input type="hidden" name="recordOption" id="recordOption" value="1">
-                                </form>
-                            </div>
-                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
-                                <h6 class="title-style small"><span>Other Cost Information</span></h6>
-                                <form id="expensesform" autocomplete="off">
-                                    <div class="form-row">
-                                        <div class="col-3">
-                                            <label class="small font-weight-bold text-dark">Supplier</label>
-                                            <select class="form-control form-control-sm" name="costsupplier" id="costsupplier" required>
-                                                <option value="">Select</option>
-                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <label class="small font-weight-bold text-dark">Cost Type</label>
-                                            <select class="form-control form-control-sm" name="costtype" id="costtype" required>
-                                                <option value="">Select Cost Type</option>
-                                                <?php foreach($costlist->result() as $rowcostlist){ ?>
-                                                <option value="<?php echo $rowcostlist->idtbl_import_cost_types ?>">
-                                                    <?php echo $rowcostlist->cost_type ?>
-                                                </option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <label class="small font-weight-bold text-dark">Amount</label>
-                                            <input type="number" step="any" name="costamount" class="form-control form-control-sm" id="costamount" required>
-                                        </div>
-                                        <div class="col">
-                                            <label class="small font-weight-bold text-dark">Tax</label>
-                                            <input type="number" step="any" name="costtax" class="form-control form-control-sm" id="costtax" required>
-                                        </div>
-                                        <div class="col">
-                                            <label class="small font-weight-bold text-dark">Net Amount</label>
-                                            <input type="text" name="costtotal" class="form-control form-control-sm" id="costtotal" readonly>
-                                        </div>
-                                    </div>
-                                    <?php if($addcheck==1){ ?>
-                                    <div class="form-row mt-3">
-                                        <div class="col text-right">
-                                            <button type="button" id="secondformsubmit" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i>&nbsp;Add Costing</button>
-                                            <input name="chargesubmitBtn" type="submit" value="Save" id="chargesubmitBtn" class="d-none">
-                                        </div>
-                                    </div>
-                                    <?php } ?>
-                                </form>
-                                <hr class="border-dark">
-                                <div id="materialmachinetblpart">
-                                    <table class="table table-striped table-bordered table-sm small" id="chargetableorder">
-                                        <thead>
-                                            <tr>
-                                                <th>Supplier</th>
-                                                <th>Cost Type</th>
-                                                <th class="text-right">Amount</th>
-                                                <th class="text-right">Tax</th>
-                                                <th class="text-right">Nettotal</th>
-                                                <th class="d-none">CostTypeID</th>
-                                                <th class="d-none">SupplierID</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <th colspan="2">&nbsp;</th>
-                                                <th class="text-right" id="footcostamount">0.00</th>
-                                                <th class="text-right" id="footcosttax">0.00</th>
-                                                <th class="text-right" id="footcosttotal">0.00</th>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                    <input type="hidden" id="hidechargestotal" value="0">
-                                    <input type="hidden" id="hidechargestaxtotal" value="0">
-                                    <input type="hidden" id="hidechargesnettotal" value="0">
-                                </div>
-                                <!-- <div class="row">
-                                    <div class="col-12 text-right">
-                                        <h4 class="font-weight-600" id="divchargestotal">Rs. 0.00</h4>
-                                    </div>
-                                </div> -->
-                                <div class="form-group">
-                                    <label class="small font-weight-bold text-dark">Remark</label>
-                                    <textarea name="remark" id="remark" class="form-control form-control-sm"></textarea>
-                                </div>
-                                <hr class="border-dark">
-                                <div class="form-group mt-2 text-right">
-                                    <button type="button" id="btntransgrn" class="btn btn-orange btn-sm px-3"><i class="fas fa-random"></i>&nbsp;Transfer to GRN</button>
-                                </div>
-                                <div class="alert alert-danger mt-2" role="alert">
-                                    If you want to remove any voucher cost amount, please click the table row, then you can choose <strong>"Yes"</strong> or <strong>"No."</strong>
-                                </div>
-                            </div>
-                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
-                                <h6 class="title-style small"><span>Good Receive Note Information</span></h6>
-                                <div id="materialmachinetblpart">
-                                    <table class="table table-striped table-bordered table-sm small" id="tableorder">
-                                        <thead>
-                                            <tr>
-                                                <th>Product</th>
-                                                <th>Comment</th>
-                                                <th class="d-none">ProductID</th>
-                                                <th class="text-right">Unitprice</th>
-                                                <th class="d-none">Saleprice</th>
-                                                <th class="text-center">Qty</th>
-                                                <th class="text-center">Uom</th>
-                                                <th class="d-none">HideTotal</th>
-                                                <th class="text-right">Discount</th>
-                                                <th class="text-right">Total</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                    <div class="row">
-                                        <div class="col-9 text-right">Sub total : </div>
-                                        <div class="col-3 text-right"><h5 class="m-0" id="subtotalhtml">0.00</h5></div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-9 text-right">Discount : </div>
-                                        <div class="col-3 text-right"><h5 class="m-0" id="discounthtml">0.00</h5></div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-9 text-right">Tax amount : </div>
-                                        <div class="col-3 text-right"><input type="text" class="form-control form-control-sm text-right mb-2" id="vatamount" name="vatamount"></div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-9 text-right">Net Total : </div>
-                                        <div class="col-3 text-right"><h3 class="border-top border-dark" id="divtotal">0.00</h3></div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-12 text-right">
-                                            <hr class="border-dark">
-                                            <div class="form-group mt-2">
-                                                <button type="button" id="btnresetdata" class="btn btn-danger btn-sm px-3 mr-2" disabled><i class="fas fa-sync-alt"></i>&nbsp;Reset</button>
-                                                <button type="button" id="btncreateorder" class="btn btn-outline-primary btn-sm fa-pull-right"><i class="fas fa-save"></i>&nbsp;Create GRN Voucher</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="alert alert-danger mt-2" role="alert">
-                                        If you want to make any changes in the GRN product unit price, Please click the unit price column and insert a value into the input field, then press the <strong>Enter</strong> key.
-                                    </div>
-                                    <input type="hidden" id="hidevatpre" value="0">
-                                    <input type="hidden" id="hidesubtotal" value="0">
-                                    <input type="hidden" id="hidetotalorder" value="0">
-                                    <input type="hidden" id="hidediscounnt" value="0">
-                                </div>
+                            <div class="col-12 text-right">
+                                <button type="button" class="btn btn-primary btn-sm px-4" id="createVoucherBtn"><i class="fas fa-plus"></i>&nbsp;Create Voucher</button>
                             </div>
                         </div>
                         <div class="row">
@@ -231,7 +52,7 @@ include "include/topnavbar.php";
                                                 <th>Additional Cost</th>
                                                 <th>GRN Total After Add Costs</th>
                                                 <th>Status</th>
-                                                <th>Check By</th>
+                                                <th>Approved By</th>
                                                 <th class="text-right"></th>
                                             </tr>
                                         </thead>
@@ -246,9 +67,207 @@ include "include/topnavbar.php";
         <?php include "include/footerbar.php"; ?>
     </div>
 </div>
-
+<!-- Modal Create GRN Voucher -->
+<div class="modal fade" id="createGrnVoucher" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="createGrnVoucherLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="viewGrnVoucherLabel">Create GRN Voucher</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <form id="createorderform" autocomplete="off">
+                            <div class="row">
+                                <div class="col-4">
+                                    <label class="small font-weight-bold text-dark">Date*</label>
+                                    <input type="date" class="form-control form-control-sm" placeholder="" name="date" id="date" onchange="getVat();" value="<?php echo date('Y-m-d') ?>" required>
+                                </div>
+                                <div class="col-4">
+                                    <label class="small font-weight-bold text-dark">Company*</label>
+                                    <input type="text" id="f_company_name" name="f_company_name" class="form-control form-control-sm" required readonly>
+                                </div>
+                                <div class="col-4">
+                                    <label class="small font-weight-bold text-dark">Company Branch*</label>
+                                    <input type="text" id="f_branch_name" name="f_branch_name" class="form-control form-control-sm" required readonly>
+                                </div>
+                                <input type="hidden" name="f_company_id" id="f_company_id">
+                                <input type="hidden" name="f_branch_id" id="f_branch_id">
+                                <div class="col-4">
+                                    <label class="small font-weight-bold text-dark">GRN No.</label>
+                                    <select class="form-control form-control-sm selecter2 px-0" name="grnno" id="grnno" required>
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <label class="small font-weight-bold text-dark">Supplier*</label>
+                                    <input type="text" id="supplier" name="supplier" class="form-control form-control-sm" readonly>
+                                </div>
+                                <div class="col-4">
+                                    <label class="small font-weight-bold text-dark">Invoice No.</label>
+                                    <input type="text" id="invoiceno" name="invoiceno" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <input type="hidden" id="inquerydetailsid" name="inquerydetailsid" class="form-control form-control-sm" />
+                            <div class="form-group mt-2 text-right">
+                                <input name="submitBtn" type="submit" value="Save" id="submitBtn" class="d-none">
+                            </div>
+                            <input type="hidden" name="refillprice" id="refillprice" value="">
+                            <input type="hidden" name="recordOption" id="recordOption" value="1">
+                        </form>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <h6 class="title-style small"><span>Other Cost Information</span></h6>
+                        <form id="expensesform" autocomplete="off">
+                            <div class="form-row">
+                                <div class="col-3">
+                                    <label class="small font-weight-bold text-dark">Supplier</label>
+                                    <select class="form-control form-control-sm" name="costsupplier" id="costsupplier" required>
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <label class="small font-weight-bold text-dark">Cost Type</label>
+                                    <select class="form-control form-control-sm" name="costtype" id="costtype" required>
+                                        <option value="">Select Cost Type</option>
+                                        <?php foreach($costlist->result() as $rowcostlist){ ?>
+                                        <option value="<?php echo $rowcostlist->idtbl_import_cost_types ?>">
+                                            <?php echo $rowcostlist->cost_type ?>
+                                        </option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <label class="small font-weight-bold text-dark">Amount</label>
+                                    <input type="number" step="any" name="costamount" class="form-control form-control-sm" id="costamount" required>
+                                </div>
+                                <div class="col">
+                                    <label class="small font-weight-bold text-dark">Tax</label>
+                                    <input type="number" step="any" name="costtax" class="form-control form-control-sm" id="costtax" required>
+                                </div>
+                                <div class="col">
+                                    <label class="small font-weight-bold text-dark">Net Amount</label>
+                                    <input type="text" name="costtotal" class="form-control form-control-sm" id="costtotal" readonly>
+                                </div>
+                            </div>
+                            <?php if($addcheck==1){ ?>
+                            <div class="form-row mt-3">
+                                <div class="col text-right">
+                                    <button type="button" id="secondformsubmit" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i>&nbsp;Add Costing</button>
+                                    <input name="chargesubmitBtn" type="submit" value="Save" id="chargesubmitBtn" class="d-none">
+                                </div>
+                            </div>
+                            <?php } ?>
+                        </form>
+                        <hr class="border-dark">
+                        <div id="materialmachinetblpart">
+                            <table class="table table-striped table-bordered table-sm small" id="chargetableorder">
+                                <thead>
+                                    <tr>
+                                        <th>Supplier</th>
+                                        <th>Cost Type</th>
+                                        <th class="text-right">Amount</th>
+                                        <th class="text-right">Tax</th>
+                                        <th class="text-right">Nettotal</th>
+                                        <th class="d-none">CostTypeID</th>
+                                        <th class="d-none">SupplierID</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="2">&nbsp;</th>
+                                        <th class="text-right" id="footcostamount">0.00</th>
+                                        <th class="text-right" id="footcosttax">0.00</th>
+                                        <th class="text-right" id="footcosttotal">0.00</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <input type="hidden" id="hidechargestotal" value="0">
+                            <input type="hidden" id="hidechargestaxtotal" value="0">
+                            <input type="hidden" id="hidechargesnettotal" value="0">
+                        </div>
+                        <!-- <div class="row">
+                            <div class="col-12 text-right">
+                                <h4 class="font-weight-600" id="divchargestotal">Rs. 0.00</h4>
+                            </div>
+                        </div> -->
+                        <div class="form-group">
+                            <label class="small font-weight-bold text-dark">Remark</label>
+                            <textarea name="remark" id="remark" class="form-control form-control-sm"></textarea>
+                        </div>
+                        <hr class="border-dark">
+                        <div class="form-group mt-2 text-right">
+                            <button type="button" id="btntransgrn" class="btn btn-orange btn-sm px-3"><i class="fas fa-random"></i>&nbsp;Transfer to GRN</button>
+                        </div>
+                        <div class="alert alert-danger mt-2" role="alert">
+                            If you want to remove any voucher cost amount, please click the table row, then you can choose <strong>"Yes"</strong> or <strong>"No."</strong>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <h6 class="title-style small"><span>Good Receive Note Information</span></h6>
+                        <div id="materialmachinetblpart">
+                            <table class="table table-striped table-bordered table-sm small" id="tableorder">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Comment</th>
+                                        <th class="d-none">ProductID</th>
+                                        <th class="text-right">Unitprice</th>
+                                        <th class="d-none">Saleprice</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-center">Uom</th>
+                                        <th class="d-none">HideTotal</th>
+                                        <th class="text-right">Discount</th>
+                                        <th class="text-right">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <div class="row">
+                                <div class="col-9 text-right">Sub total : </div>
+                                <div class="col-3 text-right"><h5 class="m-0" id="subtotalhtml">0.00</h5></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-9 text-right">Discount : </div>
+                                <div class="col-3 text-right"><h5 class="m-0" id="discounthtml">0.00</h5></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-9 text-right">Tax amount : </div>
+                                <div class="col-3 text-right"><input type="text" class="form-control form-control-sm text-right mb-2" id="vatamount" name="vatamount"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-9 text-right">Net Total : </div>
+                                <div class="col-3 text-right"><h3 class="border-top border-dark" id="divtotal">0.00</h3></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-right">
+                                    <hr class="border-dark">
+                                    <div class="form-group mt-2">
+                                        <button type="button" id="btnresetdata" class="btn btn-danger btn-sm px-3 mr-2" disabled><i class="fas fa-sync-alt"></i>&nbsp;Reset</button>
+                                        <button type="button" id="btncreateorder" class="btn btn-outline-primary btn-sm fa-pull-right"><i class="fas fa-save"></i>&nbsp;Create GRN Voucher</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-danger mt-2" role="alert">
+                                If you want to make any changes in the GRN product unit price, Please click the unit price column and insert a value into the input field, then press the <strong>Enter</strong> key.
+                            </div>
+                            <input type="hidden" id="hidevatpre" value="0">
+                            <input type="hidden" id="hidesubtotal" value="0">
+                            <input type="hidden" id="hidetotalorder" value="0">
+                            <input type="hidden" id="hidediscounnt" value="0">
+                        </div>
+                    </div>
+                </div>
+			</div>
+		</div>
+	</div>
+</div>
 <!-- Modal View Job Card -->
-<div class="modal fade" id="viewGrnVoucher" tabindex="-1" aria-labelledby="viewGrnVoucherLabel" aria-hidden="true">
+<div class="modal fade" id="viewGrnVoucher" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="viewGrnVoucherLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -293,7 +312,16 @@ $(document).ready(function() {
     var statuscheck = '<?php echo $statuscheck; ?>';
     var deletecheck = '<?php echo $deletecheck; ?>';
 
+    $('#createVoucherBtn').on('click', function() {
+        $('#createGrnVoucher').modal('show');
+    });
+
+    $('#createGrnVoucher').on('hidden.bs.modal', function() {
+        window.location.reload();
+    });
+
     $("#costsupplier").select2({
+        dropdownParent: $('#createGrnVoucher'),
         width: '100%',
         ajax: {
             url: "<?php echo base_url() ?>GRNVoucher/Getsupplierlist",
@@ -408,7 +436,17 @@ $(document).ready(function() {
                 }
             },
             {
-                "data": "name"
+                "targets": -1,
+                "className": 'text-right',
+                "data": "status_display",
+                "render": function(data, type, full) {
+					if (full['approvestatus'] == 1) {
+						return full['name'];
+					}
+                    else {
+						return '';
+					}
+                }
             },
             {
                 "targets": -1,
@@ -511,6 +549,7 @@ $(document).ready(function() {
     });
 
     $('#grnno').select2({
+        dropdownParent: $('#createGrnVoucher'),
         width: '100%',
         ajax: {
             url: "<?php echo base_url() ?>GRNVoucher/Getgrnaccsupllier",
@@ -587,8 +626,8 @@ $(document).ready(function() {
                                         .idtbl_print_material_info + '</td>' +
                                         '<td class="unitprice text-right">' + addCommas(grn.unitprice) + '</td>' +
                                         '<td class="d-none">' + grn.saleprice + '</td>' +
-                                        '<td class="text-center qty">' + grn.qty + '</td>' +
-                                        '<td class="text-center" data-measureid="'+grn.tbl_measurements_idtbl_mesurements+'">' + grn.measure_type +
+                                        '<td class="text-center qty">' + (grn.pieces ? grn.pieces : grn.qty) + '</td>' +
+                                        '<td class="text-center" data-measureid="'+grn.idtbl_mesurements+'">' + grn.measure_type +
                                         '</td>' +
                                         '<td class="d-none">' + grn.hidetotal + '</td>' +
                                         '<td class="text-right discount">' + grn.unit_discount +
@@ -861,7 +900,14 @@ $(document).ready(function() {
             var othertaxtotal    = parseFloat($('#hidechargestaxtotal').val()) || 0;
             var netaxtotal        = (parseFloat($('#vatamount').val()) || 0) + othertaxtotal;
 
-            $('#vatamount').val(netaxtotal.toFixed(2));
+            var companyID = '<?php echo $_SESSION['company_id']; ?>';
+            if(companyID == 3){
+                $('#vatamount').val('0.00');
+            }
+            else{
+                $('#vatamount').val(netaxtotal.toFixed(2));
+            }
+            
             OtherCostSetQty(otherchargetotal, '1');
 
             $('#btnresetdata').prop('disabled', false);

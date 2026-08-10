@@ -537,9 +537,16 @@ $(document).ready(function () {
 				},
 				url: '<?php echo base_url() ?>Jobcardissuematerial/Getissuenoteaccounttransfer',
 				success: function(result) {
-					$('#viewissueacc').html(result);
+					var obj = JSON.parse(result);
+					$('#viewissueacc').html(obj.html);
 					$('#modalAccountTransfer').modal('show');
 					$('#viewIssueNote').modal('hide');
+					if(obj.approvestatus>0){
+						$('#btnIssueApprove').prop('disabled', true);
+					}
+					else{
+						$('#btnIssueApprove').prop('disabled', false);
+					}
 				},
 				error: function(error) {					
 					// Show an error alert

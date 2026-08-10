@@ -80,7 +80,7 @@ $joinQuery = "FROM (
     FROM `tbl_grn_vouchar_import_cost` AS `u` 
     LEFT JOIN `tbl_print_grn` AS `ua` ON (`ua`.`idtbl_print_grn` = `u`.`tbl_print_grn_idtbl_print_grn`)
     LEFT JOIN `tbl_supplier` AS `ub` ON (`ub`.`idtbl_supplier` = `ua`.`tbl_supplier_idtbl_supplier`)
-    LEFT JOIN `tbl_user` AS `uc` ON (`uc`.`idtbl_user` = `u`.`checkby`)
+    LEFT JOIN `tbl_user` AS `uc` ON (`uc`.`idtbl_user` = `u`.`updateuser`)
     WHERE `u`.`status` IN (1, 2) 
       AND `u`.`tbl_company_idtbl_company` = '$companyid'
       AND `u`.`tbl_company_branch_idtbl_company_branch` = '$branchid'
