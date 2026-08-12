@@ -167,7 +167,8 @@
 					'insertdatetime'=> $updatedatetime,
 					'tbl_user_idtbl_user'=> $userID,
 					'tbl_print_grn_idtbl_print_grn'=> $grnID,
-					'tbl_print_material_info_idtbl_print_material_info'=> $materialID);
+					'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
+					'tbl_print_porder_detail_idtbl_print_porder_detail'=> $porderdetailsid);
 
 				$this->db->insert('tbl_print_grndetail', $dataone);
 			}
@@ -284,7 +285,7 @@
 
 		$html.='
 		<div class="row">
-            <div class="col-6 small"><label class="small font-weight-bold text-dark mb-1">Date:</label> '.$responddetail->row(0)->grndate.'<br><label class="small font-weight-bold text-dark mb-1">PO No:</label> '.$responddetail->row(0)->grn_no.'<br><label class="small font-weight-bold text-dark mb-1">Customer:</label> '.$respond->row(0)->suppliername.'</div>
+            <div class="col-6 small"><label class="small font-weight-bold text-dark mb-1">Date:</label> '.$responddetail->row(0)->grndate.'<br><label class="small font-weight-bold text-dark mb-1">GRN No:</label> '.$responddetail->row(0)->grn_no.'<br><label class="small font-weight-bold text-dark mb-1">Customer:</label> '.$respond->row(0)->suppliername.'</div>
             <div class="col-6 small"><label class="small font-weight-bold text-dark mb-1">Company:</label> '.$respond->row(0)->company.'<br><label class="small font-weight-bold text-dark mb-1">Branch:</label> '.$respond->row(0)->branch.'<br><label class="small font-weight-bold text-dark mb-1">Invoice No:</label> '.$respond->row(0)->invoicenum.'</div>
         </div>
         <hr class="border-dark"> <table class="table table-striped table-bordered table-sm"> <thead> <tr> <th>Material Info</th> <th>Unit Price</th> <th class="text-center">Qty</th><th class="text-center">Uom</th> <th class="text-center">Discount</th> <th class="text-right">Total</th> </tr> </thead> <tbody>';
