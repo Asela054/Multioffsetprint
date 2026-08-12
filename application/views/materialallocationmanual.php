@@ -285,6 +285,7 @@ $(document).ready(function () {
 			materialsectiontype = JSON.stringify([]);
 		}
 
+		$('#materialinfo').val('').trigger('change');
 	});
 	$("#materialinfo").select2({
 		// dropdownParent: $('#modalBomInfo'),

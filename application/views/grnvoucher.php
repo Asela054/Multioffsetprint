@@ -626,7 +626,7 @@ $(document).ready(function() {
                                         .idtbl_print_material_info + '</td>' +
                                         '<td class="unitprice text-right">' + addCommas(grn.unitprice) + '</td>' +
                                         '<td class="d-none">' + grn.saleprice + '</td>' +
-                                        '<td class="text-center qty">' + (grn.pieces ? grn.pieces : grn.qty) + '</td>' +
+                                        '<td class="text-center qty">' + (grn.pieces > 0 ? grn.pieces : grn.qty) + '</td>' +
                                         '<td class="text-center" data-measureid="'+grn.idtbl_mesurements+'">' + grn.measure_type +
                                         '</td>' +
                                         '<td class="d-none">' + grn.hidetotal + '</td>' +
