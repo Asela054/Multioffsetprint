@@ -4,27 +4,113 @@ use Dompdf\Options;
 
 class PdfGRNinfo extends CI_Model {
     public function pdfgrnget($x) {
-        $recordID=$x;
-        $insertdatetime=date('Y-m-d H:i:s');
+        $recordID = $x;
+        $insertdatetime = date('Y-m-d H:i:s');
 
-        $this->db->select("*, COALESCE(tbl_print_grn.idtbl_print_grn, 0) AS idtbl_print_grn, COALESCE(tbl_print_grn.subtotalcost, 0) AS grn_subtotal, COALESCE(tbl_print_grn.totalcost, 0) AS grn_total, COALESCE(tbl_print_grn.vatamountcost, 0) AS vatamount, COALESCE(tbl_print_grn.discount, 0) AS discount, COALESCE(tbl_print_grndetail.qty, 0) AS qty, COALESCE(tbl_print_grndetail.costunitprice, 0) AS costunitprice, COALESCE(tbl_material_group.idtbl_material_group, 0) AS idtbl_material_group , COALESCE(tbl_print_grndetail.comment, 0) AS comment,
-            (SELECT pd.qty FROM tbl_print_porder_detail pd WHERE pd.tbl_print_porder_idtbl_print_porder = tbl_print_grn.tbl_print_porder_idtbl_print_porder AND pd.tbl_material_id = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info AND pd.status = 1 ORDER BY pd.idtbl_print_porder_detail DESC LIMIT 1) AS ordered_qty,
-            (SELECT pd.actual_qty FROM tbl_print_porder_detail pd WHERE pd.tbl_print_porder_idtbl_print_porder = tbl_print_grn.tbl_print_porder_idtbl_print_porder AND pd.tbl_material_id = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info AND pd.status = 1 ORDER BY pd.idtbl_print_porder_detail DESC LIMIT 1) AS actual_qty_total
+        $this->db->select("
+            *,
+            COALESCE(tbl_print_grn.idtbl_print_grn, 0) AS idtbl_print_grn,
+            COALESCE(tbl_print_grn.subtotalcost, 0) AS grn_subtotal,
+            COALESCE(tbl_print_grn.totalcost, 0) AS grn_total,
+            COALESCE(tbl_print_grn.vatamountcost, 0) AS vatamount,
+            COALESCE(tbl_print_grn.discount, 0) AS discount,
+            COALESCE(tbl_print_grndetail.qty, 0) AS qty,
+            COALESCE(tbl_print_grndetail.costunitprice, 0) AS costunitprice,
+            COALESCE(tbl_material_group.idtbl_material_group, 0) AS idtbl_material_group,
+            COALESCE(tbl_print_grndetail.comment, '') AS comment,
+            tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info AS grn_material_id,
+
+            /* ORDERED QTY = the matching PO detail qty for this exact GRN line */
+            (
+                SELECT COALESCE(pd.qty, 0)
+                FROM tbl_print_porder_detail pd
+                WHERE pd.status = 1
+                AND (
+                    pd.idtbl_print_porder_detail = tbl_print_grndetail.tbl_print_porder_detail_idtbl_print_porder_detail
+                    OR (
+                        tbl_print_grndetail.tbl_print_porder_detail_idtbl_print_porder_detail IS NULL
+                        AND pd.tbl_print_porder_idtbl_print_porder = tbl_print_grn.tbl_print_porder_idtbl_print_porder
+                        AND pd.tbl_material_id = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info
+                    )
+                )
+                ORDER BY (
+                    pd.idtbl_print_porder_detail = tbl_print_grndetail.tbl_print_porder_detail_idtbl_print_porder_detail
+                ) DESC,
+                ABS(pd.qty - tbl_print_grndetail.qty) ASC,
+                pd.idtbl_print_porder_detail ASC
+                LIMIT 1
+            ) AS ordered_qty,
+
+            /* PREVIOUS GRN QTY = SUM of qty already received for this material on this PO,
+            from GRNs entered before the current one */
+            (
+                SELECT COALESCE(SUM(gd.qty), 0)
+                FROM tbl_print_grn g
+                INNER JOIN tbl_print_grndetail gd
+                    ON g.idtbl_print_grn = gd.tbl_print_grn_idtbl_print_grn
+                WHERE g.tbl_print_porder_idtbl_print_porder =
+                    tbl_print_grn.tbl_print_porder_idtbl_print_porder
+                AND gd.tbl_print_material_info_idtbl_print_material_info =
+                    tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info
+                AND g.status = 1
+                AND gd.status = 1
+                AND g.idtbl_print_grn < tbl_print_grn.idtbl_print_grn
+            ) AS prev_qty
+
         ", false);
         $this->db->from('tbl_print_grn');
-        $this->db->join('tbl_print_grndetail', 'tbl_print_grn.idtbl_print_grn = tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', 'left');
-        $this->db->join('tbl_print_material_info', 'tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info = tbl_print_material_info.idtbl_print_material_info', 'left');
-        $this->db->join('tbl_supplier', 'tbl_print_grn.tbl_supplier_idtbl_supplier = tbl_supplier.idtbl_supplier', 'left');
-        $this->db->join('tbl_location', 'tbl_print_grn.tbl_location_idtbl_location = tbl_location.idtbl_location', 'left');
-        $this->db->join('tbl_material_group', 'tbl_print_grn.tbl_material_group_idtbl_material_group = tbl_material_group.idtbl_material_group', 'left');
-        $this->db->join('tbl_measurements', 'tbl_print_grndetail.tbl_measurements_idtbl_mesurements = tbl_measurements.idtbl_mesurements', 'left');
-        $this->db->join('tbl_print_porder', 'tbl_print_grn.tbl_print_porder_idtbl_print_porder = tbl_print_porder.idtbl_print_porder', 'left');
-        $this->db->where('tbl_print_grn.idtbl_print_grn' ,$recordID);
+
+        $this->db->join(
+            'tbl_print_grndetail',
+            'tbl_print_grn.idtbl_print_grn = tbl_print_grndetail.tbl_print_grn_idtbl_print_grn',
+            'left'
+        );
+
+        $this->db->join(
+            'tbl_print_material_info',
+            'tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info = tbl_print_material_info.idtbl_print_material_info',
+            'left'
+        );
+
+        $this->db->join(
+            'tbl_supplier',
+            'tbl_print_grn.tbl_supplier_idtbl_supplier = tbl_supplier.idtbl_supplier',
+            'left'
+        );
+
+        $this->db->join(
+            'tbl_location',
+            'tbl_print_grn.tbl_location_idtbl_location = tbl_location.idtbl_location',
+            'left'
+        );
+
+        $this->db->join(
+            'tbl_material_group',
+            'tbl_print_grn.tbl_material_group_idtbl_material_group = tbl_material_group.idtbl_material_group',
+            'left'
+        );
+
+        $this->db->join(
+            'tbl_measurements',
+            'tbl_print_grndetail.tbl_measurements_idtbl_mesurements = tbl_measurements.idtbl_mesurements',
+            'left'
+        );
+
+        $this->db->join(
+            'tbl_print_porder',
+            'tbl_print_grn.tbl_print_porder_idtbl_print_porder = tbl_print_porder.idtbl_print_porder',
+            'left'
+        );
+
+        $this->db->where(
+            'tbl_print_grn.idtbl_print_grn',
+            $recordID
+        );
         $query = $this->db->get();
 
         if ($query->num_rows() > 0) {
             $company_id = $query->row(0)->tbl_company_idtbl_company;
-        
+
             $prefix = 'MO';
             if ($company_id == 2) {
                 $prefix = 'FT';
@@ -33,26 +119,25 @@ class PdfGRNinfo extends CI_Model {
             }
         }
 
-        $dataArray = [];
-        $count = 0;
-        $section = 1;
-        $remarkFeild = ''; 
+        $remarkFeild = '';
         if ($query->num_rows() > 0) {
             $remarkFeild = $query->row(0)->remark;
         }
 
-        $totalSum = $query->row()->grn_subtotal;
-        $grn_total = $query->row()->grn_total;
-        $grn_vat = $query->row()->vatamount;
+        $totalSum   = $query->row()->grn_subtotal;
+        $grn_total  = $query->row()->grn_total;
+        $grn_vat    = $query->row()->vatamount;
+
+        $dataArray = [];
+        $count = 0;
+        $section = 1;
 
         foreach ($query->result() as $rowlist) {
             if ($count % 3 == 0) {
                 $dataArray[$section] = [];
             }
-        
-            $itemcode = $rowlist->materialinfocode;
-            $itemDescription = '';
 
+            $itemDescription = '';
             if ($rowlist->idtbl_material_group == 4) {
                 $itemDescription = $rowlist->comment;
             } else {
@@ -62,31 +147,22 @@ class PdfGRNinfo extends CI_Model {
                 }
             }
 
-            // Received qty = this GRN's line qty.
-            // Ordered qty = the matching PO detail line's ordered qty (single row, not summed).
-            // Prev qty = cumulative received-to-date minus what THIS GRN contributed.
-            $receivedQty = $rowlist->qty;
-            $orderedQty  = ($rowlist->ordered_qty !== null) ? $rowlist->ordered_qty : 0;
-            $actualTotal = ($rowlist->actual_qty_total !== null) ? $rowlist->actual_qty_total : 0;
-            $prevQty     = max(0, $actualTotal - $receivedQty);
-        
             $dataArray[$section][] = [
-                'itemcode' => $itemcode,
+                'itemcode' => $rowlist->materialinfocode,
                 'itemDescription' => $itemDescription,
-                'ordered' => $orderedQty,
-                'prev' => $prevQty,
-                'received' => $receivedQty,
+                'ordered' => (float) $rowlist->ordered_qty,
+                'prev' => (float) $rowlist->prev_qty,
+                'received' => (float) $rowlist->qty,
                 'unit' => $rowlist->measure_type,
                 'price' => !empty($rowlist->packetprice) ? $rowlist->packetprice : $rowlist->costunitprice,
                 'total' => $rowlist->total,
             ];
-        
+
             $count++;
-        
             if ($count % 3 == 0) {
                 $section++;
             }
-        }        
+        }
 
         $this->load->library('pdf');
 
@@ -283,7 +359,7 @@ class PdfGRNinfo extends CI_Model {
                 $html .= '<div style="page-break-before: always;"></div>';
             }
 
-			$html.='
+            $html.='
             <main>
                 <table style="width:100%;border-collapse: collapse;">
                     <thead>
@@ -302,19 +378,19 @@ class PdfGRNinfo extends CI_Model {
                         </tr>
                     </thead>
                     <tbody>';
-						foreach ($section as $row) {
-							$html .= '<tr style="page-break-inside: avoid;">
-								<td style="font-size: 12px;border: 1px thin solid;padding-left: 10px;">' . htmlspecialchars($row['itemcode']) . '</td>
-								<td style="width: 35%;text-align:left;font-size: 12px;border: 1px thin solid;padding-left: 10px;">' . htmlspecialchars($row['itemDescription']) . '</td>
-								<td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['ordered']) . '</td>
-								<td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['prev']) . '</td>
-								<td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['received']) . '</td>
-								<td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['unit']) . '</td>
-								<td style="text-align:right;font-size: 12px;border: 1px thin solid;padding-right: 5px;">' . htmlspecialchars($row['price']) . '</td>
-								<td style="text-align:right;font-size: 12px;border: 1px thin solid;padding-right: 5px;">' . number_format(htmlspecialchars($row['total']), 2) . '</td>
-							</tr>';
-						}
-					$html.='</tbody>';
+                        foreach ($section as $row) {
+                            $html .= '<tr style="page-break-inside: avoid;">
+                                <td style="font-size: 12px;border: 1px thin solid;padding-left: 10px;">' . htmlspecialchars($row['itemcode']) . '</td>
+                                <td style="width: 35%;text-align:left;font-size: 12px;border: 1px thin solid;padding-left: 10px;">' . htmlspecialchars($row['itemDescription']) . '</td>
+                                <td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['ordered']) . '</td>
+                                <td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['prev']) . '</td>
+                                <td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['received']) . '</td>
+                                <td style="text-align:center;font-size: 12px;border: 1px thin solid;">' . htmlspecialchars($row['unit']) . '</td>
+                                <td style="text-align:right;font-size: 12px;border: 1px thin solid;padding-right: 5px;">' . htmlspecialchars($row['price']) . '</td>
+                                <td style="text-align:right;font-size: 12px;border: 1px thin solid;padding-right: 5px;">' . number_format($row['total'], 2) . '</td>
+                            </tr>';
+                        }
+                    $html.='</tbody>';
 
                     // If this is the last chunk AND it has room to spare, attach the
                     // totals right here on the same page instead of forcing a new one.

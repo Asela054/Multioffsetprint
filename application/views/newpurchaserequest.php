@@ -71,12 +71,12 @@ include "include/topnavbar.php";
             								<div class="mt-1">
             									<div class="form-check form-check-inline">
             										<input class="form-check-input" type="radio" name="newexist_status"
-            											id="newexist_new" value="1" checked>
+            											id="newexist_new" value="1">
             										<label class="form-check-label small" for="newexist_new">New</label>
             									</div>
             									<div class="form-check form-check-inline">
             										<input class="form-check-input" type="radio" name="newexist_status"
-            											id="newexist_exist" value="0">
+            											id="newexist_exist" value="0" checked>
             										<label class="form-check-label small" for="newexist_exist">Exist</label>
             									</div>
             								</div>

@@ -36,7 +36,7 @@ include "include/topnavbar.php";
                                     <table class="table table-bordered table-striped table-sm nowrap" id="dataTable">
                                         <thead>
                                             <tr>
-                                                <th>P-Order Number</th>
+                                                <th>PO No</th>
                                                 <th>Date</th>
                                                 <th>Order Type</th>
                                                 <th>Supplier</th>
