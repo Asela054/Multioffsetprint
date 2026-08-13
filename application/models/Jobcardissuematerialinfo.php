@@ -547,7 +547,9 @@ class Jobcardissuematerialinfo extends CI_Model {
                 'updatedatetime' => $updatedatetime
             );
             
+            $this->db->where('idtbl_jobcard_issue_meterial', $issuematerialID);
             $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
+            $this->db->where('status', '1');
             $this->db->update('tbl_jobcard_issue_meterial', $dataissue);
     
             $this->db->trans_commit();
@@ -823,7 +825,7 @@ class Jobcardissuematerialinfo extends CI_Model {
         $this->db->where("{$table}.status", 1);
         $this->db->where('tbl_jobcard_issue_meterial.sectiontype', $secid);
         $this->db->group_by("{$table}.{$idCol}"); // critical fix, previous message eke explain kala
-            
+           
         return $this->db->get()->result();
     }
 
@@ -1268,12 +1270,15 @@ class Jobcardissuematerialinfo extends CI_Model {
         </div>';
         if($respond->row(0)->approvestatus==1){
             $html.='<div class="alert alert-success" role="alert">
-                <h4 class="alert-heading">Posted!</h4>
+                <h4 class="alert-heading">Approved!</h4>
                 <p>This issue note has been approved and transfer to accounting system.</p>
             </div>';
         }
 
-        echo $html;
+        $obj=new stdClass();
+        $obj->html=$html;
+        $obj->approvestatus=$respond->row(0)->approvestatus;
+        echo json_encode($obj);
     }
 
     public function Approveissuenote(){
@@ -1327,13 +1332,13 @@ class Jobcardissuematerialinfo extends CI_Model {
             // For every batch no, check GRN(s) exist; if a GRN exists, it must have a voucher import cost entry
             foreach ($batchNoList as $batchNo) {
 
-                $this->db->select('idtbl_print_grn');
+                $this->db->select('idtbl_print_grn, tbl_supplier_idtbl_supplier');
                 $this->db->from('tbl_print_grn');
                 $this->db->where('batchno', $batchNo);
                 $grnCheck = $this->db->get();
 
                 // No GRN for this batch at all - skip, nothing to validate
-                if ($grnCheck->num_rows() == 0) {
+                if ($grnCheck->num_rows() == 0 || $grnCheck->row(0)->tbl_supplier_idtbl_supplier == 64 || $grnCheck->row(0)->tbl_supplier_idtbl_supplier == 81) {
                     continue;
                 }
 
