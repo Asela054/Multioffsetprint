@@ -20,29 +20,18 @@ class PdfGRNinfo extends CI_Model {
             COALESCE(tbl_print_grndetail.comment, '') AS comment,
             tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info AS grn_material_id,
 
-            /* ORDERED QTY = the matching PO detail qty for this exact GRN line */
             (
                 SELECT COALESCE(pd.qty, 0)
                 FROM tbl_print_porder_detail pd
                 WHERE pd.status = 1
-                AND (
-                    pd.idtbl_print_porder_detail = tbl_print_grndetail.tbl_print_porder_detail_idtbl_print_porder_detail
-                    OR (
-                        tbl_print_grndetail.tbl_print_porder_detail_idtbl_print_porder_detail IS NULL
-                        AND pd.tbl_print_porder_idtbl_print_porder = tbl_print_grn.tbl_print_porder_idtbl_print_porder
-                        AND pd.tbl_material_id = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info
-                    )
-                )
-                ORDER BY (
-                    pd.idtbl_print_porder_detail = tbl_print_grndetail.tbl_print_porder_detail_idtbl_print_porder_detail
-                ) DESC,
-                ABS(pd.qty - tbl_print_grndetail.qty) ASC,
-                pd.idtbl_print_porder_detail ASC
+                AND pd.tbl_print_porder_idtbl_print_porder = tbl_print_grn.tbl_print_porder_idtbl_print_porder
+                AND pd.tbl_material_id = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info
+                ORDER BY
+                    ABS(pd.qty - tbl_print_grndetail.qty) ASC,
+                    pd.idtbl_print_porder_detail ASC
                 LIMIT 1
             ) AS ordered_qty,
 
-            /* PREVIOUS GRN QTY = SUM of qty already received for this material on this PO,
-            from GRNs entered before the current one */
             (
                 SELECT COALESCE(SUM(gd.qty), 0)
                 FROM tbl_print_grn g
