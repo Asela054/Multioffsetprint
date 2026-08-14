@@ -1044,8 +1044,8 @@ function TextInputRemove(rowdata){
 
             // returns complete status
             
-            var qty = parseFloat(rowdata.closest("tr").find('.qty').text()).toFixed(2);
-            var rowtotal = parseFloat(val).toFixed(2)*qty;
+            var qty = parseFloat(rowdata.closest("tr").find('.qty').text());
+            var rowtotal = parseFloat(val)*qty;
             rowdata.closest("tr").find('.total').text(addCommas(parseFloat(rowtotal).toFixed(2)));
             
             TotalCalculation('1');

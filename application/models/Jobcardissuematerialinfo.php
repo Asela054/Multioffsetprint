@@ -538,19 +538,19 @@ class Jobcardissuematerialinfo extends CI_Model {
                 );
         
                 $this->db->insert('tbl_issue_note_detail', $dataissuenotedetail);
-            }
 
-            // Update issue material status
-            $dataissue = array(
-                'status' => '2',
-                'updateuser' => $userID,
-                'updatedatetime' => $updatedatetime
-            );
-            
-            $this->db->where('idtbl_jobcard_issue_meterial', $issuematerialID);
-            $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
-            $this->db->where('status', '1');
-            $this->db->update('tbl_jobcard_issue_meterial', $dataissue);
+                // Update issue material status
+                $dataissue = array(
+                    'status' => '2',
+                    'updateuser' => $userID,
+                    'updatedatetime' => $updatedatetime
+                );
+                
+                $this->db->where('idtbl_jobcard_issue_meterial', $issuematerialID);
+                $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
+                $this->db->where('status', '1');
+                $this->db->update('tbl_jobcard_issue_meterial', $dataissue);
+            }            
     
             $this->db->trans_commit();
     

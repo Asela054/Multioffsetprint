@@ -412,6 +412,22 @@ class GRNVoucherinfo extends CI_Model{
             $this->db->where('idtbl_grn_vouchar_import_cost', $recordID);
             $this->db->update('tbl_grn_vouchar_import_cost', $data);
 
+            $datadetail=array(
+                'status'=> '3',
+                'updateuser'=> $userID,
+                'updatedatetime'=> $updatedatetime);
+    
+            $this->db->where('tbl_grn_vouchar_import_cost_idtbl_grn_vouchar_import_cost', $recordID);
+            $this->db->update('tbl_grn_vouchar_import_cost_detail', $datadetail);
+
+            $datadetailafter=array(
+                'status'=> '3',
+                'updateuser'=> $userID,
+                'updatedatetime'=> $updatedatetime);
+    
+            $this->db->where('tbl_print_grn_idtbl_print_grn', $respondgrn->row(0)->tbl_print_grn_idtbl_print_grn);
+            $this->db->update('tbl_print_grndetail_after_costing', $datadetailafter);
+
             //Good receive not voucher issue
             $dataupdategrn=array(
                 'voucherissue'=> '0',
@@ -424,7 +440,7 @@ class GRNVoucherinfo extends CI_Model{
             
             $this->db->trans_complete();
     
-            if ($this->db->trans_status()===TRUE) {echo 'AAA';
+            if ($this->db->trans_status()===TRUE) {
                 $this->db->trans_commit();
     
                 $actionObj=new stdClass();
@@ -715,6 +731,7 @@ class GRNVoucherinfo extends CI_Model{
                 // APPROVE PROCESS
                 $data = array(
                     'approvestatus' => $confirmnot,
+                    'approveby' => $userID,
                     'updateuser' => $userID,
                     'updatedatetime' => $updatedatetime
                 );
