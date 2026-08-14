@@ -74,7 +74,7 @@ $sql_details = array(
 require('ssp.customized.class.php' );
 $companyID = $_POST['company_id'];
 
-$joinQuery = "FROM `tbl_print_grn` AS `u` LEFT JOIN `tbl_supplier` AS `ua` ON (`ua`.`idtbl_supplier` = `u`.`tbl_supplier_idtbl_supplier`) LEFT JOIN `tbl_location` AS `ub` ON (`ub`.`idtbl_location` = `u`.`tbl_location_idtbl_location`) LEFT JOIN `tbl_material_group` AS `uc` ON (`uc`.`idtbl_material_group` = `u`.`tbl_material_group_idtbl_material_group`) LEFT JOIN `tbl_print_porder` AS `ud` ON (`ud`.`idtbl_print_porder` = `u`.`tbl_print_porder_idtbl_print_porder`) LEFT JOIN `tbl_user` AS `ue` ON (`ue`.`idtbl_user` = `u`.`check_by`)";
+$joinQuery = "FROM `tbl_print_grn` AS `u` LEFT JOIN `tbl_supplier` AS `ua` ON (`ua`.`idtbl_supplier` = `u`.`tbl_supplier_idtbl_supplier`) LEFT JOIN `tbl_location` AS `ub` ON (`ub`.`idtbl_location` = `u`.`tbl_location_idtbl_location`) LEFT JOIN `tbl_material_group` AS `uc` ON (`uc`.`idtbl_material_group` = `u`.`tbl_material_group_idtbl_material_group`) LEFT JOIN `tbl_print_porder` AS `ud` ON (`ud`.`idtbl_print_porder` = `u`.`tbl_print_porder_idtbl_print_porder`) LEFT JOIN `tbl_user` AS `ue` ON (`ue`.`idtbl_user` = `u`.`approve_by`)";
 
 $extraWhere = "`u`.`status` IN (1,2) AND `u`.`tbl_company_idtbl_company`='$companyID'";
 

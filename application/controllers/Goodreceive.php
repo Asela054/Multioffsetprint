@@ -166,4 +166,12 @@ class Goodreceive extends CI_Controller {
 		$this->load->model('Goodreceiveinfo');
         $result=$this->Goodreceiveinfo->Getporderdetails();
 	}
+	public function Geteditgrn(){
+		$this->load->model('Goodreceiveinfo');
+		$result=$this->Goodreceiveinfo->Geteditgrn();
+	}
+	public function Goodreceiveeditupdate(){
+		$this->load->model('Goodreceiveinfo');
+		$result=$this->Goodreceiveinfo->Goodreceiveeditupdate();
+	}
 }

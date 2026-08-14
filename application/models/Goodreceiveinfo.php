@@ -167,8 +167,7 @@
 					'insertdatetime'=> $updatedatetime,
 					'tbl_user_idtbl_user'=> $userID,
 					'tbl_print_grn_idtbl_print_grn'=> $grnID,
-					'tbl_print_material_info_idtbl_print_material_info'=> $materialID,
-					'tbl_print_porder_detail_idtbl_print_porder_detail'=> $porderdetailsid);
+					'tbl_print_material_info_idtbl_print_material_info'=> $materialID);
 
 				$this->db->insert('tbl_print_grndetail', $dataone);
 			}
@@ -488,7 +487,7 @@
 
 		$data = array(
 			'approvestatus' => $confirmnot,
-			'updateuser' => $userID,
+			'approve_by' => $userID,
 			'updatedatetime' => $updatedatetime
 		);
 		$this->db->where('idtbl_print_grn', $approveID);
@@ -1226,5 +1225,130 @@
 
 				echo json_encode($obj);
 			}
+	}
+
+	public function Geteditgrn() {
+		$recordID = $this->input->post('recordID');
+
+		$this->db->select('idtbl_print_grn, grn_no, grndate, batchno, invoicenum, vat_type, vat, discount, subtotal, vatamount, total, remark, tbl_supplier_idtbl_supplier, approvestatus');
+		$this->db->from('tbl_print_grn');
+		$this->db->where('idtbl_print_grn', $recordID);
+		$this->db->where('status', 1);
+		$header = $this->db->get()->row();
+
+		$suppliername = '';
+		if ($header) {
+			$this->db->select('suppliername');
+			$this->db->from('tbl_supplier');
+			$this->db->where('idtbl_supplier', $header->tbl_supplier_idtbl_supplier);
+			$sup = $this->db->get()->row();
+			$suppliername = $sup ? $sup->suppliername : '';
+		}
+
+		$this->db->select('tbl_print_grndetail.idtbl_print_grndetail, tbl_print_grndetail.qty, tbl_print_grndetail.pieces, tbl_print_grndetail.unitprice, tbl_print_grndetail.unit_discount, tbl_print_grndetail.total, tbl_print_grndetail.comment, tbl_print_material_info.materialname, tbl_print_material_info.materialinfocode, tbl_measurements.measure_type');
+		$this->db->from('tbl_print_grndetail');
+		$this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info', 'left');
+		$this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_grndetail.tbl_measurements_idtbl_mesurements', 'left');
+		$this->db->where('tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', $recordID);
+		$this->db->where('tbl_print_grndetail.status', 1);
+		$details = $this->db->get()->result();
+
+		$response = array(
+			'header'       => $header,
+			'suppliername' => $suppliername,
+			'details'      => $details
+		);
+
+		$this->output->set_content_type('application/json')->set_output(json_encode($response));
+	}
+
+	public function Goodreceiveeditupdate() {
+		$this->db->trans_begin();
+
+		$userID        = $_SESSION['userid'];
+		$updatedatetime = date('Y-m-d H:i:s');
+
+		$grnID     = $this->input->post('grnID');
+		$tableData = $this->input->post('tableData');
+		$discount  = floatval($this->input->post('discount'));
+		$vat       = floatval($this->input->post('vat'));
+		$vat_type  = $this->input->post('vat_type');
+
+		$sum = 0;
+
+		if (!empty($tableData)) {
+			foreach ($tableData as $row) {
+				$detailID      = $row['detailid'];
+				$unitprice     = floatval($row['unitprice']);
+				$qty           = floatval($row['qty']);
+				$pieces        = floatval($row['pieces']);
+				$unit_discount = floatval($row['discount']);
+
+				$finalQty = ($pieces != 0) ? $pieces : $qty;
+				$total    = ($unitprice * $finalQty) - $unit_discount;
+
+				$datadetail = array(
+					'unitprice'      => $unitprice,
+					'costunitprice'  => $unitprice,
+					'total'          => $total,
+					'updatedatetime' => $updatedatetime
+				);
+
+				$this->db->where('idtbl_print_grndetail', $detailID);
+				$this->db->update('tbl_print_grndetail', $datadetail);
+
+				$sum += $total;
+			}
+		}
+
+		$subTotal = $sum - $discount;
+
+		if ($vat_type == 2) {
+			$vatAmount = ($subTotal * $vat) / 100;
+			$finalTotal = $subTotal + $vatAmount;
+		} else {
+			$vatAmount  = 0;
+			$finalTotal = $subTotal;
+		}
+
+		$dataheader = array(
+			'subtotal'       => $subTotal,
+			'vatamount'      => $vatAmount,
+			'total'          => $finalTotal,
+			'subtotalcost'   => $subTotal,
+			'vatamountcost'  => $vatAmount,
+			'totalcost'      => $finalTotal,
+			'updatedatetime' => $updatedatetime,
+			'updateuser'     => $userID
+		);
+
+		$this->db->where('idtbl_print_grn', $grnID);
+		$this->db->update('tbl_print_grn', $dataheader);
+
+		if ($this->db->trans_status() === TRUE) {
+			$this->db->trans_commit();
+
+			$actionObj = new stdClass();
+			$actionObj->icon = 'fas fa-check';
+			$actionObj->title = '';
+			$actionObj->message = 'GRN Prices Updated Successfully';
+			$actionObj->url = '';
+			$actionObj->target = '_blank';
+			$actionObj->type = 'success';
+
+			echo json_encode(array('status' => 1, 'action' => json_encode($actionObj)));
+		} else {
+			$this->db->trans_rollback();
+
+			$actionObj = new stdClass();
+			$actionObj->icon = 'fas fa-warning';
+			$actionObj->title = '';
+			$actionObj->message = 'Record Error';
+			$actionObj->url = '';
+			$actionObj->target = '_blank';
+			$actionObj->type = 'danger';
+
+			echo json_encode(array('status' => 2, 'action' => json_encode($actionObj)));
+		}
 	}
 }

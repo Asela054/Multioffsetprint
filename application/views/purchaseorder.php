@@ -41,7 +41,7 @@ include "include/topnavbar.php";
                                                 <th>Order Type</th>
                                                 <th>Supplier</th>
                                                 <th>Confirm Status</th>
-                                                <th>Approve By</th>
+                                                <th>Approved By</th>
                                                 <th>GRN Issue Status</th>
                                                 <th>Total</th>
                                                 <th class="text-right">Actions</th>
@@ -689,7 +689,7 @@ $(document).ready(function() {
                     return data;
                 }
             },
-                        {
+            {
                 "data": "name"
             },
             {
