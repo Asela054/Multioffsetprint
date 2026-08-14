@@ -744,6 +744,13 @@ $(document).ready(function() {
         });
     });
 
+    syncProductListAttr(); // run once on load
+
+    $('input[name="newexist_status"]').on('change', function() {
+        syncProductListAttr();
+        $('#product').val('').focus();
+    });
+
 });
 
 $("#company_btn").click(function() {
@@ -764,6 +771,17 @@ function delete_confirm() {
 
 function check_confirm() {
     return confirm("Are you sure you want to check this?");
+}
+
+function syncProductListAttr() {
+    var val = $('input[name="newexist_status"]:checked').val();
+    if (val == '1') { // New
+        $('#materials').html('');
+        $('#product').removeAttr('list');
+        $('#stockqty').html('');
+    } else { // Exist
+        $('#product').attr('list', 'materials');
+    }
 }
 
 function addCommas(nStr) {

@@ -44,7 +44,7 @@ include "include/topnavbar.php";
                                                 <th>Total</th>
                                                 <th>Porder No</th>
                                                 <th>Approved Status</th>
-                                                <th>Check By</th>
+                                                <th>Approved By</th>
                                                 <th class="text-right">Actions</th>
                                             </tr>
                                         </thead>
@@ -411,6 +411,87 @@ include "include/topnavbar.php";
         </div>
     </div>
 </div>
+<div class="modal fade" id="editgrnmodal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="editgrnmodalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-edit mr-2"></i>Edit GRN Prices</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-2">
+                    <div class="col-3">
+                        <label class="small font-weight-bold text-dark">GRN No</label>
+                        <input type="text" class="form-control form-control-sm" id="editgrnno" readonly>
+                    </div>
+                    <div class="col-3">
+                        <label class="small font-weight-bold text-dark">GRN Date</label>
+                        <input type="text" class="form-control form-control-sm" id="editgrndate" readonly>
+                    </div>
+                    <div class="col-3">
+                        <label class="small font-weight-bold text-dark">Supplier</label>
+                        <input type="text" class="form-control form-control-sm" id="editsupplier" readonly>
+                    </div>
+                    <div class="col-3">
+                        <label class="small font-weight-bold text-dark">Invoice No</label>
+                        <input type="text" class="form-control form-control-sm" id="editinvoice" readonly>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-sm" id="tableeditgrn">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-center">Uom</th>
+                                <th class="text-right" width="150">Unit Price</th>
+                                <th class="text-right">Discount</th>
+                                <th class="text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-5 offset-7">
+                        <table class="table table-sm table-borderless mb-0">
+                            <tr>
+                                <td class="text-right font-weight-bold">Discount</td>
+                                <td class="text-right" id="editdiscountdisplay">0.00</td>
+                            </tr>
+                            <tr>
+                                <td class="text-right font-weight-bold">Sub Total</td>
+                                <td class="text-right" id="editsubtotaldisplay">0.00</td>
+                            </tr>
+                            <tr id="editvatrow">
+                                <td class="text-right font-weight-bold">Vat (<span id="editvatpercent">0</span>%)</td>
+                                <td class="text-right" id="editvatamountdisplay">0.00</td>
+                            </tr>
+                            <tr>
+                                <td class="text-right font-weight-bold"><strong>Total Payment</strong></td>
+                                <td class="text-right"><strong id="edittotalpaymentdisplay">0.00</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <input type="hidden" id="editgrnid">
+                <input type="hidden" id="editheaderdiscount">
+                <input type="hidden" id="editheadervat">
+                <input type="hidden" id="editheadervattype">
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnsaveeditgrn" class="btn btn-primary btn-sm"><i
+                        class="fas fa-save"></i>&nbsp;Update Prices</button>
+            </div>
+        </div>
+    </div>
+</div>
 <?php include "include/footerscripts.php"; ?>
 
 <script>
@@ -579,6 +660,9 @@ $(document).ready(function() {
                 "render": function(data, type, full) {
                     var button = '';
                     button+='<button class="btn btn-yellow btn-sm btnUpdatevattype mr-1" id="'+full['idtbl_print_grn']+'" data-toggle="tooltip" data-placement="bottom" title="Update VAT Type"><i class="fas fa-marker"></i></button>';
+                    if (editcheck == 1) {
+                        button += '<button data-toggle="tooltip" data-placement="bottom" title="Edit Prices" class="btn btn-primary btn-sm btnEditGRN mr-1" id="' + full['idtbl_print_grn'] + '"><i class="fas fa-edit"></i></button>';
+                    }
                     button += '<a href="<?php echo base_url() ?>Goodreceive/pdfgrnget/' +
                         full['idtbl_print_grn'] +
                         '" target="_blank" data-toggle="tooltip" data-placement="bottom" title="Print GRN" class="btn btn-secondary btn-sm mr-1 ';
@@ -819,6 +903,171 @@ $(document).ready(function() {
             }
         });
     });
+
+        $('#dataTable tbody').on('click', '.btnEditGRN', function () {
+            var id = $(this).attr('id');
+
+            $.ajax({
+                type: "POST",
+                data: { recordID: id },
+                url: '<?php echo base_url() ?>Goodreceive/Geteditgrn',
+                success: function (result) {
+                    var obj = result;        
+                    var header = obj.header;
+                    var details = obj.details;
+
+                    $('#editgrnid').val(header.idtbl_print_grn);
+                    $('#editgrnno').val(header.grn_no);
+                    $('#editgrndate').val(header.grndate);
+                    $('#editsupplier').val(obj.suppliername);
+                    $('#editinvoice').val(header.invoicenum);
+                    $('#editheaderdiscount').val(header.discount);
+                    $('#editheadervat').val(header.vat);
+                    $('#editheadervattype').val(header.vat_type);
+                    $('#editvatpercent').text(header.vat);
+
+                    var tbody = $('#tableeditgrn tbody');
+                    tbody.empty();
+
+                    $.each(details, function (i, item) {
+                        var productName = item.materialname
+                            ? (item.materialname + (item.materialinfocode ? ' / ' + item.materialinfocode : ''))
+                            : item.comment;
+                        var qtyDisplay = (item.pieces > 0) ? item.pieces : item.qty;
+                        var discount = parseFloat(item.unit_discount) || 0;
+                        var rowTotal = (parseFloat(item.unitprice) * parseFloat(qtyDisplay)) - discount;
+
+                        var row = '<tr>';
+                        row += '<td>' + productName + '</td>';
+                        row += '<td class="text-center">' + qtyDisplay + '</td>';
+                        row += '<td class="text-center">' + (item.measure_type ? item.measure_type : '') + '</td>';
+                        row += '<td class="text-right"><input type="text" class="form-control form-control-sm text-right edit-unitprice" ' +
+                            'data-detailid="' + item.idtbl_print_grndetail + '" data-qty="' + item.qty + '" data-pieces="' + item.pieces +
+                            '" data-discount="' + discount + '" value="' + parseFloat(item.unitprice).toFixed(2) + '"></td>';
+                        row += '<td class="text-right">' + discount.toFixed(2) + '</td>';
+                        row += '<td class="text-right row-total">' + rowTotal.toFixed(2) + '</td>';
+                        row += '</tr>';
+
+                        tbody.append(row);
+                    });
+
+                    calculateEditGRNTotals();
+                    $('#editgrnmodal').modal('show');
+                }
+            });
+        });
+
+        $(document).on('input', '.edit-unitprice', function () {
+            var row = $(this).closest('tr');
+            var unitprice = parseFloat($(this).val()) || 0;
+            var qty = parseFloat($(this).data('qty')) || 0;
+            var pieces = parseFloat($(this).data('pieces')) || 0;
+            var discount = parseFloat($(this).data('discount')) || 0;
+
+            var finalQty = pieces > 0 ? pieces : qty;
+            var total = (unitprice * finalQty) - discount;
+
+            row.find('.row-total').text(total.toFixed(2));
+            calculateEditGRNTotals();
+        });
+
+        function calculateEditGRNTotals() {
+            var sum = 0;
+            $('#tableeditgrn tbody .row-total').each(function () {
+                sum += parseFloat($(this).text()) || 0;
+            });
+
+            var headerDiscount = parseFloat($('#editheaderdiscount').val()) || 0;
+            var vat = parseFloat($('#editheadervat').val()) || 0;
+            var vatType = $('#editheadervattype').val();
+
+            var subTotal = sum - headerDiscount;
+            var vatAmount = 0;
+            var finalTotal = subTotal;
+
+            if (vatType == 2) {
+                vatAmount = (subTotal * vat) / 100;
+                finalTotal = subTotal + vatAmount;
+                $('#editvatrow').show();
+            } else {
+                vatAmount = 0;
+                finalTotal = subTotal;
+                $('#editvatrow').hide();
+            }
+
+            $('#editdiscountdisplay').text(addCommas(headerDiscount.toFixed(2)));
+            $('#editsubtotaldisplay').text(addCommas(subTotal.toFixed(2)));
+            $('#editvatamountdisplay').text(addCommas(vatAmount.toFixed(2)));
+            $('#edittotalpaymentdisplay').text(addCommas(finalTotal.toFixed(2)));
+        }
+
+        $('#btnsaveeditgrn').click(function () {
+            var jsonObj = [];
+            var valid = true;
+
+            $('#tableeditgrn tbody tr').each(function () {
+                var input = $(this).find('.edit-unitprice');
+                var unitprice = input.val();
+
+                if (unitprice === '' || isNaN(unitprice)) {
+                    valid = false;
+                }
+
+                jsonObj.push({
+                    detailid: input.data('detailid'),
+                    unitprice: unitprice,
+                    qty: input.data('qty'),
+                    pieces: input.data('pieces'),
+                    discount: input.data('discount')
+                });
+            });
+
+            if (!valid) {
+                Swal.fire({ icon: 'warning', title: 'Invalid Input', text: 'Please enter valid unit prices for all items.' });
+                return;
+            }
+
+            Swal.fire({
+                title: '',
+                html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                backdrop: "rgba(255, 255, 255, 0.5)",
+                customClass: { popup: "fullscreen-swal" },
+                didOpen: () => {
+                    document.body.style.overflow = "hidden";
+
+                    $.ajax({
+                        type: "POST",
+                        data: {
+                            grnID: $('#editgrnid').val(),
+                            tableData: jsonObj,
+                            discount: $('#editheaderdiscount').val(),
+                            vat: $('#editheadervat').val(),
+                            vat_type: $('#editheadervattype').val()
+                        },
+                        url: '<?php echo base_url() ?>Goodreceive/Goodreceiveeditupdate',
+                        success: function (result) {
+                            Swal.close();
+                            document.body.style.overflow = 'auto';
+                            var obj = JSON.parse(result);
+
+                            if (obj.status == 1) {
+                                $('#editgrnmodal').modal('hide');
+                                actionreload(obj.action);
+                            } else {
+                                action(obj.action);
+                            }
+                        },
+                        error: function () {
+                            Swal.close();
+                            document.body.style.overflow = 'auto';
+                            Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again later.' });
+                        }
+                    });
+                }
+            });
+        });
 
     $("#formsubmit").click(function() {
         if (!$("#createorderform")[0].checkValidity()) {

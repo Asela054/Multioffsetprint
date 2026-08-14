@@ -624,7 +624,7 @@
 		// if($type==1) {
 			$data=array(
 				'confirmstatus'=> $confirmnot,
-				'updateuser'=> $userID,
+				'approve_by'=> $userID,
 				'updatedatetime'=> $updatedatetime);
 
 			$this->db->where('idtbl_print_porder', $recordID);
