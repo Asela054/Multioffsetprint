@@ -183,7 +183,7 @@ include "include/topnavbar.php";
                                     <label class="small font-weight-bold text-dark">Qty*</label>
                                     <label class="small font-weight-bold text-danger" id="qtylabel"></label>
                                     <input type="text" id="newqty" name="newqty" class="form-control form-control-sm"
-                                        <?php if($editcheck==0){echo 'readonly';} ?> required >
+                                        required >
                                 </div>
                                 <div class="col">
             						<label class="small font-weight-bold text-dark">Pieces (Sheets)</label>
@@ -197,13 +197,13 @@ include "include/topnavbar.php";
                                     <label class="small font-weight-bold text-dark">Unit Price</label>
                                     <input type="text" id="unitprice" name="unitprice"
                                         class="form-control form-control-sm"
-                                        <?php if($editcheck==0){echo 'readonly';} ?> value="0">
+                                        value="0">
                                 </div>
                                 <div class="col">
                                     <label class="small font-weight-bold text-dark">Discount</label>
                                     <input type="text" id="unitdiscount" name="unitdiscount"
                                         class="form-control form-control-sm"
-                                        <?php if($editcheck==0){echo 'readonly';} ?> value="0">
+                                        value="0">
                                 </div>
                             </div>
 
@@ -213,7 +213,7 @@ include "include/topnavbar.php";
                             <div class="form-group mb-1">
                                 <label class="small font-weight-bold text-dark">Comment</label>
                                 <textarea name="comment" id="comment" class="form-control form-control-sm"
-                                    <?php if($editcheck==0){echo 'readonly';} ?>></textarea>
+                                   ></textarea>
                             </div>
                             <div class="form-group mb-1">
                                 <label class="small font-weight-bold text-dark">Batch No</label>
@@ -226,7 +226,7 @@ include "include/topnavbar.php";
                                 <select class="form-control form-control-sm" name="vat_type" id="vat_type" required>
                                     <option value="">Select Vat Type</option>
                                     <option value="1">VAT Seperated</option>
-                                    <option value="2" selected>NON VAT</option>
+                                    <option value="2" selected>Non VAT</option>
                                 </select>
                                 </div>
                                 <div class="col">
@@ -397,7 +397,7 @@ include "include/topnavbar.php";
                                 <select class="form-control form-control-sm" name="vattype" id="vattype" required>
                                     <option value="">Select Vat Type</option>
                                     <option value="1">VAT</option>
-                                    <option value="2">NON VAT</option>
+                                    <option value="2">Non VAT</option>
                                 </select>
                             </div>
                             <div class="form-group mt-2 text-right">
@@ -676,7 +676,11 @@ $(document).ready(function() {
                             'id="' + full['idtbl_print_grn'] + '">' +
                             '<i class="fas fa-edit"></i>' +
                             '</button>';
-                        button += '<a href="<?php echo base_url() ?>Goodreceive/pdfgrnget/' +
+
+                        button += '</div>';
+                    }
+
+                            button += '<a href="<?php echo base_url() ?>Goodreceive/pdfgrnget/' +
                             full['idtbl_print_grn'] +
                             '" target="_blank" ' +
                             'data-toggle="tooltip" data-placement="bottom" ' +
@@ -684,9 +688,6 @@ $(document).ready(function() {
                             'class="btn btn-secondary btn-sm mr-1">' +
                             '<i class="fas fa-file-pdf mr-2"></i>' +
                             '</a>';
-
-                        button += '</div>';
-                    }
 
                     button += '<button data-toggle="tooltip" data-placement="bottom" ' +
                         'title="View GRN" ' +
