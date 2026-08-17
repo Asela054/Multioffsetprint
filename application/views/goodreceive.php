@@ -225,8 +225,8 @@ include "include/topnavbar.php";
                                 <label class="small font-weight-bold text-dark">Vat Type*</label>
                                 <select class="form-control form-control-sm" name="vat_type" id="vat_type" required>
                                     <option value="">Select Vat Type</option>
-                                    <option value="1">Inclusive</option>
-                                    <option value="2" selected>Exclusive</option>
+                                    <option value="1">VAT Seperated</option>
+                                    <option value="2" selected>VAT Included</option>
                                 </select>
                                 </div>
                                 <div class="col">
@@ -396,8 +396,8 @@ include "include/topnavbar.php";
                                 <label class="small font-weight-bold text-dark">Vat Type*</label>
                                 <select class="form-control form-control-sm" name="vattype" id="vattype" required>
                                     <option value="">Select Vat Type</option>
-                                    <option value="1">Inclusive</option>
-                                    <option value="2">Exclusive</option>
+                                    <option value="1">VAT Separated</option>
+                                    <option value="2">VAT Included</option>
                                 </select>
                             </div>
                             <div class="form-group mt-2 text-right">
@@ -689,26 +689,21 @@ $(document).ready(function() {
     $('#dataTable tbody').on('click', '.btnUpdatevattype', function () {
         var id = $(this).attr('id');
         $("#hiddengrnid").val(id);
-    	$.ajax({
-    		type: "POST",
-    		data: {
-    			recordID: id
-    		},
-    		url: 'Goodreceive/Getvattype',
-    		success: function (result) {
+        $.ajax({
+            type: "POST",
+            data: {
+                recordID: id
+            },
+            url: 'Goodreceive/Getvattype',
+            success: function (result) {
                 $('#updatevattypemodal').modal('show');
-                $('#vattype').empty();
 
                 if (result) {
                     var data = JSON.parse(result);
-
-                    $('#vattype').append('<option value="1">Inclusive</option>');
-                    $('#vattype').append('<option value="2">Exclusive</option>');
-
                     $('#vattype').val(data.vat_type);
                 }
             }
-    	});
+        });
     });
     $('#submitBtnVatType').click(function () {
         Swal.fire({
@@ -985,7 +980,7 @@ $(document).ready(function() {
             var vatAmount = 0;
             var finalTotal = subTotal;
 
-            if (vatType == 2) {
+            if (vatType == 1) {
                 vatAmount = (subTotal * vat) / 100;
                 finalTotal = subTotal + vatAmount;
                 $('#editvatrow').show();

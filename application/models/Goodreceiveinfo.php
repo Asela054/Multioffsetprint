@@ -743,14 +743,6 @@
 		if ($response->num_rows() > 0) {
 			$row = $response->row();
 
-			if ($row->vat_type == 1) {
-				$vat_name = 'Inclusive';
-			} elseif ($row->vat_type == 2) {
-				$vat_name = 'Exclusive';
-			} else {
-				$vat_name = 'Unknown';
-			}
-
 			echo json_encode([
 				'id' => $row->idtbl_print_grn,
 				'vat_type' => $row->vat_type
