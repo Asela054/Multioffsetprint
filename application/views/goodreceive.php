@@ -988,6 +988,7 @@ $(document).ready(function() {
 
         function calculateEditGRNTotals() {
             var sum = 0;
+
             $('#tableeditgrn tbody .row-total').each(function () {
                 sum += parseFloat($(this).text()) || 0;
             });
@@ -1000,7 +1001,9 @@ $(document).ready(function() {
             var vatAmount = 0;
             var finalTotal = subTotal;
 
-            if (vatType == 1) {
+            var companyId = <?php echo (int)$_SESSION['company_id']; ?>;
+
+            if (companyId != 3 && vatType == 1) {
                 vatAmount = (subTotal * vat) / 100;
                 finalTotal = subTotal + vatAmount;
                 $('#editvatrow').show();
