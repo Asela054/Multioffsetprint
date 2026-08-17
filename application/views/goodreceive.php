@@ -226,7 +226,7 @@ include "include/topnavbar.php";
                                 <select class="form-control form-control-sm" name="vat_type" id="vat_type" required>
                                     <option value="">Select Vat Type</option>
                                     <option value="1">VAT Seperated</option>
-                                    <option value="2" selected>VAT Included</option>
+                                    <option value="2" selected>NON VAT</option>
                                 </select>
                                 </div>
                                 <div class="col">
@@ -396,8 +396,8 @@ include "include/topnavbar.php";
                                 <label class="small font-weight-bold text-dark">Vat Type*</label>
                                 <select class="form-control form-control-sm" name="vattype" id="vattype" required>
                                     <option value="">Select Vat Type</option>
-                                    <option value="1">VAT Separated</option>
-                                    <option value="2">VAT Included</option>
+                                    <option value="1">VAT</option>
+                                    <option value="2">NON VAT</option>
                                 </select>
                             </div>
                             <div class="form-group mt-2 text-right">
@@ -658,25 +658,45 @@ $(document).ready(function() {
                 "className": 'text-right',
                 "data": null,
                 "render": function(data, type, full) {
+
                     var button = '';
-                    button+='<button class="btn btn-yellow btn-sm btnUpdatevattype mr-1" id="'+full['idtbl_print_grn']+'" data-toggle="tooltip" data-placement="bottom" title="Update VAT Type"><i class="fas fa-marker"></i></button>';
+
                     if (editcheck == 1) {
-                        button += '<button data-toggle="tooltip" data-placement="bottom" title="Edit Prices" class="btn btn-primary btn-sm btnEditGRN mr-1" id="' + full['idtbl_print_grn'] + '"><i class="fas fa-edit"></i></button>';
-                    }
-                    button += '<a href="<?php echo base_url() ?>Goodreceive/pdfgrnget/' +
-                        full['idtbl_print_grn'] +
-                        '" target="_blank" data-toggle="tooltip" data-placement="bottom" title="Print GRN" class="btn btn-secondary btn-sm mr-1 ';
-                    if (editcheck != 1) {
-                        button += 'd-none';
-                    }
-                    button += '"><i class="fas fa-file-pdf mr-2"></i></a>';
 
+                        button += '<div class="btn-group" role="group">';
+                        button += '<button class="btn btn-yellow btn-sm btnUpdatevattype mr-1" ' +
+                            'id="' + full['idtbl_print_grn'] + '" ' +
+                            'data-toggle="tooltip" data-placement="bottom" ' +
+                            'title="Update VAT Type">' +
+                            '<i class="fas fa-marker"></i>' +
+                            '</button>';
+                        button += '<button data-toggle="tooltip" data-placement="bottom" ' +
+                            'title="Edit Prices" ' +
+                            'class="btn btn-primary btn-sm btnEditGRN mr-1" ' +
+                            'id="' + full['idtbl_print_grn'] + '">' +
+                            '<i class="fas fa-edit"></i>' +
+                            '</button>';
+                        button += '<a href="<?php echo base_url() ?>Goodreceive/pdfgrnget/' +
+                            full['idtbl_print_grn'] +
+                            '" target="_blank" ' +
+                            'data-toggle="tooltip" data-placement="bottom" ' +
+                            'title="Print GRN" ' +
+                            'class="btn btn-secondary btn-sm mr-1">' +
+                            '<i class="fas fa-file-pdf mr-2"></i>' +
+                            '</a>';
 
-                    button += '<button data-toggle="tooltip" data-placement="bottom" title="View GRN" class="btn btn-dark btn-sm btnview mr-1" id="' + full[
-                        'idtbl_print_grn'] + '" aproval_id="' + full[
-                            'approvestatus'] + '" check_status="' + full[
-                            'check_by'] + '" grn_no="' + full[
-                            'grn_no'] + '"><i class="fas fa-eye"></i></button>';
+                        button += '</div>';
+                    }
+
+                    button += '<button data-toggle="tooltip" data-placement="bottom" ' +
+                        'title="View GRN" ' +
+                        'class="btn btn-dark btn-sm btnview mr-1" ' +
+                        'id="' + full['idtbl_print_grn'] + '" ' +
+                        'aproval_id="' + full['approvestatus'] + '" ' +
+                        'check_status="' + full['check_by'] + '" ' +
+                        'grn_no="' + full['grn_no'] + '">' +
+                        '<i class="fas fa-eye"></i>' +
+                        '</button>';
 
                     return button;
                 }
@@ -938,7 +958,7 @@ $(document).ready(function() {
                         row += '<td class="text-center">' + (item.measure_type ? item.measure_type : '') + '</td>';
                         row += '<td class="text-right"><input type="text" class="form-control form-control-sm text-right edit-unitprice" ' +
                             'data-detailid="' + item.idtbl_print_grndetail + '" data-qty="' + item.qty + '" data-pieces="' + item.pieces +
-                            '" data-discount="' + discount + '" value="' + parseFloat(item.unitprice).toFixed(2) + '"></td>';
+                            '" data-discount="' + discount + '" value="' + parseFloat(item.unitprice) + '"></td>';
                         row += '<td class="text-right">' + discount.toFixed(2) + '</td>';
                         row += '<td class="text-right row-total">' + rowTotal.toFixed(2) + '</td>';
                         row += '</tr>';

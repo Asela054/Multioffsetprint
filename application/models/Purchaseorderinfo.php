@@ -453,7 +453,7 @@
 				LEFT JOIN `tbl_supplier` AS `ua` ON (`ua`.`idtbl_supplier` = `u`.`tbl_supplier_idtbl_supplier`)
 				LEFT JOIN `tbl_company_branch` AS `ub` ON (`ub`.`idtbl_company_branch` = `u`.`tbl_company_branch_idtbl_company_branch`)
 				LEFT JOIN `tbl_company` AS `uc` ON (`uc`.`idtbl_company` = `u`.`tbl_company_idtbl_company`)
-				LEFT JOIN `tbl_user` AS `ud` ON (`ud`.`idtbl_user` = `u`.`updateuser`)
+				LEFT JOIN `tbl_user` AS `ud` ON (`ud`.`idtbl_user` = `u`.`check_by`)
 				WHERE `u`.`status`=? AND `u`.`idtbl_print_porder`=?";
 
 		$respond = $this->db->query($sql, array(1, $recordID));
