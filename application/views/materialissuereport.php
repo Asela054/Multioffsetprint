@@ -69,22 +69,26 @@
 										id="dataTable">
 										<thead class="thead-light">
 											<tr>
+												<th class="d-none">Hidden ID</th>
+												<th>Issue No</th>
+												<th>Issue Date</th>
+												<th>Job Card No</th>
 												<th>Customer</th>
-												<th>Date</th>
+												<th>Job Date</th>
 												<th>Job No</th>
 												<th>Job Description</th>
 												<th>Section</th>
+												<th>Item Code</th>
 												<th>Material</th>
 												<th>Batch No</th>
-												<th>Req Qty</th>
 												<th>Issue Qty</th>
+												<th>UOM</th>
 												<th>Unit Price</th>
 												<th>Total</th>
 											</tr>
 										</thead>
 										<tbody>
 										</tbody>
-									
 									</table>
 								</div>
 							</div>
@@ -105,103 +109,111 @@
 		$("#searchmaterialissuereport").submit(function (event) {
 			event.preventDefault();
 
-			var table = $('#dataTable').DataTable({
-				"destroy": true,
-				"processing": true,
-				"serverSide": true,
-				ajax: {
-					url: "<?php echo base_url() ?>scripts/materialissuereportlistreport.php",
-					type: "POST",
-					"data": function (d) {
-						return $.extend({}, d, {
-							"search_from_date": $("#date_from").val(),
-							"search_to_date": $("#date_to").val(),
-							"job": $("#job").val(),
-							"customer": $("#customer").val(),
-							"company_id": '<?php echo $_SESSION['company_id']; ?>',
-						});
+		var table = $('#dataTable').DataTable({
+			"destroy": true,
+			"processing": true,
+			"serverSide": true,
+			ajax: {
+				url: "<?php echo base_url() ?>scripts/materialissuereportlistreport.php",
+				type: "POST",
+				"data": function (d) {
+					return $.extend({}, d, {
+						"search_from_date": $("#date_from").val(),
+						"search_to_date": $("#date_to").val(),
+						"job": $("#job").val(),
+						"customer": $("#customer").val(),
+						"company_id": '<?php echo $_SESSION['company_id']; ?>',
+					});
+				}
+			},
+			"order": [
+				[1, "desc"]
+			],
+			"columns": [
+				{
+					"data": "idtbl_jobcard_issue_meterial",
+					"visible": false
+				},
+				{ "data": "issuenoteno" },
+				{ "data": "issuedate" },
+				{ "data": "jobcardno" },
+				{ "data": "customer" },
+				{ "data": "jobdate" },
+				{ "data": "jobno" },
+				{ "data": "job_description" },
+				{ "data": "sectiontype" },
+				{ "data": "materialinfocode" },
+				{ "data": "materialname" },
+				{ "data": "batchno" },
+				{ "data": "issueqty" },
+				{ "data": "uom" },
+				{ "data": "unitprice" },
+				{ "data": "total" }
+			],
+			dom: "<'row'<'col-sm-4'B><'col-sm-3'l><'col-sm-5'f>>" + "<'row'<'col-sm-12'tr>>" +
+				"<'row'<'col-sm-5'i><'col-sm-7'p>>",
+			responsive: true,
+			lengthMenu: [
+				[10, 25, 50, -1],
+				[10, 25, 50, 'All'],
+			],
+			buttons: [{
+					extend: 'pdf',
+					className: 'btn btn-primary btn-sm',
+					text: '<i class="fas fa-file-pdf mr-2"></i> PDF',
+					title: 'Job Material Issue Report',
+					filename: 'Job Material Issue Report',
+					footer: true,
+					messageTop: {
+						text: 'Job Material Issue Report',
+						fontSize: 15,
+						bold: true,
+						alignment: 'center'
+					},
+					customize: function (doc) {
+						doc.styles.title = {
+							color: 'black',
+							fontSize: '30',
+							alignment: 'center',
+						}
 					}
 				},
-				"order": [
-					[1, "desc"]
-				],
-				"columns": [
-					{ "data": "customer" },
-					{ "data": "issuedate" },
-					{ "data": "jobcardno" },
-					{ "data": "job_description" },
-					{ "data": "sectiontype" },
-					{ "data": "materialname" },
-					{ "data": "batchno" },
-					{ "data": "reqissueqty" },
-					{ "data": "issueqty" },
-					{ "data": "unitprice" },
-					{ "data": "total" }
-				],
-				dom: "<'row'<'col-sm-4'B><'col-sm-3'l><'col-sm-5'f>>" + "<'row'<'col-sm-12'tr>>" +
-					"<'row'<'col-sm-5'i><'col-sm-7'p>>",
-				responsive: true,
-				lengthMenu: [
-					[10, 25, 50, -1],
-					[10, 25, 50, 'All'],
-				],
-				buttons: [{
-						extend: 'pdf',
-						className: 'btn btn-primary btn-sm',
-						text: '<i class="fas fa-file-pdf mr-2"></i> PDF',
-						title: 'Job Material Issue Report',
-						filename: 'Job Material Issue Report',
-						footer: true,
-						messageTop: {
-							text: 'Job Material Issue Report',
-							fontSize: 15,
-							bold: true,
-							alignment: 'center'
-						},
-						customize: function (doc) {
-							doc.styles.title = {
-								color: 'black',
-								fontSize: '30',
-								alignment: 'center',
-							}
-						}
-					},
-					{
-						extend: 'excel',
-						className: 'btn btn-success btn-sm',
-						filename: 'Job Material Issue Report',
-						text: '<i class="fas fa-file-excel mr-2"></i> EXCEL',
-						footer: true,
-						title: 'Job Material Issue Report'
-					},
-					{
-						extend: 'csv',
-						className: 'btn btn-info btn-sm',
-						filename: 'Job Material Issue Report',
-						text: '<i class="fas fa-file-csv mr-2"></i> CSV',
-						footer: true
-					},
-					{
-						extend: 'print',
-						className: 'btn btn-warning btn-sm',
-						text: '<i class="fas fa-print mr-2"></i> PRINT',
-						title: 'Job Material Issue Report',
-						filename: 'Job Material Issue Report',
-						footer: true,
-						messageTop: 'Job Material Issue Report',
-						customize: function (doc) {
-							doc.styles.title = {
-								color: 'black',
-								fontSize: '30',
-								alignment: 'center',
-							}
+				{
+					extend: 'excel',
+					className: 'btn btn-success btn-sm',
+					filename: 'Job Material Issue Report',
+					text: '<i class="fas fa-file-excel mr-2"></i> EXCEL',
+					footer: true,
+					title: 'Job Material Issue Report'
+				},
+				{
+					extend: 'csv',
+					className: 'btn btn-info btn-sm',
+					filename: 'Job Material Issue Report',
+					text: '<i class="fas fa-file-csv mr-2"></i> CSV',
+					footer: true
+				},
+				{
+					extend: 'print',
+					className: 'btn btn-warning btn-sm',
+					text: '<i class="fas fa-print mr-2"></i> PRINT',
+					title: 'Job Material Issue Report',
+					filename: 'Job Material Issue Report',
+					footer: true,
+					messageTop: 'Job Material Issue Report',
+					customize: function (doc) {
+						doc.styles.title = {
+							color: 'black',
+							fontSize: '30',
+							alignment: 'center',
 						}
 					}
-				],
-				drawCallback: function (settings) {
-					$('[data-toggle="tooltip"]').tooltip();
 				}
-			});
+			],
+			drawCallback: function (settings) {
+				$('[data-toggle="tooltip"]').tooltip();
+			}
+		});
 		});
 	});
 </script>

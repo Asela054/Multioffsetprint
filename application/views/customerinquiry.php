@@ -522,7 +522,9 @@ $(document).ready(function() {
                 "data": null,
                 "render": function(data, type, full) {
                     var button = '';
+                    if (statuscheck == 1) {
                     button+='<button class="btn btn-yellow btn-sm btnAddremarks mr-1" id="'+full['idtbl_customerinquiry']+'" data-toggle="tooltip" data-placement="bottom" title="Manual Finish"><i class="fas fa-marker"></i></button>';
+                    }
                     button += '<button class="btn btn-primary btn-sm btnJobCard mr-1" id="' + full['idtbl_customerinquiry'] + '" data-toggle="tooltip" title="Job Card"><i class="fas fa-file"></i></button>';
                     if(full['approvestatus']==0){
                         button += '<button class="btn btn-dark btn-sm btnView mr-1" id="' + full['idtbl_customerinquiry'] + '" data-approvestatus="'+full['approvestatus']+'" data-toggle="tooltip" title="View & Approve"><i class="fas fa-eye"></i></button>';
