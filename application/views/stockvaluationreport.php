@@ -322,11 +322,6 @@ $(document).ready(function(){
 				{
 					data:'unit_price',
 					className:'text-right',
-					render:function(data){
-
-						return Number(data).toLocaleString();
-
-					}
 				},
 
 				{
