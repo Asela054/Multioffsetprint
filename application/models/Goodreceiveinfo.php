@@ -1295,7 +1295,7 @@
 
 		$subTotal = $sum - $discount;
 
-		if ($vat_type == 2) {
+		if ($vat_type == 1) {
 			$vatAmount = ($subTotal * $vat) / 100;
 			$finalTotal = $subTotal + $vatAmount;
 		} else {
