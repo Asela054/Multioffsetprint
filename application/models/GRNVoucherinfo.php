@@ -843,6 +843,11 @@ class GRNVoucherinfo extends CI_Model{
                     throw new Exception($errorMsg);
                 }   
             } else {
+                $this->db->select('tbl_print_grn_idtbl_print_grn');
+                $this->db->form('tbl_grn_vouchar_import_cost');
+                $this->db->where('idtbl_grn_vouchar_import_cost', $recordID);
+                $respond = $this->db->get();
+
                 // REJECT PROCESS
                 $data = array(
                     'approvestatus' => $confirmnot,
@@ -852,6 +857,26 @@ class GRNVoucherinfo extends CI_Model{
     
                 $this->db->where('idtbl_grn_vouchar_import_cost', $recordID);
                 $this->db->update('tbl_grn_vouchar_import_cost', $data);
+
+                //Update detail table
+                $data = array(
+                    'status' => '2',
+                    'updateuser' => $userID,
+                    'updatedatetime' => $updatedatetime
+                );
+    
+                $this->db->where('tbl_grn_vouchar_import_cost_idtbl_grn_vouchar_import_cost', $recordID);
+                $this->db->update('tbl_grn_vouchar_import_cost_detail', $data);
+
+                //Update detail table
+                $data = array(
+                    'status' => '2',
+                    'updateuser' => $userID,
+                    'updatedatetime' => $updatedatetime
+                );
+    
+                $this->db->where('tbl_print_grn_idtbl_print_grn', $respond->row(0)->tbl_print_grn_idtbl_print_grn);
+                $this->db->update('tbl_print_grndetail_after_costing', $data);
 
                 //Good receive not voucher issue
                 $this->db->select('`tbl_print_grn_idtbl_print_grn`');
