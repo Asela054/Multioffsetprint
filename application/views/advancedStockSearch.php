@@ -145,13 +145,6 @@ $(document).ready(function() {
             {
                 data: "unitprice",
                 className: "text-right",
-                render: function (data, type, row) {
-                    let value = parseFloat(data) || 0;
-                    return value.toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    });
-                }
             },
             {
                 data: null,

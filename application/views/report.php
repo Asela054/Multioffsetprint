@@ -173,7 +173,7 @@ function generateTable(type, items) {
                 <td>${item.wh_name}</td>
                 <td class="text-center">${qty}</td>
                 <td>${item.measure_type}</td>
-                <td class="text-right">${unitprice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td class="text-right">${unitprice}</td>
                 <td>${item.group}</td>
                 <td class="text-right">${calculatedTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             </tr>
