@@ -187,7 +187,7 @@ class Apiinfo extends CI_Model{
                 }
 
                 foreach($respondmaterialaccount->result() as $rowstockaccounts){
-                    if($rowstockaccounts->specialcate==37){
+                    if($rowstockaccounts->specialcate==37 && $materiltotalvalue > 0){
                         $obj = new stdClass();
                         $obj->amount = str_replace(",", "", $materiltotalvalue);
                         $obj->narration = 'Material Costing for GRN No: ' . $grnno;
@@ -197,7 +197,7 @@ class Apiinfo extends CI_Model{
                         $segregationdata[] = $obj;
                     }
 
-                    if($rowstockaccounts->specialcate==38){
+                    if($rowstockaccounts->specialcate==38 && $sundrysparetotalvalue > 0){
                         $obj = new stdClass();
                         $obj->amount = str_replace(",", "", $sundrysparetotalvalue);
                         $obj->narration = 'Sundry Spare Costing for GRN No: ' . $grnno;
