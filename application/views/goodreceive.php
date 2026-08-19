@@ -946,9 +946,15 @@ $(document).ready(function() {
                     tbody.empty();
 
                     $.each(details, function (i, item) {
-                        var productName = item.materialname
-                            ? (item.materialname + (item.materialinfocode ? ' / ' + item.materialinfocode : ''))
-                            : item.comment;
+                        var productName;
+                        if (header.tbl_material_group_idtbl_material_group == 4) {
+                            productName = item.comment;
+                        } else {
+                            productName = item.materialname
+                                ? (item.materialname + (item.materialinfocode ? ' / ' + item.materialinfocode : ''))
+                                : item.comment;
+                        }
+
                         var qtyDisplay = (item.pieces > 0) ? item.pieces : item.qty;
                         var discount = parseFloat(item.unit_discount) || 0;
                         var rowTotal = (parseFloat(item.unitprice) * parseFloat(qtyDisplay)) - discount;

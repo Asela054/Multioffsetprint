@@ -1222,7 +1222,7 @@
 	public function Geteditgrn() {
 		$recordID = $this->input->post('recordID');
 
-		$this->db->select('idtbl_print_grn, grn_no, grndate, batchno, invoicenum, vat_type, vat, discount, subtotal, vatamount, total, remark, tbl_supplier_idtbl_supplier, approvestatus');
+		$this->db->select('idtbl_print_grn, grn_no, grndate, batchno, invoicenum, vat_type, vat, discount, subtotal, vatamount, total, remark, tbl_supplier_idtbl_supplier, tbl_material_group_idtbl_material_group, approvestatus');
 		$this->db->from('tbl_print_grn');
 		$this->db->where('idtbl_print_grn', $recordID);
 		$this->db->where('status', 1);
