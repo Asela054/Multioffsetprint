@@ -198,11 +198,11 @@ class PdfGRNinfo extends CI_Model {
 
                 /** Define the footer rules **/
                 footer {
-                    position: fixed; 
-                    bottom: 0px; 
-                    left: 0px; 
+                    position: fixed;
+                    bottom: 0px;
+                    left: 0px;
                     right: 0px;
-                    height: 128px;
+                    height: 75px;
                 }
             </style>
         </head>
@@ -269,32 +269,71 @@ class PdfGRNinfo extends CI_Model {
             </table>
         </header>
         <footer>
-            <table width="100%" style="border-collapse: collapse;">
+            <table width="100%" style="border-collapse: collapse; table-layout: fixed;">
                 <tr>
-                    <td style="vertical-align: top;font-size: 12px;border: 1px thin solid;padding-left: 5px;" rowspan="2">Received by</td>
-                    <td style="vertical-align: top;font-size: 12px;border: 1px thin solid;padding-left: 5px;" rowspan="2">Approved by</td>
-                    <td style="vertical-align: top;font-size: 12px;border: 1px thin solid;width: 15%;padding-left: 5px;">Voucher No</td>
-                    <td style="vertical-align: top;font-size: 12px;border: 1px thin solid;"></td>
-                    <th style="vertical-align: top;font-size: 12px;border: 1px thin solid;padding-left: 5px;text-align: center;" colspan="2"><i>Accounts Department</i></th>
-                </tr>
-                <tr>
-                    <td style="vertical-align: top;font-size: 12px;border: 1px thin solid;padding-left: 5px;">Date</td>
-                    <td style="vertical-align: top;font-size: 12px;border: 1px thin solid;"></td>
-                    <td style="vertical-align: top;font-size: 12px;border: 1px thin solid;width: 15%;padding-left: 5px;">Prepared By </td>
-                    <td style="vertical-align: top;font-size: 12px;border: 1px thin solid;"></td>
-                </tr>
-                <tr>
-                    <td style="vertical-align: top;font-size: 12px;border: 1px thin solid;padding-left: 5px;" rowspan="3" colspan="2">Remarks</td>
-                    <td style="vertical-align: top;font-size: 12px;border: 1px thin solid;padding-left: 5px;" rowspan="3" colspan="2">Contact Person</td>
-                    <td style="vertical-align: top;font-size: 12px;border: 1px thin solid;padding-left: 5px;">Checked By</td>
-                    <td style="vertical-align: top;font-size: 12px;border: 1px thin solid;"></td>
-                </tr>
-                <tr>
-                    <td style="vertical-align: bottom;font-size: 12px;border: 1px thin solid;text-align: center;padding-top: 12px;" rowspan="2" colspan="2">
-                        ...................................<br>Accountant
+                    <td style="
+                        width: 33.33%;
+                        text-align: center;
+                        vertical-align: bottom;
+                        padding: 0 20px;
+                    ">
+                        <div style="
+                            border-top: 1px dotted #000;
+                            width: 75%;
+                            margin: 0 auto 8px auto;
+                            height: 1px;
+                        "></div>
+
+                        <div style="
+                            font-size: 12px;
+                            text-align: center;
+                        ">
+                            Received by
+                        </div>
+                    </td>
+
+                    <td style="
+                        width: 33.33%;
+                        text-align: center;
+                        vertical-align: bottom;
+                        padding: 0 20px;
+                    ">
+                        <div style="
+                            border-top: 1px dotted #000;
+                            width: 75%;
+                            margin: 0 auto 8px auto;
+                            height: 1px;
+                        "></div>
+
+                        <div style="
+                            font-size: 12px;
+                            text-align: center;
+                        ">
+                            Approved by
+                        </div>
+                    </td>
+
+                    <td style="
+                        width: 33.33%;
+                        text-align: center;
+                        vertical-align: bottom;
+                        padding: 0 20px;
+                    ">
+                        <div style="
+                            border-top: 1px dotted #000;
+                            width: 75%;
+                            margin: 0 auto 8px auto;
+                            height: 1px;
+                        "></div>
+
+                        <div style="
+                            font-size: 12px;
+                            text-align: center;
+                        ">
+                            Accountant
+                        </div>
                     </td>
                 </tr>
-                <tr></tr>
             </table>
         </footer>
         ';
