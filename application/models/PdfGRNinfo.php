@@ -122,7 +122,7 @@ class PdfGRNinfo extends CI_Model {
         $section = 1;
 
         foreach ($query->result() as $rowlist) {
-            if ($count % 3 == 0) {
+            if ($count % 6 == 0) {
                 $dataArray[$section] = [];
             }
 
@@ -148,7 +148,7 @@ class PdfGRNinfo extends CI_Model {
             ];
 
             $count++;
-            if ($count % 3 == 0) {
+            if ($count % 6 == 0) {
                 $section++;
             }
         }
@@ -185,7 +185,7 @@ class PdfGRNinfo extends CI_Model {
                     line-height: 1.5;
                     text-align:left;
                     margin-top: 190px;   /* was 165px */
-                    margin-bottom: 140px;
+                    /* margin-bottom: 140px; */
                 }
 
                 header {
@@ -202,7 +202,7 @@ class PdfGRNinfo extends CI_Model {
                     bottom: 0px;
                     left: 0px;
                     right: 0px;
-                    height: 75px;
+                    height: 25px;
                 }
             </style>
         </head>
@@ -383,9 +383,9 @@ class PdfGRNinfo extends CI_Model {
         foreach ($dataArray as $index => $section) {
 
             // page break BEFORE every section except the first one
-            if ($index !== $firstSectionKey) {
-                $html .= '<div style="page-break-before: always;"></div>';
-            }
+            // if ($index !== $firstSectionKey) {
+            //     $html .= '<div style="page-break-before: always;"></div>';
+            // }
 
             $html.='
             <main>
@@ -422,7 +422,8 @@ class PdfGRNinfo extends CI_Model {
 
                     // If this is the last chunk AND it has room to spare, attach the
                     // totals right here on the same page instead of forcing a new one.
-                    if ($index === $lastSectionKey && !$lastChunkIsFull) {
+                    if ($index === count($dataArray) - 1) {}
+                    else{
                         $html .= '<tfoot>'.$totalsRowsHtml.'</tfoot>';
                     }
 
@@ -432,14 +433,15 @@ class PdfGRNinfo extends CI_Model {
 
             // Last chunk was completely full (3 items) — no room left for totals
             // on that page, so give them a dedicated page of their own.
-            if ($lastChunkIsFull) {
-                $html .= '<div style="page-break-before: always;"></div>';
-                $html .= '<main>
-                    <table style="width:100%;border-collapse: collapse;">'
-                        .$totalsRowsHtml.'
-                    </table>
-                </main>';
-            }
+
+            // if ($lastChunkIsFull) {
+            //     $html .= '<div style="page-break-before: always;"></div>';
+            //     $html .= '<main>
+            //         <table style="width:100%;border-collapse: collapse;">'
+            //             .$totalsRowsHtml.'
+            //         </table>
+            //     </main>';
+            // }
 
             $html.='</body>
         </html>
