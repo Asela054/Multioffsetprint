@@ -800,7 +800,7 @@ class GRNVoucherinfo extends CI_Model{
                 $invoice = $grnData->grn_no;
                 $invoicedate = $grnData->grndate;
                 $invoiceamount = $grnData->grntotal;
-
+    
                 // Make API call
                 $apiURL = $_SESSION['accountapiurl'].'Api/Payablesegregationinsertupdate';
                 

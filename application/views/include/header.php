@@ -36,14 +36,16 @@ function menucheck($arraymenu, $menuID){
 	<link href="<?php echo base_url() ?>assets/css/animate.css" rel="stylesheet" />
 	<link href="<?php echo base_url() ?>assets/css/select2.css" rel="stylesheet" />
 	<link rel="stylesheet"
-		href="https://maxst.icons8.com/vue-static/landings/line-awesome/font-awesome-line-awesome/css/all.min.css">
-		
-		
+	href="https://maxst.icons8.com/vue-static/landings/line-awesome/font-awesome-line-awesome/css/all.min.css">
+	
+	
 	<link rel="stylesheet" href="<?php echo base_url() ?>assets/slick/slick.css">
 	<link rel="stylesheet" href="<?php echo base_url() ?>assets/icofont/icofont.min.css">
 	<link rel="stylesheet" href="<?php echo base_url() ?>assets/flaticon/flaticon.css">
-
+	
+	
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<link href="<?php echo base_url() ?>assets/css/custom-theme.css" rel="stylesheet" />
 	
 	<style>
 		.table tr {

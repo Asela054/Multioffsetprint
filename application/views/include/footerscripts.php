@@ -199,4 +199,22 @@
             });
         });
     }
+    
+    // Sidebar collapse toggle button (mirrors #sidebarToggle behavior)
+    $("#sidenavToggleBtn").on("click", function (e) {
+        e.preventDefault();
+        $("body").toggleClass("sidenav-toggled");
+    });
+
+    // Live date/time in topbar
+    function updateTopnavDateTime() {
+        var now = new Date();
+        var timeEl = document.getElementById('topnavTime');
+        var dateEl = document.getElementById('topnavDate');
+        if (!timeEl || !dateEl) return;
+        timeEl.textContent = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        dateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+    updateTopnavDateTime();
+    setInterval(updateTopnavDateTime, 30000);
 </script>
