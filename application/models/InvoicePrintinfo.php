@@ -21,12 +21,22 @@ class InvoicePrintinfo extends CI_Model{
 
         $this->db->select('tbl_company.company AS companyname,tbl_company.address1 As companyaddress,tbl_company.mobile AS companymobile,
                                 tbl_company.phone companyphone,tbl_company.email AS companyemail,
-                                tbl_company_branch.branch AS branchname');
-		$this->db->from('tbl_print_porder');
-		$this->db->join('tbl_company', 'tbl_company.idtbl_company = tbl_print_porder.tbl_company_idtbl_company', 'left');
+                                tbl_company_branch.branch AS branchname,
+                                preparer.name AS preparedByName,
+                                tbl_po_contact_person.contact_person AS authorizedByName,
+                                tbl_po_contact_person.contact AS contactNo');
+        $this->db->from('tbl_print_porder');
+        $this->db->join('tbl_company', 'tbl_company.idtbl_company = tbl_print_porder.tbl_company_idtbl_company', 'left');
         $this->db->join('tbl_company_branch', 'tbl_company_branch.idtbl_company_branch = tbl_print_porder.tbl_company_branch_idtbl_company_branch', 'left');
-		$this->db->where('tbl_print_porder.idtbl_print_porder', $recordID);
-		$companydetails = $this->db->get();
+        $this->db->join('tbl_user AS preparer', 'preparer.idtbl_user = tbl_print_porder.tbl_user_idtbl_user', 'left');
+        $this->db->join('tbl_user AS approver', 'approver.idtbl_user = tbl_print_porder.approve_by', 'left');
+        $this->db->join('tbl_po_contact_person', 'tbl_po_contact_person.idtbl_po_contact_person = tbl_print_porder.idtbl_po_contact_person', 'left');
+        $this->db->where('tbl_print_porder.idtbl_print_porder', $recordID);
+        $companydetails = $this->db->get();
+
+        $preparedByName   = !empty($companydetails->row()->preparedByName)   ? htmlspecialchars($companydetails->row()->preparedByName)   : '...................................';
+        $authorizedByName = !empty($companydetails->row()->authorizedByName) ? htmlspecialchars($companydetails->row()->authorizedByName) : '...................................';
+        $contactNo        = !empty($companydetails->row()->contactNo)        ? htmlspecialchars($companydetails->row()->contactNo)        : '...................................';
 
         $net = sprintf('%0.2f', $respond->row(0)->nettotal);
     
@@ -198,39 +208,14 @@ class InvoicePrintinfo extends CI_Model{
             </header>
 
             <footer>
-                <table style="width:100%;">
+                <table style="table-layout: fixed;padding:3px;width:100%;border-collapse: collapse;font-size:12px;">
                     <tr>
-                        <td style="vertical-align: top;">
-                            <table style="width:100%;font-size:12px;margin-top: 15px;">
-                                <tr>
-                                    <td>Prepared by</td>
-                                    <td style="width: 5%;">:</td>
-                                    <td>...................................</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding-top: 15px;">Checked by</td>
-                                    <td style="width: 5%;padding-top: 15px;">:</td>
-                                    <td style="padding-top: 15px;">...................................</td>
-                                </tr>
-                            </table>
-                        </td>
-                        <td style="vertical-align: top;">
-                            <table style="width:100%;font-size:12px;margin-top: 15px;">
-                                <tr>
-                                    <td>Contact Person</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding-top: 15px;">Contact No</td>
-                                </tr>
-                            </table>
-                        </td>
-                        <td style="text-align: center;vertical-align: top;">
-                            <p style="margin:0;font-size:12px;text-transform: uppercase;font-weight: bold;">'.$companydetails->row()->companyname.'</p>
-                            <p style="margin:0;margin-top:25px;font-size:12px;">..........................................................</p>
-                            <p style="margin:0;font-size:12px;">Authorise Officer</p>
-                        </td>
+                        <td style="width:35%;">Prepared by &nbsp;: &nbsp;'.$preparedByName.'</td>
+                        <td style="width:35%;">Authorized by &nbsp;: &nbsp;'.$authorizedByName.'</td>
+                        <td style="width:30%;">Contact No &nbsp;: &nbsp;'.$contactNo.'</td>
                     </tr>
                 </table>
+                <p style="margin-top:50px;font-size:12px;text-align:center;padding:0 3px;">This is a computer-generated document. No signature is required.</p>
             </footer>';
 
             // PHP 7.2/older-safe replacement for array_key_last()/array_key_first()
