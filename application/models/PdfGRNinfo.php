@@ -353,29 +353,15 @@ class PdfGRNinfo extends CI_Model {
 
         $totalsRowsHtml = '
             <tr>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
+                <td style="border: 1px solid #000;font-size:12px;" colspan="5" rowspan="3">'.$remarkFeild.'</td>
                 <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Total (Ex)</th>
                 <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($totalSum, 2).'</th>
             </tr>
             <tr>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
                 <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Vat</th>
                 <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($grn_vat, 2).'</th>
             </tr>
             <tr>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
-                <td style="border: 1px solid #000;font-size:12px;">&nbsp;</td>
                 <th style="border: 1px solid #000;font-size:12px;padding-left: 10px;" colspan="2">Total (Icl)</th>
                 <th style="border: 1px solid #000;font-size:12px;text-align: right;padding-right: 5px;">'.number_format($grn_total, 2).'</th>
             </tr>';

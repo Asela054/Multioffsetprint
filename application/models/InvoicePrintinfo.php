@@ -153,7 +153,7 @@ class InvoicePrintinfo extends CI_Model{
                     bottom: 0px; 
                     left: 0px; 
                     right: 0px;
-                    height: 100px;
+                    height: 50px;
                 }
             </style>
         </head>
@@ -215,7 +215,7 @@ class InvoicePrintinfo extends CI_Model{
                         <td style="width:30%;">Contact No &nbsp;: &nbsp;'.$contactNo.'</td>
                     </tr>
                 </table>
-                <p style="margin-top:50px;font-size:12px;text-align:center;padding:0 3px;">This is a computer-generated document. No signature is required.</p>
+                <p style="font-size:12px;text-align:center;padding:0 3px;">This is a computer-generated document. No signature is required.</p>
             </footer>';
 
             // PHP 7.2/older-safe replacement for array_key_last()/array_key_first()
@@ -261,38 +261,38 @@ class InvoicePrintinfo extends CI_Model{
                             if ($index === $lastSectionKey) {
                                 $html .= '<tfoot>
                                     <tr>
-                                        <td colspan="2" style="border-top: 1px solid #000;font-size:12px;"></td>
+                                        <td colspan="4" style="border-top: 1px solid #000;font-size:12px;"></td>
                                         <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Total (Excl)</td>
-                                        <td colspan="3" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal">'.number_format($net,2).'</label></td>
+                                        <td style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal">'.number_format($net,2).'</label></td>
                                     </tr>
                                     <tr>
-                                        <td colspan="2" style="font-size:11px;"></td>
+                                        <td colspan="4" style="font-size:11px;"></td>
                                         <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
-                                        <td colspan="3" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
+                                        <td style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
                                     </tr>
                                     <tr>
-                                        <td colspan="2"></td>
+                                        <td colspan="4"></td>
                                         <td colspan="2" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left; font-weight:bold;padding-left:35px;">Total (Incl)</td>
-                                        <th colspan="3" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label class="font-weight-bold text-dark" id="lblbalance">'.number_format($net,2).'</label></th>
+                                        <th style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label class="font-weight-bold text-dark" id="lblbalance">'.number_format($net,2).'</label></th>
                                     </tr>
                                 </tfoot>';
                             } else {
                                 // not the last section -> leave totals blank, continues on next page
                                 $html .= '<tfoot>
                                     <tr>
-                                        <td colspan="2" style="border-top: 1px solid #000;font-size:12px;"></td>
+                                        <td colspan="4" style="border-top: 1px solid #000;font-size:12px;"></td>
                                         <td colspan="2" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Total (Excl)</td>
-                                        <td colspan="3" style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal"></label></td>
+                                        <td style="border-top: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label id="lbltotal"></label></td>
                                     </tr>
                                     <tr>
-                                        <td colspan="2" style="font-size:11px;"></td>
+                                        <td colspan="4" style="font-size:11px;"></td>
                                         <td colspan="2" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:left;padding-left:35px;">Tax</td>
-                                        <td colspan="3" style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
+                                        <td style="border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;"><label class="padding-right:10px;" id="lbldiscount"></label></td>
                                     </tr>
                                     <tr>
-                                        <td colspan="2"></td>
+                                        <td colspan="4"></td>
                                         <td colspan="2" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:left; font-weight:bold;padding-left:35px;">Total (Incl)</td>
-                                        <th colspan="3" style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label class="font-weight-bold text-dark" id="lblbalance"></label></th>
+                                        <th style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;text-align:right;padding-right:10px;"><label class="font-weight-bold text-dark" id="lblbalance"></label></th>
                                     </tr>
                                 </tfoot>';
                             }
