@@ -194,7 +194,7 @@ class InvoicePrintinfo extends CI_Model{
                             <p style="margin:0px;font-size:13px;font-weight:normal;text-transform: uppercase;">'.$companydetails->row()->companyaddress.'</p>
                             <p style="margin:0px;font-size:13px;font-weight:normal;">Phone : '.$companydetails->row()->companymobile.'/'.$companydetails->row()->companyphone.'</p>
                             <p style="margin:0px;font-size:13px;font-weight:normal;"><u>E-Mail : '.$companydetails->row()->companyemail.'</u></p>
-                            <p style="margin:0px;font-size:13px;font-weight:normal;">PO No : ' . $prefix . '/' . $respond->row(0)->porder_no . '</p>
+                            <p style="margin:0px;font-size:13px;font-weight:normal;">PO No : ' . $respond->row(0)->porder_no . '</p>
                             <p style="margin:0px;font-size:13px;font-weight:normal;">Date : '.$respond->row(0)->orderdate.'</p>
                             '.($respond->num_rows() > 0 && $company_id == 1 ? '<p style="margin:0px;font-size:13px;font-weight:normal;">Our Vat No : &nbsp; 103305667-7000</p>' : '').'
                         </td>
@@ -235,12 +235,12 @@ class InvoicePrintinfo extends CI_Model{
                         <thead>
                             <tr>
                                 <th style="width: 9%;text-align:center; border: 1px solid #000;">Code</th>
-                                <th style="width: 30%;text-align:center; border: 1px solid #000;">Item Description </th>
-                                <th style="width: 8%;text-align:center; border: 1px solid #000;">Quantity</th>
+                                <th style="width: 50%;text-align:center; border: 1px solid #000;">Item Description </th>
+                                <th style="width: 9%;text-align:center; border: 1px solid #000;">Quantity</th>
                                 <th style="width: 8%;text-align:center; border: 1px solid #000;">UOM</th>
-                                <th style="width: 14%;text-align:right; border: 1px solid #000;padding-right: 10px;">Unit Price</th>
-                                <th style="width: 14%;text-align:right; border: 1px solid #000;padding-right: 10px;">Price</th>
-                                <th style="width: 17%;text-align:right; border: 1px solid #000;padding-right: 10px;">Total</th>
+                                <th style="width: 8%;text-align:right; border: 1px solid #000;padding-right: 10px;">Unit Price</th>
+                                <th style="width: 8%;text-align:right; border: 1px solid #000;padding-right: 10px;">Price</th>
+                                <th style="width: 9%;text-align:right; border: 1px solid #000;padding-right: 10px;">Total</th>
                             </tr>
                         </thead>
                         <tbody>';
