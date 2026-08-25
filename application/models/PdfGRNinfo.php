@@ -338,18 +338,10 @@ class PdfGRNinfo extends CI_Model {
         </footer>
         ';
 
-        // PHP 7.2/older-safe replacement for array_key_last()/array_key_first()
+       // PHP 7.2/older-safe replacement for array_key_last()/array_key_first()
         $sectionKeys     = array_keys($dataArray);
         $firstSectionKey = reset($sectionKeys);
         $lastSectionKey  = end($sectionKeys);
-
-        // Only push totals to their own page when the last chunk is already
-        // full (3 items) — a full chunk + totals doesn't fit in the space left
-        // above the footer. If the last chunk has room to spare (1-2 items),
-        // keep the totals on that same page right under it.
-        $itemsPerPage      = 3;
-        $itemsInLastChunk  = count($dataArray[$lastSectionKey]);
-        $lastChunkIsFull   = ($itemsInLastChunk >= $itemsPerPage);
 
         $totalsRowsHtml = '
             <tr>
@@ -368,10 +360,10 @@ class PdfGRNinfo extends CI_Model {
 
         foreach ($dataArray as $index => $section) {
 
-            // page break BEFORE every section except the first one
-            // if ($index !== $firstSectionKey) {
-            //     $html .= '<div style="page-break-before: always;"></div>';
-            // }
+            // page break BEFORE every section except the first one — same pattern as VoucherPdf
+            if ($index !== $firstSectionKey) {
+                $html .= '<div style="page-break-before: always;"></div>';
+            }
 
             $html.='
             <main>
@@ -406,32 +398,18 @@ class PdfGRNinfo extends CI_Model {
                         }
                     $html.='</tbody>';
 
-                    // If this is the last chunk AND it has room to spare, attach the
-                    // totals right here on the same page instead of forcing a new one.
-                    if ($index === count($dataArray) - 1) {}
-                    else{
+                    // only the true last section carries the totals footer
+                    if ($index === $lastSectionKey) {
                         $html .= '<tfoot>'.$totalsRowsHtml.'</tfoot>';
                     }
 
                     $html .= '</table>
                     </main>';
-        }   
+        }
 
-            // Last chunk was completely full (3 items) — no room left for totals
-            // on that page, so give them a dedicated page of their own.
-
-            // if ($lastChunkIsFull) {
-            //     $html .= '<div style="page-break-before: always;"></div>';
-            //     $html .= '<main>
-            //         <table style="width:100%;border-collapse: collapse;">'
-            //             .$totalsRowsHtml.'
-            //         </table>
-            //     </main>';
-            // }
-
-            $html.='</body>
+        $html.='</body>
         </html>
-        '; 
+        ';
         
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'landscape');
