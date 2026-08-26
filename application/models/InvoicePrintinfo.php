@@ -234,9 +234,9 @@ class InvoicePrintinfo extends CI_Model{
                     <table style="table-layout: fixed;padding:3px;width:100%;border-collapse: collapse;font-size: 13px;">
                         <thead>
                             <tr>
-                                <th style="width: 9%;text-align:center; border: 1px solid #000;">Code</th>
+                                <th style="width: 10%;text-align:center; border: 1px solid #000;">Code</th>
                                 <th style="width: 50%;text-align:center; border: 1px solid #000;">Item Description </th>
-                                <th style="width: 9%;text-align:center; border: 1px solid #000;">Quantity</th>
+                                <th style="width: 8%;text-align:center; border: 1px solid #000;">Qty</th>
                                 <th style="width: 8%;text-align:center; border: 1px solid #000;">UOM</th>
                                 <th style="width: 8%;text-align:right; border: 1px solid #000;padding-right: 10px;">Unit Price</th>
                                 <th style="width: 8%;text-align:right; border: 1px solid #000;padding-right: 10px;">Price</th>
