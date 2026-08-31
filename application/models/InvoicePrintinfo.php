@@ -35,8 +35,20 @@ class InvoicePrintinfo extends CI_Model{
         $companydetails = $this->db->get();
 
         $preparedByName   = !empty($companydetails->row()->preparedByName)   ? htmlspecialchars($companydetails->row()->preparedByName)   : '...................................';
-        $authorizedByName = !empty($companydetails->row()->authorizedByName) ? htmlspecialchars($companydetails->row()->authorizedByName) : '...................................';
-        $contactNo        = !empty($companydetails->row()->contactNo)        ? htmlspecialchars($companydetails->row()->contactNo)        : '...................................';
+
+        // Only reveal the contact person's name/number on the printed PO when
+        // cp_status was explicitly set to 1 (via the "Include Contact No" checkbox
+        // ticked at approval time). Otherwise keep the placeholder dots so the
+        // information stays hidden on the document.
+        $cpStatus = !empty($respond->row(0)->cp_status) ? $respond->row(0)->cp_status : 0;
+
+        if ($cpStatus == 1) {
+            $authorizedByName = !empty($companydetails->row()->authorizedByName) ? htmlspecialchars($companydetails->row()->authorizedByName) : '...................................';
+            $contactNo        = !empty($companydetails->row()->contactNo)        ? htmlspecialchars($companydetails->row()->contactNo)        : '...................................';
+        } else {
+            $authorizedByName = '...................................';
+            $contactNo        = '...................................';
+        }
 
         $net = sprintf('%0.2f', $respond->row(0)->nettotal);
     
@@ -60,9 +72,12 @@ class InvoicePrintinfo extends CI_Model{
         $dataArray = [];
         $count = 0;
         $section = 1;
-        $remarkFeild = ''; 
+        $remarkFeild = '';
+        $supplierId = 0;
+
         if ($respond->num_rows() > 0) {
-            $remarkFeild = $respond->row(0)->remark;
+            $remarkFeild = trim($respond->row(0)->remark);
+            $supplierId = (int)$respond->row(0)->idtbl_supplier;
         }
         foreach ($respond2->result() as $rowlist) {
             $unitPrice = $rowlist->unitprice;
@@ -149,11 +164,12 @@ class InvoicePrintinfo extends CI_Model{
 
                 /** Define the footer rules **/
                 footer {
-                    position: fixed; 
-                    bottom: 0px; 
-                    left: 0px; 
+                    position: fixed;
+                    bottom: 1rem;
+                    left: 0px;
                     right: 0px;
-                    height: 50px;
+                    height: 55px;
+                    font-family: Arial, sans-serif;
                 }
             </style>
         </head>
@@ -165,8 +181,10 @@ class InvoicePrintinfo extends CI_Model{
                         <p style="margin:0px;font-size:16px;font-weight: bold;">PURCHASE ORDER</p>
                         <p style="margin:0px;font-size:13px;font-weight: bold;">To: '.$respond->row(0)->suppliername.'</p>';
                         
-                        if (!empty($remarkFeild)) {
-                            $html .= '<p style="margin:0px;font-size:13px;font-weight: bold;">'.htmlspecialchars($remarkFeild).'</p>';
+                        if ($supplierId == 65 && !empty($remarkFeild)) {
+                            $html .= '<p style="margin:0px;font-size:13px;font-weight:bold;">'
+                                . htmlspecialchars($remarkFeild)
+                                . '</p>';
                         }
 
                         $address_line1 = trim($respond->row(0)->address_line1);
@@ -207,7 +225,15 @@ class InvoicePrintinfo extends CI_Model{
                 </table>
             </header>
 
-            <footer>
+            <footer>';
+
+            if ($supplierId != 65 && !empty($remarkFeild)) {
+                $html .= '<p style="margin:0px 0px 3px 0px;font-size:12px;font-weight:bold;">
+                            '.htmlspecialchars($remarkFeild).'
+                        </p>';
+            }
+
+            $html .= '
                 <table style="table-layout: fixed;padding:3px;width:100%;border-collapse: collapse;font-size:12px;">
                     <tr>
                         <td style="width:35%;">Prepared by &nbsp;: &nbsp;'.$preparedByName.'</td>
@@ -215,7 +241,9 @@ class InvoicePrintinfo extends CI_Model{
                         <td style="width:30%;">Contact No &nbsp;: &nbsp;'.$contactNo.'</td>
                     </tr>
                 </table>
-                <p style="font-size:12px;text-align:center;padding:0 3px;">This is a computer-generated document. No signature is required.</p>
+                <p style="font-size:12px;text-align:center;padding:0 3px;">
+                    This is a computer-generated document. No signature is required.
+                </p>
             </footer>';
 
             // PHP 7.2/older-safe replacement for array_key_last()/array_key_first()

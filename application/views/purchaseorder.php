@@ -40,6 +40,7 @@ include "include/topnavbar.php";
                                                 <th>Date</th>
                                                 <th>Order Type</th>
                                                 <th>Supplier</th>
+                                                <th>Atten. To</th>
                                                 <th>Confirm Status</th>
                                                 <th>Approved By</th>
                                                 <th>GRN Issue Status</th>
@@ -492,7 +493,25 @@ include "include/topnavbar.php";
                     <div class="col-12 text-right">
                         <hr>
                         <?php if($approvecheck==1){ ?>
-                        <button id="btnapprovereject" class="btn btn-primary btn-sm px-3 mb-2"><i class="fas fa-check mr-2"></i>Approve or Reject</button>
+                            <div id="approvalControls" class="d-none">
+
+                                <div class="custom-control custom-checkbox d-inline-block mr-3 align-middle">
+                                    <input type="checkbox"
+                                        class="custom-control-input"
+                                        id="cpstatuscheck"
+                                        name="cpstatuscheck">
+
+                                    <label class="custom-control-label" for="cpstatuscheck">
+                                        Include Contact No
+                                    </label>
+                                </div>
+
+                                <button id="btnapprovereject"
+                                        class="btn btn-primary btn-sm px-3 mb-2">
+                                    <i class="fas fa-check mr-2"></i>Approve or Reject
+                                </button>
+
+                            </div>
                         <?php } ?>
                         <input type="hidden" name="porderid" id="porderid">
                         <input type="hidden" id="reqestid" name="reqestid">
@@ -682,6 +701,9 @@ $(document).ready(function() {
                 "data": "suppliername"
             },
             {
+                "data": "contact_person"
+            },
+            {
                 "targets": -1,
                 "className": '',
                 "data": "confirmstatus_display",
@@ -782,6 +804,7 @@ $(document).ready(function() {
     						$('#editsupplier').val(obj.supplier);
                             $('#editcontactperson').val(obj.contactperson).trigger('change');
                             $('#editordertype').val(obj.type);
+                            $('#editremark').val(obj.remark || '');
                             toggleEditServiceColumn();
                             var ordertype = parseInt(obj.type, 10) || 0;
 
@@ -869,40 +892,76 @@ $(document).ready(function() {
                 recordID: id
             },
             url: '<?php echo base_url() ?>Purchaseorder/Purchaseorderview',
-            success: function(result) { //alert(result);
+            success: function(result) {
 
                 $('#porderviewmodal').modal('show');
                 $('#viewhtml').html(result);
+                
+                $('#approvalControls').addClass('d-none');
+                $('#btnapprovereject').prop('disabled', true);
+                $('#cpstatuscheck').prop('checked', false);
 
                 if (approvestatus > 0) {
-                	$('#btnapprovereject').addClass('d-none').prop('disabled', true);
-                	if (approvestatus == 1) {
-                		$('#alertdiv').html('<div class="alert alert-success" role="alert"><i class="fas fa-check-circle mr-2"></i> Purchase Order approved</div>');
-                	} else if (approvestatus == 2) {
-                		$('#alertdiv').html('<div class="alert alert-danger" role="alert"><i class="fas fa-times-circle mr-2"></i> Purchase Order rejected</div>');
-                	}
-                } else {
-					if (checkstatus == 0) {
-						$('#btnapprovereject').addClass('d-none').prop('disabled', true);
-					} else {
-						$('#btnapprovereject').removeClass('d-none').prop('disabled', false);
-						$('#btncheck').addClass('d-none').prop('disabled', true);
-					}
-				}
+                    $('#approvalControls').addClass('d-none');
+                    $('#btnapprovereject').prop('disabled', true);
 
-                if(checkstatus>0){
+                    if (approvestatus == 1) {
+
+                        $('#alertdiv').html(
+                            '<div class="alert alert-success" role="alert">' +
+                            '<i class="fas fa-check-circle mr-2"></i>' +
+                            ' Purchase Order approved' +
+                            '</div>'
+                        );
+
+                    } else if (approvestatus == 2) {
+
+                        $('#alertdiv').html(
+                            '<div class="alert alert-danger" role="alert">' +
+                            '<i class="fas fa-times-circle mr-2"></i>' +
+                            ' Purchase Order rejected' +
+                            '</div>'
+                        );
+                    }
+
+                } else if (checkstatus > 0) {
+
+                    $('#approvalControls').removeClass('d-none');
+                    $('#btnapprovereject').prop('disabled', false);
+
+                } else {
+                    $('#approvalControls').addClass('d-none');
+                    $('#btnapprovereject').prop('disabled', true);
+                }
+                if (checkstatus > 0) {
+
                     $('#btncheck').addClass('d-none').prop('disabled', true);
-                    if(checkstatus==1){$('#checkalertdiv').html('<div class="alert alert-secondary" role="alert"><i class="fas fa-check-circle mr-2"></i> Purchase Order checked</div>');}
+
+                    if (checkstatus == 1) {
+                        $('#checkalertdiv').html(
+                            '<div class="alert alert-secondary" role="alert">' +
+                            '<i class="fas fa-check-circle mr-2"></i>' +
+                            ' Purchase Order checked' +
+                            '</div>'
+                        );
+                    }
+
+                } else {
+                    $('#btncheck').removeClass('d-none').prop('disabled', false);
                 }
             }
         });
 
-            $('#porderviewmodal').on('hidden.bs.modal', function (event) {
-                $('#alertdiv').html('');
-                $('#checkalertdiv').html('');
-                $('#btnapprovereject').removeClass('d-none').prop('disabled', false);
-                $('#btncheck').removeClass('d-none').prop('disabled', false);
-            });
+        $('#porderviewmodal').on('hidden.bs.modal', function (event) {
+            $('#alertdiv').html('');
+            $('#checkalertdiv').html('');
+
+            $('#approvalControls').addClass('d-none');
+            $('#btnapprovereject').prop('disabled', false);
+            $('#cpstatuscheck').prop('checked', false);
+
+            $('#btncheck').removeClass('d-none').prop('disabled', false);
+        });
 
         $.ajax({
             type: "POST",
@@ -1702,6 +1761,8 @@ function action(data) { //alert(data);
 </script>
 <script>
 function approvejob(confirmnot){
+    var cpstatus = $('#cpstatuscheck').is(':checked') ? 1 : 0;
+
     Swal.fire({
         title: '',
         html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
@@ -1721,7 +1782,8 @@ function approvejob(confirmnot){
                 data: {
                     porderid: $('#porderid').val(),
                     reqestid: $('#reqestid').val(),
-                    confirmnot: confirmnot
+                    confirmnot: confirmnot,
+                    cpstatus: cpstatus
                 },
                 url: '<?php echo base_url() ?>Purchaseorder/Purchaseorderstatus',
                 success: function(result) {
