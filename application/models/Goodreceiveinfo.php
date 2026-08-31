@@ -796,7 +796,7 @@
 	public function Getporderdetails() {
 		$recordID = $this->input->post('recordID');
 
-		$this->db->select('m.materialname, d.qty, d.pieces, d.actual_qty, meas.measure_type, d.unitprice, d.packetprice, d.discount, d.vat, d.vatamount, d.grossprice, d.netprice, d.comment');
+		$this->db->select('m.materialname, d.qty, d.pieces, d.actual_qty, meas.measure_type, d.unitprice, d.packetprice, d.discount, d.vat, d.vatamount, d.grossprice, d.netprice, d.comment, p.remark');
 		$this->db->from('tbl_print_porder_detail d');
 
 		$this->db->join('tbl_print_porder p', 'p.idtbl_print_porder = d.tbl_print_porder_idtbl_print_porder', 'left');

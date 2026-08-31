@@ -559,7 +559,12 @@
 		</div>
 
 		<div class="row mt-3">
-			<div class="col-12 text-right">
+			<div class="col-6">
+				<h6 class="font-weight-normal"><b>Remark :</b>
+					&nbsp;&nbsp;' . ($respond->row(0)->remark) . '
+				</h6>
+			</div>
+			<div class="col-6 text-right">
 				<h3 class="font-weight-normal">
 					<strong style="background-color: yellow;">Final Price</strong>
 					&nbsp;&nbsp;<b>Rs. ' . number_format(($respond->row(0)->nettotal), 2) . '</b>
@@ -616,6 +621,7 @@
 		$recordID=$this->input->post('porderid');
         $reqid=$this->input->post('reqestid');
 		$confirmnot=$this->input->post('confirmnot');
+		$cpstatus=$this->input->post('cpstatus');
 		$updatedatetime=date('Y-m-d H:i:s');
 
 		$companyID=$_SESSION['company_id'];
@@ -625,6 +631,7 @@
 			$data=array(
 				'confirmstatus'=> $confirmnot,
 				'approve_by'=> $userID,
+				'cp_status'=> $cpstatus ? 1 : 0,
 				'updatedatetime'=> $updatedatetime);
 
 			$this->db->where('idtbl_print_porder', $recordID);
@@ -943,6 +950,7 @@
 			'tbl_print_porder.idtbl_print_porder AS porder_id',
 			'tbl_print_porder.tbl_print_porder_req_idtbl_print_porder_req AS request_id',
 			'tbl_print_porder.orderdate',
+			'tbl_print_porder.remark',
 			'tbl_print_porder.tbl_supplier_idtbl_supplier AS supplier_id',
 			'tbl_print_porder.tbl_material_group_idtbl_material_group AS order_type',
 			'tbl_print_porder.idtbl_po_contact_person AS contactperson_id',
@@ -1004,6 +1012,7 @@
 		$obj->orderdate = $row0->orderdate;
 		$obj->supplier  = $row0->supplier_id;
 		$obj->type      = $row0->order_type;
+		$obj->remark      = $row0->remark;
 		$obj->contactperson = $row0->contactperson_id;
 
 		$items = [];

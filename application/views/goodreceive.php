@@ -827,6 +827,7 @@ $(document).ready(function() {
                         listItem += '</li>';
 
                         $('#requestitem').append(listItem);
+                        $('#remark').val(item.remark);
                     });
 
                 } else {
