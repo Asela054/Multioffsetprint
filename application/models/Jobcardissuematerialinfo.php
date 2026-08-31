@@ -428,6 +428,7 @@ class Jobcardissuematerialinfo extends CI_Model {
         $recordID = $this->input->post('recordID');
         $updatedatetime = date('Y-m-d H:i:s');
         $today = date('Y-m-d');
+        $issuenotedate = $today;
     
         $obj = new stdClass();
         $actionObj = new stdClass();
@@ -506,7 +507,7 @@ class Jobcardissuematerialinfo extends CI_Model {
             $issuenoteID=$this->db->insert_id();
 
             //Deduct stock
-            $this->db->select('`idtbl_jobcard_issue_meterial`, `batchno`, `issueqty`, `tbl_print_material_info_idtbl_print_material_info`');
+            $this->db->select('`idtbl_jobcard_issue_meterial`, `batchno`, `issueqty`, `tbl_print_material_info_idtbl_print_material_info`, `issuedate`');
             $this->db->from('tbl_jobcard_issue_meterial');
             $this->db->where('status', '1');
             $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
@@ -517,6 +518,7 @@ class Jobcardissuematerialinfo extends CI_Model {
                 $issueqty=$rowissue->issueqty;
                 $batchno=$rowissue->batchno;
                 $materialID=$rowissue->tbl_print_material_info_idtbl_print_material_info;
+                $issuenotedate=$rowissue->issuedate;
 
                 $this->db->where('batchno', $batchno);
                 $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
@@ -550,7 +552,17 @@ class Jobcardissuematerialinfo extends CI_Model {
                 $this->db->where('tbl_jobcard_idtbl_jobcard', $recordID);
                 $this->db->where('status', '1');
                 $this->db->update('tbl_jobcard_issue_meterial', $dataissue);
-            }            
+            }   
+            
+            // Update issue date in issue note table
+            $dataissuenote = array(
+                'date' => $issuenotedate,
+                'updateuser' => $userID,
+                'updatedatetime' => $updatedatetime
+            );
+            
+            $this->db->where('idtbl_issue_note', $issuenoteID);
+            $this->db->update('tbl_issue_note', $dataissuenote);
     
             $this->db->trans_commit();
     
@@ -1096,6 +1108,7 @@ class Jobcardissuematerialinfo extends CI_Model {
                 // Fixed: correct table/column (previously table & column names were swapped)
                 $this->db->select('issuedate');
                 $this->db->from('tbl_jobcard_issue_meterial');
+                $this->db->where('tbl_jobcard_idtbl_jobcard', $jobCardID);
                 $this->db->where('jobcard_other_id', $jobcardotherID);
                 $respond = $this->db->get();
 
@@ -1208,7 +1221,7 @@ class Jobcardissuematerialinfo extends CI_Model {
         else if($companyID==2){$prefix = 'FTHI';}
         else if($companyID==3){$prefix = 'RMII';}
 
-        $this->db->select("tbl_jobcard.*, `tbl_company`.`company`, `tbl_company_branch`.`branch`, CONCAT(`tbl_company`.`address1`, ' ', `tbl_company`.`address2`) AS `companyaddress`, `tbl_customerinquiry_detail`.`job_no`, `tbl_issue_note`.`issuenoteno`, `tbl_issue_note`.`approvestatus`");
+        $this->db->select("tbl_jobcard.*, `tbl_company`.`company`, `tbl_company_branch`.`branch`, CONCAT(`tbl_company`.`address1`, ' ', `tbl_company`.`address2`) AS `companyaddress`, `tbl_customerinquiry_detail`.`job_no`, `tbl_issue_note`.`issuenoteno`, `tbl_issue_note`.`approvestatus`, `tbl_issue_note`.`date` AS `issuenotedate`");
         $this->db->from('tbl_jobcard');
         $this->db->join('tbl_customerinquiry_detail', 'tbl_customerinquiry_detail.tbl_customerinquiry_idtbl_customerinquiry = tbl_jobcard.tbl_customerinquiry_idtbl_customerinquiry', 'left');
         $this->db->join('tbl_issue_note', 'tbl_issue_note.tbl_jobcard_idtbl_jobcard = tbl_jobcard.idtbl_jobcard', 'left');
@@ -1217,7 +1230,7 @@ class Jobcardissuematerialinfo extends CI_Model {
         $this->db->where('tbl_issue_note.idtbl_issue_note', $recordID);
         $this->db->where('tbl_jobcard.status', 1);
         $respond=$this->db->get();
-
+        
         $this->db->select('tbl_issue_note_detail.*, tbl_print_material_info.materialname');
         $this->db->from('tbl_issue_note_detail');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_issue_note_detail.tbl_print_material_info_idtbl_print_material_info', 'left');
@@ -1232,7 +1245,7 @@ class Jobcardissuematerialinfo extends CI_Model {
                 <label class="small font-weight-bold my-0">Issue No: </label>
                 <label class="small my-0">'.$respond->row(0)->issuenoteno.'</label><br>
                 <label class="small font-weight-bold my-0">Date: </label>
-                <label class="small my-0">'.$respond->row(0)->date.'</label><br>
+                <label class="small my-0">'.$respond->row(0)->issuenotedate.'</label><br>
                 <label class="small font-weight-bold my-0">Job Description: </label>
                 <label class="small my-0">' . $respond->row()->job_description . '</label>
             </div>

@@ -38,6 +38,11 @@ foreach($menuprivilegearray as $row){
 }
 
 $permissionallowed = array_unique($permissionallowed);
+
+$companynameshow = $_SESSION['companyname'];
+$comsplit = explode('(', $companynameshow);
+$comshowline1 = $comsplit[0];
+if(!empty($comsplit[1])): $comshowline2 = '('.$comsplit[1];else: $comshowline2 = '';endif;
 ?>
 <textarea class="d-none" id="actiontext"><?php if($this->session->flashdata('msg')) {echo $this->session->flashdata('msg');} ?></textarea>
 
@@ -49,8 +54,8 @@ $permissionallowed = array_unique($permissionallowed);
 	<div class="sidenav-brand">
 		<div class="brand-icon-box"><i data-feather="printer"></i></div>
 		<div class="sidenav-brand-text">
-			<div class="brand-name">Multi Offset Printers</div>
-			<div class="brand-sub">(Pvt) Ltd</div>
+			<div class="brand-name"><?php echo $comshowline1; ?></div>
+			<div class="brand-sub"><?php echo $comshowline2; ?></div>
 		</div>
 	</div>
 	<div class="sidenav-divider"></div>

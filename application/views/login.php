@@ -269,7 +269,8 @@
                         <button type="submit" class="btn btn-primary-custom btn-block text-white">
                             <i class="fas fa-lock mr-2" style="font-size: 13px;"></i> Login In
                         </button>
-
+                        <input type="hidden" name="company_text" id="company_text">
+                        <input type="hidden" name="branch_text" id="branch_text">
                     </form>
                 </div>
             </div>
