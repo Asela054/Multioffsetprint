@@ -776,6 +776,19 @@ class GRNVoucherinfo extends CI_Model{
                     $this->db->where('tbl_company_branch_idtbl_company_branch', $branch);
                     $this->db->where('batchno', $grnData->batchno);
                     $this->db->update('tbl_print_stock', $dataupdatestock);
+
+                    //Update job card issue material unit price update
+                    $dataupdateissuematerial = array(
+                        'tbl_jobcard_issue_meterial.unitprice' => $rowaftercostdata->costunitprice,
+                        'tbl_jobcard_issue_meterial.updateuser' => $userID,
+                        'tbl_jobcard_issue_meterial.updatedatetime' => $updatedatetime
+                    );
+                    $this->db->join('tbl_jobcard', 'tbl_jobcard.idtbl_jobcard = tbl_jobcard_issue_meterial.tbl_jobcard_idtbl_jobcard', 'left');
+                    $this->db->where('tbl_jobcard_issue_meterial.tbl_print_material_info_idtbl_print_material_info', $rowaftercostdata->tbl_print_material_info_idtbl_print_material_info);
+                    $this->db->where('tbl_jobcard.tbl_company_idtbl_company', $company);
+                    $this->db->where('tbl_jobcard.tbl_company_branch_idtbl_company_branch', $branch);
+                    $this->db->where('tbl_jobcard_issue_meterial.batchno', $grnData->batchno);
+                    $this->db->update('tbl_jobcard_issue_meterial', $dataupdateissuematerial);
                 }
     
                 // Update GRN with cost details
