@@ -1237,10 +1237,25 @@
 			$suppliername = $sup ? $sup->suppliername : '';
 		}
 
-		$this->db->select('tbl_print_grndetail.idtbl_print_grndetail, tbl_print_grndetail.qty, tbl_print_grndetail.pieces, tbl_print_grndetail.unitprice, tbl_print_grndetail.unit_discount, tbl_print_grndetail.total, tbl_print_grndetail.comment, tbl_print_material_info.materialname, tbl_print_material_info.materialinfocode, tbl_measurements.measure_type');
+		$this->db->select('
+			tbl_print_grndetail.idtbl_print_grndetail,
+			tbl_print_grndetail.qty,
+			tbl_print_grndetail.pieces,
+			tbl_print_grndetail.unitprice,
+			tbl_print_grndetail.unit_discount,
+			tbl_print_grndetail.total,
+			tbl_print_grndetail.comment,
+			tbl_print_material_info.materialname,
+			tbl_print_material_info.materialinfocode,
+			m.measure_type AS main_uom_name,
+			cm.measure_type AS convert_uom_name,
+			uc.qty AS convert_uom_factor
+		');
 		$this->db->from('tbl_print_grndetail');
 		$this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_print_grndetail.tbl_print_material_info_idtbl_print_material_info', 'left');
-		$this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_print_grndetail.tbl_measurements_idtbl_mesurements', 'left');
+		$this->db->join('tbl_measurements m', 'm.idtbl_mesurements = tbl_print_grndetail.tbl_measurements_idtbl_mesurements', 'left');
+		$this->db->join('tbl_uom_conversions uc', 'uc.main_uom = m.idtbl_mesurements AND uc.status = 1', 'left');
+		$this->db->join('tbl_measurements cm', 'cm.idtbl_mesurements = uc.convert_uom', 'left');
 		$this->db->where('tbl_print_grndetail.tbl_print_grn_idtbl_print_grn', $recordID);
 		$this->db->where('tbl_print_grndetail.status', 1);
 		$details = $this->db->get()->result();

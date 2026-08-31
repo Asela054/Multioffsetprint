@@ -956,14 +956,20 @@ $(document).ready(function() {
                                 : item.comment;
                         }
 
-                        var qtyDisplay = (item.pieces > 0) ? item.pieces : item.qty;
+                        var hasPieces = (item.pieces !== null && item.pieces !== '' && parseFloat(item.pieces) > 0);
+                        var qtyDisplay = hasPieces ? item.pieces : item.qty;
+
+                        var uomDisplay = hasPieces
+                            ? (item.convert_uom_name ? item.convert_uom_name : (item.main_uom_name ? item.main_uom_name : ''))
+                            : (item.main_uom_name ? item.main_uom_name : '');
+
                         var discount = parseFloat(item.unit_discount) || 0;
                         var rowTotal = (parseFloat(item.unitprice) * parseFloat(qtyDisplay)) - discount;
 
                         var row = '<tr>';
                         row += '<td>' + productName + '</td>';
                         row += '<td class="text-center">' + qtyDisplay + '</td>';
-                        row += '<td class="text-center">' + (item.measure_type ? item.measure_type : '') + '</td>';
+                        row += '<td class="text-center">' + uomDisplay + '</td>';
                         row += '<td class="text-right"><input type="text" class="form-control form-control-sm text-right edit-unitprice" ' +
                             'data-detailid="' + item.idtbl_print_grndetail + '" data-qty="' + item.qty + '" data-pieces="' + item.pieces +
                             '" data-discount="' + discount + '" value="' + parseFloat(item.unitprice) + '"></td>';
