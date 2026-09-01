@@ -568,6 +568,7 @@ class Dispatchnoteinfo extends CI_Model{
 	
 				$dataqty = array(
 					'actual_qty' => $new_actual_qty,
+					'dispatch_finish_status' => '0',
 					'job_finish_status' => '0',
 					'updatedatetime' => $updatedatetime
 				);
