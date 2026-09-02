@@ -14,9 +14,9 @@ class Apiinfo extends CI_Model{
             $supplierID=0;
             
             //Insert GRN expense details
-            $sql="SELECT `total` AS `amount`, `totalcost` AS `invamount`, `tbl_supplier_idtbl_supplier` AS `supplierid`, `grndate` AS `expdate`, `idtbl_print_grn` AS `grnid`, CASE WHEN `grntype` = 1 THEN 'SPR' WHEN `grntype` = 4 THEN 'MAC' ELSE 'GRN' END AS `expcode`, '1' AS `exptype`, `tbl_print_grn`.`grn_no` FROM `tbl_print_grn` WHERE `idtbl_print_grn`=? AND `tbl_company_idtbl_company`=? AND `tbl_company_branch_idtbl_company_branch`=?
+            $sql="SELECT `total` AS `amount`, `totalcost` AS `invamount`, `tbl_supplier_idtbl_supplier` AS `supplierid`, `grndate` AS `expdate`, `idtbl_print_grn` AS `grnid`, CASE WHEN `grntype` = 1 THEN 'SPR' WHEN `grntype` = 4 THEN 'MAC' ELSE 'GRN' END AS `expcode`, '1' AS `exptype`, `tbl_print_grn`.`grn_no`, `invoicenum` AS `supinvno` FROM `tbl_print_grn` WHERE `idtbl_print_grn`=? AND `tbl_company_idtbl_company`=? AND `tbl_company_branch_idtbl_company_branch`=?
             UNION ALL
-            SELECT `tbl_grn_vouchar_import_cost_detail`.`cost_amount` AS `amount`, `tbl_grn_vouchar_import_cost_detail`.`cost_amount` AS `invamount`, `tbl_grn_vouchar_import_cost_detail`.`tbl_supplier_idtbl_supplier` AS `supplierid`, `tbl_grn_vouchar_import_cost`.`date` AS `expdate`, `tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn` AS `grnid`, 'OTH' AS `expcode`, '4' AS `exptype`, `tbl_print_grn`.`grn_no` FROM `tbl_grn_vouchar_import_cost_detail` LEFT JOIN `tbl_grn_vouchar_import_cost` ON `tbl_grn_vouchar_import_cost`.`idtbl_grn_vouchar_import_cost`=`tbl_grn_vouchar_import_cost_detail`.`tbl_grn_vouchar_import_cost_idtbl_grn_vouchar_import_cost` LEFT JOIN `tbl_print_grn` ON `tbl_print_grn`.`idtbl_print_grn`=`tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn` WHERE `tbl_grn_vouchar_import_cost_detail`.`status`=? AND `tbl_grn_vouchar_import_cost`.`tbl_company_idtbl_company`=? AND `tbl_grn_vouchar_import_cost`.`tbl_company_branch_idtbl_company_branch`=? AND `tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn`=?";
+            SELECT `tbl_grn_vouchar_import_cost_detail`.`cost_amount` AS `amount`, `tbl_grn_vouchar_import_cost_detail`.`cost_amount` AS `invamount`, `tbl_grn_vouchar_import_cost_detail`.`tbl_supplier_idtbl_supplier` AS `supplierid`, `tbl_grn_vouchar_import_cost`.`date` AS `expdate`, `tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn` AS `grnid`, 'OTH' AS `expcode`, '4' AS `exptype`, `tbl_print_grn`.`grn_no`, `tbl_grn_vouchar_import_cost`.`invoiceno` AS `supinvno` FROM `tbl_grn_vouchar_import_cost_detail` LEFT JOIN `tbl_grn_vouchar_import_cost` ON `tbl_grn_vouchar_import_cost`.`idtbl_grn_vouchar_import_cost`=`tbl_grn_vouchar_import_cost_detail`.`tbl_grn_vouchar_import_cost_idtbl_grn_vouchar_import_cost` LEFT JOIN `tbl_print_grn` ON `tbl_print_grn`.`idtbl_print_grn`=`tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn` WHERE `tbl_grn_vouchar_import_cost_detail`.`status`=? AND `tbl_grn_vouchar_import_cost`.`tbl_company_idtbl_company`=? AND `tbl_grn_vouchar_import_cost`.`tbl_company_branch_idtbl_company_branch`=? AND `tbl_grn_vouchar_import_cost`.`tbl_print_grn_idtbl_print_grn`=?";
             $respond=$this->db->query($sql, array($grnID, $companyID, $branchID, 1, $companyID, $branchID, $grnID));
 
             if ($respond->num_rows() > 0) {
@@ -25,6 +25,7 @@ class Apiinfo extends CI_Model{
                         'exptype' => $row->exptype,
                         'expcode' => $row->expcode,
                         'grnno' => $row->grn_no,
+                        'supinvno' => $row->supinvno,
                         'grndate' => $row->expdate,
                         'amount' => str_replace(",", "", (!empty($row->amount) ? $row->amount : $row->invamount)),
                         'invamount' => str_replace(",", "", $row->invamount),
@@ -267,7 +268,7 @@ class Apiinfo extends CI_Model{
         try {
             $this->db->trans_begin();
 
-            $this->db->select('`tbl_print_invoice`.`idtbl_print_invoice`, `tbl_print_invoice`.`inv_no`, `tbl_print_invoice`.`date`, `tbl_print_invoice`.`total`, `tbl_print_invoice`.`subtotal`, `tbl_print_invoice`.`vat_amount`, `tbl_customer`.`vat_customer`, `tbl_print_invoice`.`tbl_customer_idtbl_customer`');
+            $this->db->select('`tbl_print_invoice`.`idtbl_print_invoice`, `tbl_print_invoice`.`inv_no`, `tbl_print_invoice`.`tax_invoice_num`, `tbl_print_invoice`.`date`, `tbl_print_invoice`.`total`, `tbl_print_invoice`.`subtotal`, `tbl_print_invoice`.`vat_amount`, `tbl_customer`.`vat_customer`, `tbl_print_invoice`.`tbl_customer_idtbl_customer`');
             $this->db->from('tbl_print_invoice');
             $this->db->join('tbl_customer', 'tbl_print_invoice.tbl_customer_idtbl_customer = tbl_customer.idtbl_customer');
             $this->db->where('tbl_print_invoice.idtbl_print_invoice', $invoiceID);
@@ -283,6 +284,7 @@ class Apiinfo extends CI_Model{
                 'salecode'=> 'INV', 
                 'invno'=> $respond->row(0)->inv_no,  
                 'manual_invno'=> '',  
+                'tax_invno'=> $respond->row(0)->tax_invoice_num,    
                 'invdate'=> $respond->row(0)->date,
                 'sub_total'=> $respond->row(0)->subtotal, 
                 'vat'=> $respond->row(0)->vat_amount, 
@@ -347,12 +349,19 @@ class Apiinfo extends CI_Model{
 
             $respondotherdetail=$this->db->get();
 
+            if($respond->row(0)->date>='2026-07-01'){
+                $narrationinvno = $respond->row(0)->tax_invoice_num;
+            }
+            else{
+                $narrationinvno = $respond->row(0)->inv_no;
+            }
+
             if(!empty($respondotherdetail->result())): 
                 foreach($respondotherdetail->result() as $rowdetailaccount):
                     if(($companyID==1 || $companyID==2) && $rowdetailaccount->special_cate_sub==2):
                         $obj = new stdClass();
                         $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
-                        $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
+                        $obj->narration = 'Costing for INVOICE ID: ' . $narrationinvno;
                         $obj->detailaccount = $rowdetailaccount->idtbl_account_detail;
                         $obj->chartaccount = '0';
                         $obj->crder = 'C';
@@ -361,7 +370,7 @@ class Apiinfo extends CI_Model{
                     else:
                         $obj = new stdClass();
                         $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
-                        $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
+                        $obj->narration = 'Costing for INVOICE ID: ' . $narrationinvno;
                         $obj->detailaccount = $rowdetailaccount->idtbl_account_detail;
                         $obj->chartaccount = '0';
                         $obj->crder = 'C';
@@ -377,7 +386,7 @@ class Apiinfo extends CI_Model{
                     if($rowrchartaccount->specialcate==18):
                         $obj = new stdClass();
                         $obj->amount = str_replace(",", "", $respond->row(0)->subtotal);
-                        $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
+                        $obj->narration = 'Costing for INVOICE ID: ' . $narrationinvno;
                         $obj->detailaccount = '0';
                         $obj->chartaccount = $rowrchartaccount->idtbl_account;
                         $obj->crder = 'C';
@@ -394,7 +403,7 @@ class Apiinfo extends CI_Model{
                 if($rowrchartaccount->specialcate==13 && $respond->row(0)->vat_amount>0):
                     $obj = new stdClass();
                     $obj->amount = str_replace(",", "", $respond->row(0)->vat_amount);
-                    $obj->narration = 'VAT Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
+                    $obj->narration = 'VAT Costing for INVOICE ID: ' . $narrationinvno;
                     $obj->detailaccount = '0';
                     $obj->chartaccount = $rowrchartaccount->idtbl_account;
                     $obj->crder = 'C';
@@ -403,7 +412,7 @@ class Apiinfo extends CI_Model{
                 // elseif($rowrchartaccount->specialcate==35):
                 //     $obj = new stdClass();
                 //     $obj->amount = str_replace(",", "", $respond->row(0)->total);
-                //     $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
+                //     $obj->narration = 'Costing for INVOICE ID: ' . $narrationinvno;
                 //     $obj->detailaccount = '0';
                 //     $obj->chartaccount = $rowrchartaccount->idtbl_account;
                 //     $obj->crder = 'D';
@@ -415,7 +424,7 @@ class Apiinfo extends CI_Model{
                 foreach($responddebtor->result() as $rowdebtoraccount):
                     $obj = new stdClass();
                     $obj->amount = str_replace(",", "", $respond->row(0)->total);
-                    $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
+                    $obj->narration = 'Costing for INVOICE ID: ' . $narrationinvno;
                     $obj->detailaccount = $rowdebtoraccount->idtbl_account_detail;
                     $obj->chartaccount = '0';
                     $obj->crder = 'D';
@@ -426,7 +435,7 @@ class Apiinfo extends CI_Model{
                     if($rowrchartaccount->specialcate==35):
                         $obj = new stdClass();
                         $obj->amount = str_replace(",", "", $respond->row(0)->total);
-                        $obj->narration = 'Costing for INVOICE ID: ' . $respond->row(0)->inv_no;
+                        $obj->narration = 'Costing for INVOICE ID: ' . $narrationinvno;
                         $obj->detailaccount = '0';
                         $obj->chartaccount = $rowrchartaccount->idtbl_account;
                         $obj->crder = 'D';

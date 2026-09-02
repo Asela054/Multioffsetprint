@@ -38,6 +38,7 @@ $columns = array(
     array( 'db' => '`derived_table`.`grntotal`', 'dt' => 'grntotal', 'field' => 'grntotal' ),
 	array( 'db' => '`derived_table`.`suppliername`', 'dt' => 'suppliername', 'field' => 'suppliername' ),
 	array( 'db' => '`derived_table`.`grn_no`', 'dt' => 'grn_no', 'field' => 'grn_no' ),
+	array( 'db' => '`derived_table`.`invoiceno`', 'dt' => 'invoiceno', 'field' => 'invoiceno' ),
 	array( 'db' => '`derived_table`.`approvestatus`', 'dt' => 'approvestatus', 'field' => 'approvestatus' ),
 	array( 'db' => '`derived_table`.`status`', 'dt' => 'status', 'field' => 'status' ),
 	array( 'db' => '`derived_table`.`checkby`', 'dt' => 'checkby', 'field' => 'checkby' ),
