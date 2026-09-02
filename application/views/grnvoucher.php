@@ -47,6 +47,7 @@ include "include/topnavbar.php";
                                             <tr>
                                                 <th>#</th>
                                                 <th>GRN No</th>
+                                                <th>Invoice No</th>
                                                 <th>GRN Voucher Date</th>
                                                 <th>Supplier</th>
                                                 <th>Additional Cost</th>
@@ -397,6 +398,9 @@ $(document).ready(function() {
             // },
             {
                 "data": "grn_no"
+            },
+            {
+                "data": "invoiceno"
             },
             {
                 "data": "date"
