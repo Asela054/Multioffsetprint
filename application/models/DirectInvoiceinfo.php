@@ -194,7 +194,108 @@ class DirectInvoiceinfo extends CI_Model{
                 $this->db->insert('tbl_direct_invoice_othercharges', $dataone);
             }
         }
+
+        // Generate the Tax Invoice Number
+        $invoiceDate = strtotime($date);
+        $isNewFormat = $invoiceDate >= strtotime('2026-07-01');
+        $taxInvoiceNo = '';
+
+        if ($isNewFormat) {
+            // New format: YYMMM_QQQQ_XXXXX (effective July 1, 2026)
+            $yy  = date('y', $invoiceDate);          // e.g. 26
+            $mmm = strtoupper(date('M', $invoiceDate)); // e.g. JUL
+            $qqqqMap = [
+                1 => 'MOP1',
+                2 => 'FT01',
+                3 => 'RMI1',
+            ];
+            $qqqq = $qqqqMap[$companyID] ?? 'GEN1'; // your branch/unit code — adjust as needed
+
+            $taxDatePrefix = $yy . $mmm . '_' . $qqqq . '_';
+
+            $this->db->select('tax_invoice_num');
+            $this->db->from('tbl_direct_invoice');
+            $this->db->where('tbl_company_idtbl_company', $companyID);
+            $this->db->like('tax_invoice_num', $taxDatePrefix, 'after');
+            $this->db->where('tax_invoice_num IS NOT NULL', NULL, FALSE);
+            $this->db->order_by('tax_invoice_num', 'DESC');
+            $this->db->limit(1);
+
+            $taxQuery = $this->db->get();
+
+            if ($taxQuery->num_rows() > 0) {
+                $lastTaxNo  = $taxQuery->row()->tax_invoice_num;
+                $lastCount  = intval(substr($lastTaxNo, strrpos($lastTaxNo, '_') + 1));
+                $taxCount   = $lastCount + 1;
+            } else {
+                $currentYearTax = date("Y", strtotime($date));
+                $currentMonthTax = date("m", strtotime($date));
             
+                if ($currentMonthTax < 4) { //03
+                    $startDateTax = $currentYearTax."-04-01";
+                    $startDateTax = date('Y-m-d',  strtotime($startDateTax.'-1 year'));
+                    $endDateTax = $currentYearTax."-03-31";
+                } else {
+                    $startDateTax = $currentYearTax."-04-01";
+                    $endDateTax = $currentYearTax."-03-31";
+                    $endDateTax = date('Y-m-d',  strtotime($endDateTax.'+1 year'));
+                }
+            
+                $fromyearTax = date("Y-m-d", strtotime($startDateTax));
+                $toyearTax = date("Y-m-d", strtotime($endDateTax));
+
+                $this->db->select('inv_no');
+                $this->db->from('tbl_direct_invoice');
+                $this->db->where('tbl_company_idtbl_company', $companyID);
+                $this->db->where("DATE(insertdatetime) >=", $fromyearTax);
+                $this->db->where("DATE(insertdatetime) <=", $toyearTax);
+                $this->db->order_by('inv_no', 'DESC');
+                $this->db->limit(1);
+                $taxQueryInv = $this->db->get();
+
+                if ($taxQueryInv->num_rows() > 0) {
+                    $last_inv_no_tax = $taxQueryInv->row()->inv_no;
+                    $inv_no_tax = intval(substr($last_inv_no_tax, -4));
+                    $taxCount = $inv_no_tax + 1;
+                } else {
+                    $taxCount = 1;
+                }
+            }
+
+            // XXXXX — numeric only, no letters
+            $taxInvoiceNo = $taxDatePrefix . sprintf('%05d', $taxCount);
+
+        } else {
+            // Old format: TXNYYYYMMDDxxxx
+            $taxDatePrefix = 'TXN' . date('Ymd', $invoiceDate);
+
+            $this->db->select('tax_invoice_num');
+            $this->db->from('tbl_direct_invoice');
+            $this->db->where('tbl_company_idtbl_company', $companyID);
+            $this->db->like('tax_invoice_num', $taxDatePrefix, 'after');
+            $this->db->where('tax_invoice_num IS NOT NULL', NULL, FALSE);
+            $this->db->order_by('tax_invoice_num', 'DESC');
+            $this->db->limit(1);
+
+            $taxQuery = $this->db->get();
+
+            if ($taxQuery->num_rows() > 0) {
+                $lastTaxNo = $taxQuery->row()->tax_invoice_num;
+                $lastCount = intval(substr($lastTaxNo, -4));
+                $taxCount  = $lastCount + 1;
+            } else {
+                $taxCount = 1;
+            }
+
+            $taxInvoiceNo = $taxDatePrefix . sprintf('%04d', $taxCount);
+        }
+
+        $this->db->where('idtbl_direct_invoice', $invoiceID);
+        $this->db->update('tbl_direct_invoice', [
+            'tax_invoice_num' => $taxInvoiceNo,
+            'updatedatetime'  => $updatedatetime
+        ]);
+
         // Generate the Invoice NO
         
         $currentYear = date("Y", strtotime($date));

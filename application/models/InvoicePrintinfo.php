@@ -41,13 +41,12 @@ class InvoicePrintinfo extends CI_Model{
         // ticked at approval time). Otherwise keep the placeholder dots so the
         // information stays hidden on the document.
         $cpStatus = !empty($respond->row(0)->cp_status) ? $respond->row(0)->cp_status : 0;
+        $authorizedByName = !empty($companydetails->row()->authorizedByName) ? htmlspecialchars($companydetails->row()->authorizedByName) : '...................................';
 
         if ($cpStatus == 1) {
-            $authorizedByName = !empty($companydetails->row()->authorizedByName) ? htmlspecialchars($companydetails->row()->authorizedByName) : '...................................';
-            $contactNo        = !empty($companydetails->row()->contactNo)        ? htmlspecialchars($companydetails->row()->contactNo)        : '...................................';
+            $contactNo = !empty($companydetails->row()->contactNo) ? htmlspecialchars($companydetails->row()->contactNo) : '...................................';
         } else {
-            $authorizedByName = '...................................';
-            $contactNo        = '...................................';
+            $contactNo = '...................................';
         }
 
         $net = sprintf('%0.2f', $respond->row(0)->nettotal);
