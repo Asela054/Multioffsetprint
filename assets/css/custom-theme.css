@@ -216,9 +216,9 @@ body.sidenav-toggled #layoutSidenav #layoutSidenav_nav {
 }
 
 @media (min-width: 992px) {
-    body.sidenav-toggled .sidenav-brand {
-        justify-content: center;
-        padding: 22px 0 18px 0;
+    /* let the popover flyout override the "hide all collapses" rule above */
+    body.sidenav-toggled #accordionSidenav .collapse.qp-popover-open {
+        display: block !important;
     }
 }
 
@@ -584,4 +584,77 @@ body.sidenav-toggled #layoutSidenav #layoutSidenav_content {
     body.sidenav-toggled {
         overflow: hidden;
     }
+}
+
+/* ==========================================================================
+   SIDEBAR SUBMENU FLYOUT — styling for sidebar-popover.js
+   ========================================================================== */
+
+/* trigger row (an <a> in this project, since there's no .sidenav-item wrapper) */
+#accordionSidenav > a.nav-link.qp-popover-open {
+    background: var(--blue-bg);
+    color: var(--blue);
+}
+#accordionSidenav > a.nav-link.qp-popover-open .nav-link-icon {
+    color: var(--blue);
+}
+
+/* the floating panel itself — position is set inline by the script
+   (position: fixed), this just supplies the look */
+.collapse.qp-popover-open {
+    width: 230px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    padding: 8px;
+    z-index: 1050; /* above topnav (1039) and sidebar (1038) */
+}
+
+.collapse.qp-popover-open::before {
+    content: "";
+    position: absolute;
+    left: -6px;
+    top: 18px;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    transform: rotate(45deg);
+    z-index: -1;
+}
+
+.qp-popover-header {
+    padding: 8px 10px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--border-soft);
+}
+.qp-popover-header span {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--heading-muted);
+}
+
+.collapse.qp-popover-open .sidenav-menu-nested .nav-link {
+    padding: 8px 10px !important;
+    border-radius: 10px;
+    color: var(--ink);
+}
+.collapse.qp-popover-open .sidenav-menu-nested .nav-link:hover {
+    background: #f6f7fb;
+    color: var(--blue);
+}
+
+/* nested toggle (Service Info, Service Order Inquiry) stays inline
+   inside the flyout instead of trying to pop out sideways again */
+.collapse.qp-popover-open .sidenav-menu-nested .collapse {
+    position: static !important;
+    display: block !important; /* only applies once .show is added by Bootstrap */
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin-left: 10px;
+}
+.collapse.qp-popover-open .sidenav-menu-nested .collapse:not(.show) {
+    display: none !important;
 }
