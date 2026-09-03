@@ -11,6 +11,7 @@
 <!-- <script src="https://cdn.datatables.net/fixedcolumns/3.3.3/js/dataTables.fixedColumns.min.js"></script> -->
 <!--<script src="<?php echo base_url() ?>assets/demo/datatables-demo.js"></script>-->
 <script src="<?php echo base_url() ?>assets/js/script.js"></script>
+<script src="<?php echo base_url() ?>assets/js/sidebar-popover.js"></script>
 <script src="<?php echo base_url() ?>assets/js/bootstrap-notify.js"></script>
 <script src="<?php echo base_url() ?>assets/js/select2.full.js"></script>
 <script src="<?php echo base_url() ?>assets/js/jquery.serializejson.js"></script>
