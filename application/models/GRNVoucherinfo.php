@@ -491,7 +491,7 @@ class GRNVoucherinfo extends CI_Model{
     
             if ($confirmnot == 1) {
                  // Get GRN details
-                $this->db->select('`tbl_print_grn`.`batchno`, `tbl_print_grn`.`vat`, `tbl_print_grn`.`idtbl_print_grn`, `tbl_print_grn`.`grn_no`, `tbl_print_grn`.`grntype`, `tbl_print_grn`.`grndate`, `tbl_print_grn`.`tbl_supplier_idtbl_supplier`, `tbl_print_grn`.`vatamount`, `tbl_print_grn`.`total`, `tbl_supplier`.`suppliername`, `tbl_grn_vouchar_import_cost`.`grnsubtotal`, `tbl_grn_vouchar_import_cost`.`grndiscount`, `tbl_grn_vouchar_import_cost`.`grnvatamount`, `tbl_grn_vouchar_import_cost`.`grntotal`');
+                $this->db->select('`tbl_print_grn`.`batchno`, `tbl_print_grn`.`vat`, `tbl_print_grn`.`idtbl_print_grn`, `tbl_print_grn`.`grn_no`, `tbl_print_grn`.`grntype`, `tbl_print_grn`.`grndate`, `tbl_print_grn`.`tbl_supplier_idtbl_supplier`, `tbl_print_grn`.`vatamount`, `tbl_print_grn`.`total`, `tbl_supplier`.`suppliername`, `tbl_grn_vouchar_import_cost`.`grnsubtotal`, `tbl_grn_vouchar_import_cost`.`grndiscount`, `tbl_grn_vouchar_import_cost`.`grnvatamount`, `tbl_grn_vouchar_import_cost`.`grntotal`, `tbl_grn_vouchar_import_cost`.`invoiceno`');
                 $this->db->from('tbl_grn_vouchar_import_cost');
                 $this->db->join('tbl_print_grn', 'tbl_print_grn.idtbl_print_grn = tbl_grn_vouchar_import_cost.tbl_print_grn_idtbl_print_grn', 'left');
                 $this->db->join('tbl_supplier', 'tbl_supplier.idtbl_supplier = tbl_print_grn.tbl_supplier_idtbl_supplier', 'left');
@@ -571,6 +571,7 @@ class GRNVoucherinfo extends CI_Model{
     
                 // Update GRN with cost details
                 $dataupdategrn = array(
+                    'invoicenum' => $grnData->invoiceno,
                     'subtotalcost' => $grnData->grnsubtotal,
                     'vatamountcost' => $grnData->grnvatamount,
                     'discountcost' => $grnData->grndiscount,

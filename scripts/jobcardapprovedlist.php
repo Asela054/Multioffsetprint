@@ -42,7 +42,8 @@ $columns = array(
 	array( 'db' => '`uc`.`branch`', 'dt' => 'branch', 'field' => 'branch' ),
 	array( 'db' => '`u`.`approvestatus`', 'dt' => 'approvestatus', 'field' => 'approvestatus' ),
 	array( 'db' => '`u`.`issuematerialstatus`', 'dt' => 'issuematerialstatus', 'field' => 'issuematerialstatus' ),
-	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' )
+	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' ),
+	array( 'db' => 'IFNULL(`ud`.`notapprovecount`, 0) AS `notapprovecount`', 'dt' => 'notapprovecount', 'field' => 'notapprovecount' )
 );
 
 // SQL server connection information
@@ -65,7 +66,26 @@ require('ssp.customized.class.php' );
 $companyid=$_SESSION['company_id'];
 $branchid=$_SESSION['branch_id'];
 
-$joinQuery = "FROM `tbl_jobcard` AS `u` LEFT JOIN `tbl_customer` AS `ua` ON (`ua`.`idtbl_customer` = `u`.`tbl_customer_idtbl_customer`) LEFT JOIN `tbl_company` AS `ub` ON (`ub`.`idtbl_company` = `u`.`tbl_company_idtbl_company`) LEFT JOIN `tbl_company_branch` AS `uc` ON (`uc`.`idtbl_company_branch` = `u`.`tbl_company_branch_idtbl_company_branch`)";
+$joinQuery = "FROM `tbl_jobcard` AS `u`
+LEFT JOIN `tbl_customer` AS `ua`
+    ON (`ua`.`idtbl_customer` = `u`.`tbl_customer_idtbl_customer`)
+LEFT JOIN `tbl_company` AS `ub`
+    ON (`ub`.`idtbl_company` = `u`.`tbl_company_idtbl_company`)
+LEFT JOIN `tbl_company_branch` AS `uc`
+    ON (`uc`.`idtbl_company_branch` = `u`.`tbl_company_branch_idtbl_company_branch`)
+LEFT JOIN (
+    SELECT
+        `tbl_jobcard_idtbl_jobcard`,
+        `tbl_company_idtbl_company`,
+        `tbl_company_branch_idtbl_company_branch`,
+        COUNT(*) AS `notapprovecount`
+    FROM `tbl_issue_note`
+    WHERE `approvestatus` = 0
+    GROUP BY `tbl_jobcard_idtbl_jobcard`, `tbl_company_idtbl_company`, `tbl_company_branch_idtbl_company_branch`
+) AS `ud`
+    ON (`ud`.`tbl_jobcard_idtbl_jobcard` = `u`.`idtbl_jobcard`
+        AND `ud`.`tbl_company_idtbl_company` = `u`.`tbl_company_idtbl_company`
+        AND `ud`.`tbl_company_branch_idtbl_company_branch` = `u`.`tbl_company_branch_idtbl_company_branch`)";
 
 $extraWhere = "`u`.`status` IN (1,2) AND `u`.`tbl_company_idtbl_company`='$companyid' AND `u`.`tbl_company_branch_idtbl_company_branch`='$branchid' AND `u`.`approvestatus` = 1";
 
