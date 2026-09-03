@@ -24,6 +24,7 @@ include "include/topnavbar.php";
                         <div class="row">
                             <div class="col-12">
 								<span class="badge bg-success-soft px-2 mb-2">&nbsp;</span> Issued
+								<span class="badge bg-primary-soft px-2 mb-2">&nbsp;</span> Not Passed to Account
                                 <div class="scrollbar pb-3" id="style-2">
                                     <table class="table table-bordered table-striped table-sm nowrap" id="dataTable">
                                         <thead>
@@ -329,7 +330,7 @@ $(document).ready(function () {
 					var button = '';
 
 					button+='<button type="button" class="btn btn-primary btn-sm btnBatchAllocation mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="Batch Allocation"><i class="fas fa-tasks"></i></button>';
-					button+='<button type="button" class="btn btn-dark btn-sm btnView mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="View & Issue" data-approvestatus="'+full['approvestatus']+'"><i class="fas fa-eye"></i></button>';
+					button+='<button type="button" class="btn btn-dark btn-sm btnView mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="View & Issue" data-approvestatus="'+full['approvestatus']+'" data-issuematerialstatus="'+full['issuematerialstatus']+'"><i class="fas fa-eye"></i></button>';
 					button+='<button type="button" class="btn btn-orange btn-sm btnListIssue mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="Issue note" data-approvestatus="'+full['approvestatus']+'"><i class="fas fa-file"></i></button>';
                     // if(full['issuematerialstatus'] == 1){
 					//     button += '<a href="<?php echo base_url() ?>Jobcardissuematerial/jobCardIssueNote/' + full['idtbl_jobcard'] + '" data-toggle="tooltip" title="Issue Note" target="_blank" class="btn btn-danger btn-sm"><i class="fas fa-file-pdf"></i></a>';
@@ -340,7 +341,10 @@ $(document).ready(function () {
 			}
 		],
         createdRow: function( row, data, dataIndex){
-			if ( data['issuematerialstatus']  == 1) {
+			if(data['notapprovecount']>0){
+				$(row).addClass('bg-primary-soft');
+			}
+			else if ( data['issuematerialstatus']  == 1) {
 				$(row).addClass('bg-success-soft');
 			}
 		},
@@ -352,6 +356,7 @@ $(document).ready(function () {
 		var id = $(this).attr('id');
 		$('#jobcardid').val(id);
 		var approvestatus = $(this).attr('data-approvestatus');
+		var issuematerialstatus = $(this).attr('data-issuematerialstatus');
 
 		Swal.fire({
 			title: '',
@@ -384,6 +389,13 @@ $(document).ready(function () {
 							$('#btnapprovereject').addClass('d-none').prop('disabled', true);
 							if(approvestatus==1){$('#alertdiv').html('<div class="alert alert-success" role="alert"><i class="fas fa-check-circle mr-2"></i> Job card approved</div>');}
 							else if(approvestatus==2){$('#alertdiv').html('<div class="alert alert-danger" role="alert"><i class="fas fa-times-circle mr-2"></i> Job card rejected</div>');}
+						}
+
+						if(issuematerialstatus==1){
+							$('#issuebtn').addClass('d-none').prop('disabled', true);
+						}
+						else{
+							$('#issuebtn').removeClass('d-none').prop('disabled', false);
 						}
 					},
 					error: function(error) {
