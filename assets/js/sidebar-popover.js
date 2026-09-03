@@ -238,4 +238,27 @@
         setTimeout(closeOpenPair, 0);
     });
 
+    // ------------------------------------------------------------------
+    // Block Bootstrap's own click-to-toggle on TOP-LEVEL links while the
+    // rail is collapsed (icon-only) — we want hover-only behavior there.
+    // Must run in the capture phase so it fires BEFORE Bootstrap's own
+    // bubble-phase document click handler (which is what actually toggles
+    // the .show class and fights with the flyout).
+    // ------------------------------------------------------------------
+    document.addEventListener('click', function (e) {
+        if (!active()) {
+            return; // expanded sidebar or mobile — let Bootstrap behave normally
+        }
+        var target = e.target.closest ? e.target.closest('a.nav-link[data-toggle="collapse"]') : null;
+        if (!target) {
+            return;
+        }
+        var $a = $(target);
+        if (!isTopLevel($a)) {
+            return; // nested toggle (e.g. "Service Info") — still fine to click
+        }
+        e.preventDefault();
+        e.stopImmediatePropagation();
+    }, true);
+
 })(jQuery);
