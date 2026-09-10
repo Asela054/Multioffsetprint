@@ -45,6 +45,10 @@
     var actionText=$('#actiontext').val();
     action(actionText);
 
+    $(document).ready(function() {
+        $('.container-fluid').removeClass('p-2');
+    });
+
     function action(data) {
         if(data!=''){
             var obj=JSON.parse(data);

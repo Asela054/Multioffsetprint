@@ -110,6 +110,7 @@ include "include/topnavbar.php";
 									<thead>
 										<tr>
 											<th>#</th>
+											<th>Issue Note No</th>
 											<th>Issue Date</th>
 											<th>Job Card No</th>
 											<th>Customer</th>
@@ -670,6 +671,9 @@ $(document).ready(function () {
                     return meta.row + 1 + meta.settings._iDisplayStart;
                 }
             },
+			{
+				"data": "idtbl_jobcard_manual_issue"
+			},
 			{
 				"data": "issuedate"
 			},
