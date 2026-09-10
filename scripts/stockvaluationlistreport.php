@@ -74,7 +74,7 @@ array(
 
 
 array(
-'db'=>'s.total',
+'db'=>'(s.qty * s.unitprice)',
 'dt'=>'total',
 'field'=>'total',
 'as'=>'total'

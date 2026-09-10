@@ -14,6 +14,7 @@ class PdfGRNinfo extends CI_Model {
             COALESCE(tbl_print_grn.totalcost, 0) AS grn_total,
             COALESCE(tbl_print_grn.vatamountcost, 0) AS vatamount,
             COALESCE(tbl_print_grn.discount, 0) AS discount,
+            COALESCE(tbl_print_grn.remark, '') AS remark,
             COALESCE(tbl_print_grndetail.qty, 0) AS qty,
             COALESCE(tbl_print_grndetail.costunitprice, 0) AS costunitprice,
             COALESCE(tbl_material_group.idtbl_material_group, 0) AS idtbl_material_group,
@@ -220,9 +221,6 @@ class PdfGRNinfo extends CI_Model {
                         <table style="width:100%;border-collapse: collapse;">
                             <td width="40%" style="vertical-align: top;">
                                 <p style="margin:0px;font-size: 13px;font-weight: bold;">'. $query->row()->suppliername .'</p>';
-                                if (!empty($remarkFeild)) {
-                                    $html .= '<p style="margin:0px;font-size:13px;font-weight: bold;">'.htmlspecialchars($remarkFeild).'</p>';
-                                }
                                 $html .= '
                                 <p style="margin:0px;font-size: 13px;">'. $query->row()->delivery_address_line1 .', '. $query->row()->delivery_address_line2 .',</p>
                                 <p style="margin:0px;font-size: 13px;">'. $query->row()->delivery_city .',</p>
