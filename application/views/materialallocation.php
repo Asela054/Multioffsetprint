@@ -20,7 +20,7 @@ include "include/topnavbar.php";
 			</div>
 			<div class="container-fluid mt-2 p-0 p-2">
 				<div class="card">
-					<div class="card-body p-0 p-2">
+					<div class="card-body p-0 p-3">
                         <div class="row">
 							<div class="col-12 text-right">
 							<button type="button" class="btn btn-primary btn-sm px-3" data-toggle="modal" data-target="#modalissue"><i class="fas fa-plus mr-2"></i>Allocate Material Issue</button>
@@ -31,7 +31,7 @@ include "include/topnavbar.php";
 								<span class="badge bg-danger-soft px-2 mb-2">&nbsp;</span> Rejected
 								<span class="badge bg-success-soft px-2 mb-2">&nbsp;</span> Issued
                                 <div class="scrollbar pb-3" id="style-2">
-                                    <table class="table table-bordered table-striped table-sm nowrap" id="dataTable">
+                                    <table class="table table-bordered table-striped table-sm nowrap w-100" id="dataTable">
                                         <thead>
                                             <tr>
                                                 <th>#</th>

@@ -2606,6 +2606,7 @@ class Materialallocationinfo extends CI_Model{
         $this->db->join('tbl_jobcard j', 'j.idtbl_jobcard = jm.tbl_jobcard_idtbl_jobcard', 'left');
         $this->db->where('j.tbl_customerinquiry_idtbl_customerinquiry', $recordID);
         $this->db->where('jm.sectiontype', $sectionType);
+        $this->db->where('jm.status < ', 3);
         $subquery = $this->db->get_compiled_select();
 
         $this->db->select('SUM(distinct_values.reqissueqty) as total_reqissueqty');
