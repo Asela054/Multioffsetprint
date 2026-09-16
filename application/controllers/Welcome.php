@@ -75,13 +75,48 @@ class Welcome extends CI_Controller {
 		$result['materialinfo']=$this->DashboardInfo->DashMaterialInfo();
 		$result['zerostockinfo']=$this->DashboardInfo->DashZeroStockInfo();
 		$result['lowstockinfo']=$this->DashboardInfo->DashLowStockInfo();
+		$result['todaysales']=$this->DashboardInfo->DashTodaySalesTotal();
+		$result['monthsales']=$this->DashboardInfo->DashMonthSalesTotal();
 		$result['resultdate']=$this->DashboardInfo->DashLastFiveInfo();
 		$result['resultqty']=$this->DashboardInfo->DashTopFiveInfo();
 		$result['resultnonmove']=$this->DashboardInfo->DashNonMoveInfo();
+
+		// Chart data: daily/monthly sales (json-encoded for Chart.js)
+		$result['dailysales']   = json_encode($this->DashboardInfo->DashDailySales(7));
+		$result['monthlysales'] = json_encode($this->DashboardInfo->DashMonthlySales(12));
+
 		$this->load->view('dashboard', $result);
 	}
 	public function Getbranchaccocompany(){
 		$recordID=$this->input->post('company_id');
         $result=CompanyBranchList($recordID);
+	}
+
+	// AJAX: returns 7-day sales total ending on the posted date
+	// POST: enddate = 'YYYY-MM-DD'
+	public function DailyChartData(){
+		$this->load->model('DashboardInfo');
+		$endDate = $this->input->post('enddate');
+
+		$data = array(
+			'sales' => $this->DashboardInfo->DashDailySales(7, $endDate),
+		);
+
+		header('Content-Type: application/json');
+		echo json_encode($data);
+	}
+
+	// AJAX: returns 12-month sales total ending on the posted month
+	// POST: endmonth = 'YYYY-MM'
+	public function MonthlyChartData(){
+		$this->load->model('DashboardInfo');
+		$endMonth = $this->input->post('endmonth');
+
+		$data = array(
+			'sales' => $this->DashboardInfo->DashMonthlySales(12, $endMonth),
+		);
+
+		header('Content-Type: application/json');
+		echo json_encode($data);
 	}
 }
