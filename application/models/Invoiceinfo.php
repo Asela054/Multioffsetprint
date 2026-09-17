@@ -860,7 +860,7 @@ class Invoiceinfo extends CI_Model{
             if ($confirmnot == 1) {
                 $data = array(
                     'approvestatus' => $confirmnot,
-                    'updateuser' => $userID,
+                    'approve_by' => $userID,
                     'updatedatetime' => $updatedatetime
                 );
             

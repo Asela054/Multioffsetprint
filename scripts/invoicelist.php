@@ -33,6 +33,7 @@ $columns = array(
     array('db' => '`main`.`approvestatus`', 'dt' => 'approvestatus', 'field' => 'approvestatus'),
     array('db' => '`main`.`status`', 'dt' => 'status', 'field' => 'status'),
     array('db' => '`main`.`check_by`', 'dt' => 'check_by', 'field' => 'check_by'),
+    array('db' => '`main`.`approve_by`', 'dt' => 'approve_by', 'field' => 'approve_by'),
     array('db' => '`main`.`name`', 'dt' => 'name', 'field' => 'name'),
     array('db' => '`main`.`tbl_print_dispatch_idtbl_print_dispatch`', 'dt' => 'tbl_print_dispatch_idtbl_print_dispatch', 'field' => 'tbl_print_dispatch_idtbl_print_dispatch'),
     array('db' => '`main`.`job_id`', 'dt' => 'job_id', 'field' => 'job_id'),
@@ -76,6 +77,7 @@ $joinQuery = "FROM (
 		u.approvestatus,
         u.status,
         u.check_by,
+        u.approve_by,
         us.name,
         v.tbl_print_dispatch_idtbl_print_dispatch,
         v.job_id
@@ -86,7 +88,7 @@ $joinQuery = "FROM (
     LEFT JOIN 
         tbl_print_invoicedetail AS v ON v.tbl_print_invoice_idtbl_print_invoice = u.idtbl_print_invoice
     LEFT JOIN 
-        tbl_user AS us ON u.check_by = us.idtbl_user
+        tbl_user AS us ON u.approve_by = us.idtbl_user
     WHERE 
         u.status IN (1, 2, 4)
     GROUP BY 
