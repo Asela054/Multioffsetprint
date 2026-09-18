@@ -38,6 +38,7 @@ include "include/topnavbar.php";
                                                 <th>Job Desc</th>
                                                 <!-- <th>Issue Qty</th> -->
                                                 <!-- <th>Status</th> -->
+                                                <th class="d-none"></th>
                                                 <th class="text-right"></th>
                                             </tr>
                                         </thead>
@@ -277,14 +278,15 @@ $(document).ready(function () {
 			type: "POST", // you can use GET
 		},
 		"order": [
-			[0, "desc"]
+			[7, "desc"]
 		],
 		"columns": [
 			{
                 "data": null,
-                "render": function(data, type, full, meta) {
-                    return meta.row + 1 + meta.settings._iDisplayStart;
-                }
+				"orderable": false,
+				"render": function(data, type, full, meta) {
+					return meta.row + 1 + meta.settings._iDisplayStart;
+				}
             },
 			{
 				"data": "date"
@@ -322,6 +324,12 @@ $(document).ready(function () {
 			// 		}
             //     }
             // },
+			{
+				// Hidden column — order කරන්න විතරයි පාවිච්චි කරන්නෙ
+				"data": "idtbl_jobcard_issue_meterial",
+				"visible": false,
+				"searchable": false
+			},
 			{
 				"targets": -1,
 				"className": 'text-right',
