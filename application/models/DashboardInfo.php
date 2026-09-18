@@ -44,11 +44,11 @@ class DashboardInfo extends CI_Model{
         return $lowstockinfo;
     }
 
-    // Today's total approved sales (single number, for the stat card)
+    // Today's total approved sales, EXCLUDING VAT (single number, for the stat card)
     public function DashTodaySalesTotal(){
         $company = $_SESSION['company_id'];
 
-        $sql = "SELECT COALESCE(SUM(`total`), 0) AS salestotal
+        $sql = "SELECT COALESCE(SUM(`subtotal`), 0) AS salestotal
                 FROM `tbl_print_invoice`
                 WHERE `status` = 1 AND `approvestatus` = 1
                 AND `tbl_company_idtbl_company` = ?
@@ -57,11 +57,11 @@ class DashboardInfo extends CI_Model{
         return $todaysales;
     }
 
-    // Current calendar month's total approved sales (single number, for the stat card)
+    // Current calendar month's total approved sales, EXCLUDING VAT (single number, for the stat card)
     public function DashMonthSalesTotal(){
         $company = $_SESSION['company_id'];
 
-        $sql = "SELECT COALESCE(SUM(`total`), 0) AS salestotal
+        $sql = "SELECT COALESCE(SUM(`subtotal`), 0) AS salestotal
                 FROM `tbl_print_invoice`
                 WHERE `status` = 1 AND `approvestatus` = 1
                 AND `tbl_company_idtbl_company` = ?
@@ -99,6 +99,7 @@ class DashboardInfo extends CI_Model{
 
     /* =========================================================
        CHART DATA — SALES (tbl_print_invoice)
+       Figures are EXCLUDING VAT (based on `subtotal`, not `total`).
        Each method returns ['labels' => [...], 'data' => [...]]
        ready to json_encode() straight into Chart.js.
 
@@ -108,12 +109,12 @@ class DashboardInfo extends CI_Model{
        anchor so the two never disagree.
        ========================================================= */
 
-    // Daily sales total for $days days ending on $endDate (default: today), gaps filled with 0
+    // Daily sales total (excl. VAT) for $days days ending on $endDate (default: today), gaps filled with 0
     public function DashDailySales($days = 7, $endDate = null){
         $company = $_SESSION['company_id'];
         $endDate = $this->_normalizeDate($endDate);
 
-        $sql = "SELECT DATE(`date`) AS thedate, SUM(`total`) AS total
+        $sql = "SELECT DATE(`date`) AS thedate, SUM(`subtotal`) AS total
                 FROM `tbl_print_invoice`
                 WHERE `status` = 1 AND `approvestatus` = 1
                 AND `tbl_company_idtbl_company` = ?
@@ -125,13 +126,13 @@ class DashboardInfo extends CI_Model{
         return $this->_fillDailySeries($rows, $days, 'thedate', 'total', $endDate);
     }
 
-    // Monthly sales total for $months months ending on $endMonth (default: current month), gaps filled with 0
+    // Monthly sales total (excl. VAT) for $months months ending on $endMonth (default: current month), gaps filled with 0
     public function DashMonthlySales($months = 12, $endMonth = null){
         $company  = $_SESSION['company_id'];
         $endMonth = $this->_normalizeMonth($endMonth);
         $endOfEndMonth = date('Y-m-t', strtotime($endMonth . '-01'));
 
-        $sql = "SELECT DATE_FORMAT(`date`, '%Y-%m') AS themonth, SUM(`total`) AS total
+        $sql = "SELECT DATE_FORMAT(`date`, '%Y-%m') AS themonth, SUM(`subtotal`) AS total
                 FROM `tbl_print_invoice`
                 WHERE `status` = 1 AND `approvestatus` = 1
                 AND `tbl_company_idtbl_company` = ?
