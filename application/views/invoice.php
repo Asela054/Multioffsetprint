@@ -388,7 +388,7 @@ $vatValue = ($companyID == 3) ? "0" : "18";
             										<th>Job Number</th>
             										<th>Total Amount</th>
                                                     <th>Status</th>
-                                                    <th>Check By</th>
+                                                    <th>Approve By</th>
             										<th class="text-right">Actions</th>
             									</tr>
             								</thead>
