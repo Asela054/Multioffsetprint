@@ -524,8 +524,15 @@ class Jobcardissuematerialinfo extends CI_Model {
                 $this->db->where('tbl_print_material_info_idtbl_print_material_info', $materialID);
                 $this->db->where('tbl_company_idtbl_company', $companyID);
                 $this->db->where('tbl_company_branch_idtbl_company_branch', $branchID);
+                $this->db->where('qty >=', $issueqty);
                 $this->db->set('qty', 'qty - '.$issueqty, false);
                 $this->db->update('tbl_print_stock');
+
+                if ($this->db->affected_rows() === 0) {
+                    // Either this batch doesn't exist for this material/company/branch,
+                    // or qty is currently less than issueqty - stock would go negative.
+                    throw new Exception("Insufficient stock for batch {$batchno} (materialID: {$materialID}): cannot deduct {$issueqty}, would go negative.");
+                }
 
                 //Issuenote Detail
                 $dataissuenotedetail = array(
@@ -1149,7 +1156,7 @@ class Jobcardissuematerialinfo extends CI_Model {
                     if ($respondstock->num_rows() === 0) {
                         throw new Exception("Stock batch not found: {$rowbatchno} (materialID: {$materialID})");
                     }
-
+                    
                     if ($balqty > 0) {
                         if ($respondstock->row(0)->qty >= $balqty) {
                             $issueqty = $balqty;
@@ -1158,7 +1165,7 @@ class Jobcardissuematerialinfo extends CI_Model {
                             $balqty   = $balqty - $respondstock->row(0)->qty;
                             $issueqty = $respondstock->row(0)->qty;
                         }
-
+                        
                         $datamaterialissue = [
                             'sectiontype'          => $type,
                             'issuedate'            => $allocationdate,
