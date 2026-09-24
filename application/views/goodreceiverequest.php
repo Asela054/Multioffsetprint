@@ -399,7 +399,8 @@ include "include/topnavbar.php";
 						'</td><td><button type="button" onclick= "productDelete(this);" id="btnDeleterow" class=" btn btn-danger btn-sm float-right"><i class="fas fa-trash-alt"></i></button></td> </tr>'
 					);
 
-					$('#product').val('');
+					$('#product').val(null).trigger('change');
+					$('#uom').prop('selectedIndex', 0);
 					$('#unitprice').val('');
 					$('#saleprice').val('');
 					$('#comment').val('');

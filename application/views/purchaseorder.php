@@ -839,8 +839,8 @@ $(document).ready(function() {
                                     row += '<td class="text-center">' + newqty + '</td>';
                                     row += '<td class="text-center">' + uom + '</td>';
                                     row += '<td class="d-none">' + uomID + '</td>';
-                                    row += '<td class="text-right">' + unitprice.toFixed(2) + '</td>';
-                                    row += '<td class="text-right">' + price.toFixed(2) + '</td>';        // NEW
+                                    row += '<td class="text-right">' + unitprice + '</td>';
+                                    row += '<td class="text-right">' + price + '</td>';        // NEW
                                     row += '<td class="edittotal d-none">' + netprice + '</td>';
                                     row += '<td class="text-right">' + showtotal + '</td>';
                                     row += '<td class="text-right d-none">' + pieces + '</td>';
@@ -1109,8 +1109,8 @@ $(document).ready(function() {
     		row += '<td class="text-center">' + newqty + '</td>';
     		row += '<td class="text-center">' + uom + '</td>';
     		row += '<td class="d-none">' + uomID + '</td>';
-    		row += '<td class="text-right">' + unitprice.toFixed(2) + '</td>';
-    		row += '<td class="text-right">' + newprice.toFixed(2) + '</td>';
+    		row += '<td class="text-right">' + unitprice + '</td>';
+    		row += '<td class="text-right">' + newprice + '</td>';
     		row += '<td class="total d-none">' + total + '</td>';
     		row += '<td class="text-right">' + showtotal + '</td>';
     		row += '<td class="text-right d-none">' + pieces + '</td>';
