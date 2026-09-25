@@ -81,6 +81,7 @@ class InvoicePrintinfo extends CI_Model{
         foreach ($respond2->result() as $rowlist) {
             $unitPrice = $rowlist->unitprice;
             $price     = !empty($rowlist->packetprice) ? $rowlist->packetprice : 0;
+            $netprice = $rowlist->netprice;
 
             // Total still follows the same rule the app uses elsewhere:
             // packet price when present, otherwise plain unit price × qty
@@ -111,6 +112,7 @@ class InvoicePrintinfo extends CI_Model{
                 'qty' => $qty,
                 'measureType' => $measureType,
                 'unitPrice' => $unitPrice,
+                'netprice' => $netprice,
                 'price' => $price,          // NEW
                 'nettotal' => $nettotal
             ];
@@ -279,7 +281,7 @@ class InvoicePrintinfo extends CI_Model{
                                     <td style="width: 8%; text-align:center; border-right: 1px solid black;">' . htmlspecialchars($row['measureType']) . '</td>
                                     <td style="width: 14%; text-align:right; border-right: 1px solid black;padding-right: 10px;">' . htmlspecialchars(number_format($row['unitPrice'],2)) . '</td>
                                     <td style="width: 14%; text-align:right; border-right: 1px solid black;padding-right: 10px;">' . htmlspecialchars(number_format($row['price'],2)) . '</td>
-                                    <td style="width: 17%; text-align:right; border-right: 1px solid black;padding-right: 10px;">' . htmlspecialchars(number_format($row['nettotal'],2)) . '</td>
+                                    <td style="width: 17%; text-align:right; border-right: 1px solid black;padding-right: 10px;">' . htmlspecialchars(number_format($row['netprice'],2)) . '</td>
                                 </tr>';
                             }
                         $html.='</tbody>';
