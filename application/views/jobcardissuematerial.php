@@ -217,6 +217,91 @@ include "include/topnavbar.php";
 		</div>
 	</div>
 </div>
+<!-- Modal Return Issue -->
+<div class="modal fade" id="modalJobcardIssueReturn" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+	aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalCenterTitle">Job card return note</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form id="formreturnnote" method="post">
+					<div class="form-row mb-1">
+						<div class="col-3">
+							<label class="small font-weight-bold text-dark">Return Date</label>
+							<input type="date" class="form-control form-control-sm" name="returndate" id="returndate" max="<?php echo date('Y-m-d') ?>" required>
+						</div>
+						<div class="col-3">
+							<label class="small font-weight-bold text-dark">Section</label>
+							<select class="form-control form-control-sm" name="returnsectiontype" id="returnsectiontype" required>
+								<option value="">Select</option>
+							</select>
+						</div>
+						<div class="col">
+							<label class="small font-weight-bold text-dark">Material</label>
+							<select class="form-control form-control-sm" id="returnmaterial" name="returnmaterial" required>
+								<option value="">Select</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="col-4">
+							<label class="small font-weight-bold text-dark">Batch no</label>
+							<select class="form-control form-control-sm" id="returnbatchno" name="returnbatchno" required>
+								<option value="">Select</option>
+							</select>
+						</div>
+						<div class="col">
+							<label class="small font-weight-bold text-dark">Unit Price</label>
+							<input class="form-control form-control-sm" id="returnunitprice" name="returnunitprice" readonly>
+						</div>
+						<div class="col">
+							<label class="small font-weight-bold text-dark">Issue Qty</label>
+							<input class="form-control form-control-sm" id="returnissueqty" name="returnissueqty" readonly>
+						</div>
+						<div class="col">
+							<label class="small font-weight-bold text-dark">Qty</label>
+							<input class="form-control form-control-sm" id="returnqty" name="returnqty" required>
+						</div>
+					</div>
+					<?php if($addcheck==1){ ?>
+					<div class="form-row">
+						<div class="col text-right">
+							<hr>
+							<button type="button" id="btnreturnsubmit" class="btn btn-primary btn-sm">Create return</button>
+						</div>
+					</div>
+					<?php } ?>
+					<input type="submit" class="d-none" id="hidereturnsubmit">
+					<input type="reset" class="d-none" id="hidereturnreset">
+					<input type="hidden" name="returnjobcardid" id="returnjobcardid" value="">
+				</form>
+				<hr>
+				<div class="scrollbar pb-3" id="style-2">
+					<table class="table table-striped table-bordered table-sm small w-100 nowrap" id="dataTableReturn">
+						<thead>
+							<tr>
+								<th>Date</th>
+								<th>Job Card No</th>
+								<th>Section</th>
+								<th>Material</th>
+								<th>Batch No</th>
+								<th>Qty</th>
+								<th>Status</th>
+								<th class="text-right">Action</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 <?php include "include/footerscripts.php"; ?>
 <script>
 $(document).ready(function () {
@@ -337,6 +422,9 @@ $(document).ready(function () {
 				"render": function (data, type, full) {
 					var button = '';
 
+					if(addcheck == 1){
+						button+='<button type="button" class="btn btn-warning btn-sm btnReturn mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="Return Material"><i class="fas fa-undo"></i></button>';
+					}
 					button+='<button type="button" class="btn btn-primary btn-sm btnBatchAllocation mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="Batch Allocation"><i class="fas fa-tasks"></i></button>';
 					button+='<button type="button" class="btn btn-dark btn-sm btnView mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="View & Issue" data-approvestatus="'+full['approvestatus']+'" data-issuematerialstatus="'+full['issuematerialstatus']+'"><i class="fas fa-eye"></i></button>';
 					button+='<button type="button" class="btn btn-orange btn-sm btnListIssue mr-1" id="'+full['idtbl_jobcard']+'" data-toggle="tooltip" title="Issue note" data-approvestatus="'+full['approvestatus']+'"><i class="fas fa-file"></i></button>';
@@ -851,6 +939,379 @@ $(document).ready(function () {
 			});
 		}
 	});
+
+	$('#dataTable tbody').on('click', '.btnReturn', async function() {
+		var id = $(this).attr('id');
+		$('#returnjobcardid').val(id);
+
+		Swal.fire({
+			title: '',
+			html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+			allowOutsideClick: false,
+			showConfirmButton: false, // Hide the OK button
+			backdrop: `
+				rgba(255, 255, 255, 0.5) 
+			`,
+			customClass: {
+				popup: 'fullscreen-swal'
+			},
+			didOpen: () => {
+				document.body.style.overflow = 'hidden';
+
+				$.ajax({
+					type: "POST",
+					data: {
+						recordID: id
+					},
+					url: '<?php echo base_url() ?>Jobcardissuematerial/Getjobcardreturndata',
+					success: function(result) {
+						Swal.close();
+						document.body.style.overflow = 'auto';
+
+						var obj = JSON.parse(result);
+						var html = '';
+						html += '<option value="">Select</option>';
+						$.each(obj, function (i, item) {
+							html += '<option value="' + obj[i].sectiontype + '">';
+							html += obj[i].section_name;
+							html += '</option>';
+						});
+						$('#returnsectiontype').empty().append(html);
+						getReturnInfo(id, deletecheck, accountcheck);
+						$('#modalJobcardIssueReturn').modal('show');
+					},
+					error: function(error) {
+						// Close the SweetAlert on error
+						Swal.close();
+						document.body.style.overflow = 'auto';
+						
+						// Show an error alert
+						Swal.fire({
+							icon: 'error',
+							title: 'Error',
+							text: 'Something went wrong. Please try again later.'
+						});
+					}
+				});
+			}
+		});
+	});
+
+	$('#returnsectiontype').change(function(){
+		var section = $(this).val();
+		var jobcardID = $('#returnjobcardid').val();
+
+		$.ajax({
+			url: "<?php echo base_url('Jobcardissuematerial/Getmaterialaccosectiontype'); ?>",
+			method: "POST",
+			data: {
+				sectiontype: section,
+				jobcardID: jobcardID
+			},
+			dataType: "json",
+			success: function(result) {
+				var html = '<option value="">Select</option>';
+				$.each(result, function (i, item) {
+					html += '<option value="' + item.idtbl_print_material_info + '">';
+					html += item.materialname;
+					html += '</option>';
+				});
+				$('#returnmaterial').empty().append(html);
+			}
+		});
+	});
+
+	$('#returnmaterial').change(function(){
+		var returnmaterialID = $(this).val();
+		var jobcardID = $('#returnjobcardid').val();
+
+		$.ajax({
+			url: "<?php echo base_url('Jobcardissuematerial/Getbatchnoaccomaterial'); ?>",
+			method: "POST",
+			data: {
+				returnmaterialID: returnmaterialID,
+				jobcardID: jobcardID
+			},
+			dataType: "json",
+			success: function(result) {				
+				var html = '<option value="">Select</option>';
+				$.each(result, function (i, item) {
+					html += '<option value="' + item.batchno + '" data-unitprice="' + item.unitprice + '" data-issueqty="' + item.issueqty + '">';
+					html += item.batchno;
+					html += '</option>';
+				});
+				$('#returnbatchno').empty().append(html);
+			}
+		});
+	});
+
+	$('#returnbatchno').change(function(){
+		var unitprice = $(this).find(':selected').data('unitprice');
+		var issueqty = $(this).find(':selected').data('issueqty');
+
+		$('#returnunitprice').val(unitprice);
+		$('#returnissueqty').val(issueqty);
+	});
+
+	$('#btnreturnsubmit').click(function(){
+		$('#btnreturnsubmit').prop('disabled', true);
+		if (!$("#formreturnnote")[0].checkValidity()) {
+			// If the form is invalid, submit it. The form won't actually submit;
+			// this will just cause the browser to display the native HTML5 error messages.
+			$("#hidereturnsubmit").click();
+		} else {
+			var formData = new FormData($('#formreturnnote')[0]);
+			
+			Swal.fire({
+				title: '',
+				html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+				allowOutsideClick: false,
+				showConfirmButton: false, // Hide the OK button
+				backdrop: `
+					rgba(255, 255, 255, 0.5) 
+				`,
+				customClass: {
+					popup: 'fullscreen-swal'
+				},
+				didOpen: () => {
+					document.body.style.overflow = 'hidden';
+
+					$.ajax({
+						type: "POST",
+						data: formData,
+						processData: false,
+    					contentType: false,
+						url: '<?php echo base_url() ?>Jobcardissuematerial/Jobcardreturninsertupdate',
+						success: function(result) {
+							Swal.close();
+							document.body.style.overflow = 'auto';
+
+							var obj = JSON.parse(result);
+							if(obj.status==1){
+								action(obj.action);
+								$('#dataTableReturn').DataTable().ajax.reload( null, false );
+								$('#hidereturnreset').click();
+								$('#btnreturnsubmit').prop('disabled', false);
+							}
+							else{
+								action(obj.action);
+								$('#btnreturnsubmit').prop('disabled', false);
+							}
+
+							var objfirst = JSON.parse(result);
+						},
+						error: function(error) {
+							$('#btnreturnsubmit').prop('disabled', false);
+							// Close the SweetAlert on error
+							Swal.close();
+							document.body.style.overflow = 'auto';
+							
+							// Show an error alert
+							Swal.fire({
+								icon: 'error',
+								title: 'Error',
+								text: 'Something went wrong. Please try again later.'
+							});
+						}
+					});
+				}
+			});
+		}
+	});
+
+	$('#dataTableReturn tbody').on('click', '.btnReturnApprove', async function() {
+		var id = $(this).attr('id');
+
+		Swal.fire({
+            title: "Do you want to approve this inqury?",
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: "Approve",
+            denyButtonText: `Reject`
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var confirmnot = 1;
+                approvejob(id, confirmnot);
+            } else if (result.isDenied) {
+                var confirmnot = 2;
+                approvejob(id, confirmnot);
+            } 
+        });
+	});
 });
+
+$(document).on("click", ".btntableactionnoreload", async function () {
+    var url = '<?php echo base_url() ?>'+$(this).attr("data-url");
+    var actiontype = $(this).attr("data-actiontype");
+    var datareturn = await noReloadAjaxControl(url, actiontype);
+    var tableId = $(this).closest("table").attr("id");
+
+    var obj = JSON.parse(datareturn);
+    if(obj.status==1){
+        $('#'+tableId).DataTable().ajax.reload( null, false );
+    }
+
+    action(obj.action);
+});
+
+function getReturnInfo(jobcardID, deletecheck, accountcheck){
+	$('#dataTableReturn').DataTable({
+		"destroy": true,
+		"processing": true,
+		"serverSide": true,
+		dom: "<'row'<'col-sm-5'B><'col-sm-2'l><'col-sm-5'f>>" + "<'row'<'col-sm-12'tr>>" +
+			"<'row'<'col-sm-5'i><'col-sm-7'p>>",
+		responsive: true,
+		lengthMenu: [
+			[10, 25, 50, -1],
+			[10, 25, 50, 'All'],
+		],
+		"buttons": [{
+				extend: 'csv',
+				className: 'btn btn-success btn-sm',
+				title: 'Approved Customer Inquiry  Information',
+				text: '<i class="fas fa-file-csv mr-2"></i> CSV',
+			},
+			{
+				extend: 'pdf',
+				className: 'btn btn-danger btn-sm',
+				title: 'Approved Customer Inquiry  Information',
+				text: '<i class="fas fa-file-pdf mr-2"></i> PDF',
+			},
+			{
+				extend: 'print',
+				title: 'Approved Customer Inquiry  Information',
+				className: 'btn btn-primary btn-sm',
+				text: '<i class="fas fa-print mr-2"></i> Print',
+				customize: function (win) {
+					$(win.document.body).find('table')
+						.addClass('compact')
+						.css('font-size', 'inherit');
+				},
+			},
+			// 'copy', 'csv', 'excel', 'pdf', 'print'
+		],
+
+		ajax: {
+			url: "<?php echo base_url() ?>scripts/jobcardreturnlist.php",
+			type: "POST", // you can use GET
+			data: {
+				jobcardID : jobcardID
+			}
+		},
+		"order": [
+			[0, "desc"]
+		],
+		"columns": [
+			{
+				"data": "returndate"
+			},
+			{
+				"data": "jobcardno"
+			},
+			{
+				"data": "section_name"
+			},
+			{
+				"data": "materialname"
+			},
+			{
+				"data": "batchno"
+			},
+			{
+				"data": "returnqty"
+			},
+			{
+				"targets": -1,
+				"className": 'text-right',
+				"data": null,
+				"render": function (data, type, full) {
+					if(full['approvedstatus'] == 0){
+						return 'Pending';
+					}
+					else if(full['approvedstatus'] == 1){
+						return 'Approved';
+					}
+					else if(full['approvedstatus'] == 2){
+						return 'Rejected';
+					}
+				}
+			},
+			{
+				"targets": -1,
+				"className": 'text-right',
+				"data": null,
+				"render": function (data, type, full) {
+					var button = '';
+
+					if(accountcheck == 1 && full['approvedstatus'] == 0){
+						button+='<button type="button" id="'+full['idtbl_jobcard_return_material']+'" data-toggle="tooltip" title="Approve Return" class="btn btn-success btn-sm text-light btnReturnApprove mr-1"><i class="fas fa-check"></i></button>';
+					}
+					if(full['approvedstatus'] == 0 && deletecheck == 1){
+						button+='<button type="button" data-url="Jobcardissuematerial/Jobcardissuematerialreturnstatus/'+full['idtbl_jobcard_return_material']+'/3" data-toggle="tooltip" title="Delete" data-actiontype="3" class="btn btn-danger btn-sm text-light btntableactionnoreload"><i class="fas fa-trash"></i></button>';
+					}
+					
+					return button;
+				}
+			}
+		],
+		drawCallback: function (settings) {
+			$('[data-toggle="tooltip"]').tooltip();
+		}
+	});
+}
+
+function approvejob(id, confirmnot){
+	Swal.fire({
+		title: '',
+		html: '<div class="div-spinner"><div class="custom-loader"></div></div>',
+		allowOutsideClick: false,
+		showConfirmButton: false, // Hide the OK button
+		backdrop: `
+			rgba(255, 255, 255, 0.5) 
+		`,
+		customClass: {
+			popup: 'fullscreen-swal'
+		},
+		didOpen: () => {
+			document.body.style.overflow = 'hidden';
+
+			$.ajax({
+				type: "POST",
+				data: {
+					recordID: id,
+					confirmnot: confirmnot
+				},
+				url: '<?php echo base_url() ?>Jobcardissuematerial/Approvejobcardreturnmaterial',
+				success: function(result) {
+					Swal.close();
+					document.body.style.overflow = 'auto';
+
+					var obj = JSON.parse(result);
+							
+					if(obj.status==1){
+						$('#dataTableReturn').DataTable().ajax.reload( null, false );
+						actionre(obj.action);
+					}
+					else{
+						action(obj.action);
+					}
+				},
+				error: function(error) {
+					// Close the SweetAlert on error
+					Swal.close();
+					document.body.style.overflow = 'auto';
+					
+					// Show an error alert
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: 'Something went wrong. Please try again later.'
+					});
+				}
+			});
+		}
+	});
+}
 </script>
 <?php include "include/footer.php"; ?>
