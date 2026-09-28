@@ -1183,47 +1183,49 @@ class MaterialallocationManualinfo extends CI_Model{
         if($type==3){
             $this->db->trans_begin();
 
-            // Jobcard Delete Process
-            $data = array(
-                'status' => '3',
-                'tbl_user_idtbl_user'=> $userID, 
-                'updatedatetime'=> $updatedatetime
-            );
+            try {
+                // Jobcard Delete Process
+                $data = array(
+                    'status' => '3',
+                    'tbl_user_idtbl_user'=> $userID, 
+                    'updatedatetime'=> $updatedatetime
+                );
 
-            // Jobcard Material Delete Process
-            $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
-            $this->db->update('tbl_jobcard_material', $data);
+                // Jobcard Material Delete Process
+                $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
+                $this->db->update('tbl_jobcard_material', $data);
 
-            // Jobcard Varnish Delete Process
-            $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
-            $this->db->update('tbl_jobcard_varnish', $data);
+                // Jobcard Varnish Delete Process
+                $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
+                $this->db->update('tbl_jobcard_varnish', $data);
 
-            // Jobcard Lamination Delete Process
-            $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
-            $this->db->update('tbl_jobcard_lamination', $data);
+                // Jobcard Lamination Delete Process
+                $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
+                $this->db->update('tbl_jobcard_lamination', $data);
 
-            // Jobcard Rimming Delete Process
-            $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
-            $this->db->update('tbl_jobcard_rimming', $data);
+                // Jobcard Rimming Delete Process
+                $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
+                $this->db->update('tbl_jobcard_rimming', $data);
 
-            $data2 = array(
-                'status' => '3',
-                'updateuser'=> $userID, 
-                'updatedatetime'=> $updatedatetime
-            );
-            
-            $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
-            $this->db->update('tbl_jobcard_color', $data2);
-
-            // Jobcard Issue Material Delete Process
-            $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
-            $this->db->update('tbl_jobcard_issue_meterial', $data2);
-
-            $this->db->trans_complete();
-
-            if ($this->db->trans_status() === TRUE) {
-                $this->db->trans_commit();
+                $data2 = array(
+                    'status' => '3',
+                    'updateuser'=> $userID, 
+                    'updatedatetime'=> $updatedatetime
+                );
                 
+                $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
+                $this->db->update('tbl_jobcard_color', $data2);
+
+                // Jobcard Issue Material Delete Process
+                $this->db->where('tbl_jobcard_manual_issue_idtbl_jobcard_manual_issue', $recordmanualID);
+                $this->db->update('tbl_jobcard_issue_meterial', $data2);
+
+                if ($this->db->trans_status() === FALSE) {
+                    throw new Exception('Transaction failed during update.');
+                }
+
+                $this->db->trans_commit();
+
                 $actionObj=new stdClass();
                 $actionObj->icon='fas fa-trash-alt';
                 $actionObj->title='';
@@ -1235,9 +1237,12 @@ class MaterialallocationManualinfo extends CI_Model{
                 $actionJSON=json_encode($actionObj);
                 
                 $this->session->set_flashdata('msg', $actionJSON);
-                redirect('MaterialAllocationManual');                
-            } else {
+                redirect('MaterialAllocationManual');
+
+            } catch (Exception $e) {
                 $this->db->trans_rollback();
+
+                log_message('error', 'Jobcardstatus error: ' . $e->getMessage());
 
                 $actionObj=new stdClass();
                 $actionObj->icon='fas fa-warning';

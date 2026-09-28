@@ -40,4 +40,22 @@ class Jobcardissuematerial extends CI_Controller {
     public function Approveissuenote(){
         $result=$this->Jobcardissuematerialinfo->Approveissuenote();
 	}
+    public function Getjobcardreturndata(){
+        $result=$this->Jobcardissuematerialinfo->Getjobcardreturndata();
+	}
+    public function Getmaterialaccosectiontype(){
+        $result=$this->Jobcardissuematerialinfo->Getmaterialaccosectiontype();
+    }
+    public function Getbatchnoaccomaterial(){
+        $result=$this->Jobcardissuematerialinfo->Getbatchnoaccomaterial();
+    }
+    public function Jobcardreturninsertupdate(){
+        $result=$this->Jobcardissuematerialinfo->Jobcardreturninsertupdate();
+    }
+    public function Jobcardissuematerialreturnstatus($x, $y){
+        $result=$this->Jobcardissuematerialinfo->Jobcardissuematerialreturnstatus($x, $y);
+    }
+    public function Approvejobcardreturnmaterial(){
+        $result=$this->Jobcardissuematerialinfo->Approvejobcardreturnmaterial();
+    }
 }
