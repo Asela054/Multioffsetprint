@@ -25,7 +25,7 @@ include "include/topnavbar.php";
                         <div class="row">
                             <div class="col-12 text-right">
                                 <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-                                    data-target="#staticBackdrop" onclick="getVat();"
+                                    data-target="#staticBackdrop" onclick="loadVat();"
                                     <?php if($addcheck==0){echo 'disabled';} ?>><i class="fas fa-plus mr-2"></i>Create
                                     Good Receive Return Note</button>
                                 <hr>
@@ -235,7 +235,7 @@ include "include/topnavbar.php";
                             <div class="col-6">
                                 <label class="small font-weight-bold text-dark">Vat (%)*</label>
                                 <input type="number" id="vat" name="vat" class="form-control form-control-sm" value="0"
-                                    onkeyup="finaltotalcalculate();" required>
+                                    onkeyup="finaltotalcalculate();" readonly required>
                             </div>
                             <div class="col-6">
                                 <label class="small font-weight-bold text-dark"><b>Total Payment</b></label>
@@ -373,6 +373,11 @@ $(document).ready(function() {
         ajax: {
             url: "<?php echo base_url() ?>scripts/goodreceivereturnlist.php",
             type: "POST",
+            "data": function(d) {
+                return $.extend({}, d, {
+                    "company_id": '<?php echo ($_SESSION['company_id']); ?>',
+                });
+            }
         },
         "order": [
             [0, "desc"]
@@ -494,8 +499,7 @@ $(document).ready(function() {
                 var obj = JSON.parse(result);
                 var html1 = '<option value="">Select</option>';
                 $.each(obj, function(i, item) {
-                    html1 += '<option value="' + obj[i].idtbl_print_grn + '">' +
-                        'GRN000' + obj[i].idtbl_print_grn + '</option>';
+                    html1 += '<option value="' + obj[i].idtbl_print_grn + '">' + obj[i].grn_no + '</option>';
                 });
                 $('#grn_no').empty().append(html1);
             }
@@ -752,6 +756,19 @@ $(document).ready(function() {
         });
     });
 });
+
+// VAT comes from the server: 18% (tbl_tax_control) for company_id 1 only, 0 for all others
+function loadVat() {
+    $.ajax({
+        type: "POST",
+        url: 'Goodreceivereturn/Getvat',
+        success: function(result) {
+            var obj = JSON.parse(result);
+            $('#vat').val(obj.vat);
+            finaltotalcalculate();
+        }
+    });
+}
 
 function deactive_confirm() {
     return confirm("Are you sure you want to deactive this?");
