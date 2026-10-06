@@ -14,6 +14,7 @@ class Goodreceiverequest extends CI_Controller {
 		$result['servicetypelist']=$this->Goodreceiverequestinfo->Getservicetype();
 		$result['locationlist']=$this->Goodreceiverequestinfo->Getlocation();
 		$result['measurelist']=$this->Goodreceiverequestinfo->Getmeasuretype();
+		$result['machinelist']=$this->Goodreceiverequestinfo->Getmachinelist();
 		$this->load->view('goodreceiverequest',$result);
 	}
    
