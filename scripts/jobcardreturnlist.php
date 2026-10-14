@@ -14,7 +14,7 @@ $CI->load->library('session');
  * See http://datatables.net/usage/server-side for full details on the server-
  * side processing requirements of DataTables.
  *
- * @license MIT - http://datatables.net/license_mit
+ * @license MIT - http://datatables.net/license_mitk
  */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
