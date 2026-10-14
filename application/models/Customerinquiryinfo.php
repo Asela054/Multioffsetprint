@@ -507,6 +507,7 @@ class Customerinquiryinfo extends CI_Model{
             $this->db->join('tbl_print_dispatch', 'tbl_print_dispatch.idtbl_print_dispatch = tbl_print_invoicedetail.tbl_print_dispatch_idtbl_print_dispatch');
             $this->db->where('tbl_print_dispatch.tbl_customerinquiry_idtbl_customerinquiry', $hiddenID);
             $this->db->where('tbl_print_invoice.approvestatus', 0);
+            $this->db->where('tbl_print_invoice.status', 1);
             $respondunconfirminvoice = $this->db->get();
 
             $unconfirmedCount = $respondunconfirminvoice->row()->count;
