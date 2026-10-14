@@ -28,7 +28,7 @@ class Apiinfo extends CI_Model{
                         'supinvno' => $row->supinvno,
                         'grndate' => $row->expdate,
                         'amount' => str_replace(",", "", (!empty($row->amount) ? $row->amount : $row->invamount)),
-                        'invamount' => str_replace(",", "", $row->invamount),
+                        'invamount' => str_replace(",", "", (!empty($row->amount) ? $row->amount : $row->invamount)),
                         'status' => '1',
                         'insertdatetime' => $updatedatetime,
                         'tbl_user_idtbl_user' => $userID,

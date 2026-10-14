@@ -1851,7 +1851,7 @@ class Jobcardissuematerialinfo extends CI_Model {
                     else if($companyID == 3){$supplierbypartyID = 81;}
                     else{$supplierbypartyID = 0;} 
 
-                    $suppliersArray = array_filter(array_unique(explode(',', $respond->row(0)->suppliers)));
+                    $suppliersArray = array_filter(array_unique(explode(',', $respondreturn->row(0)->suppliers)));
                     $isSupplierPartyOnly = (count($suppliersArray) === 1 && intval(reset($suppliersArray)) === $supplierbypartyID);
 
                     if(!$isSupplierPartyOnly){
