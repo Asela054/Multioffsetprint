@@ -8,6 +8,14 @@ class Goodreceiverequestinfo extends CI_Model{
 		return $respond=$this->db->get();
 	}
 
+    public function Getmachinelist() {
+		$this->db->select('`idtbl_machine`, `machine`');
+		$this->db->from('tbl_machine');
+		$this->db->where('status', 1);
+
+		return $respond=$this->db->get();
+	}
+
     public function Getemployee(){
         $comapnyID=$_SESSION['company_id'];
 
@@ -116,6 +124,7 @@ class Goodreceiverequestinfo extends CI_Model{
         $employee=$this->input->post('employee');
         $reason=$this->input->post('reason');
         $ordertype=$this->input->post('ordertype');
+        $machine=$this->input->post('machine');
 
         $updatedatetime=date('Y-m-d H:i:s');
 
@@ -126,7 +135,8 @@ class Goodreceiverequestinfo extends CI_Model{
             'status'=> '1', 
             'insertdatetime'=> $updatedatetime, 
             'tbl_user_idtbl_user'=> $userID,
-            'tbl_material_group_idtbl_material_group'=> $ordertype
+            'tbl_material_group_idtbl_material_group'=> $ordertype,
+            'tbl_machine_idtbl_machine'=> $machine
             
         );
 
@@ -194,58 +204,104 @@ class Goodreceiverequestinfo extends CI_Model{
             echo json_encode($obj);
         }
     }
-    public function Grnorderview(){
-        $recordID=$this->input->post('recordID');
+    public function Grnorderview()
+    {
+        $recordID = $this->input->post('recordID');
 
-        $sql="SELECT `u`.*, `ua`.`location` AS `locemail`,  `ub`.`emp_id` AS `empid`,  `ub`.`emp_name_with_initial` AS `employeename`, `uc`.`type` AS `ordertype` FROM `tbl_grn_req` AS `u` LEFT JOIN `tbl_location` AS `ua` ON (`ua`.`idtbl_location` = `u`.`company_id`)  LEFT JOIN `employees` AS `ub` ON (`ub`.`id` = `u`.`employee_id`)  LEFT JOIN `tbl_order_type` AS `uc` ON (`uc`.`idtbl_order_type` = `u`.`tbl_material_group_idtbl_material_group`)WHERE `u`.`status`=? AND `u`.`idtbl_grn_req`=?";
-        $respond=$this->db->query($sql, array(1, $recordID));
+        $sql = "SELECT `u`.*, 
+                    `ua`.`location` AS `locemail`,
+                    `ub`.`emp_id` AS `empid`,
+                    `ub`.`emp_name_with_initial` AS `employeename`,
+                    `uc`.`type` AS `ordertype`
+                FROM `tbl_grn_req` AS `u`
+                LEFT JOIN `tbl_location` AS `ua` ON (`ua`.`idtbl_location` = `u`.`company_id`)
+                LEFT JOIN `employees` AS `ub` ON (`ub`.`id` = `u`.`employee_id`)
+                LEFT JOIN `tbl_order_type` AS `uc` ON (`uc`.`idtbl_order_type` = `u`.`tbl_material_group_idtbl_material_group`)
+                WHERE `u`.`status` = ? AND `u`.`idtbl_grn_req` = ?";
+        $respond = $this->db->query($sql, array(1, $recordID));
 
-        $this->db->select('tbl_grn_req_detail.*,tbl_grn_req.tbl_material_group_idtbl_material_group, tbl_print_material_info.materialinfocode, tbl_print_material_info.materialname, tbl_measurements.measure_type');
+        if ($respond->num_rows() == 0) {
+            echo '<div class="alert alert-warning mb-0">GRN request not found.</div>';
+            return;
+        }
+        $header = $respond->row(0);
+
+        $this->db->select('tbl_grn_req_detail.*, tbl_machine.idtbl_machine, tbl_machine.machine, tbl_print_material_info.materialinfocode, tbl_print_material_info.materialname, tbl_measurements.measure_type');
         $this->db->from('tbl_grn_req_detail');
         $this->db->join('tbl_print_material_info', 'tbl_print_material_info.idtbl_print_material_info = tbl_grn_req_detail.tbl_material_id', 'left');
         $this->db->join('tbl_grn_req', 'tbl_grn_req.idtbl_grn_req = tbl_grn_req_detail.tbl_grn_req_idtbl_grn_req', 'left');
+        $this->db->join('tbl_machine', 'tbl_machine.idtbl_machine = tbl_grn_req.tbl_machine_idtbl_machine', 'left');
         $this->db->join('tbl_measurements', 'tbl_measurements.idtbl_mesurements = tbl_grn_req_detail.tbl_measurements_id', 'left');
         $this->db->where('tbl_grn_req_detail.tbl_grn_req_idtbl_grn_req', $recordID);
         $this->db->where('tbl_grn_req_detail.status', 1);
+        $responddetail = $this->db->get();
 
-        $responddetail=$this->db->get();
+        $machineId   = (int) $header->tbl_machine_idtbl_machine;
+        $machineName = '';
+        if ($machineId !== 0 && $responddetail->num_rows() > 0) {
+            $machineName = $responddetail->row(0)->machine;
+        }
 
-        $html='';
-        $html.='
-        <div class="row">
-        
-        <div class="col-12 text-right"></div>
-            <div class="col-12 text-left">
-                <h6>Company : '.$respond->row(0)->locemail.'</h6>
-                <h6>Employee : '.$respond->row(0)->employeename. '-'.$respond->row(0)->empid.'</h6>
-                <h6>Order Type : '.$respond->row(0)->ordertype.'</h6>
-            </div>
-            
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <hr>
-                <table class="table table-striped table-bordered table-sm">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>UOM</th>
-                            <th class="text-center">Qty</th>
-                        </tr>
-                    </thead>
-                    <tbody>';
-                    foreach($responddetail->result() as $roworderinfo){
-                            $html.='<tr>
-                            <td>'.$roworderinfo->materialname.' / '.$roworderinfo->materialinfocode.'</td>
-                            <td>'.$roworderinfo->measure_type.'</td>
-                            <td class="text-center">'.$roworderinfo->qty.'</td>
+        $info = array(
+            'Company'    => $header->locemail,
+            'Employee'   => $header->employeename . ' - ' . $header->empid,
+            'Order Type' => $header->ordertype,
+        );
+        if ($machineId !== 0 && $machineName !== '') {
+            $info['Machine'] = $machineName;
+        }
+
+        $html = '<div class="card border-0 mb-3">
+                    <div class="card-body p-3 bg-light rounded">
+                        <div class="row">';
+        foreach ($info as $label => $value) {
+            $html .= '<div class="col-md-6 mb-2">
+                        <small class="text-muted text-uppercase d-block">' . $label . '</small>
+                        <span class="font-weight-bold">' . html_escape($value) . '</span>
+                    </div>';
+        }
+        $html .= '  </div>
+                    </div>
+                </div>';
+
+        $html .= '<div class="table-responsive">
+                    <table class="table table-sm table-bordered table-hover mb-0">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th class="text-center" style="width:50px;">#</th>
+                                <th>Item</th>
+                                <th style="width:120px;">UOM</th>
+                                <th class="text-right" style="width:100px;">Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>';
+
+        if ($responddetail->num_rows() > 0) {
+            $i = 1;
+            $totalQty = 0;
+            foreach ($responddetail->result() as $row) {
+                $totalQty += (float) $row->qty;
+                $html .= '<tr>
+                            <td class="text-center">' . $i++ . '</td>
+                            <td>' . html_escape($row->materialname) . '
+                                <small class="text-muted d-block">' . html_escape($row->materialinfocode) . '</small>
+                            </td>
+                            <td>' . html_escape($row->measure_type) . '</td>
+                            <td class="text-right">' . html_escape($row->qty) . '</td>
                         </tr>';
-                    }
-                    $html.='</tbody>
-                </table>
-            </div>
-        </div>
-        ';
+            }
+            $html .= '</tbody>
+                    <tfoot>
+                        <tr class="font-weight-bold bg-light">
+                            <td colspan="3" class="text-right">Total</td>
+                            <td class="text-right">' . $totalQty . '</td>
+                        </tr>
+                    </tfoot>';
+        } else {
+            $html .= '<tr><td colspan="4" class="text-center text-muted">No items found</td></tr></tbody>';
+        }
+
+        $html .= '</table></div>';
 
         echo $html;
     }

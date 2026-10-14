@@ -61,12 +61,26 @@ include "include/topnavbar.php";
 									</div>
 									<div class="form-row mb-1">
 										<div class="col">
+											<label class="small font-weight-bold text-dark">Machine</label>
+											<select class="form-control form-control-sm" name="machine" id="machine"
+												required>
+												<option value="">Select</option>
+												<?php foreach($machinelist->result() as $rowmachinelist){ ?>
+												<option value="<?php echo $rowmachinelist->idtbl_machine ?>">
+													<?php echo $rowmachinelist->machine ?></option>
+												<?php } ?>
+											</select>
+										</div>
+										<div class="col">
 											<label class="small font-weight-bold text-dark">Item*</label>
 											<select class="form-control form-control-sm" name="product"
 												id="product">
 												<option value="">Select</option>
 											</select>
 										</div>
+									</div>
+
+									<div class="form-row mb-1">
 										<div class="col">
 											<label class="small font-weight-bold text-dark">UOM*</label>
 											<select class="form-control form-control-sm" name="uom" id="uom"
@@ -78,9 +92,6 @@ include "include/topnavbar.php";
 												<?php } ?>
 											</select>
 										</div>
-									</div>
-
-									<div class="form-row mb-1">
 										<div class="col" id="newQtyFields" style="display: none;">
 											<label class="small font-weight-bold text-dark">Qty*</label>
 											<input type="text" id="newqty" name="newqty"
@@ -179,10 +190,10 @@ include "include/topnavbar.php";
 
 					<div id="viewhtml"></div>
 				</div>
-				<div class="modal-footer">
+				<!-- <div class="modal-footer">
 					<button type="button" id="printporder" class="btn btn-outline-primary btn-sm fa-pull-right"
 						<?php if($addcheck==0){echo 'disabled';} ?>><i class="far fa-save"></i>&nbsp;Print Internal Item Request</button>
-				</div>
+				</div> -->
 			</div>
 		</div>
 	</div>
@@ -448,6 +459,7 @@ include "include/topnavbar.php";
 					var reason = $('#reason').val();
 					var company = $('#company').val();
 					var ordertype = $('#ordertype').val();
+					var machine = $('#machine').val();
 
 					Swal.fire({
 						title: "",
@@ -467,6 +479,7 @@ include "include/topnavbar.php";
 									tableData: jsonObj,
 									employee: employee,
 									ordertype: ordertype,
+									machine: machine,
 									reason: reason,
 									company: company,
 

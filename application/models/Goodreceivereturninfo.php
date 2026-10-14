@@ -16,7 +16,7 @@ public function Getgrnaccsupllier() {
 	$companyID = $_SESSION['company_id'];
 	$branchID  = $_SESSION['branch_id'];
 
-	$this->db->select('idtbl_print_grn');
+	$this->db->select('idtbl_print_grn, grn_no');
 	$this->db->from('tbl_print_grn');
 	$this->db->where('status', 1);
 	$this->db->where('approvestatus', 1);
@@ -111,6 +111,40 @@ public function Getproductdetails(){
 	echo json_encode($obj);
 }
 
+private function _getVatRate() {
+	$companyID = $_SESSION['company_id'];
+	$vat = 0;
+
+	$vatCompanies = array(1, 2);
+
+	if (in_array((int)$companyID, $vatCompanies, true)) {
+		$vat   = 18; 
+		$today = date('Y-m-d');
+
+		$this->db->select('percentage');
+		$this->db->from('tbl_tax_control');
+		$this->db->where('status', 1);
+		$this->db->where('effective_from <=', $today);
+		$this->db->group_start();
+			$this->db->where('effective_to >=', $today);
+			$this->db->or_where('effective_to IS NULL', null, false);
+		$this->db->group_end();
+		$this->db->order_by('effective_from', 'DESC');
+		$this->db->limit(1);
+		$res = $this->db->get();
+
+		if ($res->num_rows() > 0) {
+			$vat = (float)$res->row(0)->percentage;
+		}
+	}
+
+	return $vat;
+}
+
+public function Getvat() {
+	echo json_encode(array('vat' => $this->_getVatRate()));
+}
+
 public function Goodreceivereturninsertupdate() {
     $this->db->trans_begin();
 
@@ -126,9 +160,11 @@ public function Goodreceivereturninsertupdate() {
 	$batchNo      = $this->input->post('batchNo');
 	$discount     = $this->input->post('discount');
 	$subTotal     = $this->input->post('subTotal');
-	$vat          = $this->input->post('vat');
-	$totalPayment = $this->input->post('totalPayment');
 	$remark       = $this->input->post('remark');
+
+	// VAT is decided on the server (company_id 1 only) - the browser value is ignored
+	$vat          = $this->_getVatRate();
+	$totalPayment = round($subTotal + ($subTotal / 100) * $vat, 2);
 
     $updatedatetime = date('Y-m-d H:i:s');
 

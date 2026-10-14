@@ -61,10 +61,11 @@ $sql_details = array(
 
 // require( 'ssp.class.php' );
 require('ssp.customized.class.php' );
+$companyID = $_POST['company_id'];
 
 $joinQuery = "FROM `tbl_print_grn_return` AS `u` LEFT JOIN `tbl_supplier` AS `ua` ON (`ua`.`idtbl_supplier` = `u`.`tbl_supplier_idtbl_supplier`) LEFT JOIN `tbl_material_group` AS `ub` ON (`ub`.`idtbl_material_group` = `u`.`grn_type`)";
 
-$extraWhere = "`u`.`status` IN (1,2)";
+$extraWhere = "`u`.`status` IN (1,2) AND `u`.`tbl_company_idtbl_company`='$companyID'";
 
 echo json_encode(
 	SSP::simple( $_POST, $sql_details, $table, $primaryKey, $columns, $joinQuery, $extraWhere)

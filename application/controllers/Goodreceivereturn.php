@@ -34,6 +34,11 @@ class Goodreceivereturn extends CI_Controller {
         $this->Goodreceivereturninfo->Getproductdetails();
     }
 
+    public function Getvat(){
+        $this->load->model('Goodreceivereturninfo');
+        $this->Goodreceivereturninfo->Getvat();
+    }
+
     public function Goodreceivereturninsertupdate(){
         $this->load->model('Goodreceivereturninfo');
         $this->Goodreceivereturninfo->Goodreceivereturninsertupdate();
